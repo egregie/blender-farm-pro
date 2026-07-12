@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+logs/
+verification_failures.log
+
+# Blender output is regenerable/deterministic (unlike the committed Gemini
+# reference renders in 01_input_raster/) — no need to version it.
+02_processing/blender_test_renders/
+02_processing/render_failed/
+02_processing/failed_logs/

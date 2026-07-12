@@ -1,0 +1,77 @@
+# ════════════════════════════════════════════════════════════════════════════
+#  Blender Farm Pro — central configuration
+#  Forked from PharmaGen PRO (feature/blender-renderer-experiment). Paths below
+#  are remapped onto this fork's numbered folder structure (00_.../01_.../...);
+#  everything else (Stage logic, routing, verification, RPA/Blender engines) is
+#  unchanged from the source project. See 00_PROJECT_STATE/CURRENT_STATE.md for
+#  the fork rationale and 00_governance/DECISIONS/ for the original ADRs.
+#  All paths are relative to the project root (the folder containing main.py)
+#  unless given as an absolute path. Anything omitted falls back to the built-in
+#  defaults in src/utils.py — NOTE: those built-in defaults still point at the
+#  ORIGINAL PharmaGen PRO paths (SSOT/, pipeline/, render_output/, output/), not
+#  this fork's numbered folders. This config.yaml is therefore REQUIRED here
+#  (not optional as in the source project) — do not delete it.
+# ════════════════════════════════════════════════════════════════════════════
+
+paths:
+  # ── Single Source of Truth (SSOT) — remapped to 03_knowledge_graph/ ─────────
+  ssot_sku_csv:        "03_knowledge_graph/SKU.csv"
+  ssot_master_json:    "03_knowledge_graph/master.json"
+  ssot_design_specs:   "03_knowledge_graph/master_pharma_design_specs.json"
+
+  # ── Stage I/O — remapped to 04_passports/ and 01_input_raster/ ──────────────
+  passports_json:      "04_passports/passports_json"           # input  (Stage 1)  JSON v2.1
+  passports_md:        "04_passports/passports_markdown"       # output (Stage 1)  MD prompts
+  renders_raw:         "01_input_raster/gemini_renders_raw"    # output (Stage 2, gemini)  raw PNG
+  renders_failed:      "02_processing/render_failed"           # Stage 2 failure screenshots
+  renders_failed_logs: "02_processing/failed_logs"             # Stage 2 failure log
+  renders_final:       "01_input_raster/gemini_renders_final"  # output (Stage 3)  final WEBP
+
+  # ── Bookkeeping — remapped to 00_PROJECT_STATE/ ──────────────────────────────
+  logs:                "00_PROJECT_STATE/logs"
+  failures_log:        "00_PROJECT_STATE/verification_failures.log"
+  progress_file:       "00_PROJECT_STATE/gemini_rpa_progress_v23.txt"
+
+# ── Stage 2: Selenium / Gemini RPA renderer (unchanged from source project) ──
+rpa:
+  # Pre-authenticated Chrome profile (Gemini session must already be logged in).
+  browser_profile_dir:  'C:\Users\candy\.gemini\antigravity-browser-profile\Profile 1'
+  browser_profile_name: "Profile 1"
+  downloads_dir:        'C:\Users\candy\Downloads'
+  gemini_url:           "https://gemini.google.com/app"
+  # WARNING: Gemini blocks image generation in headless mode. Leave false.
+  headless:                 false
+  batch_size:               1     # passports per chat session before context reset
+  image_generation_timeout: 180   # seconds
+  download_timeout:         60     # seconds
+  ready_timeout:            30     # seconds
+  post_click_delay:         2      # seconds
+
+# ── Stage 2 engine selection — Blender Farm Pro defaults to blender ──────────
+render:
+  engine: "blender"    # gemini | blender  — this fork's whole purpose is Blender, so it defaults here (the source project defaults to gemini)
+
+# ── Stage 2: Blender renderer — the primary engine of this fork ─────────────
+blender:
+  executable:   'C:\Program Files\Blender Foundation\Blender 5.1\blender.exe'
+  scenes_dir:   "assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
+  driver_script: "assets/blender/render_driver.py"
+  output_dir:   "02_processing/blender_test_renders"  # Blender's own render attempts (distinct from the 01_input_raster/ reference material)
+  engine_type:  "CYCLES"                         # CYCLES | EEVEE
+  resolution:   [2048, 2048]
+  samples:      64
+  render_timeout: 300   # seconds, per SKU
+
+# ── Stage 3: final image processor (webp_converter behaviour — canonical) ────
+image_processor:
+  source_dir:       "01_input_raster/gemini_renders_raw"
+  output_dir:       "01_input_raster/gemini_renders_final"
+  target_size:      [1600, 1600]   # px (LANCZOS upscale, square 1:1)
+  max_file_size_kb: 500            # hard weight cap; quality is auto-tuned
+
+# ── Orchestration ─────────────────────────────────────────────────────────────
+pipeline:
+  render_retries: 1   # stage-level retries for the render stage on hard failure
+
+logging:
+  level: "INFO"       # INFO | DEBUG | WARNING | ERROR  (--debug forces DEBUG)
