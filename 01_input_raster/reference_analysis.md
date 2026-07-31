@@ -128,16 +128,25 @@ text is something Blender can *guarantee* where Gemini cannot.
 ## 8. Concrete tuning recommendations for `assets/blender/render_driver.py`
 
 Based on §2–4 above, before further Blender template work:
-- Reduce ground-contact shadow further (lower key-light size/raise light
+- ⬜ Reduce ground-contact shadow further (lower key-light size/raise light
   height, or add a subtle contact-shadow-only technique) — references show
   almost no visible shadow, current driver still shows one.
-- Raise the body material roughness from `0.5` toward **~0.7–0.8** (matte
-  cardboard, not semi-gloss).
-- Do **not** implement a literal DOF blur at f/8 — these references read as
+- ✅ Raise the body material roughness from `0.5` toward **~0.7–0.8** (matte
+  cardboard, not semi-gloss). *Done: `CARTON_ROUGHNESS = 0.7` in
+  `render_driver.py`, applied to the printed accent too (§4: no print sheen
+  either). Asserted by `tests/test_blender_carton.py`.*
+- ✅ Do **not** implement a literal DOF blur at f/8 — these references read as
   fully sharp; a strong DOF would look *less* like the reference set, not more.
-- The white-body / two-accent-color rule (stripe + corner badge) is confirmed
+  *Still the case: an f/8 aperture value is set but DOF stays disabled.*
+- ✅ The white-body / two-accent-color rule (stripe + corner badge) is confirmed
   and should be treated as a hard constraint on any future template, not just
-  a nice-to-have.
+  a nice-to-have. *Now built and enforced: the body no longer takes
+  `palette.primary`, the stripe sits at the bottom edge, and the corner badge
+  is built. Written up in `docs/DESIGN_RATIONALE.md` §7.*
+
+Note for whoever picks up the shadow item: `--dump-scene <path>` on the driver
+builds the scene and writes measured geometry as JSON without rendering, which
+is how the rules above are tested without inspecting pixels.
 
 ## 9. Coverage & open questions
 

@@ -85,6 +85,45 @@ must win; `SKU.csv` `package_type` was made primary (P6.0), with
 `unit_count_standard` overriding the JSON. This trades flexibility (multiple
 sources) for predictability (one truth). See [ADR-005](DECISIONS/ADR-005-ssot-routing-authority.md).
 
+## 7. Why a white carton with exactly two spots of brand colour?
+
+**The rule.** The carton body is pure white `#FFFFFF` on every SKU, whatever
+`branding.palette.primary` says. Brand colour appears in exactly two places on
+the front face and nowhere else:
+
+| Element | Position | Colour |
+|---|---|---|
+| Accent stripe ("Row 6") | full-width band at the **very bottom edge** of the front face, ~8–12% of face height | `palette.accent` |
+| Brand badge | small square in the **top-right corner**, ~6–8% of panel width | `palette.primary` |
+
+Never on side panels, never on the top face, never on the text.
+
+**Where it actually lives.** The authority is the front-panel grid in
+`src/passport_generator.py` (the layout comment above `grid_lines`, plus the
+`[SURFACE COLOUR MANDATE]` and `[RENDER CONSTRAINTS]` blocks in every prompt
+template). This section exists because that rule had no documented "why" —
+flagged as **B2** in the [Bus Factor audit](../00_governance/audits/BUS_FACTOR_AUDIT.md)
+— and because `assets/blender/render_driver.py` cited *this* document for it,
+which previously said nothing on the subject.
+
+**Forces.** The two engines have to be interchangeable at Stage 2, so an
+art-direction rule expressed as prose for Gemini has to hold as geometry in
+Blender. And 391 SKU share one visual system: if the body took the palette,
+each SKU would read as a different product line rather than one catalogue.
+
+**Why white specifically. [confirm with author]** The original motivation is not
+recorded. What *is* verifiable: direct inspection of the curated reference
+renders found a pure white body on every sample regardless of its
+`palette.primary`, with brand colour confined to those two elements — see
+[reference_analysis.md §5](../01_input_raster/reference_analysis.md). So the
+rule is confirmed as *observed practice* across the finished catalogue even
+though its original rationale is unrecovered; treat it as a hard constraint.
+
+**Note on the colour split.** The stripe and the badge do **not** take the same
+colour. `badge_bg_hex = primary_hex` in `passport_generator.py`, while the
+stripe is `accent_hex`. Summaries that say "brand colour" for both are
+imprecise; `palette.accent` is consistently the darker, more saturated tone.
+
 ---
 
 ## Cross-cutting principle

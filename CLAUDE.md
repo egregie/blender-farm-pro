@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # all 18 tests
+python -m unittest discover -s tests          # whole suite
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -43,6 +43,12 @@ python main.py --render-only --render-engine gemini
 python -m src.render_stage --engine blender --limit 5
 python -m src.blender_renderer --estimate     # dry run: how many SKU remain
 python -m src.blender_renderer --all
+
+# Measure the built scene WITHOUT rendering — how the carton's art-direction
+# invariants are tested (tests/test_blender_carton.py), since bpy can never be
+# imported from the project's Python and pixel-inspecting a render is brittle.
+blender --background --factory-startup --python assets/blender/render_driver.py -- \
+    --job 04_passports/render_manifests/1-min.json --dump-scene scene.json
 ```
 
 `--debug` forces DEBUG logging. `--config <path>` overrides `config.yaml`.
@@ -207,9 +213,13 @@ analysed in [`01_input_raster/reference_analysis.md`](01_input_raster/reference_
 Hard constraints derived from that analysis:
 
 - **White carton body always**, regardless of `palette.primary`. Brand colour appears in
-  exactly two places: a bottom accent stripe on the front face (~8–12% of face height) and a
-  square badge in the top-right corner. Never elsewhere.
-- **Matte cardboard**, roughness ~0.6–0.8 — not semi-gloss.
+  exactly two places, and they take *different* colours: a full-width accent stripe at the
+  very bottom edge of the front face (~8–12% of face height) in **`palette.accent`**, and a
+  square badge in the top-right corner (~6–8% of face width) in **`palette.primary`**
+  (`badge_bg_hex = primary_hex`). Never elsewhere — no accent on side panels or the top face.
+  Rule and provenance: [`docs/DESIGN_RATIONALE.md` §7](docs/DESIGN_RATIONALE.md).
+- **Matte cardboard**, roughness ~0.6–0.8 — not semi-gloss. `CARTON_ROUGHNESS` in the driver
+  covers the printed accent too; the references show no print sheen either.
 - **Near-shadowless high-key lighting** ("product floating on white"); a visible contact
   shadow is a mismatch.
 - **No depth-of-field.** References read as fully sharp; DOF is deliberately disabled in the
