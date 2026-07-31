@@ -44,13 +44,16 @@ ENGINE     = _arg("--engine-type", "CYCLES")
 SAMPLES    = int(_arg("--samples", "64"))
 RES_X      = int(_arg("--res-x", "2048"))
 RES_Y      = int(_arg("--res-y", "2048"))
-# Debug facility: build the scene, write measured geometry as JSON, skip the
-# render. Lets the test suite and a human check real scale/seating/framing
-# without waiting on Cycles. Never used by the normal render path.
+# Diagnostic seam: build the scene, write its measured geometry to this path as
+# JSON, and skip rendering. Exists because carton scale, seating and stripe
+# placement can only be verified inside Blender, and a packshot is far too slow
+# and too indirect to assert on in a unit test — see tests/test_blender_carton.py.
 DUMP_SCENE = _arg("--dump-scene")
 
 if not JOB_PATH or not (OUT_PATH or DUMP_SCENE):
-    raise SystemExit("[render_driver] --job and --out are required")
+    raise SystemExit(
+        "[render_driver] --job is required, plus --out to render "
+        "(or --dump-scene to only measure the built scene)")
 
 with open(JOB_PATH, "r", encoding="utf-8") as f:
     JOB = json.load(f)
@@ -99,15 +102,28 @@ def make_material(name: str, hex_color: str, roughness=0.35) -> "bpy.types.Mater
     return mat
 
 
+# Row 6 of the front-panel grid (src/passport_generator.py) specifies a ~4mm
+# band; reference_analysis.md §5 measures it at 8-12% of the front-face height
+# across the curated set. The two agree for a mid-size carton and diverge at the
+# extremes, so the millimetre figure is the target and the percentages bound it.
+STRIPE_TARGET_M = 0.004
+STRIPE_MIN_FRAC = 0.08
+STRIPE_MAX_FRAC = 0.12
+
+
 def build_box(dims_m, palette: dict):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
-    packshot shows — sized in metres, coloured from the SKU palette, with an
-    accent stripe band on the front face (Row-6 rule, see
-    docs/DESIGN_RATIONALE.md §2).
+    packshot shows — sized in metres, with an accent stripe band welded to the
+    bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2).
 
     Not to be confused with the primary package (the blister, bottle or syringe
     inside): that is a smaller object on different axes, and passing its
     dimensions here produces an undersized, sometimes misoriented box.
+
+    SURFACE COLOUR MANDATE (reference_analysis.md §5): the body is WHITE for
+    every SKU. palette.primary is deliberately NOT painted onto it — in the
+    references the brand colour appears only in this stripe and in a top-right
+    badge, so a body tinted with primary is a mismatch, not a brand cue.
     """
     w, h, d = dims_m
     # size=1.0 is a UNIT cube: it spans -0.5..0.5, so its edge length is 1 and
@@ -124,32 +140,58 @@ def build_box(dims_m, palette: dict):
     # reference renders do not have.
     bpy.ops.object.transform_apply(scale=True)
 
-    body_mat = make_material("carton_body", palette.get("primary", "#FFFFFF"), roughness=0.5)
+    body_mat = make_material("carton_body", "#FFFFFF", roughness=0.5)
     box.data.materials.append(body_mat)
+
+    # Measure the mesh that was actually built instead of assuming it spans
+    # (w, h, d). It does now — the scale above is the fix for a carton that used
+    # to be built at half its nominal millimetres — but anything placed ON the
+    # carton still comes off these measured extents rather than off (w, h, d),
+    # so a future change to how the mesh is sized cannot silently detach the
+    # stripe again. That is exactly how it detached before: it was pinned to
+    # y = -d/2 while the real front face of the half-size mesh was at -d/4,
+    # leaving it floating a quarter-depth clear of the box and swinging visibly
+    # wide of the silhouette once the carton was rotated for the packshot.
+    # unit_scale is consequently 1.0 now, and is kept as the seam that proves it.
+    xs = [c[0] for c in box.bound_box]
+    ys = [c[1] for c in box.bound_box]
+    zs = [c[2] for c in box.bound_box]
+    face_w, face_h = max(xs) - min(xs), max(zs) - min(zs)
+    front_y, bottom_z = min(ys), min(zs)
+    depth = max(ys) - min(ys)
+    unit_scale = face_h / h if h else 1.0   # scene units per real metre
 
     accent_hex = palette.get("accent")
     if accent_hex:
-        stripe_h = h * 0.08
-        # y: the front face is at -d/2, and the band is 1mm thick, so offsetting
-        # the centre by half that (0.0005) lays its back face exactly on the
-        # face and leaves it standing 1mm proud — printed on the carton rather
-        # than floating in front of it. This only lands on the face because the
-        # carton above is built at true scale; against the old half-size box the
-        # band hung d/4 (12mm on a T1) out in mid-air.
+        # Target 4mm, held inside the 8-12% band the references measure.
+        stripe_m = min(max(STRIPE_TARGET_M, h * STRIPE_MIN_FRAC), h * STRIPE_MAX_FRAC)
+        stripe_h = stripe_m * unit_scale
+        # Thin slab straddling the face plane, so it reads as printed ink rather
+        # than an applied tile and cannot z-fight with the surface it sits on.
+        half_thick = depth * 0.002
+
         bpy.ops.mesh.primitive_cube_add(
-            size=1.0, location=(0, -d / 2 - 0.0005, h * 0.55),
+            size=1.0, location=(0, front_y, bottom_z + stripe_h / 2),
         )
         stripe = bpy.context.active_object
         stripe.name = "accent_stripe"
         # Same unit-cube convention as the carton: scale == edge length.
-        stripe.scale = (w * 0.98, 0.001, stripe_h)
+        stripe.scale = (face_w * 0.999, half_thick * 2, stripe_h)
         bpy.ops.object.transform_apply(scale=True)
         stripe_mat = make_material("accent_stripe_mat", accent_hex, roughness=0.3)
         stripe.data.materials.append(stripe_mat)
 
-    box.rotation_euler[2] = math.radians(ROTATION_DEG)
-    if accent_hex:
+        # Parent BEFORE rotating, and pin matrix_parent_inverse explicitly. Both
+        # meshes currently bake to identity object transforms (transform_apply
+        # defaults to location=True), so the carton's rotation is about the world
+        # Z axis through its own centre and the stripe rides along correctly even
+        # without this. That is a coincidence of the current build order, not a
+        # guarantee: give a child a non-identity parent matrix and an identity
+        # matrix_parent_inverse and the parent's transform is applied twice.
         stripe.parent = box
+        stripe.matrix_parent_inverse = box.matrix_world.inverted()
+
+    box.rotation_euler[2] = math.radians(ROTATION_DEG)
     return box, max(w, h, d)
 
 
@@ -272,31 +314,53 @@ def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: in
     scene.render.filepath = out_path
 
 
+def _base_color(obj):
+    """Linear RGBA of an object's first Principled BSDF, or None."""
+    if not obj.data.materials:
+        return None
+    mat = obj.data.materials[0]
+    if not mat.use_nodes:
+        return None
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf is None:
+        return None
+    return list(bsdf.inputs["Base Color"].default_value)
+
+
+def _bounds_in_frame(obj, reference):
+    """Axis-aligned bounds of obj's mesh expressed in `reference`'s local frame.
+
+    Measured in the carton's own frame rather than in world space on purpose: a
+    thin plate lying flat on a rotated box has a world-space AABB that pokes
+    outside the box's world-space AABB even when it is perfectly glued on, so a
+    world-space containment check reports false alarms. In the carton's frame
+    "on the front face, at the bottom" is a plain interval comparison.
+    """
+    to_ref = reference.matrix_world.inverted() @ obj.matrix_world
+    pts = [to_ref @ v.co for v in obj.data.vertices]
+    return {
+        "min": [min(p[i] for p in pts) for i in range(3)],
+        "max": [max(p[i] for p in pts) for i in range(3)],
+    }
+
+
 def _world_corners(obj):
-    """The 8 bound-box corners of `obj` in WORLD space."""
+    """The 8 bound-box corners of `obj` in WORLD space.
+
+    Seating and framing are the two questions that are genuinely about world
+    space — where the carton sits relative to the backdrop at z=0, and where it
+    lands in the camera's view — so they cannot use _bounds_in_frame above.
+    """
     from mathutils import Vector
     return [obj.matrix_world @ Vector(c) for c in obj.bound_box]
 
 
-def _extent(points):
-    """axis-aligned {min,max,size} over a list of 3D points."""
-    lo = [min(p[i] for p in points) for i in range(3)]
-    hi = [max(p[i] for p in points) for i in range(3)]
-    return {"min": lo, "max": hi, "size": [hi[i] - lo[i] for i in range(3)]}
-
-
 def dump_scene(path: str, dims_m):
-    """Write measured scene geometry as JSON instead of rendering.
+    """Write the measured geometry of the built scene as JSON.
 
-    Everything here is MEASURED off the evaluated scene (bound_box through
-    matrix_world), never recomputed from the job — that is the whole point: it
-    is the check that what Blender actually built matches the millimetres the
-    manifest asked for.
-
-    `framing` projects the carton's corners through the real camera with
-    bpy_extras' world_to_camera_view, giving the silhouette's normalised extent
-    (0..1 = frame edges). That is how SPHERE_FILL is calibrated without having
-    to measure pixels in a finished render.
+    Everything is MEASURED off the evaluated scene, never recomputed from the
+    job: a check that re-derived the expected numbers the way the driver does
+    would pass no matter how wrong the scene was.
     """
     from bpy_extras.object_utils import world_to_camera_view
 
@@ -305,66 +369,56 @@ def dump_scene(path: str, dims_m):
     box = bpy.data.objects.get("carton")
     stripe = bpy.data.objects.get("accent_stripe")
     cam = scene.camera
+    bpy.context.view_layer.update()
 
     out = {
-        "requested_mm": {"width": w * 1000.0, "height": h * 1000.0, "depth": d * 1000.0},
+        "carton": None,
+        "stripe": None,
+        # What the manifest ASKED for, so a test can compare built against
+        # requested rather than against another derivation of the same input.
+        "requested_mm": {"width": w * 1000.0, "height": h * 1000.0,
+                         "depth": d * 1000.0},
         "sphere_fill": SPHERE_FILL,
         "template_id": JOB.get("template_id"),
-        "rotation_deg": ROTATION_DEG,
         "pitch_deg": PITCH_DEG,
     }
 
     if box is not None:
         corners = _world_corners(box)
+        world_min_z = min(c[2] for c in corners)
         out["carton"] = {
-            # dimensions is Blender's own local-space measure -> catches a
-            # mis-scaled mesh directly, in metres.
             "dimensions": list(box.dimensions),
-            "location": list(box.location),
-            "world": _extent(corners),
+            "self_bounds": _bounds_in_frame(box, box),
+            "rotation_z_deg": math.degrees(box.matrix_world.to_euler().z),
+            "base_color": _base_color(box),
+            # Distance from the backdrop (z=0) to the lowest corner: 0 means the
+            # carton rests on the plane, >0 means it floats and will throw the
+            # detached contact shadow the references do not have.
+            "ground_gap": world_min_z,
         }
-        # Seating: distance from the ground plane (z=0) to the lowest corner.
-        # 0 means the carton sits on the plane; >0 means it floats.
-        out["carton"]["ground_gap"] = out["carton"]["world"]["min"][2]
+        if stripe is not None:
+            out["stripe"] = {
+                "bounds_in_carton_frame": _bounds_in_frame(stripe, box),
+                "base_color": _base_color(stripe),
+            }
 
-    if stripe is not None:
-        sworld = _world_corners(stripe)
-        out["stripe"] = {
-            "dimensions": list(stripe.dimensions),
-            "world": _extent(sworld),
-        }
-        if box is not None:
-            inv = box.matrix_world.inverted()
-            out["stripe"]["local"] = _extent([inv @ c for c in sworld])
-            out["stripe"]["carton_local"] = _extent(
-                [inv @ c for c in _world_corners(box)]
-            )
-
-    if cam is not None:
-        out["camera"] = {
-            "location": list(cam.location),
-            "rotation_deg": [math.degrees(a) for a in cam.rotation_euler],
-            "lens_mm": cam.data.lens,
-        }
-        if box is not None:
-            ndc = [world_to_camera_view(scene, cam, c) for c in _world_corners(box)]
+        if cam is not None:
+            # Project the carton's corners through the real camera: 0..1 spans
+            # the frame, so this is the silhouette's share of it. Lets SPHERE_FILL
+            # be calibrated without measuring pixels in a finished render.
+            ndc = [world_to_camera_view(scene, cam, c) for c in corners]
             xs = [p.x for p in ndc]
             ys = [p.y for p in ndc]
             out["framing"] = {
-                "x_min": min(xs), "x_max": max(xs),
-                "y_min": min(ys), "y_max": max(ys),
                 "width_frac": max(xs) - min(xs),
                 "height_frac": max(ys) - min(ys),
+                "max_frac": max(max(xs) - min(xs), max(ys) - min(ys)),
                 "centre_y_frac": (max(ys) + min(ys)) / 2.0,
             }
-            out["framing"]["max_frac"] = max(
-                out["framing"]["width_frac"], out["framing"]["height_frac"]
-            )
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2)
-    print(f"[render_driver] dumped scene measurements to {path}")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(out, fh, indent=2)
+    print(f"[render_driver] dumped scene geometry to {path}")
 
 
 def main():
@@ -411,10 +465,10 @@ def main():
         setup_camera(dims_m)
         setup_lighting(target_size)
 
+    # OUT_PATH is optional under --dump-scene, but setup_render still runs first
+    # so the dumped framing reflects the real output resolution and aspect.
     setup_render(OUT_PATH or "", ENGINE, SAMPLES, RES_X, RES_Y)
 
-    # Measurement mode short-circuits the render. Placed AFTER setup_render so
-    # the dumped framing reflects the real output resolution/aspect.
     if DUMP_SCENE:
         dump_scene(DUMP_SCENE, dims_m)
         return
