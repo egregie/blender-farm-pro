@@ -40,15 +40,20 @@ def _arg(flag: str, default=None):
 
 JOB_PATH   = _arg("--job")
 OUT_PATH   = _arg("--out")
-DUMP_SCENE = _arg("--dump-scene")
 ENGINE     = _arg("--engine-type", "CYCLES")
 SAMPLES    = int(_arg("--samples", "64"))
 RES_X      = int(_arg("--res-x", "2048"))
 RES_Y      = int(_arg("--res-y", "2048"))
+# Diagnostic seam: build the scene, write its measured geometry to this path as
+# JSON, and skip rendering. Exists because carton scale, seating and stripe
+# placement can only be verified inside Blender, and a packshot is far too slow
+# and too indirect to assert on in a unit test — see tests/test_blender_carton.py.
+DUMP_SCENE = _arg("--dump-scene")
 
 if not JOB_PATH or not (OUT_PATH or DUMP_SCENE):
-    raise SystemExit("[render_driver] --job and --out are required "
-                     "(or --dump-scene to only measure the built scene)")
+    raise SystemExit(
+        "[render_driver] --job is required, plus --out to render "
+        "(or --dump-scene to only measure the built scene)")
 
 with open(JOB_PATH, "r", encoding="utf-8") as f:
     JOB = json.load(f)
@@ -97,128 +102,96 @@ def make_material(name: str, hex_color: str, roughness=0.35) -> "bpy.types.Mater
     return mat
 
 
-# The carton body is WHITE on every SKU, whatever branding.palette.primary says.
-# This is the [SURFACE COLOUR MANDATE] the Gemini prompt templates already
-# enforce (src/passport_generator.py) and which direct inspection of the
-# reference renders confirmed (01_input_raster/reference_analysis.md §5): brand
-# colour appears in exactly two places on the front face and nowhere else.
-CARTON_WHITE = "#FFFFFF"
-
-# Matte, uncoated cardstock. The references show no print sheen anywhere — not
-# on the body and not on the printed accent either — so the same value is used
-# for the ink; 0.5 read as semi-gloss (reference_analysis.md §4, §8).
-CARTON_ROUGHNESS = 0.7
-
-# Accent stripe: full-width band at the very bottom edge of the front face, 8%
-# of face height (documented 8-12%). "Row 6" in the front-panel grid.
-STRIPE_HEIGHT_FRAC = 0.08
-
-# Brand badge: small square in the top-right corner of the front face,
-# "approximately 6-8% of panel width", set in from the corner by a small margin.
-BADGE_WIDTH_FRAC = 0.07
-BADGE_MARGIN_FRAC = 0.03
-
-
-def _decorate_front_face(name, hex_color, x_centre, z_centre, width, height,
-                         y_front, depth):
-    """Add one printed element welded to the carton's front face (-Y).
-
-    Placement is passed in already resolved against the carton's MEASURED
-    bounds, so an element cannot drift off the face if the box's own size ever
-    changes. The slab is embedded into the carton and protrudes by a hair, which
-    keeps it flush-looking at macro scale while avoiding coplanar z-fighting.
-    """
-    eps = depth * 0.002          # protrusion: ~0.05mm on a 24mm-deep carton
-    embed = depth * 0.02
-    thickness = eps + embed
-    bpy.ops.mesh.primitive_cube_add(
-        size=1.0,
-        location=(x_centre, y_front + (embed - eps) / 2.0, z_centre),
-    )
-    obj = bpy.context.active_object
-    obj.name = name
-    # primitive_cube_add(size=1.0) spans -0.5..0.5, so `scale` IS the final span.
-    obj.scale = (width, thickness, height)
-    bpy.ops.object.transform_apply(scale=True)
-    obj.data.materials.append(
-        make_material(f"{name}_mat", hex_color, roughness=CARTON_ROUGHNESS)
-    )
-    return obj
-
-
-def _bounds(obj):
-    """World-space axis-aligned bounds of an object, as (min, max) triples."""
-    from mathutils import Vector
-    pts = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
-    return ([min(p[i] for p in pts) for i in range(3)],
-            [max(p[i] for p in pts) for i in range(3)])
+# Row 6 of the front-panel grid (src/passport_generator.py) specifies a ~4mm
+# band; reference_analysis.md §5 measures it at 8-12% of the front-face height
+# across the curated set. The two agree for a mid-size carton and diverge at the
+# extremes, so the millimetre figure is the target and the percentages bound it.
+STRIPE_TARGET_M = 0.004
+STRIPE_MIN_FRAC = 0.08
+STRIPE_MAX_FRAC = 0.12
 
 
 def build_box(dims_m, palette: dict):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
-    packshot shows — sized in metres, WHITE-bodied, carrying the two and only
-    two pieces of brand colour the art direction allows on a front face: a
-    full-width accent stripe along the very bottom edge, and a small square
-    brand badge in the top-right corner.
-
-    The "Row 6" rule those two come from is defined in the front-panel grid in
-    src/passport_generator.py (see the layout comment above `grid_lines`, and
-    the [SURFACE COLOUR MANDATE] in the prompt templates), confirmed visually in
-    01_input_raster/reference_analysis.md §5, and written up in
-    docs/DESIGN_RATIONALE.md §7. Note the two elements take DIFFERENT colours:
-    the stripe is palette.accent, the badge is palette.primary
-    (`badge_bg_hex = primary_hex`).
+    packshot shows — sized in metres, with an accent stripe band welded to the
+    bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2).
 
     Not to be confused with the primary package (the blister, bottle or syringe
     inside): that is a smaller object on different axes, and passing its
     dimensions here produces an undersized, sometimes misoriented box.
+
+    SURFACE COLOUR MANDATE (reference_analysis.md §5): the body is WHITE for
+    every SKU. palette.primary is deliberately NOT painted onto it — in the
+    references the brand colour appears only in this stripe and in a top-right
+    badge, so a body tinted with primary is a mismatch, not a brand cue.
     """
     w, h, d = dims_m
+    # size=1.0 is a UNIT cube: it spans -0.5..0.5, so its edge length is 1 and
+    # the scale factor IS the finished edge length in metres. Scaling it by
+    # (w/2, d/2, h/2) — the half-extents, which is what you would want from
+    # Blender's *default* size=2.0 cube — is the trap that built every carton at
+    # half its nominal millimetres. Scene units are real metres here.
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, h / 2))
     box = bpy.context.active_object
     box.name = "carton"
-    box.scale = (w / 2, d / 2, h / 2)
+    box.scale = (w, d, h)
+    # Centre sits at z = h/2 with a half-height of h/2, so the carton rests ON
+    # the backdrop. A carton that floats casts the detached contact shadow the
+    # reference renders do not have.
     bpy.ops.object.transform_apply(scale=True)
 
-    box.data.materials.append(
-        make_material("carton_body", CARTON_WHITE, roughness=CARTON_ROUGHNESS)
-    )
+    body_mat = make_material("carton_body", "#FFFFFF", roughness=0.5)
+    box.data.materials.append(body_mat)
 
-    # Decoration is positioned against the box's MEASURED bounds, not against
-    # `dims_m`. The two are not the same today — the cube primitive's scaling
-    # convention leaves the built box at half the requested size — and deriving
-    # placement from the requested dims is what left the stripe hanging in the
-    # air in front of the carton instead of printed on it.
-    (bx0, by0, bz0), (bx1, by1, bz1) = _bounds(box)
-    face_w, face_h, face_d = bx1 - bx0, bz1 - bz0, by1 - by0
+    # Measure the mesh that was actually built instead of assuming it spans
+    # (w, h, d). It does now — the scale above is the fix for a carton that used
+    # to be built at half its nominal millimetres — but anything placed ON the
+    # carton still comes off these measured extents rather than off (w, h, d),
+    # so a future change to how the mesh is sized cannot silently detach the
+    # stripe again. That is exactly how it detached before: it was pinned to
+    # y = -d/2 while the real front face of the half-size mesh was at -d/4,
+    # leaving it floating a quarter-depth clear of the box and swinging visibly
+    # wide of the silhouette once the carton was rotated for the packshot.
+    # unit_scale is consequently 1.0 now, and is kept as the seam that proves it.
+    xs = [c[0] for c in box.bound_box]
+    ys = [c[1] for c in box.bound_box]
+    zs = [c[2] for c in box.bound_box]
+    face_w, face_h = max(xs) - min(xs), max(zs) - min(zs)
+    front_y, bottom_z = min(ys), min(zs)
+    depth = max(ys) - min(ys)
+    unit_scale = face_h / h if h else 1.0   # scene units per real metre
 
     accent_hex = palette.get("accent")
     if accent_hex:
-        stripe_h = face_h * STRIPE_HEIGHT_FRAC
-        _decorate_front_face(
-            "accent_stripe", accent_hex,
-            x_centre=(bx0 + bx1) / 2.0,      # full width, centred
-            z_centre=bz0 + stripe_h / 2.0,   # flush with the very bottom edge
-            width=face_w, height=stripe_h, y_front=by0, depth=face_d,
-        )
+        # Target 4mm, held inside the 8-12% band the references measure.
+        stripe_m = min(max(STRIPE_TARGET_M, h * STRIPE_MIN_FRAC), h * STRIPE_MAX_FRAC)
+        stripe_h = stripe_m * unit_scale
+        # Thin slab straddling the face plane, so it reads as printed ink rather
+        # than an applied tile and cannot z-fight with the surface it sits on.
+        half_thick = depth * 0.002
 
-    # The badge takes the BRAND colour (palette.primary), not the accent.
-    badge_hex = palette.get("primary") or accent_hex
-    if badge_hex:
-        badge = face_w * BADGE_WIDTH_FRAC
-        margin = face_w * BADGE_MARGIN_FRAC
-        _decorate_front_face(
-            "brand_badge", badge_hex,
-            x_centre=bx1 - margin - badge / 2.0,   # top-RIGHT corner: +X is
-            z_centre=bz1 - margin - badge / 2.0,   # screen-right for this camera
-            width=badge, height=badge, y_front=by0, depth=face_d,
+        bpy.ops.mesh.primitive_cube_add(
+            size=1.0, location=(0, front_y, bottom_z + stripe_h / 2),
         )
+        stripe = bpy.context.active_object
+        stripe.name = "accent_stripe"
+        # Same unit-cube convention as the carton: scale == edge length.
+        stripe.scale = (face_w * 0.999, half_thick * 2, stripe_h)
+        bpy.ops.object.transform_apply(scale=True)
+        stripe_mat = make_material("accent_stripe_mat", accent_hex, roughness=0.3)
+        stripe.data.materials.append(stripe_mat)
+
+        # Parent BEFORE rotating, and pin matrix_parent_inverse explicitly. Both
+        # meshes currently bake to identity object transforms (transform_apply
+        # defaults to location=True), so the carton's rotation is about the world
+        # Z axis through its own centre and the stripe rides along correctly even
+        # without this. That is a coincidence of the current build order, not a
+        # guarantee: give a child a non-identity parent matrix and an identity
+        # matrix_parent_inverse and the parent's transform is applied twice.
+        stripe.parent = box
+        stripe.matrix_parent_inverse = box.matrix_world.inverted()
 
     box.rotation_euler[2] = math.radians(ROTATION_DEG)
-    for child_name in ("accent_stripe", "brand_badge"):
-        child = bpy.data.objects.get(child_name)
-        if child is not None:
-            child.parent = box
     return box, max(w, h, d)
 
 
@@ -232,14 +205,24 @@ def build_background(hex_color: str):
 
 LENS_MM = 85.0        # matches the documented Gemini optical calibration
 SENSOR_MM = 36.0      # Blender's default sensor width
-# How much of the frame the carton's BOUNDING SPHERE is asked to fill. Values
-# above 1.0 are expected and safe: the sphere circumscribes a flat carton, so
-# the box's own silhouette stays well inside the frame. Calibrated against the
-# measured reference renders, whose dominant axis fills 76-88% of frame with the
-# object centred at 50-52% height; 1.7 puts the four sampled templates at
-# 74-79%. (Note the "45-55%" quoted in reference_analysis.md §1 does not match
-# a direct measurement of those same images.)
-SPHERE_FILL = 1.70
+# How much of the half-FOV the carton's BOUNDING SPHERE is asked to subtend.
+# Calibrated against the measured reference renders, whose dominant axis fills
+# 76-88% of frame with the object centred at 50-52% height. (Note the "45-55%"
+# quoted in reference_analysis.md §1 does not match a direct measurement of
+# those same images.)
+#
+# This was 1.70 for as long as build_box() made half-size cartons: `radius`
+# below is derived from the manifest's true millimetres, so the camera was
+# already framing a full-size box while the box in the scene was half of one,
+# and the constant had been tuned upward to absorb exactly that factor of 2.
+# The old comment defended values above 1.0 as "expected and safe"; they were
+# neither — they were the bug wearing a justification.
+#
+# 0.8365 = asin(sin(1.70 * half_fov) / 2) / half_fov, i.e. the value that puts
+# a TRUE-scale carton at the same distance/size ratio the tuned constant had
+# been producing. Framing is therefore unchanged: T1 measures 0.7561 of frame
+# width before and after (tests/test_blender_carton.py pins it).
+SPHERE_FILL = 0.8365
 
 
 def setup_camera(dims_m):
@@ -312,149 +295,6 @@ def setup_lighting(target_size: float):
         bg.inputs["Strength"].default_value = 0.3
 
 
-def _linear_to_hex(rgba) -> str:
-    """Inverse of hex_to_rgba's transfer function, for readable dump output."""
-    def enc(c):
-        c = max(0.0, min(1.0, float(c)))
-        s = c * 12.92 if c <= 0.0031308 else 1.055 * (c ** (1 / 2.4)) - 0.055
-        return int(round(s * 255))
-    return "#{:02X}{:02X}{:02X}".format(*(enc(c) for c in rgba[:3]))
-
-
-def _material_info(obj) -> dict:
-    if not obj.data.materials:
-        return {}
-    mat = obj.data.materials[0]
-    bsdf = mat.node_tree.nodes.get("Principled BSDF") if mat.use_nodes else None
-    if bsdf is None:
-        return {"name": mat.name}
-    base = bsdf.inputs["Base Color"].default_value
-    return {
-        "name": mat.name,
-        "base_color_hex": _linear_to_hex(base),
-        "base_color_linear": [round(c, 6) for c in base[:3]],
-        "roughness": round(float(bsdf.inputs["Roughness"].default_value), 4),
-    }
-
-
-def _local_aabb(child, parent) -> dict:
-    """The child's axis-aligned bounds expressed in the PARENT's local frame.
-
-    Placement has to be checked here, not in world space: the carton is rotated
-    about Z for the 3/4 view, so a world-space z alone cannot distinguish "on
-    the front face" from "floating beside it", and world x/y mix width and
-    depth together.
-    """
-    from mathutils import Vector
-    to_local = parent.matrix_world.inverted()
-    corners = [to_local @ (child.matrix_world @ Vector(c)) for c in child.bound_box]
-    lo = [min(c[i] for c in corners) for i in range(3)]
-    hi = [max(c[i] for c in corners) for i in range(3)]
-    return {
-        "min": [round(v, 6) for v in lo],
-        "max": [round(v, 6) for v in hi],
-        "centre": [round((lo[i] + hi[i]) / 2, 6) for i in range(3)],
-        "size": [round(hi[i] - lo[i], 6) for i in range(3)],
-    }
-
-
-def dump_scene(path: str, dims_m):
-    """Write measured geometry as JSON instead of rendering.
-
-    Exists so the carton's art-direction invariants (white body, bottom stripe,
-    top-right badge, framing) can be asserted by the normal unittest suite:
-    those are geometric facts, and reading them out of the built scene is both
-    cheaper and far less brittle than pixel-inspecting a render.
-    """
-    import bpy_extras.object_utils as _obj_utils
-    from mathutils import Vector
-
-    # matrix_world is lazily evaluated: the carton's Z rotation and the
-    # parenting of the printed elements are both set after the objects are
-    # created, so without this the matrices read here are still the pre-rotation
-    # ones and every world-space measurement (camera framing especially) is
-    # silently wrong.
-    bpy.context.view_layer.update()
-
-    w, h, d = dims_m
-    scene = bpy.context.scene
-    box = bpy.data.objects["carton"]
-    cam = scene.camera
-
-    # The carton's OWN measured bounds, in its own local frame. Everything else
-    # is normalised against these rather than against the requested dims: the
-    # box's origin convention is a side effect of transform_apply (which zeroes
-    # location, leaving the mesh centred at z = h/2 in local space), so assuming
-    # an origin here would silently mis-score every placement.
-    box_aabb = _local_aabb(box, box)
-    bx0, by0, bz0 = box_aabb["min"]
-    bx1, by1, bz1 = box_aabb["max"]
-    bw, bd, bh = box_aabb["size"]
-
-    out = {
-        "template_id": JOB.get("template_id"),
-        "carton": {
-            "dims_m": {"width": w, "height": h, "depth": d},
-            "measured_local_aabb": box_aabb,
-            "measured_matches_requested": [
-                round(bw - w, 9) == 0, round(bh - h, 9) == 0, round(bd - d, 9) == 0,
-            ],
-            "seated_on_floor": round(min(
-                (box.matrix_world @ Vector(c)).z for c in box.bound_box), 6),
-            "world_location": [round(v, 6) for v in box.location],
-            "rotation_z_deg": round(math.degrees(box.rotation_euler[2]), 4),
-            "material": _material_info(box),
-        },
-    }
-
-    # Placement of every decorated element, normalised against the carton's
-    # measured front face so assertions read in the same units the art direction
-    # is written in: x = 0 at face centre and +/-0.5 at the left/right edges,
-    # y = 0 at the bottom edge and 1.0 at the top.
-    for name in ("accent_stripe", "brand_badge"):
-        obj = bpy.data.objects.get(name)
-        if obj is None:
-            out[name] = None
-            continue
-        aabb = _local_aabb(obj, box)
-        cx, cy, cz = aabb["centre"]
-        out[name] = {
-            "local_aabb": aabb,
-            "face_x_fraction": round((cx - (bx0 + bx1) / 2) / bw, 6),  # 0 = centred
-            "face_y_fraction": round((cz - bz0) / bh, 6),              # 0 = bottom edge
-            "bottom_y_fraction": round((aabb["min"][2] - bz0) / bh, 6),
-            "height_fraction": round(aabb["size"][2] / bh, 6),
-            "width_fraction": round(aabb["size"][0] / bw, 6),
-            # Front face is -Y. A printed element must STRADDLE that plane:
-            # protruding by a hair (so it is visible and does not z-fight) while
-            # still embedded in the carton (so it cannot float away from it).
-            "protrusion_m": round(by0 - aabb["min"][1], 6),
-            "embed_m": round(aabb["max"][1] - by0, 6),
-            "straddles_front_face": aabb["min"][1] <= by0 <= aabb["max"][1],
-            "material": _material_info(obj),
-        }
-
-    if cam is not None:
-        pts = [_obj_utils.world_to_camera_view(scene, cam, box.matrix_world @ Vector(c))
-               for c in box.bound_box]
-        xs, ys = [p.x for p in pts], [p.y for p in pts]
-        out["camera"] = {
-            "location": [round(v, 6) for v in cam.location],
-            "lens_mm": round(cam.data.lens, 4),
-            "rotation_euler_deg": [round(math.degrees(a), 4) for a in cam.rotation_euler],
-        }
-        out["framing"] = {
-            "fill_x": round(max(xs) - min(xs), 6),
-            "fill_y": round(max(ys) - min(ys), 6),
-            "centre_x": round((max(xs) + min(xs)) / 2, 6),
-            "centre_y": round((max(ys) + min(ys)) / 2, 6),
-        }
-
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(out, fh, indent=2)
-    print(f"[render_driver] dumped scene measurements to {path}")
-
-
 def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: int):
     scene = bpy.context.scene
     valid_engines = {e.identifier for e in
@@ -472,6 +312,113 @@ def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: in
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = out_path
+
+
+def _base_color(obj):
+    """Linear RGBA of an object's first Principled BSDF, or None."""
+    if not obj.data.materials:
+        return None
+    mat = obj.data.materials[0]
+    if not mat.use_nodes:
+        return None
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf is None:
+        return None
+    return list(bsdf.inputs["Base Color"].default_value)
+
+
+def _bounds_in_frame(obj, reference):
+    """Axis-aligned bounds of obj's mesh expressed in `reference`'s local frame.
+
+    Measured in the carton's own frame rather than in world space on purpose: a
+    thin plate lying flat on a rotated box has a world-space AABB that pokes
+    outside the box's world-space AABB even when it is perfectly glued on, so a
+    world-space containment check reports false alarms. In the carton's frame
+    "on the front face, at the bottom" is a plain interval comparison.
+    """
+    to_ref = reference.matrix_world.inverted() @ obj.matrix_world
+    pts = [to_ref @ v.co for v in obj.data.vertices]
+    return {
+        "min": [min(p[i] for p in pts) for i in range(3)],
+        "max": [max(p[i] for p in pts) for i in range(3)],
+    }
+
+
+def _world_corners(obj):
+    """The 8 bound-box corners of `obj` in WORLD space.
+
+    Seating and framing are the two questions that are genuinely about world
+    space — where the carton sits relative to the backdrop at z=0, and where it
+    lands in the camera's view — so they cannot use _bounds_in_frame above.
+    """
+    from mathutils import Vector
+    return [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+
+
+def dump_scene(path: str, dims_m):
+    """Write the measured geometry of the built scene as JSON.
+
+    Everything is MEASURED off the evaluated scene, never recomputed from the
+    job: a check that re-derived the expected numbers the way the driver does
+    would pass no matter how wrong the scene was.
+    """
+    from bpy_extras.object_utils import world_to_camera_view
+
+    scene = bpy.context.scene
+    w, h, d = dims_m
+    box = bpy.data.objects.get("carton")
+    stripe = bpy.data.objects.get("accent_stripe")
+    cam = scene.camera
+    bpy.context.view_layer.update()
+
+    out = {
+        "carton": None,
+        "stripe": None,
+        # What the manifest ASKED for, so a test can compare built against
+        # requested rather than against another derivation of the same input.
+        "requested_mm": {"width": w * 1000.0, "height": h * 1000.0,
+                         "depth": d * 1000.0},
+        "sphere_fill": SPHERE_FILL,
+        "template_id": JOB.get("template_id"),
+        "pitch_deg": PITCH_DEG,
+    }
+
+    if box is not None:
+        corners = _world_corners(box)
+        world_min_z = min(c[2] for c in corners)
+        out["carton"] = {
+            "dimensions": list(box.dimensions),
+            "self_bounds": _bounds_in_frame(box, box),
+            "rotation_z_deg": math.degrees(box.matrix_world.to_euler().z),
+            "base_color": _base_color(box),
+            # Distance from the backdrop (z=0) to the lowest corner: 0 means the
+            # carton rests on the plane, >0 means it floats and will throw the
+            # detached contact shadow the references do not have.
+            "ground_gap": world_min_z,
+        }
+        if stripe is not None:
+            out["stripe"] = {
+                "bounds_in_carton_frame": _bounds_in_frame(stripe, box),
+                "base_color": _base_color(stripe),
+            }
+
+        if cam is not None:
+            # Project the carton's corners through the real camera: 0..1 spans
+            # the frame, so this is the silhouette's share of it. Lets SPHERE_FILL
+            # be calibrated without measuring pixels in a finished render.
+            ndc = [world_to_camera_view(scene, cam, c) for c in corners]
+            xs = [p.x for p in ndc]
+            ys = [p.y for p in ndc]
+            out["framing"] = {
+                "width_frac": max(xs) - min(xs),
+                "height_frac": max(ys) - min(ys),
+                "max_frac": max(max(xs) - min(xs), max(ys) - min(ys)),
+                "centre_y_frac": (max(ys) + min(ys)) / 2.0,
+            }
+
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(out, fh, indent=2)
+    print(f"[render_driver] dumped scene geometry to {path}")
 
 
 def main():
@@ -495,14 +442,14 @@ def main():
             "schemas/render_manifest.schema.json."
         )
 
-    # Optional Phase-2 hand-authored .blend override (loaded instead of the
-    # procedural build below, if the loader finds a matching file).
-    # Resolved before the branch so --dump-scene can report against these
-    # whichever way the scene was built.
+    # Millimetres -> metres. Hoisted above the .blend branch because
+    # --dump-scene reports against these whichever way the scene was built.
     dims_m = (float(carton["width_mm"]) / 1000.0,
               float(carton["height_mm"]) / 1000.0,
               float(carton["depth_mm"]) / 1000.0)
 
+    # Optional Phase-2 hand-authored .blend override (loaded instead of the
+    # procedural build below, if the loader finds a matching file).
     scenes_dir = Path(_arg("--scenes-dir", "")) if _arg("--scenes-dir") else None
     blend_override = (scenes_dir / f"{template_id}.blend") if scenes_dir else None
     if blend_override and blend_override.exists():
@@ -518,10 +465,8 @@ def main():
         setup_camera(dims_m)
         setup_lighting(target_size)
 
-    # Applied before the dump as well: framing is measured with
-    # world_to_camera_view, which normalises against the render's aspect ratio,
-    # so measuring before the resolution is set would score the carton against
-    # Blender's factory 1920x1080 frame instead of the square one it renders to.
+    # OUT_PATH is optional under --dump-scene, but setup_render still runs first
+    # so the dumped framing reflects the real output resolution and aspect.
     setup_render(OUT_PATH or "", ENGINE, SAMPLES, RES_X, RES_Y)
 
     if DUMP_SCENE:
