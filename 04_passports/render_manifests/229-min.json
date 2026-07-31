@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "229-min.jpg",
+  "template_id": "T_VERT_DROPPER",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOTTLE",
+  "carton": {
+    "width_mm": 50.0,
+    "height_mm": 110.0,
+    "depth_mm": 18.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Lumigan 0.01%",
+    "dosage_display": "0.01ml/0.01%",
+    "unit_count_display": "1 Bottle"
+  }
+}

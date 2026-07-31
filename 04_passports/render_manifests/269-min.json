@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "269-min.jpg",
+  "template_id": "T_VERT_DROPPER",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOTTLE",
+  "carton": {
+    "width_mm": 45.0,
+    "height_mm": 80.0,
+    "depth_mm": 45.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Xalatan",
+    "dosage_display": "0.005%",
+    "unit_count_display": "1 Bottle"
+  }
+}

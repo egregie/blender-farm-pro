@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "355-min.jpg",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "TUBE",
+  "carton": {
+    "width_mm": 140.0,
+    "height_mm": 35.0,
+    "depth_mm": 25.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#E2583E",
+    "accent": "#4B4632",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Cortaid",
+    "dosage_display": "10g/1%",
+    "unit_count_display": "1 Tube"
+  }
+}

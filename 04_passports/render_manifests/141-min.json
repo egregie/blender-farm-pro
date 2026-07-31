@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "141-min.jpg",
+  "template_id": "T_BOTTLE_BOX",
+  "is_bottle_override": false,
+  "packaging_geometry": "VIAL",
+  "carton": {
+    "width_mm": 80.0,
+    "height_mm": 170.0,
+    "depth_mm": 35.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Deca Durabolin",
+    "dosage_display": "50mg",
+    "unit_count_display": "10 Pills"
+  }
+}

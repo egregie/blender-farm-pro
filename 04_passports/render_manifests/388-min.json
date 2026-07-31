@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "388-min.jpg",
+  "template_id": "T1_SMALL",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 110.0,
+    "height_mm": 50.0,
+    "depth_mm": 18.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#005A9C",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Femalefil",
+    "dosage_display": "10mg",
+    "unit_count_display": "10 Pills"
+  }
+}

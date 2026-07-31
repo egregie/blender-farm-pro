@@ -30,6 +30,7 @@ _DEFAULTS = {
         "ssot_design_specs":   "SSOT/master_pharma_design_specs.json",
         "passports_json":      "pipeline/passports",
         "passports_md":        "pipeline/passports.markdown",
+        "passports_manifests": "pipeline/render_manifests",
         "renders_raw":         "render_output/raw",
         "renders_failed":      "render_output/failed",
         "renders_failed_logs": "render_output/failed_logs",

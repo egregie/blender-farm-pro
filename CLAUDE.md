@@ -69,9 +69,39 @@ directly. Stages are sequential because each consumes the previous one's output.
 
 | Stage | Module | In → Out |
 |---|---|---|
-| 1 passports | `src.passport_generator` | JSON passports → Markdown prompts |
+| 1 passports | `src.passport_generator` | JSON passports → Markdown prompts **+ render manifests** |
 | 2 render | `src.render_stage` (facade) | → raw PNG |
 | 3 process-images | `src.image_processor` | raw PNG → final WEBP (1600², ≤500 KB) |
+
+### The render manifest is the Stage 1 → Stage 2 contract
+
+`schemas/render_manifest.schema.json` is the one authoritative description of what
+Stage 2 receives; `src/render_manifest.py` is its only implementation, used by the
+provider to emit and by consumers to load. Stage 1 writes one manifest per SKU to
+`04_passports/render_manifests/`. If none exists, `blender_renderer` builds it in-process
+through the same builder, so `--render-only` still works standalone.
+
+Plain JSON Schema rather than pydantic, because `render_driver.py` runs inside Blender's
+bundled interpreter where neither pydantic nor project modules are importable. Validation
+therefore happens twice on the project side — on write and on load — and the driver trusts
+the shape.
+
+Two things the manifest exists to get right:
+
+- **It carries the carton, i.e. the SECONDARY packaging.** The primary package (blister,
+  bottle, syringe) is a smaller object, and for elongated primaries `resolve_secondary()`
+  permutes the axes. The driver used to read `primary_package` dimensions and build the
+  carton from them — wrong in scale and sometimes orientation. That bug was dormant only
+  because `primary_package` is always `null` on disk, so it always fell through to a guess.
+- **Orientation comes from the template, not the dimension string.** The same
+  `115x55x48mm` is landscape for `T1` and portrait for `T_VERT_INHALER`; the same
+  `110x50x18mm` is landscape for `T_MULTIPACK` and portrait for `T_VERT_DROPPER`.
+  `orient_for_template()` stands the longest edge up for the vertical family and leaves
+  every other template in the passport's own order.
+
+`carton.source` records provenance (`passport_secondary` / `derived_from_primary` /
+`template_ratio`) so guessed geometry is visible rather than silent. All 391 SKU currently
+resolve to `passport_secondary`, and a test fails if any regresses to a guess.
 
 ### Stage 2 is a two-engine facade
 
@@ -152,8 +182,9 @@ confidence drops 1.0 → 0.9. If you make that module config-driven, the mirror 
 
 **`primary_package` is `null` in the stored JSON passports.** It is computed at runtime by
 `get_primary_package()` / `resolve_secondary()` in `src/passport_generator.py` and never
-persisted. Anything reading passports off disk for dimensions gets nulls and must call those
-resolvers (or fall back to guessed ratios, which is what the Blender driver does today).
+persisted. Anything reading passports off disk for dimensions gets nulls. Use the render
+manifest instead — it resolves carton dimensions from `secondary_packaging.dimensions`,
+which every SKU in the catalogue has.
 
 **`render.engine` defaults to `blender`** in this fork's `config.yaml`; the source project
 defaults to `gemini`.

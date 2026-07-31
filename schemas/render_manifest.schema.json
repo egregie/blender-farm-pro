@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pharmagen.local/schemas/render_manifest.schema.json",
+  "title": "Render Manifest",
+  "description": "The authoritative contract for the Stage 1 -> Stage 2 boundary. Stage 1 (src/passport_generator.py) is the provider; the render engines behind src/render_stage.py are the consumers. A manifest carries the DECISIONS made about a SKU (which template, what size the carton is, what goes on the label) rather than the raw passport, so a renderer never has to re-derive routing or dimensions and never has to import Stage 1 internals. Plain JSON Schema is the chosen artifact because assets/blender/render_driver.py executes inside Blender's own bundled interpreter, where neither pydantic nor this project's modules are importable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "sku_id",
+    "template_id",
+    "is_bottle_override",
+    "packaging_geometry",
+    "carton",
+    "palette",
+    "label_content"
+  ],
+  "properties": {
+    "manifest_version": {
+      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump.",
+      "const": "1.0"
+    },
+    "sku_id": {
+      "description": "Opaque SKU identifier, matching the passport's sku_id and keying into SSOT/SKU.csv. Never parse as a number.",
+      "type": "string",
+      "minLength": 1
+    },
+    "template_id": {
+      "description": "Routing decision from agent_1_router(). Consumers must not re-derive this. Note T_VERT_* and T_BOTTLE_BOX denote the secondary CARTON for a vertical container, not the bottle or vial itself, so box geometry is correct for them.",
+      "enum": [
+        "T1",
+        "T1_SMALL",
+        "T1_LARGE",
+        "T2",
+        "T3",
+        "T_BOTTLE_BOX",
+        "T_MULTIPACK",
+        "T_VERT_VIAL",
+        "T_VERT_DROPPER",
+        "T_VERT_INHALER"
+      ]
+    },
+    "is_bottle_override": {
+      "description": "Second half of the agent_1_router() decision: the SKU is physically a bottle or vial but is being placeholder-rendered as a generic carton. Reachable only through the geometry-family fallback and false for every SKU in the current catalogue; carried so the routing decision is represented in full rather than silently dropped.",
+      "type": "boolean"
+    },
+    "packaging_geometry": {
+      "description": "Raw geometry class from the passport, retained so a renderer can branch on real form factor without reading the passport. Free-form rather than an enum because it is upstream source data; the values present today are BLISTER, BOTTLE, TUBE, PEN, VIAL, SACHET, BOX and INHALER.",
+      "type": "string",
+      "minLength": 1
+    },
+    "carton": {
+      "description": "Dimensions of the SECONDARY packaging - the printed cardboard box that is actually rendered. This is deliberately NOT the primary package (the blister, bottle or syringe inside): the carton is the primary plus clearance, and for elongated primaries the axes are permuted, so the two are not interchangeable. Always present; when nothing better is known the template_ratio fallback still yields usable numbers, which is what frees consumers from null handling.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width_mm", "height_mm", "depth_mm", "source"],
+      "properties": {
+        "width_mm": {
+          "description": "Carton width in millimetres. Maps to the scene's X axis.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height_mm": {
+          "description": "Carton height in millimetres. Maps to the scene's Z axis (the box stands on the ground plane).",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depth_mm": {
+          "description": "Carton depth in millimetres. Maps to the scene's Y axis.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "source": {
+          "description": "Provenance of the three numbers above, so a consumer or a post-render check can tell measured data from a guess. passport_secondary: parsed straight from the passport's secondary_packaging.dimensions string, the most faithful path and the one taken by every SKU in the current catalogue. derived_from_primary: computed by resolve_secondary(get_primary_package(...)) when that string is missing or unparseable. template_ratio: no dimensional data at all, so the template's documented aspect ratio was applied to a nominal 100mm long edge.",
+          "enum": ["passport_secondary", "derived_from_primary", "template_ratio"]
+        }
+      }
+    },
+    "palette": {
+      "description": "Brand colours. Note the surface-colour mandate: the carton body renders WHITE regardless of primary, and the brand colour appears only as the bottom accent stripe and the top-right badge. A consumer that paints the whole box in primary is not following the reference set.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "accent", "background"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/hexColour" },
+        "accent": { "$ref": "#/$defs/hexColour" },
+        "background": { "$ref": "#/$defs/hexColour" }
+      }
+    },
+    "label_content": {
+      "description": "Exact strings to render on the front face. A 3D renderer must reproduce these verbatim - the advantage over prompt-driven generation is precisely that the text cannot be hallucinated.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brand_name_display", "dosage_display", "unit_count_display"],
+      "properties": {
+        "brand_name_display": {
+          "description": "Product name, top of the label grid. May wrap to two lines.",
+          "type": "string"
+        },
+        "dosage_display": {
+          "description": "Dosage string such as \"20mg\", set bold at bottom-left. Contains at least one digit by Stage 1's verification rules.",
+          "type": "string"
+        },
+        "unit_count_display": {
+          "description": "Quantity string such as \"30 Pills\", set regular at bottom-right.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hexColour": {
+      "description": "sRGB colour as an uppercase-or-lowercase six-digit hex triplet with a leading hash.",
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+    }
+  }
+}

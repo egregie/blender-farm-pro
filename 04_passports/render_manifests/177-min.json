@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "177-min.jpg",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "PEN",
+  "carton": {
+    "width_mm": 45.0,
+    "height_mm": 80.0,
+    "depth_mm": 45.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Penicillin",
+    "dosage_display": "250mg",
+    "unit_count_display": "120 Pills"
+  }
+}

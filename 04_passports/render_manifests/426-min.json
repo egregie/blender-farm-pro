@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "426-min.jpg",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "SACHET",
+  "carton": {
+    "width_mm": 130.0,
+    "height_mm": 90.0,
+    "depth_mm": 40.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#006A4E",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Cialis Oral Jelly",
+    "dosage_display": "20mg",
+    "unit_count_display": "7 Sachets"
+  }
+}

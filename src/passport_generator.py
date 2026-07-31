@@ -22,6 +22,7 @@ from src.utils import load_config, get_path
 _CFG = load_config()
 INPUT_DIR    = get_path(_CFG, "passports_json")
 OUTPUT_DIR   = get_path(_CFG, "passports_md")
+MANIFEST_DIR = get_path(_CFG, "passports_manifests")
 FAILURES_LOG = get_path(_CFG, "failures_log")
 SSOT_MASTER  = get_path(_CFG, "ssot_master_json")
 DESIGN_SPECS_PATH = get_path(_CFG, "ssot_design_specs")
@@ -1384,6 +1385,15 @@ def main():
 
             with open(md_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
+
+            # Render manifest — the structured half of Stage 1's output, and the
+            # contract Stage 2 consumes (schemas/render_manifest.schema.json).
+            # The Markdown above is prose for an LLM; a 3D renderer needs the
+            # decisions instead. Imported here rather than at module scope
+            # because render_manifest imports back into this module.
+            from src.render_manifest import build_manifest, write_manifest, manifest_path_for
+            write_manifest(build_manifest(data),
+                          manifest_path_for(json_path.stem, MANIFEST_DIR))
 
             # Accumulate placeholder routing stats
             geom = str(data.get("packaging_geometry", "BOX"))

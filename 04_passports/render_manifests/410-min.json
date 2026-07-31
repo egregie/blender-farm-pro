@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "410-min.jpg",
+  "template_id": "T_BOTTLE_BOX",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOX",
+  "carton": {
+    "width_mm": 50.0,
+    "height_mm": 110.0,
+    "depth_mm": 18.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Sustanon",
+    "dosage_display": "10mg",
+    "unit_count_display": "1 Pills"
+  }
+}

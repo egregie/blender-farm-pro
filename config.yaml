@@ -22,6 +22,7 @@ paths:
   # ── Stage I/O — remapped to 04_passports/ and 01_input_raster/ ──────────────
   passports_json:      "04_passports/passports_json"           # input  (Stage 1)  JSON v2.1
   passports_md:        "04_passports/passports_markdown"       # output (Stage 1)  MD prompts
+  passports_manifests: "04_passports/render_manifests"         # output (Stage 1)  render manifests — the Stage 1 -> Stage 2 contract (schemas/render_manifest.schema.json)
   renders_raw:         "01_input_raster/gemini_renders_raw"    # output (Stage 2, gemini)  raw PNG
   renders_failed:      "02_processing/render_failed"           # Stage 2 failure screenshots
   renders_failed_logs: "02_processing/failed_logs"             # Stage 2 failure log

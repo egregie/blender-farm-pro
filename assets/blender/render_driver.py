@@ -5,6 +5,12 @@ Invoked headless by src/blender_renderer.py:
         --job <job.json> --out <out.png> --engine-type CYCLES --samples 64 \
         --res-x 2048 --res-y 2048
 
+The job file is a RENDER MANIFEST conforming to
+schemas/render_manifest.schema.json, validated on the project side before it
+gets here. This script therefore trusts its shape and does not re-derive
+anything from it — notably, carton dimensions arrive resolved, so there is no
+aspect-ratio guessing in this file.
+
 Builds a PROCEDURAL packshot scene from the job's structured data (no
 hand-authored .blend asset required — see the roadmap §1 "design choice").
 An OPTIONAL hand-authored "{template_id}.blend" in blender.scenes_dir can be
@@ -44,24 +50,6 @@ if not JOB_PATH or not OUT_PATH:
 
 with open(JOB_PATH, "r", encoding="utf-8") as f:
     JOB = json.load(f)
-
-# ── Template -> box proportions (W:H:D) ───────────────────────────────────────
-# Mirrors the documented Gemini template proportions (docs/ARCHITECTURE.md
-# "Template System" table + the P22 vertical family), so a Blender render and
-# a Gemini render of the same SKU target the same silhouette.
-TEMPLATE_RATIOS = {
-    "T1":            (2.0, 1.0, 1.0),
-    "T1_SMALL":      (2.0, 1.0, 1.0),
-    "T1_LARGE":      (2.0, 1.0, 1.0),
-    "T2":            (1.0, 3.0, 0.5),
-    "T3":            (3.0, 1.0, 0.5),
-    "T_BOTTLE_BOX":  (1.0, 2.2, 1.0),
-    "T_MULTIPACK":   (2.0, 1.0, 1.0),
-    "T_VERT_VIAL":   (1.0, 2.2, 1.0),
-    "T_VERT_DROPPER":(1.0, 2.2, 1.0),
-    "T_VERT_INHALER":(1.0, 2.2, 1.0),
-}
-DEFAULT_RATIO = (2.0, 1.0, 1.0)
 
 # Camera calibration per template family — same numbers used in the Gemini
 # prompt templates (src/passport_generator.py TEMPLATE_* constants).
@@ -108,9 +96,15 @@ def make_material(name: str, hex_color: str, roughness=0.35) -> "bpy.types.Mater
 
 
 def build_box(dims_m, palette: dict):
-    """Primary carton (box) sized in metres, coloured from the SKU palette,
-    with an accent stripe band on the front face (Row-6 rule, see
-    docs/DESIGN_RATIONALE.md §2)."""
+    """The printed carton — i.e. the SECONDARY packaging, which is what a
+    packshot shows — sized in metres, coloured from the SKU palette, with an
+    accent stripe band on the front face (Row-6 rule, see
+    docs/DESIGN_RATIONALE.md §2).
+
+    Not to be confused with the primary package (the blister, bottle or syringe
+    inside): that is a smaller object on different axes, and passing its
+    dimensions here produces an undersized, sometimes misoriented box.
+    """
     w, h, d = dims_m
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, h / 2))
     box = bpy.context.active_object
@@ -148,23 +142,51 @@ def build_background(hex_color: str):
     plane.data.materials.append(mat)
 
 
-def setup_camera(target_size: float):
-    distance = max(target_size * 3.0, 0.3)
-    pitch = math.radians(PITCH_DEG)
-    cam_x = distance * math.sin(pitch) * 0.0  # camera stays on the -Y axis, tilted down via rotation
-    cam_y = -distance * math.cos(pitch)
-    cam_z = distance * math.sin(pitch) + target_size * 0.5
+LENS_MM = 85.0        # matches the documented Gemini optical calibration
+SENSOR_MM = 36.0      # Blender's default sensor width
+# How much of the frame the carton's BOUNDING SPHERE is asked to fill. Values
+# above 1.0 are expected and safe: the sphere circumscribes a flat carton, so
+# the box's own silhouette stays well inside the frame. Calibrated against the
+# measured reference renders, whose dominant axis fills 76-88% of frame with the
+# object centred at 50-52% height; 1.7 puts the four sampled templates at
+# 74-79%. (Note the "45-55%" quoted in reference_analysis.md §1 does not match
+# a direct measurement of those same images.)
+SPHERE_FILL = 1.70
 
-    bpy.ops.object.camera_add(location=(cam_x, cam_y, cam_z))
+
+def setup_camera(dims_m):
+    """Frame the carton from its real size rather than a fixed distance.
+
+    Distance is solved from the bounding sphere and the lens field of view, so
+    a 35mm-deep dropper carton and a 170mm-tall vial tray both fill the frame
+    consistently. The previous fixed `max(size*3, 0.3)` worked only while every
+    box was the same nominal 100mm; with real dimensions it cropped tall cartons
+    and left flat ones tiny.
+    """
+    w, h, d = dims_m
+    centre_z = h / 2.0
+
+    radius = 0.5 * math.sqrt(w * w + h * h + d * d)
+    half_fov = math.atan((SENSOR_MM / 2.0) / LENS_MM)
+    distance = radius / math.sin(SPHERE_FILL * half_fov)
+
+    pitch = math.radians(PITCH_DEG)
+    cam_y = -distance * math.cos(pitch)
+    cam_z = centre_z + distance * math.sin(pitch)
+
+    # Aim by explicit rotation rather than a TRACK_TO constraint. A constraint
+    # only resolves once the depsgraph is evaluated, which made framing depend
+    # on evaluation order and left the carton riding high in the frame; a
+    # camera rotated (90deg - pitch) about X looks along +Y tilted down by
+    # exactly `pitch`, putting the aim point dead centre every time.
+    bpy.ops.object.camera_add(
+        location=(0.0, cam_y, cam_z),
+        rotation=(math.radians(90.0) - pitch, 0.0, 0.0),
+    )
     cam = bpy.context.active_object
     cam.name = "camera"
-    cam.data.lens = 85  # 85mm, matches the documented Gemini optical calibration
-    cam.data.dof.aperture_fstop = 8.0  # f/8, same documented value
-
-    constraint = cam.constraints.new(type="TRACK_TO")
-    constraint.target = bpy.data.objects.get("carton")
-    constraint.track_axis = "TRACK_NEGATIVE_Z"
-    constraint.up_axis = "UP_Y"
+    cam.data.lens = LENS_MM
+    cam.data.dof.aperture_fstop = 8.0  # f/8, same documented value (DOF stays off)
 
     bpy.context.scene.camera = cam
 
@@ -225,9 +247,22 @@ def main():
     clear_scene()
 
     palette = JOB.get("palette", {}) or {}
-    pp = JOB.get("primary_package", {}) or {}
     template_id = JOB.get("template_id", "T1")
-    ratio = TEMPLATE_RATIOS.get(template_id, DEFAULT_RATIO)
+
+    # Carton dimensions are guaranteed by the manifest contract, which resolves
+    # them (and records their provenance) before anything reaches Blender. There
+    # is deliberately no aspect-ratio guess here any more: the fallback table
+    # lives once, in src/render_manifest.py. A missing carton means the job was
+    # not built through the contract, and rendering a silently wrong size is
+    # worse than stopping.
+    carton = JOB.get("carton")
+    if not carton:
+        raise SystemExit(
+            "[render_driver] job has no 'carton' block — it was not produced by "
+            "src/render_manifest.py. Regenerate it via Stage 1 or "
+            "src.blender_renderer, which validate against "
+            "schemas/render_manifest.schema.json."
+        )
 
     # Optional Phase-2 hand-authored .blend override (loaded instead of the
     # procedural build below, if the loader finds a matching file).
@@ -238,21 +273,15 @@ def main():
         # A hand-authored scene is expected to already own camera/lights/materials;
         # only the render settings are still applied below.
     else:
-        if pp.get("width_mm") and pp.get("height_mm") and pp.get("depth_mm"):
-            dims_m = (float(pp["width_mm"]) / 1000.0,
-                     float(pp["height_mm"]) / 1000.0,
-                     float(pp["depth_mm"]) / 1000.0)
-        else:
-            # Data-absent fallback: apply the template's documented aspect
-            # ratio to a nominal 100mm long edge.
-            base = 0.1
-            rw, rh, rd = ratio
-            longest = max(rw, rh, rd)
-            dims_m = (base * rw / longest, base * rh / longest, base * rd / longest)
+        dims_m = (float(carton["width_mm"]) / 1000.0,
+                 float(carton["height_mm"]) / 1000.0,
+                 float(carton["depth_mm"]) / 1000.0)
+        print(f"[render_driver] carton {carton['width_mm']}x{carton['height_mm']}"
+              f"x{carton['depth_mm']}mm (source: {carton.get('source', 'unknown')})")
 
         box, target_size = build_box(dims_m, palette)
         build_background(palette.get("background", "#FFFFFF"))
-        setup_camera(target_size)
+        setup_camera(dims_m)
         setup_lighting(target_size)
 
     setup_render(OUT_PATH, ENGINE, SAMPLES, RES_X, RES_Y)

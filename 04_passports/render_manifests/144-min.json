@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "144-min.jpg",
+  "template_id": "T_VERT_VIAL",
+  "is_bottle_override": false,
+  "packaging_geometry": "VIAL",
+  "carton": {
+    "width_mm": 80.0,
+    "height_mm": 170.0,
+    "depth_mm": 35.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "HUCOG-2000 HP",
+    "dosage_display": "2000iu",
+    "unit_count_display": "10 Vials"
+  }
+}

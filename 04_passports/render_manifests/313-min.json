@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0",
+  "sku_id": "313-min.jpg",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOX",
+  "carton": {
+    "width_mm": 110.0,
+    "height_mm": 50.0,
+    "depth_mm": 18.0,
+    "source": "passport_secondary"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Viagra Strips",
+    "dosage_display": "100mg",
+    "unit_count_display": "1 Pills"
+  }
+}
