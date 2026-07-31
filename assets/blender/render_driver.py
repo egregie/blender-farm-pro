@@ -44,8 +44,12 @@ ENGINE     = _arg("--engine-type", "CYCLES")
 SAMPLES    = int(_arg("--samples", "64"))
 RES_X      = int(_arg("--res-x", "2048"))
 RES_Y      = int(_arg("--res-y", "2048"))
+# Debug facility: build the scene, write measured geometry as JSON, skip the
+# render. Lets the test suite and a human check real scale/seating/framing
+# without waiting on Cycles. Never used by the normal render path.
+DUMP_SCENE = _arg("--dump-scene")
 
-if not JOB_PATH or not OUT_PATH:
+if not JOB_PATH or not (OUT_PATH or DUMP_SCENE):
     raise SystemExit("[render_driver] --job and --out are required")
 
 with open(JOB_PATH, "r", encoding="utf-8") as f:
@@ -106,10 +110,18 @@ def build_box(dims_m, palette: dict):
     dimensions here produces an undersized, sometimes misoriented box.
     """
     w, h, d = dims_m
+    # size=1.0 is a UNIT cube: it spans -0.5..0.5, so its edge length is 1 and
+    # the scale factor IS the finished edge length in metres. Scaling it by
+    # (w/2, d/2, h/2) — the half-extents, which is what you would want from
+    # Blender's *default* size=2.0 cube — is the trap that built every carton at
+    # half its nominal millimetres. Scene units are real metres here.
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, h / 2))
     box = bpy.context.active_object
     box.name = "carton"
-    box.scale = (w / 2, d / 2, h / 2)
+    box.scale = (w, d, h)
+    # Centre sits at z = h/2 with a half-height of h/2, so the carton rests ON
+    # the backdrop. A carton that floats casts the detached contact shadow the
+    # reference renders do not have.
     bpy.ops.object.transform_apply(scale=True)
 
     body_mat = make_material("carton_body", palette.get("primary", "#FFFFFF"), roughness=0.5)
@@ -118,12 +130,19 @@ def build_box(dims_m, palette: dict):
     accent_hex = palette.get("accent")
     if accent_hex:
         stripe_h = h * 0.08
+        # y: the front face is at -d/2, and the band is 1mm thick, so offsetting
+        # the centre by half that (0.0005) lays its back face exactly on the
+        # face and leaves it standing 1mm proud — printed on the carton rather
+        # than floating in front of it. This only lands on the face because the
+        # carton above is built at true scale; against the old half-size box the
+        # band hung d/4 (12mm on a T1) out in mid-air.
         bpy.ops.mesh.primitive_cube_add(
             size=1.0, location=(0, -d / 2 - 0.0005, h * 0.55),
         )
         stripe = bpy.context.active_object
         stripe.name = "accent_stripe"
-        stripe.scale = (w / 2 * 0.98, 0.001, stripe_h / 2)
+        # Same unit-cube convention as the carton: scale == edge length.
+        stripe.scale = (w * 0.98, 0.001, stripe_h)
         bpy.ops.object.transform_apply(scale=True)
         stripe_mat = make_material("accent_stripe_mat", accent_hex, roughness=0.3)
         stripe.data.materials.append(stripe_mat)
@@ -144,14 +163,24 @@ def build_background(hex_color: str):
 
 LENS_MM = 85.0        # matches the documented Gemini optical calibration
 SENSOR_MM = 36.0      # Blender's default sensor width
-# How much of the frame the carton's BOUNDING SPHERE is asked to fill. Values
-# above 1.0 are expected and safe: the sphere circumscribes a flat carton, so
-# the box's own silhouette stays well inside the frame. Calibrated against the
-# measured reference renders, whose dominant axis fills 76-88% of frame with the
-# object centred at 50-52% height; 1.7 puts the four sampled templates at
-# 74-79%. (Note the "45-55%" quoted in reference_analysis.md §1 does not match
-# a direct measurement of those same images.)
-SPHERE_FILL = 1.70
+# How much of the half-FOV the carton's BOUNDING SPHERE is asked to subtend.
+# Calibrated against the measured reference renders, whose dominant axis fills
+# 76-88% of frame with the object centred at 50-52% height. (Note the "45-55%"
+# quoted in reference_analysis.md §1 does not match a direct measurement of
+# those same images.)
+#
+# This was 1.70 for as long as build_box() made half-size cartons: `radius`
+# below is derived from the manifest's true millimetres, so the camera was
+# already framing a full-size box while the box in the scene was half of one,
+# and the constant had been tuned upward to absorb exactly that factor of 2.
+# The old comment defended values above 1.0 as "expected and safe"; they were
+# neither — they were the bug wearing a justification.
+#
+# 0.8365 = asin(sin(1.70 * half_fov) / 2) / half_fov, i.e. the value that puts
+# a TRUE-scale carton at the same distance/size ratio the tuned constant had
+# been producing. Framing is therefore unchanged: T1 measures 0.7561 of frame
+# width before and after (tests/test_blender_carton.py pins it).
+SPHERE_FILL = 0.8365
 
 
 def setup_camera(dims_m):
@@ -243,6 +272,101 @@ def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: in
     scene.render.filepath = out_path
 
 
+def _world_corners(obj):
+    """The 8 bound-box corners of `obj` in WORLD space."""
+    from mathutils import Vector
+    return [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+
+
+def _extent(points):
+    """axis-aligned {min,max,size} over a list of 3D points."""
+    lo = [min(p[i] for p in points) for i in range(3)]
+    hi = [max(p[i] for p in points) for i in range(3)]
+    return {"min": lo, "max": hi, "size": [hi[i] - lo[i] for i in range(3)]}
+
+
+def dump_scene(path: str, dims_m):
+    """Write measured scene geometry as JSON instead of rendering.
+
+    Everything here is MEASURED off the evaluated scene (bound_box through
+    matrix_world), never recomputed from the job — that is the whole point: it
+    is the check that what Blender actually built matches the millimetres the
+    manifest asked for.
+
+    `framing` projects the carton's corners through the real camera with
+    bpy_extras' world_to_camera_view, giving the silhouette's normalised extent
+    (0..1 = frame edges). That is how SPHERE_FILL is calibrated without having
+    to measure pixels in a finished render.
+    """
+    from bpy_extras.object_utils import world_to_camera_view
+
+    scene = bpy.context.scene
+    w, h, d = dims_m
+    box = bpy.data.objects.get("carton")
+    stripe = bpy.data.objects.get("accent_stripe")
+    cam = scene.camera
+
+    out = {
+        "requested_mm": {"width": w * 1000.0, "height": h * 1000.0, "depth": d * 1000.0},
+        "sphere_fill": SPHERE_FILL,
+        "template_id": JOB.get("template_id"),
+        "rotation_deg": ROTATION_DEG,
+        "pitch_deg": PITCH_DEG,
+    }
+
+    if box is not None:
+        corners = _world_corners(box)
+        out["carton"] = {
+            # dimensions is Blender's own local-space measure -> catches a
+            # mis-scaled mesh directly, in metres.
+            "dimensions": list(box.dimensions),
+            "location": list(box.location),
+            "world": _extent(corners),
+        }
+        # Seating: distance from the ground plane (z=0) to the lowest corner.
+        # 0 means the carton sits on the plane; >0 means it floats.
+        out["carton"]["ground_gap"] = out["carton"]["world"]["min"][2]
+
+    if stripe is not None:
+        sworld = _world_corners(stripe)
+        out["stripe"] = {
+            "dimensions": list(stripe.dimensions),
+            "world": _extent(sworld),
+        }
+        if box is not None:
+            inv = box.matrix_world.inverted()
+            out["stripe"]["local"] = _extent([inv @ c for c in sworld])
+            out["stripe"]["carton_local"] = _extent(
+                [inv @ c for c in _world_corners(box)]
+            )
+
+    if cam is not None:
+        out["camera"] = {
+            "location": list(cam.location),
+            "rotation_deg": [math.degrees(a) for a in cam.rotation_euler],
+            "lens_mm": cam.data.lens,
+        }
+        if box is not None:
+            ndc = [world_to_camera_view(scene, cam, c) for c in _world_corners(box)]
+            xs = [p.x for p in ndc]
+            ys = [p.y for p in ndc]
+            out["framing"] = {
+                "x_min": min(xs), "x_max": max(xs),
+                "y_min": min(ys), "y_max": max(ys),
+                "width_frac": max(xs) - min(xs),
+                "height_frac": max(ys) - min(ys),
+                "centre_y_frac": (max(ys) + min(ys)) / 2.0,
+            }
+            out["framing"]["max_frac"] = max(
+                out["framing"]["width_frac"], out["framing"]["height_frac"]
+            )
+
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+    print(f"[render_driver] dumped scene measurements to {path}")
+
+
 def main():
     clear_scene()
 
@@ -264,6 +388,12 @@ def main():
             "schemas/render_manifest.schema.json."
         )
 
+    # Millimetres -> metres. Hoisted above the .blend branch because
+    # --dump-scene reports against these whichever way the scene was built.
+    dims_m = (float(carton["width_mm"]) / 1000.0,
+              float(carton["height_mm"]) / 1000.0,
+              float(carton["depth_mm"]) / 1000.0)
+
     # Optional Phase-2 hand-authored .blend override (loaded instead of the
     # procedural build below, if the loader finds a matching file).
     scenes_dir = Path(_arg("--scenes-dir", "")) if _arg("--scenes-dir") else None
@@ -273,9 +403,6 @@ def main():
         # A hand-authored scene is expected to already own camera/lights/materials;
         # only the render settings are still applied below.
     else:
-        dims_m = (float(carton["width_mm"]) / 1000.0,
-                 float(carton["height_mm"]) / 1000.0,
-                 float(carton["depth_mm"]) / 1000.0)
         print(f"[render_driver] carton {carton['width_mm']}x{carton['height_mm']}"
               f"x{carton['depth_mm']}mm (source: {carton.get('source', 'unknown')})")
 
@@ -284,7 +411,14 @@ def main():
         setup_camera(dims_m)
         setup_lighting(target_size)
 
-    setup_render(OUT_PATH, ENGINE, SAMPLES, RES_X, RES_Y)
+    setup_render(OUT_PATH or "", ENGINE, SAMPLES, RES_X, RES_Y)
+
+    # Measurement mode short-circuits the render. Placed AFTER setup_render so
+    # the dumped framing reflects the real output resolution/aspect.
+    if DUMP_SCENE:
+        dump_scene(DUMP_SCENE, dims_m)
+        return
+
     bpy.ops.render.render(write_still=True)
     print(f"[render_driver] wrote {OUT_PATH}")
 
