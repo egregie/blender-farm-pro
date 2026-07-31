@@ -301,6 +301,101 @@ class TestCartonSurfaceColour(unittest.TestCase):
 
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
+class TestCartonIsMatte(unittest.TestCase):
+    """Matte uncoated cardstock, roughness ~0.6-0.8 (reference_analysis.md §4).
+
+    §8 asks for 0.7-0.8 specifically; the body was 0.5 and the printed accent
+    0.3, both of which read as semi-gloss. The references show no print sheen on
+    the stripe or badge either, so the ink is held to the same band as the body.
+    """
+
+    MIN_ROUGHNESS, MAX_ROUGHNESS = 0.6, 0.8
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scene = build_scene(JOB)
+
+    def test_every_printed_surface_is_matte(self):
+        for part in ("carton", "stripe", "badge"):
+            with self.subTest(part=part):
+                roughness = self.scene[part]["roughness"]
+                self.assertIsNotNone(roughness, f"{part} exposes no roughness")
+                self.assertGreaterEqual(
+                    roughness, self.MIN_ROUGHNESS,
+                    f"{part} roughness {roughness} reads as semi-gloss")
+                self.assertLessEqual(
+                    roughness, self.MAX_ROUGHNESS,
+                    f"{part} roughness {roughness} is too diffuse for cardstock")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestBrandBadge(unittest.TestCase):
+    """The second half of the two-colour rule: a square badge, top-right.
+
+    The stripe alone does not satisfy the art direction — reference_analysis.md
+    §5 lists brand colour in exactly TWO places, and this one was never built.
+    Its colour is palette.PRIMARY, not the stripe's accent
+    (`badge_bg_hex = primary_hex` in the front-panel grid).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scene = build_scene(JOB)
+        cls.badge = cls.scene["badge"]
+        b = cls.scene["carton"]["self_bounds"]
+        cls.half_w = (b["max"][0] - b["min"][0]) / 2.0
+        cls.half_d = (b["max"][1] - b["min"][1]) / 2.0
+        cls.top_z = b["max"][2]
+        cls.front_y = b["min"][1]
+
+    def test_badge_exists(self):
+        self.assertIsNotNone(self.badge, "no brand_badge object was built")
+
+    def test_badge_is_the_palette_primary_not_the_accent(self):
+        expected = srgb_hex_to_linear(JOB["palette"]["primary"])
+        actual = self.badge["base_color"][:3]
+        for channel, (want, got) in zip("RGB", zip(expected, actual)):
+            self.assertAlmostEqual(
+                got, want, places=4,
+                msg=f"badge {channel} is {got:.4f}, expected {want:.4f} from "
+                    f"palette.primary {JOB['palette']['primary']}")
+
+    def test_badge_is_in_the_top_right_corner(self):
+        b = self.badge["bounds_in_carton_frame"]
+        self.assertGreater(
+            b["min"][0], 0.0,
+            "badge crosses the centre line - it is not in the RIGHT corner")
+        self.assertLess(
+            self.top_z - b["max"][2], 0.10 * (2 * self.half_w),
+            "badge is not tucked into the TOP of the face")
+        self.assertLessEqual(b["max"][0], self.half_w + 1e-6,
+                             "badge overhangs the right edge of the face")
+        self.assertLessEqual(b["max"][2], self.top_z + 1e-6,
+                             "badge overhangs the top edge of the face")
+
+    def test_badge_is_a_small_square(self):
+        """'approximately 6-8% of panel width', subordinate to the typography."""
+        b = self.badge["bounds_in_carton_frame"]
+        width = b["max"][0] - b["min"][0]
+        height = b["max"][2] - b["min"][2]
+        self.assertAlmostEqual(width, height, places=6, msg="badge is not square")
+        frac = width / (2 * self.half_w)
+        self.assertGreaterEqual(frac, 0.06, f"badge is {frac:.1%} of face width")
+        self.assertLessEqual(frac, 0.08, f"badge is {frac:.1%} of face width")
+
+    def test_badge_is_welded_to_the_front_face(self):
+        """Same failure mode the stripe had: printed, not hovering."""
+        b = self.badge["bounds_in_carton_frame"]
+        standoff = self.front_y - b["min"][1]
+        self.assertGreaterEqual(standoff, 0.0, "badge is sunk inside the carton")
+        self.assertLess(
+            standoff, 0.02 * (2 * self.half_d),
+            f"badge floats {standoff:.5f} in front of the face")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
 class TestFraming(unittest.TestCase):
     """Framing is an INVARIANT across the true-scale change.
 

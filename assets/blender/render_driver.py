@@ -110,11 +110,26 @@ STRIPE_TARGET_M = 0.004
 STRIPE_MIN_FRAC = 0.08
 STRIPE_MAX_FRAC = 0.12
 
+# The second — and only other — place brand colour is allowed on a carton: a
+# small square badge in the TOP-RIGHT corner of the front face, "approximately
+# 6-8% of panel width" (front-panel grid, src/passport_generator.py), set in
+# from the corner by a minimal margin and subordinate to the typography.
+BADGE_WIDTH_FRAC = 0.07
+BADGE_MARGIN_FRAC = 0.03
+
+# Matte, uncoated cardstock: reference_analysis.md §4 reads roughness as ~0.6-0.8
+# and §8 asks for 0.7-0.8 specifically. It applies to the printed accent too —
+# the references show no print sheen on the stripe or badge either, so a glossier
+# value for the ink would be just as much a mismatch as it is on the body.
+CARTON_ROUGHNESS = 0.7
+
 
 def build_box(dims_m, palette: dict):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
-    packshot shows — sized in metres, with an accent stripe band welded to the
-    bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2).
+    packshot shows — sized in metres, WHITE-bodied, carrying the two and only
+    two pieces of brand colour the art direction allows on a front face: an
+    accent stripe welded to the bottom edge, and a square badge in the top-right
+    corner.
 
     Not to be confused with the primary package (the blister, bottle or syringe
     inside): that is a smaller object on different axes, and passing its
@@ -124,6 +139,12 @@ def build_box(dims_m, palette: dict):
     every SKU. palette.primary is deliberately NOT painted onto it — in the
     references the brand colour appears only in this stripe and in a top-right
     badge, so a body tinted with primary is a mismatch, not a brand cue.
+
+    The "Row 6" rule both elements come from is defined in the front-panel grid
+    in src/passport_generator.py ("very bottom edge of the FRONT FACE") and
+    written up in docs/DESIGN_RATIONALE.md §7. Earlier revisions of this
+    docstring cited §2 of that document, which is "Why Markdown, not JSON" and
+    justifies nothing here.
     """
     w, h, d = dims_m
     # size=1.0 is a UNIT cube: it spans -0.5..0.5, so its edge length is 1 and
@@ -140,7 +161,7 @@ def build_box(dims_m, palette: dict):
     # reference renders do not have.
     bpy.ops.object.transform_apply(scale=True)
 
-    body_mat = make_material("carton_body", "#FFFFFF", roughness=0.5)
+    body_mat = make_material("carton_body", "#FFFFFF", roughness=CARTON_ROUGHNESS)
     box.data.materials.append(body_mat)
 
     # Measure the mesh that was actually built instead of assuming it spans
@@ -178,7 +199,8 @@ def build_box(dims_m, palette: dict):
         # Same unit-cube convention as the carton: scale == edge length.
         stripe.scale = (face_w * 0.999, half_thick * 2, stripe_h)
         bpy.ops.object.transform_apply(scale=True)
-        stripe_mat = make_material("accent_stripe_mat", accent_hex, roughness=0.3)
+        stripe_mat = make_material("accent_stripe_mat", accent_hex,
+                                   roughness=CARTON_ROUGHNESS)
         stripe.data.materials.append(stripe_mat)
 
         # Parent BEFORE rotating, and pin matrix_parent_inverse explicitly. Both
@@ -190,6 +212,34 @@ def build_box(dims_m, palette: dict):
         # matrix_parent_inverse and the parent's transform is applied twice.
         stripe.parent = box
         stripe.matrix_parent_inverse = box.matrix_world.inverted()
+
+    # The badge takes the BRAND colour, which is NOT the stripe's accent:
+    # `badge_bg_hex = primary_hex` in the front-panel grid, and palette.accent is
+    # consistently the darker, more saturated of the two. This is the one place
+    # palette.primary legitimately appears on a carton — painting the body with
+    # it (as this function used to) is the mismatch, not the badge.
+    badge_hex = palette.get("primary") or palette.get("accent")
+    if badge_hex:
+        badge = face_w * BADGE_WIDTH_FRAC
+        margin = face_w * BADGE_MARGIN_FRAC
+        half_thick = depth * 0.002
+        # +X is screen-right for this camera (it looks along +Y with +Z up), so
+        # max-x/max-z is the corner the references put the badge in.
+        bpy.ops.mesh.primitive_cube_add(
+            size=1.0,
+            location=(max(xs) - margin - badge / 2, front_y,
+                      max(zs) - margin - badge / 2),
+        )
+        badge_obj = bpy.context.active_object
+        badge_obj.name = "brand_badge"
+        # Square on the face; same unit-cube convention as the carton and stripe.
+        badge_obj.scale = (badge, half_thick * 2, badge)
+        bpy.ops.object.transform_apply(scale=True)
+        badge_obj.data.materials.append(
+            make_material("brand_badge_mat", badge_hex, roughness=CARTON_ROUGHNESS)
+        )
+        badge_obj.parent = box
+        badge_obj.matrix_parent_inverse = box.matrix_world.inverted()
 
     box.rotation_euler[2] = math.radians(ROTATION_DEG)
     return box, max(w, h, d)
@@ -327,6 +377,23 @@ def _base_color(obj):
     return list(bsdf.inputs["Base Color"].default_value)
 
 
+def _roughness(obj):
+    """Principled BSDF roughness of an object's first material, or None.
+
+    Surfaced because "matte cardboard, not semi-gloss" is a checkable constraint
+    (reference_analysis.md §4) and roughness is the only thing expressing it.
+    """
+    if not obj.data.materials:
+        return None
+    mat = obj.data.materials[0]
+    if not mat.use_nodes:
+        return None
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf is None or "Roughness" not in bsdf.inputs:
+        return None
+    return float(bsdf.inputs["Roughness"].default_value)
+
+
 def _bounds_in_frame(obj, reference):
     """Axis-aligned bounds of obj's mesh expressed in `reference`'s local frame.
 
@@ -368,12 +435,14 @@ def dump_scene(path: str, dims_m):
     w, h, d = dims_m
     box = bpy.data.objects.get("carton")
     stripe = bpy.data.objects.get("accent_stripe")
+    badge = bpy.data.objects.get("brand_badge")
     cam = scene.camera
     bpy.context.view_layer.update()
 
     out = {
         "carton": None,
         "stripe": None,
+        "badge": None,
         # What the manifest ASKED for, so a test can compare built against
         # requested rather than against another derivation of the same input.
         "requested_mm": {"width": w * 1000.0, "height": h * 1000.0,
@@ -391,6 +460,7 @@ def dump_scene(path: str, dims_m):
             "self_bounds": _bounds_in_frame(box, box),
             "rotation_z_deg": math.degrees(box.matrix_world.to_euler().z),
             "base_color": _base_color(box),
+            "roughness": _roughness(box),
             # Distance from the backdrop (z=0) to the lowest corner: 0 means the
             # carton rests on the plane, >0 means it floats and will throw the
             # detached contact shadow the references do not have.
@@ -400,6 +470,13 @@ def dump_scene(path: str, dims_m):
             out["stripe"] = {
                 "bounds_in_carton_frame": _bounds_in_frame(stripe, box),
                 "base_color": _base_color(stripe),
+                "roughness": _roughness(stripe),
+            }
+        if badge is not None:
+            out["badge"] = {
+                "bounds_in_carton_frame": _bounds_in_frame(badge, box),
+                "base_color": _base_color(badge),
+                "roughness": _roughness(badge),
             }
 
         if cam is not None:
