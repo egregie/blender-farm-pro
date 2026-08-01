@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # all 100 tests (25 need Blender; skipped without it)
+python -m unittest discover -s tests          # all 109 tests (34 need Blender; skipped without it)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
