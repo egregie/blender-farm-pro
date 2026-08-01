@@ -128,16 +128,54 @@ text is something Blender can *guarantee* where Gemini cannot.
 ## 8. Concrete tuning recommendations for `assets/blender/render_driver.py`
 
 Based on §2–4 above, before further Blender template work:
-- Reduce ground-contact shadow further (lower key-light size/raise light
+- ✅ ~~Reduce ground-contact shadow further (lower key-light size/raise light
   height, or add a subtle contact-shadow-only technique) — references show
-  almost no visible shadow, current driver still shows one.
-- Raise the body material roughness from `0.5` toward **~0.7–0.8** (matte
-  cardboard, not semi-gloss).
-- Do **not** implement a literal DOF blur at f/8 — these references read as
+  almost no visible shadow, current driver still shows one.~~ *Closed by
+  measurement, not by tuning. This recommendation predates the fix that seats
+  the carton on the backdrop; a floating carton was what threw the detached
+  shadow. Comparing the darkest pixel under the object against the backdrop at
+  the same image rows (so the backdrop's own gradient cannot be mistaken for a
+  shadow): ours 0.8%, `T1_LARGE_352` 0.7%, `T1_1` 2.4%, `T3_111` 4.0%. Our
+  contact shadow is inside the reference range and shallower than two of the
+  three — there is nothing left to reduce.*
+- ✅ **Backdrop must be seamless white** — found while measuring the item above,
+  and a bigger mismatch than the shadow ever was. §1 calls for "a single,
+  seamless white plane"; all four frame corners measure 255 in every reference
+  (spread 0.1). A purely diffuse plane lit only by the two small area lights
+  fell off to 190 at the top of frame against 252 at the bottom (spread 61.5) —
+  a visible grey horizon. *Fixed: `BACKDROP_EMISSION = 16.0` makes the plane
+  emit rather than merely be lit, so it clips to white at every distance
+  (spread 0.0). Key and fill are untouched at 25W/8W; the emitting plane also
+  acts as the bounce card a real high-key set would use, which corrected the
+  front-vs-side face contrast from −3 (side lighter than front, backwards) to
+  +9. Guarded by `TestBackdropIsSeamlessWhite`, which renders a 256px draft
+  and measures the corners.*
+- ✅ Raise the body material roughness from `0.5` toward **~0.7–0.8** (matte
+  cardboard, not semi-gloss). *Done: `CARTON_ROUGHNESS = 0.7` in
+  `render_driver.py`, applied to the printed accent too (§4: no print sheen
+  either). Asserted by `tests/test_blender_carton.py`.*
+- ✅ Do **not** implement a literal DOF blur at f/8 — these references read as
   fully sharp; a strong DOF would look *less* like the reference set, not more.
-- The white-body / two-accent-color rule (stripe + corner badge) is confirmed
+  *Still the case: an f/8 aperture value is set but DOF stays disabled.*
+- ✅ The white-body / two-accent-color rule (stripe + corner badge) is confirmed
   and should be treated as a hard constraint on any future template, not just
-  a nice-to-have.
+  a nice-to-have. *Now built and enforced: the body no longer takes
+  `palette.primary`, the stripe sits at the bottom edge, and the corner badge
+  is built. Written up in `docs/DESIGN_RATIONALE.md` §7.*
+
+Still open, and the largest remaining gap to the references: **the carton is
+under-modelled.** Front-vs-side face contrast measures +9 here against +26 in
+`T1_1` — the references show a much more definite falloff between the lit front
+and the shaded side (§3). Closing it means changing the size or position of the
+key and fill, which is the one part of `setup_lighting` deliberately frozen (its
+25W/8W are studio-strobe values that replaced room-scale wattages which blew out
+the frame), so it needs a decision before anyone touches it.
+
+Note for whoever picks that up: `--dump-scene <path>` on the driver builds the
+scene and writes measured geometry as JSON without rendering, which is how the
+geometric rules above are tested without inspecting pixels. Lighting is the
+exception — it is not geometry, so `TestBackdropIsSeamlessWhite` renders a small
+draft and measures it instead.
 
 ## 9. Coverage & open questions
 
