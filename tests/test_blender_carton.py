@@ -299,6 +299,86 @@ class TestCartonSurfaceColour(unittest.TestCase):
                     f"palette.accent {JOB['palette']['accent']}")
 
 
+def render_small(job, px=256, samples=8):
+    """Actually render, at throwaway resolution, and return the pixels.
+
+    The one property here that is NOT geometry: whether the backdrop reads as
+    seamless white. --dump-scene cannot answer it, because it is the result of
+    light reaching a surface rather than of where anything was placed. A 256px
+    draft costs a couple of seconds and answers it directly.
+    """
+    from PIL import Image
+
+    with tempfile.TemporaryDirectory() as tmp:
+        job_path = Path(tmp) / "job.json"
+        out_path = Path(tmp) / "render.png"
+        job_path.write_text(json.dumps(job), encoding="utf-8")
+        proc = subprocess.run(
+            [BLENDER_EXE, "--background", "--factory-startup",
+             "--python", DRIVER_SCRIPT, "--",
+             "--job", str(job_path), "--out", str(out_path),
+             "--samples", str(samples), "--res-x", str(px), "--res-y", str(px)],
+            capture_output=True, text=True, timeout=600,
+        )
+        if not out_path.exists():
+            raise AssertionError(
+                f"driver produced no render (exit {proc.returncode})\n"
+                f"--- stderr ---\n{proc.stderr[-2000:]}"
+            )
+        im = Image.open(out_path).convert("RGB")
+        return im.copy()
+
+
+def _corner_luminance(im, box=24):
+    """Mean luminance of each of the four frame corners.
+
+    Corners are backdrop in every packshot in this catalogue — the carton is
+    centred and fills ~76% of frame — so their spread is the backdrop's
+    evenness with the object excluded by construction.
+    """
+    w, h = im.size
+    px = im.load()
+    out = []
+    for xs, ys in (((0, box), (0, box)), ((w - box, w), (0, box)),
+                   ((0, box), (h - box, h)), ((w - box, w), (h - box, h))):
+        vals = [0.2126 * px[x, y][0] + 0.7152 * px[x, y][1] + 0.0722 * px[x, y][2]
+                for x in range(*xs) for y in range(*ys)]
+        out.append(sum(vals) / len(vals))
+    return out
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestBackdropIsSeamlessWhite(unittest.TestCase):
+    """reference_analysis.md §1: "a single, seamless white plane", no horizon.
+
+    Measured on the curated references, all four frame corners sit at 255 with a
+    spread of 0.1. A purely diffuse backdrop lit only by the two small area
+    lights fell off to 190 at the top of frame while the bottom reached 252 — a
+    spread of 61.5, which reads as a grey gradient rather than seamless white.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.corners = _corner_luminance(render_small(JOB))
+
+    def test_backdrop_is_white(self):
+        for i, value in enumerate(self.corners):
+            with self.subTest(corner=i):
+                self.assertGreater(
+                    value, 250.0,
+                    f"frame corner {i} is {value:.0f}/255 — the backdrop is not "
+                    "white there")
+
+    def test_backdrop_has_no_visible_gradient(self):
+        spread = max(self.corners) - min(self.corners)
+        self.assertLess(
+            spread, 4.0,
+            f"backdrop luminance varies by {spread:.1f} across the frame "
+            f"(corners {', '.join(f'{c:.0f}' for c in self.corners)}) — the "
+            "references vary by 0.1, so this reads as a visible horizon")
+
+
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
 class TestCartonIsMatte(unittest.TestCase):

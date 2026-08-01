@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # all 98 tests (23 need Blender; skipped without it)
+python -m unittest discover -s tests          # all 100 tests (25 need Blender; skipped without it)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -221,7 +221,12 @@ Hard constraints derived from that analysis:
 - **Matte cardboard**, roughness ~0.6–0.8 — not semi-gloss. `CARTON_ROUGHNESS` in the driver
   covers the printed accent too; the references show no print sheen either.
 - **Near-shadowless high-key lighting** ("product floating on white"); a visible contact
-  shadow is a mismatch.
+  shadow is a mismatch. Measured contact shadow is currently 0.8% vs 0.7–4.0% across the
+  references — inside range, nothing to reduce.
+- **Seamless white backdrop**, all four frame corners at 255. The plane EMITS
+  (`BACKDROP_EMISSION`) rather than being lit, because two small area lights fall off with
+  distance and leave a grey gradient. This is not a substitute for key/fill — it also serves
+  as the bounce card that gives the front face its lift.
 - **No depth-of-field.** References read as fully sharp; DOF is deliberately disabled in the
   driver even though an f/8 aperture value is set.
 

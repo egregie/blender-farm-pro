@@ -245,11 +245,31 @@ def build_box(dims_m, palette: dict):
     return box, max(w, h, d)
 
 
+# The backdrop EMITS rather than merely being lit. Two small area lights fall
+# off with the square of distance, so a purely diffuse plane renders as a grey
+# vertical gradient — measured at 190..252 across the frame against a flat 255
+# in every reference render, which is a visible horizon where §1 calls for "a
+# single, seamless white plane". Emission decouples the backdrop's brightness
+# from the lights entirely, so it clips to white at every distance.
+#
+# 16 is where the gradient disappears completely (corner spread 61.5 -> 0.0,
+# matching the references' 0.1). It is deliberately NOT a substitute for the key
+# and fill: those still do all the modelling on the carton, and their 25W/8W are
+# untouched. The plane doubles as the bounce card a real high-key set would use,
+# which also corrected the front-vs-side face contrast from -3 (side lighter
+# than front — backwards) to +9.
+BACKDROP_EMISSION = 16.0
+
+
 def build_background(hex_color: str):
     bpy.ops.mesh.primitive_plane_add(size=50, location=(0, 0, 0))
     plane = bpy.context.active_object
     plane.name = "background"
     mat = make_material("background_mat", hex_color or "#FFFFFF", roughness=0.9)
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf is not None and "Emission Strength" in bsdf.inputs:
+        bsdf.inputs["Emission Color"].default_value = hex_to_rgba(hex_color or "#FFFFFF")
+        bsdf.inputs["Emission Strength"].default_value = BACKDROP_EMISSION
     plane.data.materials.append(mat)
 
 
