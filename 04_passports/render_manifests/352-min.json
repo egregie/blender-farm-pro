@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "352-min.jpg",
   "template_id": "T1_LARGE",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Aleve",
+    "active_ingredient_display": "Naproxen Sodium",
     "dosage_display": "220mg",
     "unit_count_display": "250 Pills"
   }

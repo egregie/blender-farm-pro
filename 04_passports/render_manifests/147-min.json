@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "147-min.jpg",
   "template_id": "T_VERT_VIAL",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Sustaviron-250",
+    "active_ingredient_display": "Testosterone Blend (Sustanon 250)",
     "dosage_display": "250mg",
     "unit_count_display": "10 Vials"
   }

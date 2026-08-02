@@ -110,6 +110,18 @@ in `src/passport_generator.py`'s prompt templates and `docs/DESIGN_RATIONALE.md`
 
 ## 6. Typography & label layout
 
+> **Measured, and now built.** The four text rows below are rendered by
+> `render_driver.py` as real Blender text objects. Measured positions in the
+> front face's own coordinates (u across, v down), reference → render:
+> brand v 0.110 → 0.128, ingredient v 0.460 → 0.478, dosage/count row
+> v 0.810 → 0.813, unit-count right edge u 0.946 → 0.949.
+>
+> Type size follows **two laws**, not one: the brand name scales with the carton
+> (6.3-30.6mm across templates, but a steady 0.131-0.209 of face height), while
+> the small print holds an absolute size (bottom row 4.4-5.5mm on eight of nine,
+> though it varies 3.5x as a fraction of the face). Row 3 (braille) and the whole
+> side panel are **not** built yet.
+
 A consistent grid appears on every front face, top to bottom:
 1. Product/brand name — **bold, large**, up to 2 lines (e.g. "Atomoxetine
    Generic", "Test Pack L-VC").

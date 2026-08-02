@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "414-min.jpg",
   "template_id": "T_VERT_VIAL",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Nandrolone Phenylpropionate",
+    "active_ingredient_display": "Nandrolone",
     "dosage_display": "100mg",
     "unit_count_display": "10 Vials"
   }

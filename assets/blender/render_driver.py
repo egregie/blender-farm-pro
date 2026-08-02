@@ -130,8 +130,324 @@ BADGE_SIDE_FRAC         = 0.25
 BADGE_MARGIN_RIGHT_FRAC = 0.05
 BADGE_MARGIN_TOP_FRAC   = 0.03
 
+# ── the front-panel label grid ───────────────────────────────────────────────
+# Fonts are VENDORED, not taken from the system. The project's determinism
+# invariant (see the world-background and film-response comments) says the same
+# input must give the same pixel on any machine, and a system font silently
+# changes the render on a machine that lacks it. DejaVu is redistributable —
+# assets/blender/fonts/LICENSE_DEJAVU. It reads wider and rounder than the
+# neo-grotesque in the references; that is a known, accepted difference.
+FONT_DIR = Path(__file__).resolve().parent / "fonts"
+FONT_REGULAR = "DejaVuSans.ttf"
+FONT_BOLD    = "DejaVuSans-Bold.ttf"
 
-def build_box(dims_m, palette: dict):
+# Near-black rather than pure black: the references measure ~#1A1A1A on the
+# darkest glyph interiors, and pure black on matte board reads artificially hard.
+LABEL_INK = "#1A1A1A"
+
+# The grid, measured off the references in the FRONT FACE's own coordinates —
+# u across (0 = near vertical corner, 1 = far edge), v down (0 = top, 1 = bottom).
+# See reference_analysis.md §6 for the row order and the measurement pass that
+# produced these numbers.
+LABEL_LEFT_FRAC  = 0.07     # every row starts here
+LABEL_RIGHT_FRAC = 0.95     # the right-aligned unit count ends here
+
+# TYPE SIZE IS NOT ONE RULE. Measuring the references shows two different laws,
+# and using either one for everything is what made the first attempt wrong:
+#
+#   brand name  scales with the carton — 6.3mm on a T3 to 30.6mm on a
+#               T_VERT_VIAL (4.9x), but a steady 0.131-0.209 of the FACE HEIGHT
+#               (1.6x). It is the hero element, sized to the package.
+#   small print holds its size in MILLIMETRES — the bottom row measures 4.4-5.5mm
+#               on eight of nine templates (1.9x) while varying 3.5x as a
+#               fraction of the face. It is set to be read, not to fill space.
+#
+# Driving the small print off face height, as this originally did, gives 2.9mm on
+# a T1 (unreadably small against a 5.5mm reference) and 8.8mm on a T_VERT_VIAL,
+# where "2000iu" and "10 Vials" then close on each other in the bottom row.
+BRAND_TOP_FRAC   = 0.10     # measured 0.07-0.12 across templates
+BRAND_LINE_FRAC  = 0.15     # cap height, fraction of face height (0.131-0.209)
+# Baseline-to-baseline distance when the name wraps, as a multiple of cap height.
+# The reference's two brand lines sit at v 0.110 and 0.260 over a 0.12 cap, so
+# 1.25 — tighter than Blender's default single spacing, which at this cap height
+# would push the second line into the ingredient row.
+BRAND_LINE_PITCH = 1.25
+BRAND_MAX_LINES  = 2
+# Clear space the brand block must leave above the ingredient row.
+BRAND_INGREDIENT_GAP_FRAC = 0.01
+# The brand block shares its rows with the badge in the top-right corner, so it
+# has to stop short of it. This gap is measured from where the badge ACTUALLY
+# lands rather than assumed: the badge is sized off the shorter face edge, so on
+# a portrait carton it eats a much larger share of the width (u from 0.70 on
+# T_VERT_VIAL) than on a landscape one (0.84 on T_MULTIPACK). A single fixed
+# limit that clears one shape runs straight into the other.
+BRAND_BADGE_GAP_FRAC = 0.03
+
+INGREDIENT_TOP_FRAC = 0.46  # measured 0.44-0.48
+INGREDIENT_CAP_M    = 0.0055   # reference 3.8-7.7mm, median 5.5
+
+# ...but an absolute size still has to yield on a shallow face. A T3 carton is
+# only 35mm tall, and 5.5mm of ingredient plus 5mm of bottom row inside the
+# 11.9mm the grid leaves between those two rows leaves them touching. The
+# references do the same thing: T3 carries the smallest type in the set, 3.8mm.
+# Capping the small print at this fraction of face height reproduces that
+# (0.12 x 35 = 4.2mm) and changes nothing on a normal carton, where the absolute
+# size is already the smaller of the two.
+SMALL_PRINT_MAX_FRAC = 0.12
+
+BOTTOM_ROW_TOP_FRAC = 0.80  # measured 0.76-0.83; dosage left, unit count right
+BOTTOM_ROW_CAP_M    = 0.0050   # reference 4.4-8.5mm, eight of nine at 4.4-5.5
+# The bottom row holds two strings that grow toward each other from opposite
+# margins, so each is capped at half the space with this gutter between them.
+# Sizing them independently lets them meet in the middle on a narrow face: a
+# 50mm-wide T_VERT_DROPPER put "2000iu" and "10 Vials" through each other.
+# Absolute, not a fraction of the face: on a 55mm-wide T_VERT_INHALER a 4%
+# gutter is 2.2mm, which between two 5mm capitals reads as no gap at all.
+BOTTOM_ROW_GUTTER_M = 0.006
+# Clear space between the bottom row's descenders and the accent stripe.
+BOTTOM_ROW_CLEARANCE_FRAC = 0.02
+
+
+def _load_font(filename: str):
+    """Vendored font, loaded once per Blender session."""
+    existing = bpy.data.fonts.get(filename)
+    if existing is not None:
+        return existing
+    font = bpy.data.fonts.load(str(FONT_DIR / filename))
+    font.name = filename
+    return font
+
+
+def _text_dimensions(obj):
+    """World-space size of a text object, after evaluation.
+
+    Text has no mesh until the depsgraph builds one, so `obj.dimensions` is zero
+    until it is evaluated. Because the object is rotated upright, the returned
+    axes read (width, thickness, height).
+    """
+    dg = bpy.context.evaluated_depsgraph_get()
+    return obj.evaluated_get(dg).dimensions
+
+
+_CAP_RATIO_CACHE = {}
+
+
+def _cap_ratio(font) -> float:
+    """Cap height per unit of Blender's text `size`, measured for this font.
+
+    `size` is not the cap height and the two are not related by any documented
+    constant — for the vendored DejaVu the ratio comes out near 0.49. Measuring
+    it rather than hardcoding it means the grid constants below can be stated as
+    what they actually are, fractions of the face that a capital letter fills,
+    directly comparable to the numbers measured off the references. It also means
+    swapping the font does not silently resize every label in the catalogue.
+    """
+    key = font.name
+    if key not in _CAP_RATIO_CACHE:
+        bpy.ops.object.text_add(location=(0.0, 0.0, 0.0))
+        probe = bpy.context.active_object
+        probe.data.body = "H"
+        probe.data.font = font
+        probe.data.size = 1.0
+        _CAP_RATIO_CACHE[key] = _text_dimensions(probe).y or 1.0
+        bpy.data.objects.remove(probe, do_unlink=True)
+    return _CAP_RATIO_CACHE[key]
+
+
+def _balanced_two_lines(text: str) -> str:
+    """Split on the word break that leaves the two lines closest in length."""
+    words = text.split()
+    if len(words) < 2:
+        return text
+    best, best_diff = None, None
+    for i in range(1, len(words)):
+        a, b = " ".join(words[:i]), " ".join(words[i:])
+        diff = abs(len(a) - len(b))
+        if best_diff is None or diff < best_diff:
+            best, best_diff = (a, b), diff
+    return "\n".join(best)
+
+
+def _add_text(name, body, font, cap_h, ink_mat, x, z, y, align="LEFT"):
+    """One row of the label, standing on the front face.
+
+    A text object is created lying in the XY plane facing +Z. The carton's front
+    face points -Y, so rotating +90 deg about X turns the glyph plane to face it
+    while leaving the reading direction on +X and the ascenders on +Z.
+
+    `cap_h` is the height a capital letter should occupy, not Blender's `size` —
+    see _cap_ratio(). Sizing rows by cap height keeps the type consistent between
+    rows whose strings happen to contain different ascenders and descenders.
+    """
+    bpy.ops.object.text_add(location=(x, y, z))
+    t = bpy.context.active_object
+    t.name = name
+    t.data.body = body
+    t.data.font = font
+    t.data.size = cap_h / _cap_ratio(font)
+    t.data.align_x = align
+    t.data.align_y = "TOP"
+    t.rotation_euler = (math.radians(90.0), 0.0, 0.0)
+    t.data.materials.append(ink_mat)
+    return t
+
+
+def _fit_above(t, floor_z):
+    """Shrink a row until its lowest point clears `floor_z`, top left in place.
+
+    Needed for the brand name once it wraps. Two lines at the single-line cap
+    height do not fit the band the grid leaves above the ingredient row: measured
+    over the catalogue, 18 of 391 names wrap, and every one of them ran past
+    v 0.46 and into the row below. The references do the same thing — T1's
+    two-line name is set at a 0.12 cap where a one-liner gets more.
+
+    The correction is exact in one pass. Text scales about its origin, which
+    align_y="TOP" puts at the top of the block, so shrinking by
+    (allowed / actual) lands the bottom precisely on the floor.
+    """
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    lowest = min((t.matrix_world @ Vector(c)).z
+                 for c in t.evaluated_get(dg).bound_box)
+    if lowest >= floor_z:
+        return t
+    actual, allowed = t.location.z - lowest, t.location.z - floor_z
+    if actual > 0 and allowed > 0:
+        t.data.size *= allowed / actual
+    return t
+
+
+def _required_lift(t, floor_z):
+    """How far this row would have to rise to clear `floor_z`. Never negative."""
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    lowest = min((t.matrix_world @ Vector(c)).z
+                 for c in t.evaluated_get(dg).bound_box)
+    return max(floor_z - lowest, 0.0)
+
+
+def _lift_row(texts, floor_z):
+    """Raise a whole row by one amount so it clears `floor_z`.
+
+    The bottom row is positioned from the top of the face while its size is an
+    absolute millimetre value, so on a short face the two assumptions collide:
+    5mm of type hung from v=0.80 of a 55mm carton drives the descender of "40mg"
+    through the accent stripe. Anchoring against the obstacle beats guessing a v
+    that happens to clear it for every carton in the catalogue.
+
+    Crucially the lift is shared. Measuring each string separately moves "40mg",
+    which has a descender, further than "10 Pills", which has none — and the two
+    stop sharing a baseline, which is exactly what a reader notices.
+    """
+    if floor_z is None or not texts:
+        return texts
+    lift = max(_required_lift(t, floor_z) for t in texts)
+    for t in texts:
+        t.location.z += lift
+    return texts
+
+
+def _fit_width(t, max_width):
+    """Shrink a row until it fits the space allowed for it.
+
+    Font size scales the glyphs linearly, so one corrective pass is exact rather
+    than iterative. Real data needs this: brand names reach 30 characters and the
+    ingredient row reaches 61 ("Sildenafil / Tadalafil / Vardenafil / Avanafil
+    (Specimen Mix)"), against faces as narrow as 35mm.
+    """
+    width = _text_dimensions(t).x
+    if width > max_width > 0 and width > 0:
+        t.data.size *= max_width / width
+    return t
+
+
+def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
+                half_thick, unit_scale, badge_left_x=None, stripe_top_z=None):
+    """The printed front panel: brand, ingredient, dosage and unit count.
+
+    Every string is rendered as real text geometry carrying the manifest's bytes
+    verbatim. That is the whole point of the Blender engine over a prompt-driven
+    one: reference_analysis.md §7 caught the Gemini renders printing "Datels", a
+    word that does not exist, on the Lumigan sample. A text object cannot
+    hallucinate — it draws the string it is given or nothing at all.
+
+    Rows are placed in the FRONT FACE's own coordinates and the objects are
+    parented to the carton before it rotates, exactly like the stripe and badge.
+    """
+    if not label_content:
+        return []
+
+    ink = make_material("label_ink", LABEL_INK, roughness=MATTE_ROUGHNESS)
+    regular, bold = _load_font(FONT_REGULAR), _load_font(FONT_BOLD)
+    # Sat just proud of the face so the glyphs cannot z-fight with it. The stripe
+    # and badge straddle the plane instead; text is flat, so it goes in front.
+    y = front_y - half_thick
+    left = left_x + LABEL_LEFT_FRAC * face_w
+    right = left_x + LABEL_RIGHT_FRAC * face_w
+    rows = []
+
+    def v_to_z(v):
+        return top_z - v * face_h
+
+    def small_print_cap(cap_m):
+        """Absolute size, but never enough to crowd a shallow face."""
+        return min(cap_m * unit_scale, SMALL_PRINT_MAX_FRAC * face_h)
+
+    brand = (label_content.get("brand_name_display") or "").strip()
+    if brand:
+        t = _add_text("label_brand", brand, bold, BRAND_LINE_FRAC * face_h, ink,
+                      left, v_to_z(BRAND_TOP_FRAC), y)
+        # Run to the badge if there is one, otherwise to the normal right margin.
+        brand_right = (badge_left_x - BRAND_BADGE_GAP_FRAC * face_w
+                       if badge_left_x is not None else right)
+        allowed = max(brand_right - left, 0.1 * face_w)
+        if _text_dimensions(t).x > allowed and BRAND_MAX_LINES > 1:
+            # Wrapping buys height in exchange for width, so try it before
+            # shrinking: a two-line name at full size reads better than a
+            # one-line name squeezed to half the cap height.
+            t.data.body = _balanced_two_lines(brand)
+            t.data.space_line = (BRAND_LINE_PITCH * BRAND_LINE_FRAC * face_h) / t.data.size
+        _fit_width(t, allowed)
+        # Only ever shrinks, so a one-line name that already fits is untouched.
+        _fit_above(t, v_to_z(INGREDIENT_TOP_FRAC - BRAND_INGREDIENT_GAP_FRAC))
+        rows.append(t)
+
+    ingredient = (label_content.get("active_ingredient_display") or "").strip()
+    if ingredient:
+        t = _add_text("label_ingredient", ingredient, regular,
+                      small_print_cap(INGREDIENT_CAP_M), ink,
+                      left, v_to_z(INGREDIENT_TOP_FRAC), y)
+        rows.append(_fit_width(t, right - left))
+
+    half_row = max((right - left - BOTTOM_ROW_GUTTER_M * unit_scale) / 2.0,
+                   0.1 * face_w)
+    # Keep the bottom row clear of the accent stripe by this much of the face.
+    floor_z = (stripe_top_z + BOTTOM_ROW_CLEARANCE_FRAC * face_h
+               if stripe_top_z is not None else None)
+
+    bottom_row = []
+    dosage = (label_content.get("dosage_display") or "").strip()
+    if dosage:
+        t = _add_text("label_dosage", dosage, bold, small_print_cap(BOTTOM_ROW_CAP_M),
+                      ink, left, v_to_z(BOTTOM_ROW_TOP_FRAC), y)
+        bottom_row.append(_fit_width(t, half_row))
+
+    count = (label_content.get("unit_count_display") or "").strip()
+    if count:
+        t = _add_text("label_unit_count", count, regular,
+                      small_print_cap(BOTTOM_ROW_CAP_M), ink,
+                      right, v_to_z(BOTTOM_ROW_TOP_FRAC), y, align="RIGHT")
+        bottom_row.append(_fit_width(t, half_row))
+
+    rows.extend(_lift_row(bottom_row, floor_z))
+
+    for t in rows:
+        t.parent = box
+        t.matrix_parent_inverse = box.matrix_world.inverted()
+    return rows
+
+
+def build_box(dims_m, palette: dict, label_content: dict = None):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
     packshot shows — sized in metres, with an accent stripe band welded to the
     bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2) and a
@@ -179,6 +495,7 @@ def build_box(dims_m, palette: dict):
     # Shared by the stripe and the badge, hence hoisted out of either branch.
     half_thick = depth * 0.002
 
+    stripe_top_z = None
     accent_hex = palette.get("accent")
     if accent_hex:
         # Target 4mm, held inside the measured 3-6% band.
@@ -190,6 +507,7 @@ def build_box(dims_m, palette: dict):
         )
         stripe = bpy.context.active_object
         stripe.name = "accent_stripe"
+        stripe_top_z = bottom_z + stripe_h
         stripe.scale = (face_w * 0.999, half_thick * 2, stripe_h)
         bpy.ops.object.transform_apply(scale=True)
         stripe_mat = make_material("accent_stripe_mat", accent_hex,
@@ -212,6 +530,7 @@ def build_box(dims_m, palette: dict):
     # all nine curated references matches primary every time (T1's #DDA7A5 reads
     # (207,157,155), T3's #E2583E reads (214,89,65)), and reference_analysis.md
     # §5 does not say which of the two it is.
+    badge_left_x = None
     primary_hex = palette.get("primary")
     if primary_hex:
         # Sized off the SHORTER front-face edge. Measured against the references
@@ -221,6 +540,7 @@ def build_box(dims_m, palette: dict):
         side = BADGE_SIDE_FRAC * min(face_w, face_h)
         badge_x = right_x - BADGE_MARGIN_RIGHT_FRAC * face_w - side / 2
         badge_z = top_z - BADGE_MARGIN_TOP_FRAC * face_h - side / 2
+        badge_left_x = badge_x - side / 2
         # Always fits, so no clamp: side + margin is 0.30 of the shorter edge,
         # comfortably inside both face dimensions, and the badge's lower edge
         # stays far above the stripe (which never exceeds 6% of face height).
@@ -244,6 +564,9 @@ def build_box(dims_m, palette: dict):
         # Parented before the rotation below, same reasoning as the stripe.
         badge.parent = box
         badge.matrix_parent_inverse = box.matrix_world.inverted()
+
+    build_label(box, label_content or {}, face_w, face_h, right_x - face_w,
+                front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z)
 
     box.rotation_euler[2] = math.radians(ROTATION_DEG)
     return box, max(w, h, d)
@@ -538,7 +861,15 @@ def _bounds_in_frame(obj, reference):
     "on the front face, at the bottom" is a plain interval comparison.
     """
     to_ref = reference.matrix_world.inverted() @ obj.matrix_world
-    pts = [to_ref @ v.co for v in obj.data.vertices]
+    if obj.type == "FONT":
+        # A text object has no vertices until the depsgraph builds glyphs for
+        # it, so measure its evaluated bounding box instead. Same frame, same
+        # meaning; only the source of the points differs.
+        from mathutils import Vector
+        dg = bpy.context.evaluated_depsgraph_get()
+        pts = [to_ref @ Vector(c) for c in obj.evaluated_get(dg).bound_box]
+    else:
+        pts = [to_ref @ v.co for v in obj.data.vertices]
     return {
         "min": [min(p[i] for p in pts) for i in range(3)],
         "max": [max(p[i] for p in pts) for i in range(3)],
@@ -586,6 +917,22 @@ def dump_scene(path: str):
                     "base_color": _base_color(obj),
                     "roughness": _roughness(obj),
                 }
+        # Every label row, with the exact string it will draw. `body` is what
+        # makes the engine's headline claim checkable: a test can compare it byte
+        # for byte against the manifest and prove nothing was dropped, truncated
+        # or invented on the way to the glyphs.
+        out["label"] = [
+            {
+                "name": t.name,
+                "body": t.data.body,
+                "size": t.data.size,
+                "align_x": t.data.align_x,
+                "font": t.data.font.name if t.data.font else None,
+                "bounds_in_carton_frame": _bounds_in_frame(t, box),
+            }
+            for t in sorted((o for o in bpy.data.objects if o.type == "FONT"),
+                            key=lambda o: -o.location.z)
+        ]
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
     print(f"[render_driver] dumped scene geometry to {path}")
@@ -633,7 +980,7 @@ def main():
               f"x{carton['depth_mm']}mm (source: {carton.get('source', 'unknown')}) "
               f"exposure {exposure:+.2f}")
 
-        box, target_size = build_box(dims_m, palette)
+        box, target_size = build_box(dims_m, palette, JOB.get("label_content"))
         build_background(palette.get("background", "#FFFFFF"), exposure)
         setup_camera(dims_m)
         setup_lighting(target_size)

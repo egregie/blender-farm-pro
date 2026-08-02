@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "146-min.jpg",
   "template_id": "T_VERT_VIAL",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "HUCOG-10000 HP",
+    "active_ingredient_display": "Human Chorionic Gonadotropin (hCG) 10000IU",
     "dosage_display": "10000iu",
     "unit_count_display": "10 Vials"
   }

@@ -17,8 +17,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump.",
-      "const": "1.0"
+      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump. 1.1 added label_content.active_ingredient_display as REQUIRED, which is deliberately not an additive-optional change: a manifest written before it exists must fail validation and be regenerated rather than silently produce a packshot with a missing label row.",
+      "const": "1.1"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into SSOT/SKU.csv. Never parse as a number.",
@@ -91,10 +91,15 @@
       "description": "Exact strings to render on the front face. A 3D renderer must reproduce these verbatim - the advantage over prompt-driven generation is precisely that the text cannot be hallucinated.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["brand_name_display", "dosage_display", "unit_count_display"],
+      "required": ["brand_name_display", "active_ingredient_display",
+                   "dosage_display", "unit_count_display"],
       "properties": {
         "brand_name_display": {
           "description": "Product name, top of the label grid. May wrap to two lines.",
+          "type": "string"
+        },
+        "active_ingredient_display": {
+          "description": "Active ingredient, set regular weight on the row directly beneath the product name. Sourced from the passport's top-level active_ingredient, which is populated for all 391 SKU. It can be long - combination products reach 61 characters (\"Sildenafil / Tadalafil / Vardenafil / Avanafil (Specimen Mix)\") against a 30-character maximum for brand names - so a consumer must fit it to the face rather than assume it is short.",
           "type": "string"
         },
         "dosage_display": {

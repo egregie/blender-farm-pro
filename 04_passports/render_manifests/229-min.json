@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "229-min.jpg",
   "template_id": "T_VERT_DROPPER",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Lumigan 0.01%",
+    "active_ingredient_display": "Bimatoprost",
     "dosage_display": "0.01ml/0.01%",
     "unit_count_display": "1 Bottle"
   }

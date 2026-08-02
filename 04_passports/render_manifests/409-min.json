@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "409-min.jpg",
   "template_id": "T_BOTTLE_BOX",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Nandrolone Decanoate Generic",
+    "active_ingredient_display": "Nandrolone Decanoate",
     "dosage_display": "200mg",
     "unit_count_display": "1 Pills"
   }

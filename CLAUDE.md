@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # 111 tests (35 need Blender; 1 slow gate, opt-in)
+python -m unittest discover -s tests          # 126 tests (49 need Blender; 1 slow gate, opt-in)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -102,6 +102,14 @@ Two things the manifest exists to get right:
 `carton.source` records provenance (`passport_secondary` / `derived_from_primary` /
 `template_ratio`) so guessed geometry is visible rather than silent. All 391 SKU currently
 resolve to `passport_secondary`, and a test fails if any regresses to a guess.
+
+**Contract version is `1.1`.** It added `label_content.active_ingredient_display` as a
+*required* field — deliberately not an additive-optional change, so a manifest written
+before it exists fails validation loudly instead of quietly producing a packshot with a
+missing label row. `manifest_version` is pinned by `const` in the schema, so stale files on
+disk are rejected until Stage 1 regenerates them. That field is also the one the builder
+cannot read off the passport's `label_content` like its three siblings: the passport keeps
+the ingredient at its **top level**, as `active_ingredient`.
 
 ### Stage 2 is a two-engine facade
 
@@ -228,6 +236,49 @@ Hard constraints derived from that analysis:
   back and wash out the accent (a no-op under EEVEE, load-bearing under Cycles).
 - **No depth-of-field.** References read as fully sharp; DOF is deliberately disabled in the
   driver even though an f/8 aperture value is set.
+- **The front-panel label grid**, in the face's own coordinates (u across, v down), measured
+  off the references: brand name at v 0.10, active ingredient at v 0.46, then dosage
+  bold-left and unit count right-aligned sharing v 0.80. Rows start at u 0.07 and the unit
+  count ends at u 0.95. Still missing versus the references: the braille row, and the side
+  panel's barcode / LOT / EXP / microprint.
+
+### Text is real geometry, and the font is vendored
+
+Label rows are Blender text objects, not textures. That is the engine's headline advantage:
+`reference_analysis.md` §7 caught the Gemini renders printing **"Datels"** — not a word — as
+a side-panel label. A text object draws the string it is handed or nothing at all, so a test
+compares the built `body` byte-for-byte against the manifest. Don't replace this with baked
+image textures; the guarantee is the point.
+
+Fonts live in `assets/blender/fonts/` (DejaVu, redistributable — see `LICENSE_DEJAVU`) and
+are **not** taken from the system, because a system font silently changes the render on a
+machine that lacks it and the project's determinism invariant forbids that. Sizes are set as
+cap height, not Blender's `size`: the two differ by a per-font ratio (~0.49 for DejaVu) that
+`_cap_ratio()` measures at runtime, so the grid constants mean what they say and swapping
+the font does not resize every label in the catalogue.
+
+**Type size follows two different laws, and using one for everything is wrong.** The brand
+name scales with the carton — 6.3mm on a T3 up to 30.6mm on a T_VERT_VIAL, a 4.9× spread,
+but a steady 0.131–0.209 of face height. The small print holds its size in *millimetres*:
+the bottom row measures 4.4–5.5mm on eight of the nine references while varying 3.5× as a
+fraction of the face. Driving the small print off face height gives 2.9mm on a T1 — half the
+reference — and 8.8mm on a vial, where the bottom row's two strings then collide.
+
+Layout is fitted by **measuring the built text**, never by trusting the nominal size, and
+every one of those correction passes exists because a full 391-SKU sweep found a real
+failure the nine curated templates did not show:
+
+- the brand shrinks to clear the ingredient row when it wraps (18 SKU wrapped; all 18 ran
+  into the row below);
+- the brand's right limit comes from where the badge actually lands, since the badge is
+  sized off the *shorter* face edge and so eats far more width on a portrait carton;
+- the bottom row rises as a unit to clear the accent stripe — lifting each string
+  separately moves "40mg", which has a descender, further than "10 Pills", which has none,
+  and they stop sharing a baseline;
+- the small print is capped at 0.12 of face height so it cannot crowd a shallow T3.
+
+Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
+the sweep is what finds the ones we don't.
 
 ### The light rig is one studio for all 391 SKU
 

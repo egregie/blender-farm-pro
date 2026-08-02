@@ -40,7 +40,7 @@ import json
 import functools
 from pathlib import Path
 
-MANIFEST_VERSION = "1.0"
+MANIFEST_VERSION = "1.1"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -202,6 +202,14 @@ def build_manifest(passport: dict) -> dict:
         },
         "label_content": {
             "brand_name_display": str(label.get("brand_name_display", "")),
+            # The passport keeps the ingredient at its TOP level, not inside
+            # label_content, so this one is not read off `label` like its
+            # siblings. The label_content fallback is there for a future passport
+            # that carries a display-specific override.
+            "active_ingredient_display": str(
+                label.get("active_ingredient_display")
+                or passport.get("active_ingredient")
+                or ""),
             "dosage_display": str(label.get("dosage_display", "")),
             "unit_count_display": str(label.get("unit_count_display", "")),
         },

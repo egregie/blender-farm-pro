@@ -24,6 +24,10 @@ def _passport(stem: str) -> dict:
     return json.loads((PASSPORTS / f"{stem}.json").read_text(encoding="utf-8"))
 
 
+def _all_passport_stems() -> list:
+    return sorted(p.stem for p in PASSPORTS.glob("*.json"))
+
+
 class TestManifestSchema(unittest.TestCase):
     """The artifact itself must be a well-formed, self-consistent schema."""
 
@@ -72,6 +76,30 @@ class TestBuildManifest(unittest.TestCase):
         m = build_manifest(data)
         for field in ("brand_name_display", "dosage_display", "unit_count_display"):
             self.assertEqual(m["label_content"][field], data["label_content"][field])
+
+    def test_active_ingredient_comes_from_the_passports_top_level(self):
+        """The one label row the passport does NOT keep in label_content.
+
+        It lives at the passport's top level as `active_ingredient`, so it is the
+        one field build_manifest cannot read off `label` like its siblings, and
+        the one most likely to be silently dropped.
+        """
+        data = _passport("1-min")
+        m = build_manifest(data)
+        self.assertEqual(m["label_content"]["active_ingredient_display"],
+                         data["active_ingredient"])
+        self.assertTrue(m["label_content"]["active_ingredient_display"],
+                        "ingredient row is empty; the front face would render "
+                        "without it and the packshot would be wrong, not merely "
+                        "plain")
+
+    def test_every_sku_has_an_ingredient_to_print(self):
+        """All 391 carry one today. If that ever stops being true the renderer
+        needs a documented fallback, so fail here rather than discover it as a
+        blank row in a finished packshot."""
+        empty = [stem for stem in _all_passport_stems()
+                 if not (_passport(stem).get("active_ingredient") or "").strip()]
+        self.assertEqual(empty, [], f"{len(empty)} SKU have no active_ingredient")
 
     def test_carton_is_the_secondary_not_the_primary_package(self):
         """The rendered object is the printed box, so the manifest must carry

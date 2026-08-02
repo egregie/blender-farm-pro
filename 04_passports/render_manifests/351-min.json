@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "351-min.jpg",
   "template_id": "T_MULTIPACK",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Original Test pack L-VC",
+    "active_ingredient_display": "Sildenafil / Tadalafil / Vardenafil (Original Specimen)",
     "dosage_display": "50mg",
     "unit_count_display": "Assorted Pack"
   }

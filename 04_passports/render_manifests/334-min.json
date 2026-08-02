@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "334-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Onax",
+    "active_ingredient_display": "Alprazolam",
     "dosage_display": "5mg",
     "unit_count_display": "60 Pills"
   }

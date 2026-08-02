@@ -79,7 +79,7 @@ KEY_W, FILL_W = 25.0, 8.0
 # disk: these assertions are about how the driver TREATS a manifest, so the
 # input must stay fixed even if the catalogue changes.
 JOB = {
-    "manifest_version": "1.0",
+    "manifest_version": "1.1",
     "sku_id": "test-carton",
     "template_id": "T1",
     "is_bottle_override": False,
@@ -88,8 +88,14 @@ JOB = {
                "source": "passport_secondary"},
     "palette": {"primary": "#DDA7A5", "accent": "#6B2D5C", "background": "#FFFFFF"},
     "label_content": {"brand_name_display": "Atomoxetine Generic",
+                      "active_ingredient_display": "Atomoxetine",
                       "dosage_display": "40mg", "unit_count_display": "10 Pills"},
 }
+
+# The label grid, restated independently of the driver, in the front face's own
+# coordinates: u across (0 = near corner, 1 = far edge), v down (0 = top).
+LABEL_ROWS = ("label_brand", "label_ingredient", "label_dosage", "label_unit_count")
+LABEL_LEFT_FRAC, LABEL_RIGHT_FRAC = 0.07, 0.95
 
 
 def srgb_hex_to_linear(hex_str):
@@ -560,6 +566,174 @@ class TestFilmResponse(unittest.TestCase):
         self.assertLess(gap, 0.2, f"shape correction is {gap:.2f} stops")
 
 
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestLabelText(unittest.TestCase):
+    """The front panel, and the one guarantee this engine exists to make.
+
+    reference_analysis.md 7 caught the Gemini renders printing "Datels" - not a
+    word - as a side-panel field label on the Lumigan sample. A text object draws
+    the string it is handed or nothing at all, so that class of failure is
+    structurally impossible here. That claim is only worth making if something
+    checks it, which is what test_every_string_survives_verbatim does.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scene = build_scene(JOB)
+        cls.rows = {t["name"]: t for t in cls.scene["label"]}
+        b = cls.scene["carton"]["self_bounds"]
+        cls.left_x, cls.top_z = b["min"][0], b["max"][2]
+        cls.face_w = b["max"][0] - b["min"][0]
+        cls.face_h = b["max"][2] - b["min"][2]
+        cls.front_y, cls.depth = b["min"][1], b["max"][1] - b["min"][1]
+
+    def _uv(self, name):
+        b = self.rows[name]["bounds_in_carton_frame"]
+        return {
+            "u0": (b["min"][0] - self.left_x) / self.face_w,
+            "u1": (b["max"][0] - self.left_x) / self.face_w,
+            "v0": (self.top_z - b["max"][2]) / self.face_h,
+            "v1": (self.top_z - b["min"][2]) / self.face_h,
+            "y0": b["min"][1], "y1": b["max"][1],
+        }
+
+    def test_all_four_rows_are_built(self):
+        self.assertEqual(sorted(self.rows), sorted(LABEL_ROWS))
+
+    def test_every_string_survives_verbatim(self):
+        """No truncation, no ellipsis, no invented characters. Line breaks are
+        the one permitted edit, because wrapping is layout and not content."""
+        for row, field in (("label_brand", "brand_name_display"),
+                           ("label_ingredient", "active_ingredient_display"),
+                           ("label_dosage", "dosage_display"),
+                           ("label_unit_count", "unit_count_display")):
+            want = JOB["label_content"][field]
+            got = self.rows[row]["body"].replace("\n", " ")
+            self.assertEqual(
+                got, want,
+                f"{row} draws {got!r} but the manifest says {want!r}. The whole "
+                "point of rendering text as geometry is that this cannot drift")
+
+    def test_rows_run_top_to_bottom_in_the_documented_order(self):
+        """Three bands, not four: dosage and unit count share the bottom row, so
+        their tops differ only by whichever string happens to carry an ascender.
+        Comparing those two against each other would assert on typography."""
+        brand = self._uv("label_brand")
+        ingredient = self._uv("label_ingredient")
+        bottom = min(self._uv("label_dosage")["v0"],
+                     self._uv("label_unit_count")["v0"])
+        self.assertLess(brand["v1"], ingredient["v0"],
+                        "the brand block runs into the ingredient row")
+        self.assertLess(ingredient["v1"], bottom,
+                        "the ingredient row runs into the dosage/count row")
+
+    def test_nothing_overhangs_the_front_face(self):
+        for row in LABEL_ROWS:
+            uv = self._uv(row)
+            self.assertGreaterEqual(uv["u0"], 0.0, f"{row} runs off the left edge")
+            self.assertLessEqual(uv["u1"], 1.0, f"{row} runs off the right edge")
+            self.assertGreaterEqual(uv["v0"], 0.0, f"{row} runs off the top edge")
+            self.assertLessEqual(uv["v1"], 1.0, f"{row} runs off the bottom edge")
+
+    def test_rows_respect_the_side_margins(self):
+        for row in ("label_brand", "label_ingredient", "label_dosage"):
+            self.assertAlmostEqual(
+                self._uv(row)["u0"], LABEL_LEFT_FRAC, delta=0.02,
+                msg=f"{row} does not start at the grid's left margin")
+        self.assertAlmostEqual(
+            self._uv("label_unit_count")["u1"], LABEL_RIGHT_FRAC, delta=0.02,
+            msg="the unit count is right-aligned to the grid's right margin")
+
+    def test_dosage_is_left_and_unit_count_is_right_on_a_shared_row(self):
+        dose, count = self._uv("label_dosage"), self._uv("label_unit_count")
+        self.assertLess(dose["u1"], count["u0"],
+                        "dosage and unit count overlap; they grow toward each "
+                        "other from opposite margins and must not meet")
+        self.assertAlmostEqual(dose["v0"], count["v0"], delta=0.02,
+                               msg="the two sit on one row in every reference")
+
+    def test_no_row_collides_with_another(self):
+        for i, a in enumerate(LABEL_ROWS):
+            for b in LABEL_ROWS[i + 1:]:
+                p, q = self._uv(a), self._uv(b)
+                overlap = (p["v0"] < q["v1"] and q["v0"] < p["v1"]
+                           and p["u0"] < q["u1"] and q["u0"] < p["u1"])
+                self.assertFalse(overlap, f"{a} overlaps {b}")
+
+    def test_no_row_collides_with_the_stripe_or_the_badge(self):
+        stripe = self.scene["stripe"]["bounds_in_carton_frame"]
+        badge = self.scene["badge"]["bounds_in_carton_frame"]
+        stripe_v = (self.top_z - stripe["max"][2]) / self.face_h
+        badge_u = (badge["min"][0] - self.left_x) / self.face_w
+        badge_v = (self.top_z - badge["min"][2]) / self.face_h
+        for row in LABEL_ROWS:
+            uv = self._uv(row)
+            self.assertLessEqual(uv["v1"], stripe_v, f"{row} runs into the stripe")
+            self.assertFalse(uv["v0"] < badge_v and uv["u1"] > badge_u,
+                             f"{row} runs into the brand badge")
+
+    def test_text_sits_on_the_face_not_inside_or_adrift(self):
+        for row in LABEL_ROWS:
+            standoff = self.front_y - self._uv(row)["y1"]
+            self.assertGreaterEqual(standoff, 0.0,
+                                    f"{row} is sunk inside the carton body")
+            self.assertLess(standoff, 0.02 * self.depth,
+                            f"{row} floats in front of the face")
+
+    def test_a_long_string_is_fitted_rather_than_left_to_overflow(self):
+        """The real catalogue reaches 61 characters on the ingredient row."""
+        long_job = dict(JOB, label_content=dict(
+            JOB["label_content"],
+            active_ingredient_display="Sildenafil / Tadalafil / Vardenafil / "
+                                      "Avanafil (Specimen Mix)"))
+        scene = build_scene(long_job)
+        row = next(t for t in scene["label"] if t["name"] == "label_ingredient")
+        b = row["bounds_in_carton_frame"]
+        c = scene["carton"]["self_bounds"]
+        u1 = (b["max"][0] - c["min"][0]) / (c["max"][0] - c["min"][0])
+        self.assertLessEqual(u1, 1.0, "long ingredient string overhangs the face")
+        self.assertEqual(row["body"].replace("\n", " "),
+                         long_job["label_content"]["active_ingredient_display"],
+                         "the string was shortened to make it fit; it must be "
+                         "scaled down instead, never truncated")
+
+    def test_a_wrapped_brand_name_stays_clear_of_the_ingredient_row(self):
+        """A two-line name at the one-line cap height does not fit the band the
+        grid leaves above the ingredient row. Sweeping all 391 SKU found 18 that
+        wrap, and every one of them ran into the row below before the brand block
+        was made to shrink to fit."""
+        job = dict(JOB, label_content=dict(JOB["label_content"],
+                                           brand_name_display="Cialis Super Active"))
+        scene = build_scene(job)
+        rows = {t["name"]: t for t in scene["label"]}
+        c = scene["carton"]["self_bounds"]
+        top_z, face_h = c["max"][2], c["max"][2] - c["min"][2]
+        brand = rows["label_brand"]
+        self.assertIn("\n", brand["body"], "test premise: this name should wrap")
+        brand_bottom = (top_z - brand["bounds_in_carton_frame"]["min"][2]) / face_h
+        ingredient_top = (top_z - rows["label_ingredient"]
+                          ["bounds_in_carton_frame"]["max"][2]) / face_h
+        self.assertLess(
+            brand_bottom, ingredient_top,
+            f"the wrapped brand runs to v {brand_bottom:.3f}, past the ingredient "
+            f"row at v {ingredient_top:.3f}")
+
+    def test_a_missing_string_drops_its_row_without_failing(self):
+        job = dict(JOB, label_content={"brand_name_display": "Solo",
+                                       "active_ingredient_display": "",
+                                       "dosage_display": "", "unit_count_display": ""})
+        names = {t["name"] for t in build_scene(job)["label"]}
+        self.assertEqual(names, {"label_brand"})
+
+    def test_the_font_is_the_vendored_one(self):
+        """A system font would render differently on a machine that lacks it,
+        which breaks the project's determinism invariant."""
+        for row in LABEL_ROWS:
+            self.assertIn("DejaVu", self.rows[row]["font"] or "",
+                          f"{row} is not using the vendored font")
+
+
 def _front_face_and_background(png_path, accent_hex):
     """Mean brightness of the carton's front face, and of the backdrop.
 
@@ -571,9 +745,19 @@ def _front_face_and_background(png_path, accent_hex):
     import numpy as np
     from PIL import Image
 
+    from numpy.lib.stride_tricks import sliding_window_view
+
     a = np.asarray(Image.open(png_path).convert("RGB")).astype(float)
     H, W, _ = a.shape
     g = a.mean(axis=2)
+    # Only locally FLAT pixels count as "the paper". Glyphs are dark enough to
+    # fall out on brightness alone, but their antialiased edges are mid-grey and
+    # neutral, and on a shallow T3 face they fill enough of the sampled band to
+    # drag the mean below the reference floor. Measure the board, not the print.
+    win = 7
+    flat = np.zeros_like(g, bool)
+    sd = sliding_window_view(g, (win, win)).std(axis=(2, 3))
+    flat[win // 2:win // 2 + sd.shape[0], win // 2:win // 2 + sd.shape[1]] = sd < 1.5
     accent = np.array([int(accent_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)],
                       dtype=float)
     stripe = ((a.max(axis=2) - a.min(axis=2)) > 15) & \
@@ -583,14 +767,14 @@ def _front_face_and_background(png_path, accent_hex):
         raise AssertionError(f"no accent stripe found in {png_path}")
     sx = np.nonzero(stripe)[1]
     pad, band = int(0.02 * W), int(0.05 * H)
-    samples = []
+    region = np.zeros_like(g, bool)
     for x in range(sx.min() + pad, sx.max() - pad):
         col = np.nonzero(stripe[:, x])[0]
         if col.size:
-            samples.append(g[max(0, col.min() - pad - band):max(0, col.min() - pad), x])
-    front = np.concatenate([s for s in samples if s.size])
+            region[max(0, col.min() - pad - band):max(0, col.min() - pad), x] = True
+    front = g[region & flat & (g > 120)]
     corner = g[int(0.03 * H):int(0.11 * H), int(0.03 * W):int(0.11 * W)]
-    return front[front > 120].mean(), corner.mean(), corner.std()
+    return front.mean(), corner.mean(), corner.std()
 
 
 @unittest.skipUnless(os.environ.get("PHARMAGEN_SLOW_TESTS") == "1",

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "143-min.jpg",
   "template_id": "T3",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Androgel",
+    "active_ingredient_display": "Cernos Gel",
     "dosage_display": "1.62%",
     "unit_count_display": "30 Sachets"
   }

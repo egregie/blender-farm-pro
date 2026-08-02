@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "353-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Cepacol",
+    "active_ingredient_display": "Benzocaine + Cetylpyridinium Chloride",
     "dosage_display": "1.4mg",
     "unit_count_display": "16 Pills"
   }

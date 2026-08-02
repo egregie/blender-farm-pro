@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "sku_id": "393-min.jpg",
   "template_id": "T_VERT_INHALER",
   "is_bottle_override": false,
@@ -17,6 +17,7 @@
   },
   "label_content": {
     "brand_name_display": "Advair Diskus Generic Inhaler",
+    "active_ingredient_display": "Fluticasone Propionate / Salmeterol",
     "dosage_display": "250mcg",
     "unit_count_display": "1 Inhaler"
   }
