@@ -208,6 +208,96 @@ BOTTOM_ROW_GUTTER_M = 0.006
 BOTTOM_ROW_CLEARANCE_FRAC = 0.02
 
 
+# ── the side panel ───────────────────────────────────────────────────────────
+# The visible side panel is the carton's local -X face. The camera looks along
+# +Y, the carton is rotated by +ROTATION_DEG about Z, and that turns the -X
+# normal to (-cos, -sin, 0): the negative Y component means it faces the camera
+# and the negative X puts it on the left of frame. The +X face turns away and is
+# never seen. True for both rotation angles the project uses, 35 and 27.5.
+#
+# WHAT THE REFERENCE PANEL ACTUALLY CONTAINS, and why most of it is not copied:
+# magnifying the side panel of the curated renders shows a 2D code that is a blob
+# of organic noise with no quiet zone, no finder pattern and no clock track; a
+# LOT/EXP block whose values read "BAWNL TE9?" and "SLAQF FD9T"; and a microprint
+# paragraph that is not text at all. That is the same failure reference_analysis
+# §7 records as "Datels". The reference is evidence of LAYOUT, not of CONTENT.
+#
+# So: the barcode is a real, decodable Code 128 of the SKU id; LOT and EXP are
+# printed as empty field labels, which is what a real carton carries because the
+# batch and expiry are inkjetted at packing time (and the T_VERT_VIAL reference
+# shows exactly that — a boxed LOT and a bare EXP with no values); and the small
+# block prints strings the manifest already holds. Nothing here is invented.
+PANEL_MARGIN_FRAC   = 0.10   # of panel width, kept clear at both edges
+BARCODE_TOP_FRAC    = 0.06   # of panel height, where the symbol starts
+BARCODE_LEN_FRAC    = 0.40   # of panel height the symbol spans
+BARCODE_BAR_FRAC    = 0.55   # of panel width the bars run across
+BARCODE_HRI_CAP_M   = 0.0025 # human-readable line under the symbol
+FIELD_TOP_FRAC      = 0.56   # LOT / EXP block
+FIELD_CAP_M         = 0.0035
+FIELD_RULE_FRAC     = 0.45   # rule length, of panel width
+DATA_BLOCK_TOP_FRAC = 0.74
+DATA_BLOCK_GAP_FRAC = 0.03   # clear space under the LOT/EXP block
+PANEL_BOTTOM_MARGIN_FRAC = 0.02  # clear space above the carton's bottom edge
+DATA_BLOCK_CAP_M    = 0.0022
+# Code 128 cannot be printed below roughly this module width and still scan.
+BARCODE_MIN_MODULE_M = 0.00019
+
+
+# Code 128 bar/space widths, symbol values 0..106. Each entry is six digits: the
+# widths of bar, space, bar, space, bar, space in modules, totalling 11.
+_CODE128_PATTERNS = (
+    "212222", "222122", "222221", "121223", "121322", "131222", "122213",
+    "122312", "132212", "221213", "221312", "231212", "112232", "122132",
+    "122231", "113222", "123122", "123221", "223211", "221132", "221231",
+    "213212", "223112", "312131", "311222", "321122", "321221", "312212",
+    "322112", "322211", "212123", "212321", "232121", "111323", "131123",
+    "131321", "112313", "132113", "132311", "211313", "231113", "231311",
+    "112133", "112331", "132131", "113123", "113321", "133121", "313121",
+    "211331", "231131", "213113", "213311", "213131", "311123", "311321",
+    "331121", "312113", "312311", "332111", "314111", "221411", "431111",
+    "111224", "111422", "121124", "121421", "141122", "141221", "112214",
+    "112412", "122114", "122411", "142112", "142211", "241211", "221114",
+    "413111", "241112", "134111", "111242", "121142", "121241", "114212",
+    "124112", "124211", "411212", "421112", "421211", "212141", "214121",
+    "412121", "111143", "111341", "131141", "114113", "114311", "411113",
+    "411311", "113141", "114131", "311141", "411131", "211412", "211214",
+    "211232", "233111",
+)
+_CODE128_STOP = "2331112"          # seven elements: the stop bar is 2 wide
+_CODE128_START_B = 104
+
+
+def encode_code128b(text: str):
+    """Encode *text* as Code 128 subset B and return its module widths.
+
+    Returns a list of integers: alternating bar, space, bar, space ... starting
+    with a bar, each the width of that run in modules. Quiet zones are NOT
+    included; the caller adds them, because they are part of laying the symbol
+    out rather than of encoding it.
+
+    A real, decodable symbol rather than a decorative one. That is not vanity:
+    the reference renders put a 2D code on this panel that cannot be scanned, and
+    reproducing an unscannable barcode would be re-creating by hand exactly the
+    hallucination this engine exists to eliminate. tests/test_blender_carton.py
+    decodes what comes out of here with an independent reader.
+    """
+    for ch in text:
+        if not 32 <= ord(ch) <= 126:
+            raise ValueError(
+                f"[render_driver] {ch!r} (U+{ord(ch):04X}) is outside Code 128 "
+                f"subset B, which covers ASCII 32-126; cannot encode {text!r}")
+    values = [_CODE128_START_B] + [ord(c) - 32 for c in text]
+    checksum = values[0]
+    for i, v in enumerate(values[1:], start=1):
+        checksum += i * v
+    values.append(checksum % 103)
+    widths = []
+    for v in values:
+        widths.extend(int(d) for d in _CODE128_PATTERNS[v])
+    widths.extend(int(d) for d in _CODE128_STOP)
+    return widths
+
+
 def _load_font(filename: str):
     """Vendored font, loaded once per Blender session."""
     existing = bpy.data.fonts.get(filename)
@@ -447,7 +537,156 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     return rows
 
 
-def build_box(dims_m, palette: dict, label_content: dict = None):
+def _add_panel_text(name, body, font, cap_h, ink_mat, u, v, x, align="LEFT"):
+    """A text row on the -X side panel.
+
+    A text object is created in the XY plane facing +Z. Rotating +90 deg about X
+    stands it upright facing -Y (the front face); a further -90 about Z swings it
+    round to face -X, which is the side panel. The sign matters: +90 about Z
+    would leave the normal at +X, pointing INTO the carton, and the row would
+    render mirrored and backfacing. Reading then runs along -Y, so rows are
+    anchored at the panel's back edge and read toward the front.
+    """
+    bpy.ops.object.text_add(location=(x, u, v))
+    t = bpy.context.active_object
+    t.name = name
+    t.data.body = body
+    t.data.font = font
+    t.data.size = cap_h / _cap_ratio(font)
+    t.data.align_x = align
+    t.data.align_y = "TOP"
+    t.rotation_euler = (math.radians(90.0), 0.0, math.radians(-90.0))
+    t.data.materials.append(ink_mat)
+    return t
+
+
+def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
+                     top_z, half_thick, unit_scale):
+    """The visible side panel: barcode, empty LOT/EXP fields, and a data block.
+
+    panel_w is the carton DEPTH and panel_h its height. Everything is placed in
+    the panel's own coordinates and every string comes from the manifest.
+    """
+    carton = manifest.get("carton") or {}
+    sku_id = str(manifest.get("sku_id") or "")
+    built = []
+    if not sku_id:
+        return built
+
+    ink = make_material("panel_ink", LABEL_INK, roughness=MATTE_ROUGHNESS)
+    regular, bold = _load_font(FONT_REGULAR), _load_font(FONT_BOLD)
+    x = left_x - half_thick                      # just proud of the -X face
+    margin = PANEL_MARGIN_FRAC * panel_w
+    usable_w = panel_w - 2 * margin
+    # Rows read along -Y, so they start at the BACK edge and run to the front.
+    u_start = back_y + panel_w - margin
+    u_front = back_y + margin
+
+    def v_at(frac):
+        return top_z - frac * panel_h
+
+    # ── barcode ──────────────────────────────────────────────────────────────
+    widths = encode_code128b(sku_id)
+    total_modules = sum(widths) + 20              # 10 modules of quiet zone each end
+    span = BARCODE_LEN_FRAC * panel_h
+    module = span / total_modules
+    bar_len = BARCODE_BAR_FRAC * usable_w
+
+    # An 11-character Code 128 is a long symbol, and these are small cartons.
+    # Measured across the catalogue the module lands between 0.08mm and 0.40mm,
+    # so on the shorter panels it falls under the ~0.19mm a scanner needs and
+    # under the ~2 pixels per module a 2048px render can resolve — the bars merge
+    # into a grey block. Say so rather than shipping a code that only looks like
+    # one. This is also the argument FOR the DataMatrix the carton data already
+    # asks for in `features`: a 2D symbol carries the same payload in a fraction
+    # of the area, which is exactly why real small-format pharma packs use one.
+    module_mm = (module / unit_scale) * 1000.0 if unit_scale else 0.0
+    if module_mm < BARCODE_MIN_MODULE_M * 1000.0:
+        print(f"[render_driver] WARNING: barcode module is {module_mm:.3f}mm on a "
+              f"{panel_h / unit_scale * 1000:.0f}mm panel, below the ~"
+              f"{BARCODE_MIN_MODULE_M * 1000:.2f}mm a scanner needs; the symbol is "
+              f"correct but will not resolve at this size", file=sys.stderr)
+
+    v = v_at(BARCODE_TOP_FRAC) - 10 * module      # leading quiet zone
+    for i, w in enumerate(widths):
+        run = w * module
+        if i % 2 == 0:                            # even index = bar
+            bpy.ops.mesh.primitive_cube_add(
+                size=1.0, location=(x, u_front + bar_len / 2, v - run / 2))
+            bar = bpy.context.active_object
+            bar.name = f"panel_barcode_{i:03d}"
+            bar.scale = (half_thick * 2, bar_len, run)
+            bpy.ops.object.transform_apply(scale=True)
+            bar.data.materials.append(ink)
+            built.append(bar)
+        v -= run
+
+    built.append(_add_panel_text(
+        "panel_barcode_hri", sku_id, regular,
+        min(BARCODE_HRI_CAP_M * unit_scale, 0.30 * usable_w), ink,
+        u_start, v - 0.4 * module * 20, x))
+    _fit_width(built[-1], usable_w)
+
+    # ── LOT / EXP, labels only ───────────────────────────────────────────────
+    # No values, deliberately. There is no lot or expiry data anywhere in this
+    # project, and a real carton does not carry one either: it is inkjetted at
+    # packing time onto exactly this blank rule.
+    cap = min(FIELD_CAP_M * unit_scale, 0.22 * usable_w)
+    for n, (field, frac) in enumerate((("LOT", 0.0), ("EXP", 0.12))):
+        t = _add_panel_text(f"panel_field_{field.lower()}", field, bold, cap, ink,
+                            u_start, v_at(FIELD_TOP_FRAC + frac), x)
+        _fit_width(t, 0.30 * usable_w)
+        built.append(t)
+        rule_len = FIELD_RULE_FRAC * usable_w
+        rule_v = v_at(FIELD_TOP_FRAC + frac) - cap * 1.15
+        bpy.ops.mesh.primitive_cube_add(
+            size=1.0, location=(x, u_front + rule_len / 2, rule_v))
+        rule = bpy.context.active_object
+        rule.name = f"panel_rule_{field.lower()}"
+        rule.scale = (half_thick * 2, rule_len, module * 0.8)
+        bpy.ops.object.transform_apply(scale=True)
+        rule.data.materials.append(ink)
+        built.append(rule)
+
+    # ── data block: manifest strings only ────────────────────────────────────
+    # Anchored under whatever the LOT/EXP block actually came out as, not at a
+    # fixed v. The fields are sized in absolute millimetres, so on a short panel
+    # they occupy a larger share of it and a constant would collide.
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    lowest = min((o.matrix_world @ Vector(cnr)).z
+                 for o in built for cnr in o.evaluated_get(dg).bound_box)
+    block_top = min(v_at(DATA_BLOCK_TOP_FRAC),
+                    lowest - DATA_BLOCK_GAP_FRAC * panel_h)
+    lines = [str(carton.get("material") or ""),
+             f"{carton['width_mm']:.0f}x{carton['height_mm']:.0f}"
+             f"x{carton['depth_mm']:.0f}mm",
+             str(manifest.get("packaging_geometry") or "")]
+    features = carton.get("features") or []
+    if features:
+        lines.append(" / ".join(features))
+    lines = [ln for ln in lines if ln]
+    if lines:
+        cap = min(DATA_BLOCK_CAP_M * unit_scale, 0.14 * usable_w)
+        t = _add_panel_text("panel_data_block", "\n".join(lines), regular, cap,
+                            ink, u_start, block_top, x)
+        _fit_width(t, usable_w)
+        # And shrink to the panel's bottom edge if it still runs off. The block
+        # is anchored under the LOT/EXP fields and sized in absolute millimetres,
+        # so on the catalogue's smallest panel — a 25x35mm T3 — three lines reach
+        # past the bottom of the carton. Found by the 391-SKU sweep, not by the
+        # curated templates: exactly one SKU in 391.
+        _fit_above(t, (top_z - panel_h) + PANEL_BOTTOM_MARGIN_FRAC * panel_h)
+        built.append(t)
+
+    for obj in built:
+        obj.parent = box
+        obj.matrix_parent_inverse = box.matrix_world.inverted()
+    return built
+
+
+def build_box(dims_m, palette: dict, label_content: dict = None,
+              manifest: dict = None):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
     packshot shows — sized in metres, with an accent stripe band welded to the
     bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2) and a
@@ -567,6 +806,10 @@ def build_box(dims_m, palette: dict, label_content: dict = None):
 
     build_label(box, label_content or {}, face_w, face_h, right_x - face_w,
                 front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z)
+
+    if manifest:
+        build_side_panel(box, manifest, depth, face_h, min(xs), front_y,
+                         top_z, half_thick, unit_scale)
 
     box.rotation_euler[2] = math.radians(ROTATION_DEG)
     return box, max(w, h, d)
@@ -896,6 +1139,11 @@ def dump_scene(path: str):
         "carton": None,
         "stripe": None,
         "badge": None,
+        # Present even when nothing was built, so a consumer never has to guess
+        # whether an empty panel means "no panel" or "key missing". The
+        # hand-authored .blend branch builds none of this.
+        "side_panel": [],
+        "label": [],
         "lighting": lighting,
         # Read back off the scene rather than echoing the FILM_* constants, so
         # the dump reports what Blender actually holds.
@@ -921,6 +1169,19 @@ def dump_scene(path: str):
         # makes the engine's headline claim checkable: a test can compare it byte
         # for byte against the manifest and prove nothing was dropped, truncated
         # or invented on the way to the glyphs.
+        out["side_panel"] = [
+            {
+                "name": o.name,
+                "kind": ("barcode" if o.name.startswith("panel_barcode_") and
+                         o.type != "FONT" else
+                         "rule" if o.name.startswith("panel_rule_") else "text"),
+                "body": o.data.body if o.type == "FONT" else None,
+                "bounds_in_carton_frame": _bounds_in_frame(o, box),
+            }
+            for o in sorted((x for x in bpy.data.objects
+                             if x.name.startswith("panel_")),
+                            key=lambda x: (-x.location.z, x.name))
+        ]
         out["label"] = [
             {
                 "name": t.name,
@@ -930,7 +1191,10 @@ def dump_scene(path: str):
                 "font": t.data.font.name if t.data.font else None,
                 "bounds_in_carton_frame": _bounds_in_frame(t, box),
             }
-            for t in sorted((o for o in bpy.data.objects if o.type == "FONT"),
+            # Front-panel rows only. The side panel's text is reported
+            # separately, under "side_panel".
+            for t in sorted((o for o in bpy.data.objects
+                             if o.type == "FONT" and o.name.startswith("label_")),
                             key=lambda o: -o.location.z)
         ]
     with open(path, "w", encoding="utf-8") as fh:
@@ -980,7 +1244,7 @@ def main():
               f"x{carton['depth_mm']}mm (source: {carton.get('source', 'unknown')}) "
               f"exposure {exposure:+.2f}")
 
-        box, target_size = build_box(dims_m, palette, JOB.get("label_content"))
+        box, target_size = build_box(dims_m, palette, JOB.get("label_content"), JOB)
         build_background(palette.get("background", "#FFFFFF"), exposure)
         setup_camera(dims_m)
         setup_lighting(target_size)

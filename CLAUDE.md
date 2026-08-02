@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # 126 tests (49 need Blender; 1 slow gate, opt-in)
+python -m unittest discover -s tests          # 137 tests (60 need Blender; 1 slow gate, opt-in)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -103,13 +103,19 @@ Two things the manifest exists to get right:
 `template_ratio`) so guessed geometry is visible rather than silent. All 391 SKU currently
 resolve to `passport_secondary`, and a test fails if any regresses to a guess.
 
-**Contract version is `1.1`.** It added `label_content.active_ingredient_display` as a
-*required* field — deliberately not an additive-optional change, so a manifest written
-before it exists fails validation loudly instead of quietly producing a packshot with a
-missing label row. `manifest_version` is pinned by `const` in the schema, so stale files on
-disk are rejected until Stage 1 regenerates them. That field is also the one the builder
-cannot read off the passport's `label_content` like its three siblings: the passport keeps
-the ingredient at its **top level**, as `active_ingredient`.
+**Contract version is `1.2`.** Both bumps so far added *required* fields — deliberately not
+additive-optional changes, so a manifest written before them fails validation loudly instead
+of quietly producing a packshot with something missing. `manifest_version` is pinned by
+`const` in the schema, so stale files on disk are rejected until Stage 1 regenerates them.
+
+- `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
+  read off the passport's `label_content` like its siblings: the passport keeps the
+  ingredient at its **top level**, as `active_ingredient`.
+- `1.2` — `carton.features` and `carton.material`, which the side panel is drawn from.
+  `features` is real per-SKU data, not decoration: 370 of 391 declare
+  `["Braille", "DataMatrix_Zone", "Tamper_Evident_Seal"]` and **21 declare nothing**, so a
+  renderer that assumes every carton is identical gets those 21 wrong. It travels on all
+  three carton-resolution paths, not just the happy one.
 
 ### Stage 2 is a two-engine facade
 
@@ -279,6 +285,37 @@ failure the nine curated templates did not show:
 
 Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
 the sweep is what finds the ones we don't.
+
+### The side panel prints only what it was given
+
+The visible side panel is the carton's local **−X** face: the camera looks along +Y and the
+carton is rotated +35° (or +27.5°) about Z, which turns the −X normal toward the camera and
+to the left of frame. The +X face is never seen.
+
+Magnify the reference side panel before trusting it. Its 2D code is a blob of noise with no
+finder pattern; its LOT/EXP values read `SLAQF FDЯT`; its microprint is not text. **That
+panel is evidence of layout, not of content.** What the driver builds instead:
+
+- **A real Code 128** subset B of `sku_id`, encoded by `encode_code128b()`. A test decodes it
+  back out of the built *geometry* — recovering spaces from the gaps between bars, the way a
+  scanner does — and re-derives the modulo-103 checksum, so "it is a real barcode" is a fact
+  rather than a claim. Do not replace it with a decorative bar pattern.
+- **LOT and EXP as empty labels with a rule.** No values, deliberately: the project holds no
+  lot or expiry data, and a real carton carries none either — they are inkjetted at packing.
+  Printing a plausible-looking value would be inventing data on pharmaceutical packaging.
+- **A data block** of manifest strings only: board material, dimensions, packaging geometry,
+  and the carton's declared `features`.
+
+**Not built: any 2D symbol.** The module width measures 0.08–0.40mm across the catalogue,
+below the ~0.19mm a scanner needs on every panel shorter than ~90mm, and the driver warns on
+stderr when it is. That is an argument *for* a proper DataMatrix later — same payload, far
+less area, which is why the passports declare a `DataMatrix_Zone` — not for faking one.
+
+Watch the axis when adding to this panel: `object.dimensions` in Blender is the **local**
+bounding box scaled, not a world AABB, so a row's reading length is always its local `.x`
+however the object is rotated. Measuring the wrong axis silently disables the fit. And the
+panel rotation is `(90°, 0, −90°)`; `+90°` about Z leaves the normal pointing *into* the
+carton and the text renders mirrored.
 
 ### The light rig is one studio for all 391 SKU
 

@@ -40,7 +40,7 @@ import json
 import functools
 from pathlib import Path
 
-MANIFEST_VERSION = "1.1"
+MANIFEST_VERSION = "1.2"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -147,11 +147,18 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
     """
     # 1. The passport's own secondary-packaging string IS the carton size.
     secondary = passport.get("secondary_packaging") or {}
+    # Construction data travels with the dimensions, on every path below: the
+    # side panel is drawn from it, and a carton that reached the renderer with
+    # its features stripped would quietly lose the zones it declares.
+    extras = {
+        "features": [str(f) for f in (secondary.get("features") or [])],
+        "material": str(secondary.get("material") or ""),
+    }
     parsed = _parse_dimension_string(secondary.get("dimensions", ""))
     if parsed:
         w, h, d = orient_for_template(parsed, template_id)
         return {"width_mm": w, "height_mm": h, "depth_mm": d,
-                "source": "passport_secondary"}
+                "source": "passport_secondary", **extras}
 
     # 2. No usable string: classify the primary package and size a carton
     #    around it, reusing the existing owner of that calculation.
@@ -162,7 +169,7 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
         return {"width_mm": float(secondary_tpl.box_width_mm),
                 "height_mm": float(secondary_tpl.box_height_mm),
                 "depth_mm": float(secondary_tpl.box_depth_mm),
-                "source": "derived_from_primary"}
+                "source": "derived_from_primary", **extras}
     except Exception:
         # 3. Last resort: the template's documented aspect ratio. Reaching here
         #    means the SKU has no dimensional data at all; the whole-catalogue
@@ -171,7 +178,7 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
         longest = max(rw, rh, rd)
         scale = NOMINAL_LONG_EDGE_MM / longest
         return {"width_mm": rw * scale, "height_mm": rh * scale,
-                "depth_mm": rd * scale, "source": "template_ratio"}
+                "depth_mm": rd * scale, "source": "template_ratio", **extras}
 
 
 # ── provider ─────────────────────────────────────────────────────────────────

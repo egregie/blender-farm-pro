@@ -79,13 +79,15 @@ KEY_W, FILL_W = 25.0, 8.0
 # disk: these assertions are about how the driver TREATS a manifest, so the
 # input must stay fixed even if the catalogue changes.
 JOB = {
-    "manifest_version": "1.1",
+    "manifest_version": "1.2",
     "sku_id": "test-carton",
     "template_id": "T1",
     "is_bottle_override": False,
     "packaging_geometry": "BLISTER",
     "carton": {"width_mm": 115.0, "height_mm": 55.0, "depth_mm": 48.0,
-               "source": "passport_secondary"},
+               "source": "passport_secondary",
+               "features": ["Braille", "DataMatrix_Zone", "Tamper_Evident_Seal"],
+               "material": "GZ-Cardboard (Pharmaceutical Grade)"},
     "palette": {"primary": "#DDA7A5", "accent": "#6B2D5C", "background": "#FFFFFF"},
     "label_content": {"brand_name_display": "Atomoxetine Generic",
                       "active_ingredient_display": "Atomoxetine",
@@ -732,6 +734,190 @@ class TestLabelText(unittest.TestCase):
         for row in LABEL_ROWS:
             self.assertIn("DejaVu", self.rows[row]["font"] or "",
                           f"{row} is not using the vendored font")
+
+
+# Code 128 element-width patterns, symbol values 0..106. The table is the
+# published standard, so both sides necessarily share it; what makes the reader
+# below an independent check is that it runs the other way — geometry to widths
+# to symbols to text — and recomputes the modulo-103 checksum itself.
+_C128 = (
+    "212222", "222122", "222221", "121223", "121322", "131222", "122213",
+    "122312", "132212", "221213", "221312", "231212", "112232", "122132",
+    "122231", "113222", "123122", "123221", "223211", "221132", "221231",
+    "213212", "223112", "312131", "311222", "321122", "321221", "312212",
+    "322112", "322211", "212123", "212321", "232121", "111323", "131123",
+    "131321", "112313", "132113", "132311", "211313", "231113", "231311",
+    "112133", "112331", "132131", "113123", "113321", "133121", "313121",
+    "211331", "231131", "213113", "213311", "213131", "311123", "311321",
+    "331121", "312113", "312311", "332111", "314111", "221411", "431111",
+    "111224", "111422", "121124", "121421", "141122", "141221", "112214",
+    "112412", "122114", "122411", "142112", "142211", "241211", "221114",
+    "413111", "241112", "134111", "111242", "121142", "121241", "114212",
+    "124112", "124211", "411212", "421112", "421211", "212141", "214121",
+    "412121", "111143", "111341", "131141", "114113", "114311", "411113",
+    "411311", "113141", "114131", "311141", "411131", "211412", "211214",
+    "211232", "233111",
+)
+
+
+def decode_code128_from_bars(bars):
+    """Read a Code 128 symbol out of built bar GEOMETRY, the way a scanner does.
+
+    `bars` is a list of (low_z, high_z) intervals. Spaces are not objects, so
+    they are recovered from the gaps between consecutive bars — which means this
+    decodes what was actually modelled, not a pattern the driver reported about
+    itself. Returns the decoded text.
+    """
+    bars = sorted(bars, key=lambda b: -b[1])          # top of the symbol first
+    runs = []
+    for i, (low, high) in enumerate(bars):
+        runs.append(high - low)                        # bar
+        if i + 1 < len(bars):
+            runs.append(low - bars[i + 1][1])          # space up to the next bar
+    module = min(runs)
+    if module <= 0:
+        raise AssertionError("a bar or space has zero width")
+    widths = [int(round(r / module)) for r in runs]
+    if any(w < 1 or w > 4 for w in widths):
+        raise AssertionError(f"element widths outside Code 128's 1-4 modules: {widths}")
+
+    # last 7 elements are the stop pattern; the rest are 6-element symbols
+    stop, body = widths[-7:], widths[:-7]
+    if "".join(map(str, stop)) != "2331112":
+        raise AssertionError(f"stop pattern is {stop}, not 2331112")
+    if len(body) % 6:
+        raise AssertionError(f"{len(body)} body elements is not a multiple of 6")
+
+    values = []
+    for i in range(0, len(body), 6):
+        pattern = "".join(map(str, body[i:i + 6]))
+        if pattern not in _C128:
+            raise AssertionError(f"symbol {i // 6} pattern {pattern} is not Code 128")
+        values.append(_C128.index(pattern))
+    if values[0] != 104:
+        raise AssertionError(f"start symbol is {values[0]}, not START B (104)")
+
+    checksum = values[0] + sum(i * v for i, v in enumerate(values[1:-1], start=1))
+    if checksum % 103 != values[-1]:
+        raise AssertionError(
+            f"checksum is {values[-1]}, recomputed {checksum % 103}")
+    return "".join(chr(v + 32) for v in values[1:-1])
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestSidePanel(unittest.TestCase):
+    """The visible side panel: a real barcode, empty LOT/EXP fields, a data block.
+
+    The reference renders put a 2D code on this panel that is a blob of noise
+    with no finder pattern, LOT/EXP values reading "SLAQF FD9T", and a microprint
+    paragraph that is not text. None of that is copied. The layout is; the
+    content comes from the manifest or is not drawn at all.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scene = build_scene(JOB)
+        cls.panel = cls.scene["side_panel"]
+        cls.by_name = {o["name"]: o for o in cls.panel}
+        b = cls.scene["carton"]["self_bounds"]
+        cls.left_x, cls.back_y = b["min"][0], b["min"][1]
+        cls.panel_w = b["max"][1] - b["min"][1]
+        cls.panel_h = b["max"][2] - b["min"][2]
+        cls.top_z, cls.bottom_z = b["max"][2], b["min"][2]
+        cls.front_y = b["min"][1]
+
+    def _bars(self):
+        return [(o["bounds_in_carton_frame"]["min"][2],
+                 o["bounds_in_carton_frame"]["max"][2])
+                for o in self.panel if o["kind"] == "barcode"]
+
+    def test_the_barcode_decodes_to_the_sku_id(self):
+        """The assertion that makes "a real barcode" a fact rather than a claim.
+        Reproducing the reference's unscannable 2D blob would be re-creating by
+        hand the exact hallucination this engine exists to remove."""
+        decoded = decode_code128_from_bars(self._bars())
+        self.assertEqual(
+            decoded, JOB["sku_id"],
+            f"the built symbol reads {decoded!r}, not the manifest's "
+            f"{JOB['sku_id']!r}")
+
+    def test_barcode_has_bars(self):
+        self.assertGreater(len(self._bars()), 20, "no barcode geometry was built")
+
+    def test_barcode_lies_within_the_panel(self):
+        for low, high in self._bars():
+            self.assertGreaterEqual(low, self.bottom_z - 1e-6)
+            self.assertLessEqual(high, self.top_z + 1e-6)
+
+    def test_lot_and_exp_are_labels_with_no_values(self):
+        """There is no lot or expiry data in this project, and a real carton does
+        not carry one either - it is inkjetted at packing time onto a blank rule.
+        Printing a plausible value would be inventing data on pharmaceutical
+        packaging, which is precisely what the references did wrong."""
+        self.assertEqual(self.by_name["panel_field_lot"]["body"], "LOT")
+        self.assertEqual(self.by_name["panel_field_exp"]["body"], "EXP")
+        bodies = [o["body"] for o in self.panel if o["body"]]
+        for body in bodies:
+            self.assertNotRegex(
+                body, r"(?i)\b(lot|exp)\b\s*[:.]?\s*\S",
+                f"{body!r} looks like a LOT/EXP field carrying a value")
+
+    def test_every_panel_string_comes_from_the_manifest(self):
+        """Same guarantee the front panel has: nothing invented, nothing padded."""
+        allowed = {"LOT", "EXP", JOB["sku_id"], JOB["packaging_geometry"],
+                   JOB["carton"]["material"],
+                   "115x55x48mm", " / ".join(JOB["carton"]["features"])}
+        for o in self.panel:
+            if not o["body"]:
+                continue
+            for line in o["body"].split("\n"):
+                self.assertIn(
+                    line, allowed,
+                    f"{line!r} is on the carton but not in the manifest")
+
+    def test_nothing_on_the_panel_reaches_the_front_face(self):
+        for o in self.panel:
+            b = o["bounds_in_carton_frame"]
+            self.assertLessEqual(
+                b["min"][0], self.left_x + 0.02 * self.panel_w,
+                f"{o['name']} has drifted off the side panel")
+
+    def test_panel_elements_do_not_overlap_each_other(self):
+        text = [o for o in self.panel if o["kind"] != "barcode"]
+        for i, a in enumerate(text):
+            for b in text[i + 1:]:
+                pa, pb = a["bounds_in_carton_frame"], b["bounds_in_carton_frame"]
+                overlap = (pa["min"][2] < pb["max"][2] and pb["min"][2] < pa["max"][2]
+                           and pa["min"][1] < pb["max"][1] and pb["min"][1] < pa["max"][1])
+                self.assertFalse(overlap, f"{a['name']} overlaps {b['name']}")
+
+    def test_the_smallest_panel_in_the_catalogue_still_fits(self):
+        """A 25x35mm T3 side panel, the shallowest there is. The data block is
+        anchored under the LOT/EXP fields and sized in absolute millimetres, so
+        without a shrink-to-fit its lines run off the bottom of the carton. One
+        SKU in 391 hit this, and only the full sweep found it."""
+        job = dict(JOB, carton=dict(JOB["carton"], width_mm=140.0, height_mm=35.0,
+                                    depth_mm=25.0, features=[],
+                                    material="Aluminum / Laminated"))
+        scene = build_scene(job)
+        c = scene["carton"]["self_bounds"]
+        for o in scene["side_panel"]:
+            b = o["bounds_in_carton_frame"]
+            self.assertGreaterEqual(
+                b["min"][2], c["min"][2] - 1e-6,
+                f"{o['name']} runs off the bottom of the smallest panel")
+            self.assertLessEqual(b["max"][2], c["max"][2] + 1e-6,
+                                 f"{o['name']} runs off the top")
+
+    def test_a_carton_declaring_no_features_still_builds(self):
+        """21 of the 391 declare nothing. They must not get a features line, and
+        must not crash."""
+        job = dict(JOB, carton=dict(JOB["carton"], features=[]))
+        panel = build_scene(job)["side_panel"]
+        block = next(o for o in panel if o["name"] == "panel_data_block")
+        self.assertNotIn("Braille", block["body"])
+        self.assertTrue(any(o["kind"] == "barcode" for o in panel))
 
 
 def _front_face_and_background(png_path, accent_hex):

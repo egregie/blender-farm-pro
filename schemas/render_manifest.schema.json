@@ -17,8 +17,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump. 1.1 added label_content.active_ingredient_display as REQUIRED, which is deliberately not an additive-optional change: a manifest written before it exists must fail validation and be regenerated rather than silently produce a packshot with a missing label row.",
-      "const": "1.1"
+      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump. 1.1 added label_content.active_ingredient_display as REQUIRED, which is deliberately not an additive-optional change: a manifest written before it exists must fail validation and be regenerated rather than silently produce a packshot with a missing label row. 1.2 added carton.features and carton.material for the same reason - the side panel is drawn from them, and a stale manifest would render a panel missing its declared zones.",
+      "const": "1.2"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into SSOT/SKU.csv. Never parse as a number.",
@@ -53,8 +53,17 @@
       "description": "Dimensions of the SECONDARY packaging - the printed cardboard box that is actually rendered. This is deliberately NOT the primary package (the blister, bottle or syringe inside): the carton is the primary plus clearance, and for elongated primaries the axes are permuted, so the two are not interchangeable. Always present; when nothing better is known the template_ratio fallback still yields usable numbers, which is what frees consumers from null handling.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["width_mm", "height_mm", "depth_mm", "source"],
+      "required": ["width_mm", "height_mm", "depth_mm", "source", "features", "material"],
       "properties": {
+        "features": {
+          "description": "Construction features the carton declares, copied from the passport's secondary_packaging.features. Real per-SKU data, not decoration: 370 of the 391 cartons declare [\"Braille\", \"DataMatrix_Zone\", \"Tamper_Evident_Seal\"] and 21 declare nothing at all. A consumer draws a zone only when the carton claims it, instead of assuming every carton is identical.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "material": {
+          "description": "Board specification from the passport's secondary_packaging.material, e.g. \"GZ-Cardboard (Pharmaceutical Grade)\". Printed on the side panel. It is real text the project already holds, which is the point: the reference renders fill that area with invented regulatory prose, and this engine prints only what it was given.",
+          "type": "string"
+        },
         "width_mm": {
           "description": "Carton width in millimetres. Maps to the scene's X axis.",
           "type": "number",

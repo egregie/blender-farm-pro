@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.1",
+  "manifest_version": "1.2",
   "sku_id": "411-min.jpg",
   "template_id": "T_BOTTLE_BOX",
   "is_bottle_override": false,
@@ -8,7 +8,9 @@
     "width_mm": 50.0,
     "height_mm": 110.0,
     "depth_mm": 18.0,
-    "source": "passport_secondary"
+    "source": "passport_secondary",
+    "features": [],
+    "material": "Glass Type I"
   },
   "palette": {
     "primary": "#003366",

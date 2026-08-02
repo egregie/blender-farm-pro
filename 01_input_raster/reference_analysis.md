@@ -142,6 +142,32 @@ Side panel (the visible left face) consistently carries: a vertical barcode
 real-looking multi-line paragraph (the `HUCOG-2000` vial sample), sometimes
 just repeating placeholder glyphs.
 
+> **Almost none of that content is real — magnify it.** On `T1_1` the 2D code is
+> a blob of organic noise with no quiet zone, no L-finder and no clock track; it
+> would not scan. Beneath "LOT / EXP" sit `БАШЛ ТЕЯ`, `SLAQF FDЯT`, `TLAЯF 2023`
+> — invented glyphs imitating a batch number and a date. The microprint block is
+> not text either. This is the same failure §7 records as "Datels", and it is the
+> whole panel rather than one word of it.
+>
+> **The reference is evidence of LAYOUT, not of CONTENT**, and the driver treats
+> it that way. Built: a real, decodable **Code 128** of the SKU id with its
+> human-readable line; **LOT and EXP as empty field labels with a rule** — which
+> is what a real carton carries, because the batch and expiry are inkjetted at
+> packing time, and which the `T_VERT_VIAL_144` reference actually shows (a boxed
+> LOT and a bare EXP, no values); and a small block printing only strings the
+> manifest holds — board material, carton dimensions, packaging geometry and the
+> declared `features`. Nothing on this panel is invented.
+>
+> **Not built: any 2D symbol.** A DataMatrix needs Reed–Solomon and a layout
+> engine, and a decorative one would re-create precisely the defect above. The
+> measurement argues for building it properly later: an 11-character Code 128 is
+> a long symbol, so its module lands at **0.08–0.40mm** across the catalogue,
+> under the ~0.19mm a scanner needs on every panel shorter than about 90mm. That
+> is exactly why real small-format pharma packs carry a DataMatrix — the same
+> payload in a fraction of the area — and why the passports declare a
+> `DataMatrix_Zone`. The driver warns on stderr when the module falls below the
+> threshold rather than shipping a symbol that only looks like one.
+
 ## 7. AI-generation artifacts (a genuine Blender advantage, not just a limitation to work around)
 
 On the `Lumigan` sample (`T_VERT_DROPPER`), the side-panel field labels read

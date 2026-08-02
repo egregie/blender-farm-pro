@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.1",
+  "manifest_version": "1.2",
   "sku_id": "379-min.jpg",
   "template_id": "T_VERT_DROPPER",
   "is_bottle_override": false,
@@ -8,7 +8,9 @@
     "width_mm": 50.0,
     "height_mm": 110.0,
     "depth_mm": 18.0,
-    "source": "passport_secondary"
+    "source": "passport_secondary",
+    "features": [],
+    "material": "LDPE"
   },
   "palette": {
     "primary": "#003366",

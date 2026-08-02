@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.1",
+  "manifest_version": "1.2",
   "sku_id": "303-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -8,7 +8,13 @@
     "width_mm": 115.0,
     "height_mm": 55.0,
     "depth_mm": 48.0,
-    "source": "passport_secondary"
+    "source": "passport_secondary",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
   },
   "palette": {
     "primary": "#003366",

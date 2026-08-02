@@ -101,6 +101,31 @@ class TestBuildManifest(unittest.TestCase):
                  if not (_passport(stem).get("active_ingredient") or "").strip()]
         self.assertEqual(empty, [], f"{len(empty)} SKU have no active_ingredient")
 
+    def test_carton_carries_the_declared_construction_features(self):
+        """Real per-SKU data, and the side panel is drawn from it: 370 of 391
+        cartons declare Braille / DataMatrix_Zone / Tamper_Evident_Seal and 21
+        declare nothing. A renderer that assumes every carton is identical gets
+        the 21 wrong."""
+        data = _passport("1-min")
+        m = build_manifest(data)
+        self.assertEqual(m["carton"]["features"],
+                         data["secondary_packaging"]["features"])
+        self.assertEqual(m["carton"]["material"],
+                         data["secondary_packaging"]["material"])
+
+    def test_features_survive_the_dimension_fallbacks(self):
+        """Construction data is independent of whether the dimension string
+        parsed, so it must travel on the derived and ratio paths too."""
+        data = _passport("1-min")
+        data["secondary_packaging"] = dict(data["secondary_packaging"],
+                                           dimensions="not a size")
+        m = build_manifest(data)
+        self.assertNotEqual(m["carton"]["source"], "passport_secondary",
+                            "test premise: this should have left the happy path")
+        self.assertEqual(m["carton"]["features"],
+                         data["secondary_packaging"]["features"])
+        self.assertTrue(m["carton"]["material"])
+
     def test_carton_is_the_secondary_not_the_primary_package(self):
         """The rendered object is the printed box, so the manifest must carry
         the carton. The blister inside is strictly smaller."""
