@@ -1,0 +1,322 @@
+{
+  "group": "top30",
+  "started_at": "2026-08-02 18:58:05",
+  "interrupted": false,
+  "counts": {
+    "total": 3,
+    "rendered": 3,
+    "failed": 0,
+    "flagged": 0
+  },
+  "templates_covered": [
+    "T1",
+    "T1_SMALL"
+  ],
+  "total_render_seconds": 0,
+  "thresholds": {
+    "blank_pct": 5.0,
+    "oversize_pct": 95.0,
+    "slow_render_s": 180.0,
+    "spread_tolerance_pp": 10.0
+  },
+  "spread_by_template": {
+    "T1": {
+      "count": 1,
+      "min": 74.2,
+      "max": 74.2,
+      "median": 74.2,
+      "outliers": []
+    },
+    "T1_SMALL": {
+      "count": 2,
+      "min": 68.9,
+      "max": 68.9,
+      "median": 68.9,
+      "outliers": []
+    }
+  },
+  "records": [
+    {
+      "stem": "2-min",
+      "requested_as": "Strattera (Atomoxetine)",
+      "rendered": true,
+      "render_seconds": null,
+      "error": null,
+      "sku_id": "2-min.jpg",
+      "template_id": "T1",
+      "carton_mm": [
+        115.0,
+        55.0,
+        48.0
+      ],
+      "carton_source": "passport_secondary",
+      "product_name": "Strattera",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 74.2,
+        "frame_fill_height_pct": 48.0,
+        "frame_fill_dominant_pct": 74.2,
+        "margins_px": {
+          "top": 682,
+          "bottom": 382,
+          "left": 225,
+          "right": 304
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 238.5,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -48.64,
+              8.15
+            ],
+            "z_mm": [
+              38.84,
+              47.39
+            ],
+            "body": "Strattera"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -49.39,
+              -1.57
+            ],
+            "z_mm": [
+              22.59,
+              28.43
+            ],
+            "body": "Atomoxetine"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -49.14,
+              -28.43
+            ],
+            "z_mm": [
+              4.4,
+              10.97
+            ],
+            "body": "40mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              27.94,
+              51.42
+            ],
+            "z_mm": [
+              5.78,
+              11.09
+            ],
+            "body": "30 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "59-min",
+      "requested_as": "Cialis (Tadalafil)",
+      "rendered": true,
+      "render_seconds": null,
+      "error": null,
+      "sku_id": "59-min.jpg",
+      "template_id": "T1_SMALL",
+      "carton_mm": [
+        110.0,
+        50.0,
+        18.0
+      ],
+      "carton_source": "passport_secondary",
+      "product_name": "Cialis",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 68.9,
+        "frame_fill_height_pct": 48.0,
+        "frame_fill_dominant_pct": 68.9,
+        "margins_px": {
+          "top": 619,
+          "bottom": 445,
+          "left": 263,
+          "right": 374
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 236.7,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -46.79,
+              -16.59
+            ],
+            "z_mm": [
+              35.3,
+              43.27
+            ],
+            "body": "Cialis"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -47.32,
+              -15.8
+            ],
+            "z_mm": [
+              19.89,
+              25.73
+            ],
+            "body": "Tadalafil"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -46.76,
+              -26.28
+            ],
+            "z_mm": [
+              4.0,
+              10.57
+            ],
+            "body": "20mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              25.69,
+              49.17
+            ],
+            "z_mm": [
+              5.38,
+              10.69
+            ],
+            "body": "30 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "60-min",
+      "requested_as": "Cialis Professional",
+      "rendered": true,
+      "render_seconds": null,
+      "error": null,
+      "sku_id": "60-min.jpg",
+      "template_id": "T1_SMALL",
+      "carton_mm": [
+        110.0,
+        50.0,
+        18.0
+      ],
+      "carton_source": "passport_secondary",
+      "product_name": "Cialis Professional",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 68.9,
+        "frame_fill_height_pct": 48.0,
+        "frame_fill_dominant_pct": 68.9,
+        "margins_px": {
+          "top": 619,
+          "bottom": 445,
+          "left": 263,
+          "right": 374
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 236.7,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -46.83,
+              17.77
+            ],
+            "z_mm": [
+              27.5,
+              43.41
+            ],
+            "body": "Cialis\nProfessional"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -47.32,
+              -15.8
+            ],
+            "z_mm": [
+              19.89,
+              25.73
+            ],
+            "body": "Tadalafil"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -46.76,
+              -26.28
+            ],
+            "z_mm": [
+              4.0,
+              10.57
+            ],
+            "body": "20mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              25.92,
+              49.17
+            ],
+            "z_mm": [
+              5.38,
+              10.69
+            ],
+            "body": "10 Pills"
+          }
+        ]
+      }
+    }
+  ]
+}

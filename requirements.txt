@@ -8,6 +8,7 @@ PyYAML>=6.0                # central configuration (config.yaml)
 rich>=13.0                 # pretty console logging + run summary report
 pydantic>=2.0              # Stage 1: schema models (schemas/common.py, via pharma_pkg routing)
 jsonschema>=4.0            # validates the Stage 1 -> Stage 2 render-manifest contract
+numpy>=1.24                # pixel measurement in tests and scripts/catalogue_sweep.py
 
 # ── Optional ────────────────────────────────────────────────────────────────
 # Only needed for the OCR QA diagnostic (render_qa.py), NOT the core pipeline.

@@ -1,0 +1,143 @@
+{
+  "scanned": 15,
+  "catalogue_size": 391,
+  "floor_mm": 4.0,
+  "below_floor": 9,
+  "rows": [
+    {
+      "stem": "348-min",
+      "template_id": "T_MULTIPACK",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 61,
+      "ingredient": "Sildenafil / Tadalafil / Vardenafil / Avanafil (Specimen Mix)",
+      "smallest_fitted_row_mm": 3.24,
+      "below_floor": true
+    },
+    {
+      "stem": "351-min",
+      "template_id": "T_MULTIPACK",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 55,
+      "ingredient": "Sildenafil / Tadalafil / Vardenafil (Original Specimen)",
+      "smallest_fitted_row_mm": 3.6,
+      "below_floor": true
+    },
+    {
+      "stem": "350-min",
+      "template_id": "T_MULTIPACK",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 54,
+      "ingredient": "Sildenafil / Tadalafil / Vardenafil (XXL Specimen Mix)",
+      "smallest_fitted_row_mm": 3.59,
+      "below_floor": true
+    },
+    {
+      "stem": "349-min",
+      "template_id": "T_MULTIPACK",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 51,
+      "ingredient": "Sildenafil / Tadalafil / Vardenafil (Mini Specimen)",
+      "smallest_fitted_row_mm": 3.88,
+      "below_floor": true
+    },
+    {
+      "stem": "347-min",
+      "template_id": "T_MULTIPACK",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 50,
+      "ingredient": "Sildenafil / Tadalafil / Vardenafil (Specimen Mix)",
+      "smallest_fitted_row_mm": 3.93,
+      "below_floor": true
+    },
+    {
+      "stem": "146-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 80.0,
+      "ingredient_chars": 42,
+      "ingredient": "Human Chorionic Gonadotropin (hCG) 10000IU",
+      "smallest_fitted_row_mm": 2.92,
+      "below_floor": true
+    },
+    {
+      "stem": "144-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 80.0,
+      "ingredient_chars": 41,
+      "ingredient": "Human Chorionic Gonadotropin (hCG) 2000IU",
+      "smallest_fitted_row_mm": 3.0,
+      "below_floor": true
+    },
+    {
+      "stem": "145-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 80.0,
+      "ingredient_chars": 41,
+      "ingredient": "Human Chorionic Gonadotropin (hCG) 5000IU",
+      "smallest_fitted_row_mm": 3.0,
+      "below_floor": true
+    },
+    {
+      "stem": "248-min",
+      "template_id": "T3",
+      "face_width_mm": 140.0,
+      "ingredient_chars": 41,
+      "ingredient": "Clotrimazole + Betamethasone Dipropionate",
+      "smallest_fitted_row_mm": 4.46,
+      "below_floor": false
+    },
+    {
+      "stem": "400-min",
+      "template_id": "T1",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 39,
+      "ingredient": "Zinc Acetate + Doxycycline + Ivermectin",
+      "smallest_fitted_row_mm": 4.56,
+      "below_floor": false
+    },
+    {
+      "stem": "353-min",
+      "template_id": "T1",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 37,
+      "ingredient": "Benzocaine + Cetylpyridinium Chloride",
+      "smallest_fitted_row_mm": 4.81,
+      "below_floor": false
+    },
+    {
+      "stem": "357-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 37,
+      "ingredient": "Amphetamine / Dextroamphetamine Salts",
+      "smallest_fitted_row_mm": 4.64,
+      "below_floor": false
+    },
+    {
+      "stem": "252-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 35,
+      "ingredient": "Nitroglycerin (Glyceryl Trinitrate)",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "393-min",
+      "template_id": "T_VERT_INHALER",
+      "face_width_mm": 50.0,
+      "ingredient_chars": 35,
+      "ingredient": "Fluticasone Propionate / Salmeterol",
+      "smallest_fitted_row_mm": 2.42,
+      "below_floor": true
+    },
+    {
+      "stem": "70-min",
+      "template_id": "T1_SMALL",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 35,
+      "ingredient": "Sildenafil Citrate + Dapoxetine HCl",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    }
+  ]
+}
