@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # all 84 tests (9 need Blender; skipped without it)
+python -m unittest discover -s tests          # 111 tests (35 need Blender; 1 slow gate, opt-in)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -207,14 +207,65 @@ analysed in [`01_input_raster/reference_analysis.md`](01_input_raster/reference_
 Hard constraints derived from that analysis:
 
 - **White carton body always**, regardless of `palette.primary`. Brand colour appears in
-  exactly two places: a bottom accent stripe on the front face (~8–12% of face height) and a
-  square badge in the top-right corner. Never elsewhere.
-- **Matte cardboard**, roughness ~0.6–0.8 — not semi-gloss.
+  exactly two places, and the two take *different* palette entries — swapping them is the
+  easy mistake:
+  - a bottom stripe on the front face in **`palette.accent`**, 3–6% of face height
+    (pixel-measured across all 9 references; the "8–12%" that used to be documented was
+    eyeballed and roughly double the truth), full width, front face only — it does not wrap
+    onto the side panel;
+  - a square badge in the top-right corner of the front face in **`palette.primary`**
+    (9/9 references), side ~25% of the *shorter* front-face edge, inset ~5% of face width
+    from the right and ~3% of face height from the top.
+
+  Never elsewhere.
+- **Matte cardboard**, roughness ~0.6–0.8 — not semi-gloss. `MATTE_ROUGHNESS = 0.7` covers
+  the body, the stripe and the badge; printed ink sits on the same matte board.
 - **Near-shadowless high-key lighting** ("product floating on white"); a visible contact
-  shadow is a mismatch.
+  shadow is a mismatch. Measured, the references sit at 254.9 directly under the carton —
+  there is no contact shadow to speak of. The driver's backdrop is therefore an **emissive**
+  plane, not a diffuse floor lit by the key: it takes no cast shadow, renders a seamless
+  255 with no hot spot, and is switched out of all indirect ray paths so it cannot bounce
+  back and wash out the accent (a no-op under EEVEE, load-bearing under Cycles).
 - **No depth-of-field.** References read as fully sharp; DOF is deliberately disabled in the
   driver even though an f/8 aperture value is set.
 
-Light energies in `render_driver.py` are studio-strobe scale (25 W key / 8 W fill) because
-room-scale wattages blow out the frame at this macro object scale — a real bug that was
-found and fixed; don't "correct" them back up.
+### The light rig is one studio for all 391 SKU
+
+Everything about the rig is a multiple of the carton's own `target_size = max(w, h, d)`, so
+from the carton's point of view the lights always arrive from the same direction and subtend
+the same angle. Only the distance scales — and therefore the power must too.
+
+- **`KEY_ENERGY_W = 25` / `FILL_ENERGY_W = 8` are the power at `LIGHT_REF_SIZE_M = 0.115`,
+  not for every carton.** They stay studio-strobe scale because room-scale wattages blow out
+  the frame at this object scale — a real bug that was found and fixed; don't "correct" them
+  back up. 0.115 m is both the T1 family's largest dimension and the catalogue's modal
+  carton (259 of 391 SKU), so most of the catalogue is lit at literally these numbers.
+- **`light_energy()` scales power with the SQUARE of the size ratio.** Distance grows
+  linearly with the carton and irradiance falls as 1/d², so anything less leaves big cartons
+  dark: before this, the front face ran 182–255 across templates with five of nine clipping,
+  against a reference band of 235–241. After, 236–239. Don't "simplify" the square away.
+- **The key is on the camera's RIGHT (+X), the fill on its LEFT.** Prose descriptions of
+  this project have had it the other way round; the code is correct, the prose is not.
+- **Light size has no lower clamp.** A clamp makes small cartons relatively softer-lit than
+  big ones — a per-template style difference, which is what the rig exists to avoid.
+
+Exposure is a **film** setting, kept strictly separate from those energies: pin
+`FILM_VIEW_TRANSFORM = "Standard"` and meter per carton shape —
+`FILM_EXPOSURE_LANDSCAPE = -2.75`, `FILM_EXPOSURE_PORTRAIT = -2.88`. The lighting is
+bit-identical for both; a wide front face simply sits ~2 face-widths from the key across its
+width and reads ~0.13 stops darker than a narrow one, which is geometry rather than a defect
+(see `reference_analysis.md` §9). This is what a photographer does anyway — re-read the
+meter, don't touch the strobes.
+
+Blender's default AgX rolls the highlights off far enough to hide that the scene is ~2.8
+stops hot: the white body still looked plausible while the accent stripe rendered as a pale
+pastel. Measure that stop count off an *unclipped* render, never off an AgX one — AgX is not
+linear, and estimating from it gives ~2.0, which still clips the T1 front face.
+
+`python -m unittest discover -s tests` asserts the rig's invariants (directions, key:fill
+ratio, energy-vs-size law) from `--dump-scene`, without rendering. The pixel-level
+calibration gate is opt-in because it renders real packshots:
+
+```bash
+PHARMAGEN_SLOW_TESTS=1 python -m unittest tests.test_blender_carton
+```

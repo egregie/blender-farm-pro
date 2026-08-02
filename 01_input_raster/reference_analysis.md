@@ -74,16 +74,33 @@ show. §8 below has the specific tuning recommendation.
 
 Every single reference, regardless of `branding.palette.primary`, has a **pure
 white carton body**. Brand color appears in exactly two places, never more:
-1. **A solid accent stripe along the bottom edge of the front face**, roughly
-   8–12% of the box's front-face height, spanning the full width. Color =
+1. **A solid accent stripe along the bottom edge of the front face**, spanning
+   the full width and **2.9–6.1% of the front-face height (median 4.0%)** —
+   pixel-measured across all 9 references, resolving the question §9 raised about
+   the earlier eyeballed "8–12%". That estimate was roughly double the truth; the
+   driver enforced it and produced a band ~50% too thick on T1 and ~135% too
+   thick on `T_VERT_VIAL`. In millimetres the band runs 2.2–5.8mm, which brackets
+   the ~4mm of Row 6. The stripe does **not** wrap onto the side panel: it starts
+   at the near vertical corner and runs to the front face's right edge. Color =
    `palette.accent` (verified against source JSON: T1's `1-min` stripe is the
    dark magenta `#6B2D5C` from its passport; consistently darker/more saturated
    than `palette.primary`, never the lighter primary tone).
-2. **A colored square badge in the top-right corner of the front face**,
-   containing an abstract white geometric line-art motif (varies per SKU: an
+2. **A colored square badge in the top-right corner of the front face**, filled
+   with **`palette.primary`** — the *lighter* of the two, the complement of the
+   stripe's `accent`. Confirmed by sampling the badge in all 9 references against
+   each SKU's passport palette: T1's badge means (207,157,155) against
+   `#DDA7A5`, T3's (214,89,65) against `#E2583E`, `T_MULTIPACK`'s (28,100,149)
+   against `#005A9C`. 9/9 match primary, none match accent — worth stating
+   explicitly, because "brand colour" alone leaves the two interchangeable and
+   swapping them is the obvious way to get this wrong. Measured geometry: side
+   **~25% of the shorter front-face edge** (21–37% across the set — tighter than
+   sizing from face height alone, 12–29%, or from face width, 7–37%), inset **~5%
+   of face width** from the right edge and **~3% of face height** from the top.
+   Each badge carries an abstract geometric line-art motif (varies per SKU: an
    X-hatch lattice, a wireframe diamond/polyhedron, a filled ring/circle, a
-   filled overlapping-circles mark, an angular network pattern). The badge is
-   **either filled-solid or outline-only** depending on the SKU — no obvious
+   filled overlapping-circles mark, an angular network pattern) — drawn as a
+   *dark* line over the badge fill in the samples measured, not white. The badge
+   is **either filled-solid or outline-only** depending on the SKU — no obvious
    rule was identified from 7 samples for which style is used when; flagged as
    an open question in §7.
 
@@ -128,16 +145,37 @@ text is something Blender can *guarantee* where Gemini cannot.
 ## 8. Concrete tuning recommendations for `assets/blender/render_driver.py`
 
 Based on §2–4 above, before further Blender template work:
-- Reduce ground-contact shadow further (lower key-light size/raise light
-  height, or add a subtle contact-shadow-only technique) — references show
-  almost no visible shadow, current driver still shows one.
-- Raise the body material roughness from `0.5` toward **~0.7–0.8** (matte
-  cardboard, not semi-gloss).
+- ~~Reduce ground-contact shadow further~~ — **done**, and the measurement is
+  more brutal than "minimal to nearly absent" implied: directly beneath the
+  carton the references sit at **254.9 (min 248)**, i.e. no contact shadow worth
+  the name. The driver's backdrop is now an **emissive** plane rather than a
+  diffuse floor lit by the key, so it takes no cast shadow and needs no light
+  aimed at it. Measured under the carton after the change: 254.9, min 254.
+  Fixing the shadow and the background turned out to be the same fix.
+- ~~Raise the body material roughness from `0.5` toward **~0.7–0.8**~~ —
+  **done**: `MATTE_ROUGHNESS = 0.7`, applied to the body, the stripe and the
+  badge, since §3 records no hard specular highlight anywhere on the carton and
+  printed ink sits on the same matte board.
 - Do **not** implement a literal DOF blur at f/8 — these references read as
   fully sharp; a strong DOF would look *less* like the reference set, not more.
 - The white-body / two-accent-color rule (stripe + corner badge) is confirmed
   and should be treated as a hard constraint on any future template, not just
   a nice-to-have.
+- **The scene was ~2.8 stops over-exposed, and Blender's default AgX view
+  transform hid it.** AgX's highlight rolloff kept the white body at a plausible
+  237 while the ~15%-albedo accent stripe landed at (195,135,179) — a pale
+  orchid — against the (99,42,72) measured here. Fixed by pinning the *film
+  response* (`view_transform="Standard"`), not by touching the 25 W / 8 W light
+  energies. Always measure the stop count off an **unclipped** render and scale
+  back; estimating it from an AgX render gives ~2.0, which still clips T1.
+- **The backdrop is emissive, not a lit floor.** Two small lights cannot light 50
+  metres of plane evenly: the render showed a hot spot behind the carton falling
+  to grey (corner brightness 75–178 across templates) against the flat 255 every
+  reference holds. An emissive plane renders at a fixed value everywhere, takes
+  no cast shadow, and frees the key and fill to light nothing but the product.
+  It is switched out of all indirect ray paths so it cannot bounce back into the
+  carton and wash the accent out — irrelevant under EEVEE, which gathers no such
+  light, but load-bearing under Cycles.
 
 ## 9. Coverage & open questions
 
@@ -152,8 +190,47 @@ checking.
 - What determines filled-vs-outline badge style per SKU? Not visible in the 7
   samples reviewed; may correlate with `branding.design_elements` fields not
   cross-checked here.
-- Accent-stripe height ratio was eyeballed (~8–12%), not pixel-measured —
-  worth a precise measurement pass if Blender geometry needs to match exactly.
+- ~~Accent-stripe height ratio was eyeballed (~8–12%)~~ — **resolved.** A
+  pixel-measurement pass over all 9 references puts it at 2.9–6.1% of front-face
+  height (median 4.0%); §5 now carries the measured figure and
+  `render_driver.py` enforces 3–6%. The same pass measured the badge (fill =
+  `palette.primary`, side ~25% of the shorter face edge, insets ~5% / ~3%).
 - Whether the top-face sliver is ever rendered with the accent color (it
   wasn't in any of the 7 samples) — Row-6/front-face-only rule appears absolute
   but only 7 data points confirm it.
+
+- ~~White-body brightness varies with carton size in the Blender render~~ —
+  **resolved.** The key and fill were positioned proportionally to `target_size`
+  while their energies stayed fixed, so a 170mm carton was lit from ~1.5× the
+  distance of a 55mm one at the same wattage. `light_energy()` now scales power
+  with the **square** of the size ratio, which cancels the inverse-square falloff
+  exactly and holds irradiance constant. The 25 W / 8 W pair is unchanged in
+  substance — it is now the power *at* the reference size, 0.115 m, which is also
+  the catalogue's modal carton (259 of 391 SKU), so two thirds of the catalogue
+  is lit at literally the old numbers.
+
+  Measured, front face across the nine templates: **182–255 (spread 73, five
+  templates clipping) → 236–239 (spread 3.6, none clipping)**, against a
+  reference band of 235.0–241.5. The render set is now tighter than the
+  references themselves.
+
+**Newly open after this pass:**
+- **A residual ~0.13-stop shape effect, corrected in the meter rather than the
+  rig.** After the energy law the per-template requirement still separated
+  cleanly by carton *shape*: landscape (w ≥ h) wanted −2.71…−2.76 EV, portrait
+  wanted −2.87…−2.88, with no overlap. The key is an area light roughly two
+  face-widths out, so across a **wide** front face its far end is materially
+  further than its near end and the mean over the face drops; a narrow portrait
+  face barely sees it. No single scalar rig size equalises the horizontal and
+  vertical falloff for both shapes at once — it is geometry, not a defect.
+  Rather than distort the rig, the driver meters the two shapes separately
+  (`FILM_EXPOSURE_LANDSCAPE` / `FILM_EXPOSURE_PORTRAIT`); the lighting itself is
+  bit-for-bit identical for every carton. Revisit only if that gap grows, which
+  would mean the rig has drifted.
+- **A dark badge picks up more specular white than the references show.** On
+  `#003366` navy the rendered badge reads R≈38 where the reference reads R≈4;
+  the base colour has zero red, so the excess is the Principled BSDF's specular
+  lobe. One template (`T_VERT_DROPPER_229`) sits just outside ±30 on that channel
+  at 34; the other eight are inside. Cheap candidate fix: lower specular/IOR on
+  the printed elements. Not attempted here — it is a material change, unrelated
+  to lighting calibration.
