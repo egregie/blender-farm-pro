@@ -3,7 +3,7 @@
 > **Phase:** v1.0.0 Final Release Engineering · **Date:** 2026-06-28
 > For each dependency: why it exists, whether it is active, legacy, replaceable,
 > removable, and any vendor lock-in. Complements the operational
-> [DEPENDENCY_INVENTORY.md](../../ops/DEPENDENCY_INVENTORY.md) (which lists versions).
+> [DEPENDENCY_INVENTORY.md](../../08_ops/DEPENDENCY_INVENTORY.md) (which lists versions).
 
 ## Production-core (required, active)
 

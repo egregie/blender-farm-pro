@@ -7,7 +7,7 @@
 
 **Start here:** [`00_PROJECT_STATE/CURRENT_STATE.md`](00_PROJECT_STATE/CURRENT_STATE.md)
 for what's done and what's next, and
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the pipeline is put
+[`06_docs/ARCHITECTURE.md`](06_docs/ARCHITECTURE.md) for how the pipeline is put
 together. (An earlier version of this file promised the source project's
 bilingual README at `docs/README.md`; that file was never carried into the fork,
 and the link had been dead since the fork was created.)
@@ -31,22 +31,41 @@ Blender Farm Pro/
 ├── 02_processing/        ← legacy CV/OCR code, Blender's own test-render output, Stage-2 failure logs
 ├── 03_knowledge_graph/   ← SSOT (SKU.csv, master.json, design specs)
 ├── 04_passports/         ← JSON + Markdown passports (391 SKU)
-├── 05_output_svg/        ← reserved, currently unused (see its README)
-├── 06_archive/           ← this fork's own archive (empty at creation — see its README)
-├── input/                ← original 389 source product photos
-├── ops/                  ← deployment & operations docs
-├── src/, pharma_pkg/, schemas/, tests/, scripts/, assets/  ← code (forked, functional)
-├── docs/                 ← architecture, design rationale, the Blender roadmap
-├── config.yaml, requirements.txt, main.py, pass_tomd.py, ...  ← forked, paths remapped
+├── 05_assets/            ← Blender driver, vendored DejaVu fonts, optional .blend scenes
+├── 06_docs/              ← architecture, design rationale, the Blender roadmap
+├── 07_input/             ← original 389 source product photos
+├── 08_ops/               ← deployment & operations runbooks
+│
+├── src/                  ← the pipeline: stages, the render-manifest contract, utilities
+├── pharma_pkg/           ← packaging geometry: family routing, dimension resolution
+├── schemas/              ← the render-manifest JSON Schema, plus Pydantic models
+├── tests/                ← stdlib unittest
+├── scripts/              ← diagnostics and operator tools, outside the three stages
+└── config.yaml, requirements.txt, main.py, pass_tomd.py, ...
 ```
 
+**Why five folders are not numbered.** `src`, `pharma_pkg`, `schemas`, `tests`
+and `scripts` are Python packages, imported as `from src.utils import ...`,
+`python -m src.render_stage`, `python -m unittest discover -s tests`. A package
+name cannot begin with a digit — `import 05_src` raises `SyntaxError: invalid
+decimal literal`, which is a language rule rather than a convention — so
+numbering them would stop the project running. Everything numbered is data,
+documentation or output, which nothing imports.
+
 Each documented subject has exactly one home. `00_governance/` holds the ADRs,
-audits and release-engineering records; `ops/` holds the deployment and
-operations runbooks; `docs/` holds architecture, design rationale and the
+audits and release-engineering records; `08_ops/` holds the deployment and
+operations runbooks; `06_docs/` holds architecture, design rationale and the
 Blender roadmap. Copies of the first two also lived under `docs/` when the fork
 was created, 24 files of them byte-identical, and were removed once the fork
 started editing the governance copies — a reader following a link should not
 have to guess which of two identical files is the live one.
+
+Four placeholders created empty at fork time were removed on 2026-08-02, none
+having ever held a file: `05_output_svg/`, `06_archive/`, `07_output_3mf/` and
+`memory/`. The last one also documented a mechanism that does not exist — it
+pointed readers at `~/.claude/memory/`, which is not a directory Claude keeps —
+and the job it described is already covered by `CLAUDE.md` and
+`00_PROJECT_STATE/`.
 
 ## ⚠️ Important: this fork is not a 1:1 copy — paths were remapped
 

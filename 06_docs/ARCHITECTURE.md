@@ -18,7 +18,7 @@ INPUT (389 source JPG images)
 ┌─────────────────────────────────────────────────────┐
 │  STAGE 0: ANALYSIS (Manual / Workflow)              │
 │  Workflow: /analyze-pharma                          │
-│  Input:    input/{sku_id}.jpg + SSOT/master.json    │
+│  Input:    07_input/{sku_id}.jpg + SSOT/master.json    │
 │  Output:   pipeline/passports/{sku_id}.json (v2.1)  │
 │  Agent:    Gemini via IDE + analyze-pharma.md       │
 └─────────────────────────────────────────────────────┘
@@ -278,7 +278,7 @@ python main.py --process-images-only       # Stage 3: raw PNG -> final WEBP (out
 | 2026-06-06 | P8.1 | Cleaned up root directory: archived 10 obsolete utility scripts and 1 test file; archived historical renders and reset render_output. |
 | 2026-06-04 | v2.3 | verification_agent CHECK 10 vertical containers routing mismatch fix |
 | 2026-06-04 | P8.0 | Restored image_postprocessor.py (CRIT-1); archived stale pre-P6 docs (CRIT-2); fixed CHECK 10 false-negative (WARN-1); added render_qa.py OCR QA (WARN-2); fixed detect_material_override() pkg_type gate (INFO-1) |
-| 2026-06-04 | P7.0 | Full architectural audit, verification_agent v2.3, docs/ARCHITECTURE.md canonical doc created |
+| 2026-06-04 | P7.0 | Full architectural audit, verification_agent v2.3, 06_docs/ARCHITECTURE.md canonical doc created |
 | 2026-06-04 | P6.0 | SKU.csv-driven routing, T_BOTTLE_BOX template, resolve_unit_label(), conditional purge |
 | 2026-06-04 | v2.2 | verification_agent extended (checks 9-12), threshold 0.75, VerificationResult extended |
 | 2026-06-04 | — | Project cleanup: 48 logs archived, dead scripts removed, art-director.md archived |

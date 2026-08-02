@@ -5,7 +5,9 @@ Forked from PharmaGen PRO's equivalent documentation (`docs/DECISIONS/`,
 production-readiness/bus-factor/CRM-readiness audits, and the release
 engineering set (technical debt, risk register, roadmap, scorecard,
 certification). Copied here for context on *why* the source project looks the
-way it does; a full copy also remains at `docs/` for completeness.
+way it does. A duplicate copy used to sit under `docs/` as well; it was
+removed on 2026-08-02 once this fork started editing the governance copies,
+so these files are now the only ones.
 
 | Subfolder | Contents |
 |---|---|

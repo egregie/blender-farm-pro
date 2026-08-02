@@ -9,7 +9,7 @@
 | **Version** | 1.0.0 (annotated tag `v1.0.0`) |
 | **Repository Status** | Clean, minimal root, tagged; history rewritten locally (not pushed — see [GIT_RELEASE_AUDIT](GIT_RELEASE_AUDIT.md) GR-1) |
 | **Production Status** | Operating — full catalogue rendered to PNG (391 in `render_output/raw/`); **389** delivered as final WEBP in `output/` (2-SKU gap — see [GIT_RELEASE_AUDIT](GIT_RELEASE_AUDIT.md) GR-5) |
-| **Deployment Readiness** | Ready (Windows; documented in [DEPLOYMENT.md](../../ops/DEPLOYMENT.md); gated by [ACCEPTANCE_TEST](../../ops/ACCEPTANCE_TEST.md)) |
+| **Deployment Readiness** | Ready (Windows; documented in [DEPLOYMENT.md](../../08_ops/DEPLOYMENT.md); gated by [ACCEPTANCE_TEST](../../08_ops/ACCEPTANCE_TEST.md)) |
 | **Operational Readiness** | Ready (runbook, disaster recovery, backup strategy in place) |
 | **CRM Readiness** | Not yet — file-based integration only; programmatic adapter is analysed, not built ([CRM Readiness audit](../audits/CRM_READINESS_AUDIT.md), ROADMAP v1.5) |
 
@@ -23,7 +23,7 @@
 ## Recommended Usage
 
 Use as a **standalone internal Pipeline** run by an operator per the
-[Operations Manual](../../ops/OPERATIONS.md). Integrate with the CRM via **file
+[Operations Manual](../../08_ops/OPERATIONS.md). Integrate with the CRM via **file
 hand-off** from `output/` now; pursue a programmatic adapter (ROADMAP v1.5) when
 CRM automation is required. Always keep Tier-1 backups (images are not reproducible).
 

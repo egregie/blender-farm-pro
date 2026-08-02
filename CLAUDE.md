@@ -12,7 +12,7 @@ The fork carries the *whole* original pipeline forward (Gemini RPA engine includ
 Blender engine is an alternative Stage 2, not a replacement of the codebase.
 
 Read [`00_PROJECT_STATE/CURRENT_STATE.md`](00_PROJECT_STATE/CURRENT_STATE.md) for status and
-[`docs/experiments/BLENDER_RENDERER_ROADMAP.md`](docs/experiments/BLENDER_RENDERER_ROADMAP.md)
+[`06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`](06_docs/experiments/BLENDER_RENDERER_ROADMAP.md)
 for the Blender-engine design rationale and its phase plan.
 
 ## Commands
@@ -47,7 +47,7 @@ python -m src.blender_renderer --all
 # Measure the built scene WITHOUT rendering — how the carton's art-direction
 # invariants are tested (tests/test_blender_carton.py), since bpy can never be
 # imported from the project's Python and pixel-inspecting a render is brittle.
-blender --background --factory-startup --python assets/blender/render_driver.py -- \
+blender --background --factory-startup --python 05_assets/blender/render_driver.py -- \
     --job 04_passports/render_manifests/1-min.json --dump-scene scene.json
 ```
 
@@ -133,7 +133,7 @@ engine module:
 main.py --render-engine blender
   └─ build_cmd() → python -m src.render_stage --engine blender ...
        └─ src/blender_renderer.py  (or src/rpa_orchestrator.py for gemini)
-            └─ subprocess: blender.exe --background --python assets/blender/render_driver.py
+            └─ subprocess: blender.exe --background --python 05_assets/blender/render_driver.py
 ```
 
 Neither engine knows the other exists. Keep it that way — engine-specific behaviour belongs
@@ -151,7 +151,7 @@ Stage 3. Stage 3 still sources from the Gemini dir by default — feeding Blende
 it currently needs a manual `image_processor.source_dir` override via `--config`.
 
 Blender runs as an **external executable**, never imported. `import bpy` appears only in
-`assets/blender/render_driver.py`, which executes inside Blender's own bundled interpreter.
+`05_assets/blender/render_driver.py`, which executes inside Blender's own bundled interpreter.
 There is no pip-installable Blender dependency.
 
 ### Template routing has one owner
@@ -250,7 +250,7 @@ compatibility shims** re-exporting from `src/`. Edit the `src/` module, not the 
 
 **`docs/` and `00_governance/` are near-duplicates** — `00_governance/` holds the forked
 ADR/audit/release docs, `docs/` is the full safety-net copy of the source project's docs.
-The Blender roadmap exists only in `docs/experiments/`, despite a stale cross-reference in
+The Blender roadmap exists only in `06_docs/experiments/`, despite a stale cross-reference in
 `NEXT_STEPS.md` claiming otherwise.
 
 ## Reference-matching constraints
@@ -295,7 +295,7 @@ a side-panel label. A text object draws the string it is handed or nothing at al
 compares the built `body` byte-for-byte against the manifest. Don't replace this with baked
 image textures; the guarantee is the point.
 
-Fonts live in `assets/blender/fonts/` (DejaVu, redistributable — see `LICENSE_DEJAVU`) and
+Fonts live in `05_assets/blender/fonts/` (DejaVu, redistributable — see `LICENSE_DEJAVU`) and
 are **not** taken from the system, because a system font silently changes the render on a
 machine that lacks it and the project's determinism invariant forbids that. Sizes are set as
 cap height, not Blender's `size`: the two differ by a per-font ratio (~0.49 for DejaVu) that

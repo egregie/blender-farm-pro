@@ -29,7 +29,7 @@
 | Async job **queue** with one render worker | Orderly CRM-driven runs | M | adapter |
 | Status store + event hooks (RenderStarted/PassportGenerated/ImageReady/ImageFailed/Completed) | Event-driven integration | M–L | adapter, status feed |
 
-> Implements **Option 2** from [BUSINESS_VALUE_INTEGRATION.md](../../docs/BUSINESS_VALUE_INTEGRATION.md), over the unchanged renderer.
+> Implements **Option 2** from [BUSINESS_VALUE_INTEGRATION.md](../../06_docs/BUSINESS_VALUE_INTEGRATION.md), over the unchanged renderer.
 
 ## v2.0 — API renderer (architectural)
 

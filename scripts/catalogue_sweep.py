@@ -4,7 +4,7 @@ Diagnostic only: this script never changes how anything is rendered. It exists
 because the driver's layout constants were fitted against nine curated
 references, and a sweep over many real SKU is the only thing that finds the
 failures those nine cannot show. Every correction pass currently in
-assets/blender/render_driver.py was added after a sweep found real breakage.
+05_assets/blender/render_driver.py was added after a sweep found real breakage.
 
     python scripts/catalogue_sweep.py --limit 5      # trial
     python scripts/catalogue_sweep.py                # the group, resuming

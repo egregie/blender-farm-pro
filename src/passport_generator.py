@@ -17,7 +17,7 @@ from verification_agent import agent_2_verifier
 # ================= SETTINGS =================
 # Paths are centralised in config.yaml (see src/utils.py). Defaults are identical
 # to the original hard-coded values, so behaviour is unchanged without a config.
-from src.utils import load_config, get_path
+from src.utils import load_config, get_path, PROJECT_ROOT
 
 _CFG = load_config()
 INPUT_DIR    = get_path(_CFG, "passports_json")
@@ -1457,8 +1457,12 @@ def main():
 
     # Placeholder Routing Audit Report generation disabled per P10.0 requirements
 
-    # Write Data-Driven Override Audit Report
-    docs_dir = Path("docs")
+    # Write Data-Driven Override Audit Report. Anchored to the project root
+    # rather than the working directory — this was Path("docs"), which meant the
+    # whole stage crashed at the very end if run from anywhere else, after all
+    # 391 passports had already been written.
+    docs_dir = PROJECT_ROOT / "06_docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
     override_report_path = docs_dir / "DATA_DRIVEN_OVERRIDE_AUDIT.md"
     with open(override_report_path, "w", encoding="utf-8") as of:
         of.write("# DATA-DRIVEN OVERRIDE AUDIT REPORT\n\n")

@@ -50,7 +50,7 @@ independent and can be done at any time, including in parallel.
 
 ## Housekeeping
 
-6. **Give `ops/` a Blender chapter.** Its paths were remapped onto this fork's
+6. **Give `08_ops/` a Blender chapter.** Its paths were remapped onto this fork's
    layout on 2026-08-02, so the runbooks no longer send an operator to
    directories that do not exist — but they still describe a Gemini-only
    pipeline. `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing
@@ -58,7 +58,7 @@ independent and can be done at any time, including in parallel.
    has no row for the Blender executable despite it being this fork's default
    engine.
 
-7. **Rewrite `docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
+7. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
    "Phase 0 complete, Phase 1 foundation in place" and describes Phases 2–4 as not
    started, when most of Phase 2 has shipped.
 
@@ -83,5 +83,5 @@ independent and can be done at any time, including in parallel.
   width is below scanner tolerance on panels shorter than ~90 mm. A real symbol is
   worth adding later; a decorative one is not.
 - **Hand-authored `.blend` templates.** The loader still honours them if they appear
-  in `assets/blender/scenes/`, but procedural generation is the chosen path and that
+  in `05_assets/blender/scenes/`, but procedural generation is the chosen path and that
   directory is empty on purpose.

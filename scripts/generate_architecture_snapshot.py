@@ -4,7 +4,7 @@ Version: 1.1 (2026-06-04) — P10.0
 
 This script statically inspects the project's source code, configurations, 
 and database states, producing:
-  - docs/ARCHITECTURE_SNAPSHOT.md
+  - 06_docs/ARCHITECTURE_SNAPSHOT.md
   - docs/architecture_snapshot.json
 """
 
@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT_DIR))
 from src.utils import load_config, get_path  # noqa: E402
 
 _CFG = load_config()
-DOCS_DIR = ROOT_DIR / "docs"
+DOCS_DIR = ROOT_DIR / "06_docs"
 # Ensure the project root is importable for `from pass_tomd import ...` etc.
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -365,7 +365,7 @@ def get_render_state() -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def build_markdown_report(data: dict) -> str:
-    """Generate docs/ARCHITECTURE_SNAPSHOT.md markdown string."""
+    """Generate 06_docs/ARCHITECTURE_SNAPSHOT.md markdown string."""
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     lines = [

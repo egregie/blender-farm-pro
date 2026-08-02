@@ -44,7 +44,7 @@
 | `project_state/` | `trash/project_state/` |
 | `PROJECT_STATS_FINAL.md` | `trash/PROJECT_STATS_FINAL.md` |
 | 30 × `gemini_rpa_*.log` | `trash/logs_history/` |
-| `docs/ARCHITECTURE_SNAPSHOT.md`, `docs/architecture_snapshot.json` | `trash/docs_history/` |
+| `06_docs/ARCHITECTURE_SNAPSHOT.md`, `docs/architecture_snapshot.json` | `trash/docs_history/` |
 | `docs/NAME_CLEANUP_AUDIT.md`, `docs/NAMING_AUDIT.md`, `docs/PALETTE_AUDIT.md`, `docs/PRICE_MATCH_AUDIT.md` | `trash/docs_history/` |
 | `docs/RELEASE_SNAPSHOT.json`, `docs/RENDER_QA_REPORT.md` | `trash/docs_history/` |
 | `docs/ROADMAP_CONTAINMENT_REPORT.md`, `docs/RPA_RENDER_LOOP_VALIDATION.md`, `docs/implementation_plan.md` | `trash/docs_history/` |
@@ -53,7 +53,7 @@
 ## Kept in place (runtime / data)
 
 `SSOT/`, `src/`, `pharma_pkg/`, `schemas/`, `pipeline/`, `render_output/`,
-`output/`, `input/`, `tests/`, `logs/`, `.agents/`, `.vscode/`.
+`output/`, `07_input/`, `tests/`, `logs/`, `.agents/`, `.vscode/`.
 
 ## Docs retained in `docs/`
 

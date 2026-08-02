@@ -41,7 +41,7 @@ from datetime import datetime
 
 DEFAULT_PROCESSED_DIR = Path("render_output/processed")
 DEFAULT_PASSPORTS_DIR = Path("04_passports/passports_json")
-DEFAULT_REPORT_PATH   = Path("docs/RENDER_QA_REPORT.md")
+DEFAULT_REPORT_PATH   = Path("06_docs/RENDER_QA_REPORT.md")
 
 # Maximum allowed occurrences of brand_name in OCR text before flagging duplicate
 MAX_BRAND_OCCURRENCES = 2

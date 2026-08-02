@@ -45,7 +45,7 @@ had been within 10% of its guess and 104 were off by more than 50%.
 dosage and unit count as real Blender text objects on a measured grid, plus the
 corner badge and the bottom accent stripe. The visible side panel carries a genuine
 Code 128 encoding of `sku_id`, empty LOT/EXP rules, and a data block built only from
-manifest strings. Fonts are vendored in `assets/blender/fonts/` (DejaVu), never taken
+manifest strings. Fonts are vendored in `05_assets/blender/fonts/` (DejaVu), never taken
 from the system, so the render cannot change on a machine that lacks a font.
 
 **One studio for all 391 SKU.** The light rig scales with the carton — power follows
@@ -117,11 +117,11 @@ they lead in opposite directions.
 - **One Blender process per SKU.** Roughly 20 s of every render is fixed startup
   cost, about 2 h of pure overhead across the catalogue. A persistent instance
   processing a batch was proposed and is still not built.
-- **`ops/` is stale.** Six of its seven documents do not mention Blender at all;
+- **`08_ops/` is stale.** Six of its seven documents do not mention Blender at all;
   `ACCEPTANCE_TEST.md` still calls `src.rpa_orchestrator` directly, bypassing the
   facade, and `DEPENDENCY_INVENTORY.md` has no row for the Blender executable even
   though this fork defaults to that engine.
-- **`docs/experiments/BLENDER_RENDERER_ROADMAP.md` is stale.** It still reads
+- **`06_docs/experiments/BLENDER_RENDERER_ROADMAP.md` is stale.** It still reads
   "Phase 0 complete, Phase 1 foundation in place", which has been untrue for weeks.
 - **No ADR for the Blender decision.** `00_governance/DECISIONS/` tops out at
   ADR-006.

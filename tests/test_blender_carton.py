@@ -32,7 +32,7 @@ _CFG = load_config()
 _BLENDER = _CFG.get("blender", {})
 BLENDER_EXE = _BLENDER.get("executable", "")
 DRIVER_SCRIPT = str(resolve_path(_BLENDER.get("driver_script",
-                                              "assets/blender/render_driver.py")))
+                                              "05_assets/blender/render_driver.py")))
 
 # reference_analysis.md 5 originally eyeballed the stripe at "roughly 8-12%" of
 # the front-face height and flagged that estimate as unmeasured in 9. Measuring

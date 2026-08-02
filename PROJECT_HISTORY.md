@@ -29,7 +29,7 @@ v1.0  Production (391 SKU) → Unification → Hardening
 The project began as a computer-vision effort: read pharmaceutical product photos
 and extract structured data. The residue of this era is `pipeline/cv/`
 (detection, OCR, zone/geometry classifiers, `yolov8n.pt`). This established the
-input side: source photos in `input/` and the idea of a per-SKU "passport".
+input side: source photos in `07_input/` and the idea of a per-SKU "passport".
 
 ## Phase 2 — Passports (~v0.3–0.46, 2026-05-02 → 05-10)
 
@@ -88,7 +88,7 @@ paths were fixed; root shims kept backward compatibility.
 
 Root minimized; utilities moved to `scripts/`; legacy/experimental artifacts
 archived to `trash/` (via `git mv`, history preserved); a bilingual README and
-editable Mermaid diagrams added. See [REPO_AUDIT.md](docs/REPO_AUDIT.md).
+editable Mermaid diagrams added. See [REPO_AUDIT.md](06_docs/REPO_AUDIT.md).
 
 ## Phase 9 — Production Hardening (2026-06-28, current)
 

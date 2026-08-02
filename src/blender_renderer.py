@@ -4,7 +4,7 @@ Alternative to src/rpa_orchestrator.py (Selenium/Gemini RPA). Consumes the
 RENDER MANIFEST that Stage 1 emits (schemas/render_manifest.schema.json), not
 the compiled Markdown prompt: the Markdown is prose written for an LLM, while a
 3D renderer needs the decisions — template, carton dimensions, palette, label
-strings. See docs/experiments/BLENDER_RENDERER_ROADMAP.md §1.2-1.3.
+strings. See 06_docs/experiments/BLENDER_RENDERER_ROADMAP.md §1.2-1.3.
 
 If a manifest has not been written yet (Stage 2 run standalone, without a prior
 Stage 1 pass) the manifest is built in-process from the JSON passport, so

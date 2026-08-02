@@ -2,7 +2,7 @@
 
 > **Phase:** v1.0.0 Final Release Engineering · **Date:** 2026-06-28
 > Likelihood × Severity, with mitigation and recovery. Recovery references use
-> two ID schemes: **DR-n** → [docs/ops/DISASTER_RECOVERY.md](../../ops/DISASTER_RECOVERY.md);
+> two ID schemes: **DR-n** → [docs/08_ops/DISASTER_RECOVERY.md](../../08_ops/DISASTER_RECOVERY.md);
 > **R-n** → the resilience matrix (R1–R8) in
 > [docs/audits/PRODUCTION_READINESS_AUDIT.md](../audits/PRODUCTION_READINESS_AUDIT.md).
 

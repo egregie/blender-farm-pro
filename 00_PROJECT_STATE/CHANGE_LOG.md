@@ -20,8 +20,8 @@
 - **Gave every file one home.** `verification_agent.py` was made config-driven,
   which removed the last reason for the 1.3 MB `SSOT/` mirror of
   `03_knowledge_graph/`; 24 duplicated documentation files were deleted from
-  `docs/` in favour of `00_governance/` and `ops/`; root `DEPLOYMENT.md` and
-  `OPERATIONS.md` went as byte-identical copies of the `ops/` pair. Every
+  `docs/` in favour of `00_governance/` and `08_ops/`; root `DEPLOYMENT.md` and
+  `OPERATIONS.md` went as byte-identical copies of the `08_ops/` pair. Every
   markdown link in the repository now resolves — including seven that had been
   broken since before the cleanup.
 - **Remapped the operations runbooks** onto this fork's actual layout. They had
@@ -55,7 +55,7 @@
 - **Audit findings recorded**: no post-render verification exists for either engine;
   the full catalogue has never been rendered (18 PNG of 391); Stage 3 still cannot
   consume Blender output without a manual `--config`; one Blender process per SKU
-  costs ~2 h of pure startup across a pass; `ops/` never mentions Blender; the
+  costs ~2 h of pure startup across a pass; `08_ops/` never mentions Blender; the
   Blender roadmap still claims "Phase 0 complete"; `numpy` is imported by the tests
   but undeclared in `requirements.txt`.
 - **Process finding.** Parallel background sessions produced two independent
@@ -88,7 +88,7 @@ Delivered across several sessions; see git history from `3f4cf31` to `badc8b7`.
   left the carton riding high in frame.
 - **Printed the front panel** — brand, ingredient, dosage and unit count as real text
   objects on a grid measured off the references, with fonts vendored into
-  `assets/blender/fonts/` so a render cannot change on a machine missing a font.
+  `05_assets/blender/fonts/` so a render cannot change on a machine missing a font.
 - **Printed the side panel** — a genuine Code 128 of `sku_id` that a test decodes back
   out of the built geometry, deliberately empty LOT/EXP fields, and a data block of
   manifest strings only.

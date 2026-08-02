@@ -14,7 +14,7 @@ previously unavailable to Stage 2 without reaching into Stage 1:
 * ``template_id`` required importing ``agent_1_router`` out of a 70 KB module.
 * Carton dimensions were not available at all. ``primary_package`` is ``null``
   in every stored passport (it is computed at runtime and never persisted), so
-  ``assets/blender/render_driver.py`` silently fell back to a guessed aspect
+  ``05_assets/blender/render_driver.py`` silently fell back to a guessed aspect
   ratio for the entire catalogue.
 
 Carton, not primary package
@@ -47,7 +47,7 @@ _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_mani
 # Template -> carton proportions (W:H:D), applied to a nominal long edge when a
 # SKU carries no dimensional data whatsoever. Mirrors the documented Gemini
 # template proportions so both engines target the same silhouette. This table
-# lives here, and only here: assets/blender/render_driver.py used to keep its
+# lives here, and only here: 05_assets/blender/render_driver.py used to keep its
 # own copy, which is exactly the duplicate-source-of-truth the manifest exists
 # to remove.
 TEMPLATE_RATIOS = {

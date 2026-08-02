@@ -55,8 +55,8 @@ render:
 # ── Stage 2: Blender renderer — the primary engine of this fork ─────────────
 blender:
   executable:   'C:\Program Files\Blender Foundation\Blender 5.1\blender.exe'
-  scenes_dir:   "assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
-  driver_script: "assets/blender/render_driver.py"
+  scenes_dir:   "05_assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
+  driver_script: "05_assets/blender/render_driver.py"
   output_dir:   "02_processing/blender_test_renders"  # Blender's own render attempts (distinct from the 01_input_raster/ reference material)
   engine_type:  "CYCLES"                         # Blender engine identifier, e.g. CYCLES | BLENDER_EEVEE | BLENDER_WORKBENCH.
                                                  # Must be an identifier this Blender build accepts ("EEVEE" is not one);

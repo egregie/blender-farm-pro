@@ -28,7 +28,7 @@ see §8.
 
 - Very **shallow apparent perspective distortion** — edges of the box stay close
   to parallel, consistent with a longer lens (matches the documented `85mm`
-  calibration in `docs/DESIGN_RATIONALE.md`/the Gemini prompt templates), not a
+  calibration in `06_docs/DESIGN_RATIONALE.md`/the Gemini prompt templates), not a
   wide-angle look.
 - **Depth of field is essentially infinite** — both the near (front-bottom) and
   far (top-back) edges of the box are equally sharp. No visible bokeh, no
@@ -105,7 +105,7 @@ white carton body**. Brand color appears in exactly two places, never more:
    an open question in §7.
 
 This directly confirms the `[SURFACE COLOUR MANDATE]` rule already documented
-in `src/passport_generator.py`'s prompt templates and `docs/DESIGN_RATIONALE.md`
+in `src/passport_generator.py`'s prompt templates and `06_docs/DESIGN_RATIONALE.md`
 — genuinely useful to have visually verified, not just read in code.
 
 ## 6. Typography & label layout
@@ -180,7 +180,7 @@ advantage worth stating plainly: a Blender text object renders the exact string
 it's given — it cannot hallucinate a word.** Correctness of small regulatory
 text is something Blender can *guarantee* where Gemini cannot.
 
-## 8. Concrete tuning recommendations for `assets/blender/render_driver.py`
+## 8. Concrete tuning recommendations for `05_assets/blender/render_driver.py`
 
 Based on §2–4 above, before further Blender template work:
 - ~~Reduce ground-contact shadow further~~ — **done**, and the measurement is

@@ -50,7 +50,7 @@ venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 These are created automatically when missing, so no manual setup is normally
 needed: `01_input_raster/{raw,failed,failed_logs}`, `01_input_raster/gemini_renders_final/`, `logs/`. The inputs
 that **must exist**: `03_knowledge_graph/` (SKU.csv + master.json + design specs) and
-`04_passports/passports_json/` (JSON passports). Layout reference: [docs/REPO_AUDIT.md](../docs/REPO_AUDIT.md).
+`04_passports/passports_json/` (JSON passports). Layout reference: [06_docs/REPO_AUDIT.md](../06_docs/REPO_AUDIT.md).
 
 ## 5. Browser profile & Gemini session (Stage 2 only)
 

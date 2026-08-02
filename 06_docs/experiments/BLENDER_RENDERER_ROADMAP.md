@@ -84,8 +84,8 @@ not art-direction drift.
 `main.py`, `src/utils.py`, `src/rpa_orchestrator.py`, `src/passport_generator.py`,
 `src/image_processor.py`, `pharma_pkg/geometry_mapping.py`,
 `schemas/common.py`, `verification_agent.py`, `config.yaml`, one representative
-JSON passport (`pipeline/passports/1-min.json`), `docs/ARCHITECTURE.md`,
-`docs/DESIGN_RATIONALE.md`, `docs/DECISIONS/ADR-001..006`.
+JSON passport (`pipeline/passports/1-min.json`), `06_docs/ARCHITECTURE.md`,
+`06_docs/DESIGN_RATIONALE.md`, `docs/DECISIONS/ADR-001..006`.
 
 ---
 
@@ -139,7 +139,7 @@ remains the default and every existing command/test is unaffected (§8).
 | CLI orchestrator mirroring `rpa_orchestrator`'s surface (`--limit/--all/--from/--estimate`) | `src/blender_renderer.py` (new) | Reads **JSON** passports; resume via PNG-exists scan of `blender.output_dir`. |
 | Template resolution reuse | same file | Calls `agent_1_router()` from `src.passport_generator` (§1.3) — no re-implementation. |
 | Per-SKU render job | same file | Serializes a small `{template_id, palette, primary_package, label_content, packaging_geometry}` JSON "job" and shells out to headless Blender. |
-| bpy scene driver | `assets/blender/render_driver.py` (new) | Runs **inside** Blender's Python (`blender --background --python render_driver.py -- --job ... --out ...`). Builds a **procedural** primary form (box or cylinder, sized from `primary_package` mm / fallback dims), applies `palette.primary`/`palette.accent` materials, sets up camera/lighting matching the documented optical calibration, renders one PNG. |
+| bpy scene driver | `05_assets/blender/render_driver.py` (new) | Runs **inside** Blender's Python (`blender --background --python render_driver.py -- --job ... --out ...`). Builds a **procedural** primary form (box or cylinder, sized from `primary_package` mm / fallback dims), applies `palette.primary`/`palette.accent` materials, sets up camera/lighting matching the documented optical calibration, renders one PNG. |
 | Real smoke test | — | Rendered SKU `1-min` end to end through the real, installed Blender 5.1.2 on this machine (§9). |
 
 **Design choice — procedural scenes, not static `.blend` template files.** The
@@ -195,8 +195,8 @@ src/utils.py                         # + matching _DEFAULTS
 main.py                              # MODULE[render]->render_stage, --render-engine flag, engine-aware preflight
 src/render_stage.py                  # NEW — Stage 2 facade (engine dispatch)
 src/blender_renderer.py              # NEW — Blender engine (CLI, job building, subprocess driver)
-assets/blender/render_driver.py      # NEW — bpy scene builder, runs inside Blender
-docs/experiments/BLENDER_RENDERER_ROADMAP.md   # this file
+05_assets/blender/render_driver.py      # NEW — bpy scene builder, runs inside Blender
+06_docs/experiments/BLENDER_RENDERER_ROADMAP.md   # this file
 ```
 
 `src/rpa_orchestrator.py`, `src/passport_generator.py`, `src/image_processor.py`,
@@ -260,7 +260,7 @@ away) that overexposed the entire frame to solid white (verified: all RGB
 channels clipped to 254–255). Caught by actually opening the rendered image,
 not just checking "PNG file exists." **Fixed** by reducing to studio-strobe-scale
 wattages (25W key / 8W fill) and pinning the world background explicitly
-(`assets/blender/render_driver.py::setup_lighting`) — the smoke test was
+(`05_assets/blender/render_driver.py::setup_lighting`) — the smoke test was
 re-run and produces a correctly exposed, clearly visible carton: pink body
 (`palette.primary #DDA7A5`), magenta accent stripe (`palette.accent #6B2D5C`),
 3/4 isometric framing, soft shadow, white background.

@@ -20,7 +20,7 @@ already looks for one and prefers it when present.
 Camera pitch/rotation reuse the SAME optical language documented for the
 Gemini prompt templates (25 deg pitch / 35 deg rotation for most families,
 20/25-30 deg for the vertical family) so both engines target comparable
-framing — see docs/DESIGN_RATIONALE.md.
+framing — see 06_docs/DESIGN_RATIONALE.md.
 """
 import bpy
 import sys
@@ -135,7 +135,7 @@ BADGE_MARGIN_TOP_FRAC   = 0.03
 # invariant (see the world-background and film-response comments) says the same
 # input must give the same pixel on any machine, and a system font silently
 # changes the render on a machine that lacks it. DejaVu is redistributable —
-# assets/blender/fonts/LICENSE_DEJAVU. It reads wider and rounder than the
+# 05_assets/blender/fonts/LICENSE_DEJAVU. It reads wider and rounder than the
 # neo-grotesque in the references; that is a known, accepted difference.
 FONT_DIR = Path(__file__).resolve().parent / "fonts"
 FONT_REGULAR = "DejaVuSans.ttf"
@@ -703,7 +703,7 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
               manifest: dict = None):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
     packshot shows — sized in metres, with an accent stripe band welded to the
-    bottom of the front face (Row-6 rule, see docs/DESIGN_RATIONALE.md §2) and a
+    bottom of the front face (Row-6 rule, see 06_docs/DESIGN_RATIONALE.md §2) and a
     square brand badge in its top-right corner.
 
     Not to be confused with the primary package (the blister, bottle or syringe

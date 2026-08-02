@@ -65,8 +65,8 @@ _DEFAULTS = {
     # top-level and namespaced so it never collides with "rpa" (Gemini) keys.
     "blender": {
         "executable":    r"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe",
-        "scenes_dir":    "assets/blender/scenes",
-        "driver_script": "assets/blender/render_driver.py",
+        "scenes_dir":    "05_assets/blender/scenes",
+        "driver_script": "05_assets/blender/render_driver.py",
         "output_dir":    "render_output/raw_blender",
         "engine_type":   "CYCLES",
         "resolution":    [2048, 2048],
