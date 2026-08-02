@@ -32,10 +32,12 @@ import json
 # Resolved through the central config rather than hardcoded, and anchored to the
 # project root rather than the working directory. Both used to be
 # Path("SSOT/master.json") / Path("SSOT/SKU.csv"), which quietly required a
-# duplicate SSOT/ directory to exist alongside the real one: this fork keeps the
-# data in 03_knowledge_graph/, so the hardcoded lookups missed, CHECK 8 and
-# CHECK 12 fell through their "no entry, not a failure" branches, and every
-# passport lost 0.1 confidence with nothing in the log to say why.
+# duplicate SSOT/ directory to exist alongside the real data in
+# 03_knowledge_graph/. Had that duplicate ever gone missing, CHECK 12 would have
+# taken its "not found" branch and docked 0.10 from every passport with nothing
+# in the log to say why. (CHECK 8 is harmless when master.json is absent — a
+# missing registry entry counts as passed.) Relative paths also meant the module
+# only worked when invoked from the project root.
 from src.utils import load_config, get_path  # noqa: E402
 
 _CFG = load_config()
@@ -59,7 +61,7 @@ def _load_ssot() -> dict:
 
 def _load_sku_csv() -> dict:
     """
-    Load SSOT/SKU.csv keyed by picture filename.
+    Load the SKU registry CSV keyed by picture filename.
     Returns: { "379-min.jpg": { "package_type": "bottles", ... }, ... }
     """
     global _sku_csv_cache
@@ -281,7 +283,7 @@ def agent_2_verifier(data: dict) -> VerificationResult:
         ssot_primary = (ssot_palette.get("primary") or "").upper().lstrip("#")
         if ssot_primary and ssot_primary != primary:
             warnings.append(
-                f"CHECK 8: primary_color #{primary} differs from SSOT/master.json #{ssot_primary}"
+                f"CHECK 8: primary_color #{primary} differs from the SSOT registry #{ssot_primary}"
             )
             confidence -= 0.10
         else:
@@ -383,7 +385,7 @@ def agent_2_verifier(data: dict) -> VerificationResult:
     # CHECK 12: SKU.csv ↔ JSON record existence (weight: -0.10) [NEW]
     if not sku_registry_match and sku_id:
         warnings.append(
-            f"CHECK 12: sku_id '{sku_id}' not found in SSOT/SKU.csv — "
+            f"CHECK 12: sku_id '{sku_id}' not found in the SKU registry — "
             f"package_type and unit_count_standard cannot be validated"
         )
         confidence -= 0.10

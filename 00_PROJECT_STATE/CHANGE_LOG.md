@@ -4,6 +4,42 @@
 > replacement for git history (this project is git-initialized) — a
 > human-readable narrative alongside it.
 
+## 2026-08-02 (later) — A sweep, a cleanup, and a review that caught both
+
+- **Swept a 30-SKU priority group** with a new `scripts/catalogue_sweep.py`. The
+  group came back clean, but the sweep's second pass — reading the built scene
+  through the driver's `--dump-scene` rather than the pixels — found the real
+  defect: **the driver fits a long label row by shrinking it, and nothing puts a
+  floor under the type size.** Overflow is impossible; illegibility is not.
+  Measured on `357-min`, the row's width stays pinned at 101.2mm while a
+  37-character ingredient sets at 4.64mm, 70 characters at 1.73mm and 140 at
+  0.77mm. Across the catalogue's 15 longest strings, **9 fall below the 4.0mm
+  floor the references imply, worst at 2.42mm** — and the risk tracks characters
+  per face width, not raw length, so `393-min` (35 characters on a 50mm
+  `T_VERT_INHALER` face) is worse than `348-min` (61 characters on 110mm).
+- **Gave every file one home.** `verification_agent.py` was made config-driven,
+  which removed the last reason for the 1.3 MB `SSOT/` mirror of
+  `03_knowledge_graph/`; 24 duplicated documentation files were deleted from
+  `docs/` in favour of `00_governance/` and `ops/`; root `DEPLOYMENT.md` and
+  `OPERATIONS.md` went as byte-identical copies of the `ops/` pair. Every
+  markdown link in the repository now resolves — including seven that had been
+  broken since before the cleanup.
+- **Remapped the operations runbooks** onto this fork's actual layout. They had
+  never been updated after the fork and still told an operator to restore
+  `SSOT/`, `pipeline/` and `render_output/` — a disaster-recovery procedure
+  pointing at three directories that do not exist.
+- **Deleted three dead maintenance scripts** (`sync_p23_palette.py`,
+  `sync_passports_refined.py`, `update_dosages.py`). All read `pipeline/passports`,
+  which this fork has never had; one read a CSV that has never existed here at all.
+- **Code review caught two things worth recording.** First, the committed sweep
+  report was a three-SKU trial that a `--limit` smoke check had silently written
+  over the real 30-SKU run — the run now writes partial results to their own
+  filenames so a trial cannot masquerade as a full pass. Second,
+  `generate_architecture_snapshot.py` was a genuine casualty of the `SSOT/`
+  deletion: root-anchored, so it had worked before and afterwards reported the
+  SKU registry as simply absent. Both fixed, and `tests/test_verifier.py` gained
+  three guards so a future path remap fails loudly instead of silently.
+
 ## 2026-08-02 — Audit, and the packshot becomes recognisable
 
 - **Full project audit.** Re-rendered all nine reference SKU from current code and

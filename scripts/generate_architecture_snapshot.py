@@ -22,6 +22,15 @@ from collections import Counter
 
 # Project root = parent of this scripts/ directory (anchored, not hard-coded).
 ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
+
+# Knowledge-graph paths come from config.yaml, not a hardcoded "SSOT/". This
+# fork keeps that data in 03_knowledge_graph/, and the previous literal made
+# both analysers below return {"exists": False} and silently report the SKU
+# registry as absent in the generated snapshot.
+from src.utils import load_config, get_path  # noqa: E402
+
+_CFG = load_config()
 DOCS_DIR = ROOT_DIR / "docs"
 # Ensure the project root is importable for `from pass_tomd import ...` etc.
 if str(ROOT_DIR) not in sys.path:
@@ -157,7 +166,7 @@ def extract_constants_from_generator() -> dict:
 
 def analyze_sku_csv() -> dict:
     """Parse SKU.csv database and summarize its package types and geometries."""
-    path = ROOT_DIR / "SSOT" / "SKU.csv"
+    path = get_path(_CFG, "ssot_sku_csv")
     info = {
         "exists": False,
         "total_rows": 0,
@@ -253,7 +262,7 @@ def analyze_passports() -> dict:
 
 def analyze_design_specs() -> dict:
     """Summarize sub-brands and photosensitive rules from master specs."""
-    path = ROOT_DIR / "SSOT" / "master_pharma_design_specs.json"
+    path = get_path(_CFG, "ssot_design_specs")
     info = {
         "exists": False,
         "sub_brands": [],
@@ -374,8 +383,8 @@ def build_markdown_report(data: dict) -> str:
         f"┌─────────────────────────────────────────────────────┐",
         f"│  STAGE 0: ANALYSIS (Manual / Workflow)              │",
         f"│  Workflow: /analyze-pharma                          │",
-        f"│  Input:    input/{{sku_id}}.jpg + SSOT/master.json    │",
-        f"│  Output:   pipeline/passports/{{sku_id}}.json (v2.1)  │",
+        f"│  Input:    input/{{sku_id}}.jpg + the SSOT registry │",
+        f"│  Output:   04_passports/passports_json/*.json (2.1) │",
         f"└─────────────────────────────────────────────────────┘",
         f"       │",
         f"       ▼",
@@ -389,8 +398,8 @@ def build_markdown_report(data: dict) -> str:
         f"┌─────────────────────────────────────────────────────┐",
         f"│  STAGE 2: PASSPORT GENERATION (Production Core)     │",
         f"│  Script:   pass_tomd.py                             │",
-        f"│  Input:    pipeline/passports/*.json (389 files)    │",
-        f"│  Output:   pipeline/passports.markdown/*.md         │",
+        f"│  Input:    04_passports/passports_json/*.json       │",
+        f"│  Output:   04_passports/passports_markdown/*.md     │",
         f"└─────────────────────────────────────────────────────┘",
         f"       │",
         f"       ▼",
@@ -510,7 +519,7 @@ def build_markdown_report(data: dict) -> str:
         f"",
         f"## 6. SSOT Databases & Design Specs",
         f"",
-        f"### SSOT/SKU.csv Statistics",
+        f"### SKU registry (SKU.csv) statistics",
         f"* **Total Rows:** {data['sku_csv']['total_rows']}",
         f"* **Unique Primary Geometries:**",
     ]

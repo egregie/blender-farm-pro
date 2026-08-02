@@ -10,9 +10,9 @@
 | 1 | Environment & deps | `venv\Scripts\python.exe -m pip install -r requirements.txt` | installs cleanly | ☐ |
 | 2 | Entry point | `venv\Scripts\python.exe main.py --help` | usage prints, exit 0 | ☐ |
 | 3 | Config exists & parses | `venv\Scripts\python.exe -c "from src.utils import load_config; load_config()"` | no error | ☐ |
-| 4 | SSOT found | confirm `SSOT/SKU.csv` and `SSOT/master.json` exist & non-empty | both present | ☐ |
+| 4 | SSOT found | confirm `03_knowledge_graph/SKU.csv` and `03_knowledge_graph/master.json` exist & non-empty | both present | ☐ |
 | 5 | Unit tests (QA) | `venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"` | `OK` (18 tests) | ☐ |
-| 6 | **Stage 1** — passports | `venv\Scripts\python.exe main.py --passports-only` | `converted 391/391`, `git diff` on `pipeline/passports.markdown/` empty (deterministic) | ☐ |
+| 6 | **Stage 1** — passports | `venv\Scripts\python.exe main.py --passports-only` | `converted 391/391`, `git diff` on `04_passports/passports_markdown/` empty (deterministic) | ☐ |
 | 7 | **Stage 2** — render *(attended)* | `venv\Scripts\python.exe -m src.rpa_orchestrator --estimate` | paths resolve, remaining/ETA shown. *Full render requires a logged-in Gemini session in the Chrome profile.* | ☐ |
 | 8 | **Stage 3** — WEBP | `venv\Scripts\python.exe main.py --process-images-only --resume` | runs, exit 0 (skips existing on resume) | ☐ |
 | 9 | Resume (no duplication) | re-run #6 / #8 with `--resume` | finished work skipped, no duplicates | ☐ |

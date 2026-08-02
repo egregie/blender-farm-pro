@@ -30,7 +30,7 @@ venv\Scripts\python.exe main.py --process-images-only --resume
 | Per-stage status / duration / artifact counts | `main.py` end-of-run summary table |
 | Live per-SKU progress `[i/N]` | console + `logs/pharmagen_*.log`, `logs/gemini_rpa_*.log` |
 | Remaining SKUs + ETA | `python -m src.rpa_orchestrator --estimate` (no browser) |
-| Failures (per SKU) | `render_output/failed_logs/failures.log` + screenshots in `render_output/failed/` |
+| Failures (per SKU) | `01_input_raster/failed_logs/failures.log` + screenshots in `01_input_raster/failed/` |
 
 ## Error-handling flow
 
@@ -73,7 +73,7 @@ venv\Scripts\python.exe main.py --process-images-only
   SKUs are skipped, no duplication. This is correct in almost all cases.
 - **Full restart (rare):** only when inputs themselves changed (new SSOT, rebuilt
   passports) and you intend to regenerate. Remember images are **not reproducible**;
-  preserve `output/` first.
+  preserve `01_input_raster/gemini_renders_final/` first.
 
 ## Interrupting
 

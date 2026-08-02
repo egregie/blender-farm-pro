@@ -37,12 +37,12 @@ Pinned loosely in [`requirements.txt`](../requirements.txt).
 
 | Dependency | Where used | Status |
 |---|---|---|
-| opencv-python | `pipeline/cv/` (legacy Stage 0 detection) | Installed (4.13.0.92) but the 3 production Stages do not import it. |
-| numpy | `pipeline/cv/` | Installed (2.2.6); same as above. |
-| ultralytics (YOLO) | `pipeline/cv/detect.py` + `yolov8n.pt` | **Not installed** → the legacy CV detection is not currently runnable. |
+| opencv-python | `02_processing/cv/` (legacy Stage 0 detection) | Installed (4.13.0.92) but the 3 production Stages do not import it. |
+| numpy | `02_processing/cv/`, plus pixel measurement in `tests/` and `scripts/catalogue_sweep.py` | Installed (2.2.6) and now declared in requirements.txt. |
+| ultralytics (YOLO) | `02_processing/cv/detect.py` + `yolov8n.pt` | Installed (8.4.47) but undeclared; the legacy CV code is not imported by any of the three stages. |
 
 > Stage 0 (source photo → JSON passport) is a **manual Gemini-in-IDE workflow**
-> (`.agents/workflows/analyze-pharma.md`); the `pipeline/cv/` code is legacy from
+> (`.agents/workflows/analyze-pharma.md`); the `02_processing/cv/` code is legacy from
 > an earlier OCR/CV approach and is not part of the automated pipeline.
 
 ## Version policy

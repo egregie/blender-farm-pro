@@ -24,6 +24,7 @@ import unittest
 from pathlib import Path
 
 from src.utils import load_config, resolve_path
+from src.measure import _front_face_and_background
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -918,49 +919,6 @@ class TestSidePanel(unittest.TestCase):
         block = next(o for o in panel if o["name"] == "panel_data_block")
         self.assertNotIn("Braille", block["body"])
         self.assertTrue(any(o["kind"] == "barcode" for o in panel))
-
-
-def _front_face_and_background(png_path, accent_hex):
-    """Mean brightness of the carton's front face, and of the backdrop.
-
-    The front face is sampled as a band immediately above the accent stripe,
-    following the stripe's slope column by column. A plain image-space rectangle
-    would also catch the TOP face on a flat carton (T3 is 140x35mm), which is
-    legitimately brighter, and report it as the front face blowing out.
-    """
-    import numpy as np
-    from PIL import Image
-
-    from numpy.lib.stride_tricks import sliding_window_view
-
-    a = np.asarray(Image.open(png_path).convert("RGB")).astype(float)
-    H, W, _ = a.shape
-    g = a.mean(axis=2)
-    # Only locally FLAT pixels count as "the paper". Glyphs are dark enough to
-    # fall out on brightness alone, but their antialiased edges are mid-grey and
-    # neutral, and on a shallow T3 face they fill enough of the sampled band to
-    # drag the mean below the reference floor. Measure the board, not the print.
-    win = 7
-    flat = np.zeros_like(g, bool)
-    sd = sliding_window_view(g, (win, win)).std(axis=(2, 3))
-    flat[win // 2:win // 2 + sd.shape[0], win // 2:win // 2 + sd.shape[1]] = sd < 1.5
-    accent = np.array([int(accent_hex.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)],
-                      dtype=float)
-    stripe = ((a.max(axis=2) - a.min(axis=2)) > 15) & \
-             (np.linalg.norm(a - accent, axis=2) < 110)
-    stripe[:H // 2, :] = False                       # the band is on the lower half
-    if stripe.sum() < 40:
-        raise AssertionError(f"no accent stripe found in {png_path}")
-    sx = np.nonzero(stripe)[1]
-    pad, band = int(0.02 * W), int(0.05 * H)
-    region = np.zeros_like(g, bool)
-    for x in range(sx.min() + pad, sx.max() - pad):
-        col = np.nonzero(stripe[:, x])[0]
-        if col.size:
-            region[max(0, col.min() - pad - band):max(0, col.min() - pad), x] = True
-    front = g[region & flat & (g > 120)]
-    corner = g[int(0.03 * H):int(0.11 * H), int(0.03 * W):int(0.11 * W)]
-    return front.mean(), corner.mean(), corner.std()
 
 
 @unittest.skipUnless(os.environ.get("PHARMAGEN_SLOW_TESTS") == "1",

@@ -15,6 +15,7 @@ verification_failures.log
 # `code-review-graph build`. 3.9 MB and changes on every update.
 .code-review-graph/
 
-# Per-run diagnostic renders and scene dumps
-*.job.json
-*.scene.json
+# Per-run diagnostic artifacts, scoped to the directory that produces them so a
+# future test fixture named *.job.json is not silently untracked.
+02_processing/blender_test_renders/*.job.json
+02_processing/blender_test_renders/*.scene.json

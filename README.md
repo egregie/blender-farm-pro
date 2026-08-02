@@ -6,9 +6,11 @@
 > at commit `79553d9`.
 
 **Start here:** [`00_PROJECT_STATE/CURRENT_STATE.md`](00_PROJECT_STATE/CURRENT_STATE.md)
-for what's done and what's next. The original PharmaGen PRO README (business
-context, pipeline stage docs, bilingual EN/RU) is preserved unchanged at
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+for what's done and what's next, and
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the pipeline is put
+together. (An earlier version of this file promised the source project's
+bilingual README at `docs/README.md`; that file was never carried into the fork,
+and the link had been dead since the fork was created.)
 
 ## What was forked, and why
 
@@ -60,9 +62,9 @@ identical** to the source project's.
 `verification_agent.py` hardcoded `Path("SSOT/SKU.csv")` and
 `Path("SSOT/master.json")` outside the config system, so a duplicate `SSOT/`
 directory had to exist alongside the real data in `03_knowledge_graph/` purely
-to satisfy those two lookups. Without it CHECK 8 and CHECK 12 fell through their
-"no entry, not a failure" branches and every passport quietly lost confidence,
-with nothing in the log to say why. Both paths now resolve through
+to satisfy those two lookups. Had that duplicate ever gone missing, CHECK 12
+would have docked 0.10 from every passport with nothing in the log to say why.
+Both paths now resolve through
 `src/utils.get_path`, the 1.3 MB mirror is gone, and the module no longer
 depends on the working directory it happens to be invoked from. Stage 1's output
 is byte-identical across the change and the confidence distribution is unchanged

@@ -24,8 +24,8 @@ independent and can be done at any time, including in parallel.
 ## Once that is settled
 
 2. **Run the catalogue and look at the results.** No full pass has ever been made;
-   18 of 391 PNG exist and only nine come from current code. Budget ~7 h at 67 s per
-   SKU. This is the step that finds the layout failures the nine curated templates
+   18 of 391 PNG exist and only nine come from current code. Budget ~5 h; measured 24-48 s per SKU
+   on 2026-08-02, not the 67 s quoted earlier. This is the step that finds the layout failures the nine curated templates
    cannot show — the existing correction passes in the driver all exist because
    earlier sweeps found real breakage.
 
@@ -40,7 +40,7 @@ independent and can be done at any time, including in parallel.
 
 ## Throughput, when it starts to hurt
 
-4. **Keep one Blender process alive for a batch.** About 20 s of each 67 s render is
+4. **Keep one Blender process alive for a batch.** About 20 s of each render is
    fixed startup, roughly 2 h wasted across a full pass. Worth doing before the
    catalogue is rendered repeatedly, not before it is rendered once.
 
@@ -50,24 +50,31 @@ independent and can be done at any time, including in parallel.
 
 ## Housekeeping
 
-6. **Declare `numpy`.** `tests/test_blender_carton.py` imports it; `requirements.txt`
-   does not list it. A clean install passes and then fails that test.
+6. **Give `ops/` a Blender chapter.** Its paths were remapped onto this fork's
+   layout on 2026-08-02, so the runbooks no longer send an operator to
+   directories that do not exist — but they still describe a Gemini-only
+   pipeline. `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing
+   the facade and contradicting the architecture, and `DEPENDENCY_INVENTORY.md`
+   has no row for the Blender executable despite it being this fork's default
+   engine.
 
-7. **Refresh `ops/`.** Six of seven documents never mention Blender.
-   `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing the facade
-   and contradicting the architecture; `DEPENDENCY_INVENTORY.md` has no row for the
-   Blender executable despite it being this fork's default engine.
-
-8. **Rewrite `docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
+7. **Rewrite `docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
    "Phase 0 complete, Phase 1 foundation in place" and describes Phases 2–4 as not
    started, when most of Phase 2 has shipped.
 
-9. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
+8. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
    ADR-006 and has nothing on why this fork exists.
 
-10. **Commit a repeatable catalogue sweep.** The sweeps that caught the wrapping and
-    collision bugs were ad-hoc; nothing in `scripts/` reproduces them, so the next
-    person cannot re-run the check that the layout constants were fitted against.
+9. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
+   and now the clearest open defect in the renderer. The driver fits a long
+   label row by shrinking it, with no lower bound, so a long ingredient on a
+   narrow face sets below legibility rather than overflowing: 9 of the
+   catalogue's 15 longest strings fall under the 4.0mm the references imply,
+   worst at 2.42mm on `393-min`. Reproduce with
+   `python scripts/catalogue_sweep.py --legibility-scan`. Fixing it means
+   deciding what gives when the string will not fit at a legible size —
+   wrapping to a second line, abbreviating, or accepting a smaller floor — which
+   is an art-direction call, not just a constant.
 
 ## Deliberately not doing
 

@@ -216,5 +216,41 @@ class TestVerifier(unittest.TestCase):
         self.assertEqual(len(check10_warnings), 0, f"CHECK 10 should not fire for pills: {check10_warnings}")
 
 
+class TestSsotLookupsResolve(unittest.TestCase):
+    """The registry lookups must actually find the registry.
+
+    Every other test here builds a fixture with no sku_id, so CHECK 8 and
+    CHECK 12 take their "no entry, not a failure" branches and the suite passes
+    whether or not the SSOT files resolve. That blind spot has already cost this
+    project once: the paths were hardcoded to a directory this fork does not
+    use, both checks silently fell through, and every passport lost confidence
+    with nothing in the log to say why. These tests fail loudly instead.
+    """
+
+    def test_registry_files_resolve_to_real_data(self):
+        from verification_agent import (
+            _SSOT_MASTER_PATH, _SKU_CSV_PATH, _load_ssot, _load_sku_csv,
+        )
+        self.assertTrue(_SSOT_MASTER_PATH.exists(),
+                        f"master.json not found at {_SSOT_MASTER_PATH}")
+        self.assertTrue(_SKU_CSV_PATH.exists(),
+                        f"SKU.csv not found at {_SKU_CSV_PATH}")
+        self.assertGreater(len(_load_sku_csv()), 0, "SKU registry loaded empty")
+        self.assertIn("sku_registry", _load_ssot(), "master.json has no sku_registry")
+
+    def test_paths_are_absolute_so_cwd_cannot_break_them(self):
+        """They were relative once, which made the module work only when
+        invoked from the project root."""
+        from verification_agent import _SSOT_MASTER_PATH, _SKU_CSV_PATH
+        self.assertTrue(_SSOT_MASTER_PATH.is_absolute())
+        self.assertTrue(_SKU_CSV_PATH.is_absolute())
+
+    def test_a_known_sku_is_found_in_the_registry(self):
+        """CHECK 12 fires on an unknown sku_id, so a resolvable path is not
+        enough — the lookup has to match real content."""
+        from verification_agent import _load_sku_csv
+        self.assertIn("1-min.jpg", _load_sku_csv())
+
+
 if __name__ == "__main__":
     unittest.main()

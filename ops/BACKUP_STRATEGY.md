@@ -8,11 +8,11 @@
 
 | Item | Why |
 |---|---|
-| `SSOT/` (`SKU.csv`, `master.json`, design specs) | System of record for inputs; Stage 0 (photo → JSON) is a **manual** step, not regenerable in-repo. |
-| `pipeline/passports/` (JSON passports) | Stage 1 inputs; produced by the manual Stage 0. |
-| `output/` (final WEBP) | **Delivered assets; non-reproducible.** |
-| `render_output/raw/` (PNG) | **Non-reproducible** render results; also the basis of resume. |
-| `gemini_rpa_progress_v23.txt` | Resume tracker (rebuildable from `raw/`, but cheap to keep). |
+| `03_knowledge_graph/` (`SKU.csv`, `master.json`, design specs) | System of record for inputs; Stage 0 (photo → JSON) is a **manual** step, not regenerable in-repo. |
+| `04_passports/passports_json/` (JSON passports) | Stage 1 inputs; produced by the manual Stage 0. |
+| `01_input_raster/gemini_renders_final/` (final WEBP) | **Delivered assets; non-reproducible.** |
+| `01_input_raster/gemini_renders_raw/` (PNG) | **Non-reproducible** render results; also the basis of resume. |
+| `00_PROJECT_STATE/gemini_rpa_progress_v23.txt` | Resume tracker (rebuildable from `raw/`, but cheap to keep). |
 | `config.yaml` | Deployment configuration. |
 | Chrome profile / Gemini session | The real credential (handle as a **secret** — see below). |
 
@@ -20,13 +20,13 @@
 
 | Item | How to regenerate |
 |---|---|
-| `pipeline/passports.markdown/` | `python main.py --passports-only` (deterministic, byte-identical). |
-| `logs/`, `verification_failures.log`, `render_output/failed*/` | Re-created on the next run. |
+| `04_passports/passports_markdown/` | `python main.py --passports-only` (deterministic, byte-identical). |
+| `logs/`, `verification_failures.log`, `01_input_raster/failed*/` | Re-created on the next run. |
 | `__pycache__/`, `venv/` | Rebuilt by Python / `pip install -r requirements.txt`. |
 
 ## Tier 3 — Cannot be recovered if Tier 1 is lost
 
-- The exact **rendered images** (`output/` + `render_output/raw/`). Re-rendering
+- The exact **rendered images** (`01_input_raster/gemini_renders_final/` + `01_input_raster/gemini_renders_raw/`). Re-rendering
   produces *different* images (Gemini is generative, no seed). If these are lost
   and not backed up, the visual catalogue must be re-rendered from scratch and
   will not match the previous deliverables.
@@ -34,7 +34,7 @@
 ## Cadence & method
 
 - **3-2-1:** ≥3 copies, on ≥2 media, ≥1 off the working machine.
-- Back up Tier 1 **on every change to SSOT/passports** and **after each render batch**.
+- Back up Tier 1 **on every change to 03_knowledge_graph/passports** and **after each render batch**.
 - A simple full-folder snapshot of the Tier 1 paths is sufficient (no special tooling).
 
 ## Secrets handling

@@ -17,7 +17,7 @@ PURPOSE:
 USAGE:
     python render_qa.py
     python render_qa.py --dir render_output/processed
-    python render_qa.py --passports pipeline/passports
+    python render_qa.py --passports 04_passports/passports_json
     python render_qa.py --limit 20
 
 DEPENDENCIES:
@@ -40,7 +40,7 @@ from datetime import datetime
 # ─────────────────────────────────────────────────────────────────────────────
 
 DEFAULT_PROCESSED_DIR = Path("render_output/processed")
-DEFAULT_PASSPORTS_DIR = Path("pipeline/passports")
+DEFAULT_PASSPORTS_DIR = Path("04_passports/passports_json")
 DEFAULT_REPORT_PATH   = Path("docs/RENDER_QA_REPORT.md")
 
 # Maximum allowed occurrences of brand_name in OCR text before flagging duplicate

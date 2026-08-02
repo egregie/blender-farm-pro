@@ -28,8 +28,8 @@ cd pharma_v2
 
 The repository already contains the SSOT and pipeline inputs. If deploying with
 existing production data, also restore (see [Backup Strategy](BACKUP_STRATEGY.md)):
-`SSOT/`, `pipeline/passports/`, and — to avoid re-rendering — `render_output/raw/`,
-`output/`, and `gemini_rpa_progress_v23.txt`.
+`03_knowledge_graph/`, `04_passports/passports_json/`, and — to avoid re-rendering — `01_input_raster/gemini_renders_raw/`,
+`01_input_raster/gemini_renders_final/`, and `00_PROJECT_STATE/gemini_rpa_progress_v23.txt`.
 
 ## 3. Python environment
 
@@ -48,9 +48,9 @@ venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 ## 4. Directories
 
 These are created automatically when missing, so no manual setup is normally
-needed: `render_output/{raw,failed,failed_logs}`, `output/`, `logs/`. The inputs
-that **must exist**: `SSOT/` (SKU.csv + master.json + design specs) and
-`pipeline/passports/` (JSON passports). Layout reference: [docs/REPO_AUDIT.md](../docs/REPO_AUDIT.md).
+needed: `01_input_raster/{raw,failed,failed_logs}`, `01_input_raster/gemini_renders_final/`, `logs/`. The inputs
+that **must exist**: `03_knowledge_graph/` (SKU.csv + master.json + design specs) and
+`04_passports/passports_json/` (JSON passports). Layout reference: [docs/REPO_AUDIT.md](../docs/REPO_AUDIT.md).
 
 ## 5. Browser profile & Gemini session (Stage 2 only)
 
@@ -83,7 +83,7 @@ venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 ```
 
 Stage 1 output is deterministic, so re-running `--passports-only` after an update
-must leave `pipeline/passports.markdown/` byte-identical (a quick regression check).
+must leave `04_passports/passports_markdown/` byte-identical (a quick regression check).
 
 ## 9. Rollback
 
@@ -97,7 +97,7 @@ roll back **data from backup** — do not expect re-rendering to reproduce prior
 
 ## 10. Backup before/after deploy
 
-Always snapshot `SSOT/`, `pipeline/`, `output/`, `render_output/raw/`,
-`gemini_rpa_progress_v23.txt`, and `config.yaml` before a deploy or update — full
+Always snapshot `03_knowledge_graph/`, `04_passports/`, `01_input_raster/gemini_renders_final/`, `01_input_raster/gemini_renders_raw/`,
+`00_PROJECT_STATE/gemini_rpa_progress_v23.txt`, and `config.yaml` before a deploy or update — full
 policy in [Backup Strategy](BACKUP_STRATEGY.md). Never commit `.env` or
 share the Chrome profile in plaintext backups.

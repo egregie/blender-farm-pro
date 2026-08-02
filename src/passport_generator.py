@@ -31,7 +31,7 @@ SKU_CSV_PATH = get_path(_CFG, "ssot_sku_csv")
 
 def _load_sku_csv() -> dict:
     """
-    Load SSOT/SKU.csv into a dict keyed by picture filename.
+    Load the SKU registry CSV into a dict keyed by picture filename.
     Returns: { "1-min.jpg": {"name": "Atomoxetine (Generic)", "active_ingredient": "Atomoxetine",
                               "package_type": "pills", "primary_geometry": "Blister (PVC/Aluminium)",
                               "unit_count_standard": "30", "dosage_type": "mg"}, ... }
@@ -59,7 +59,7 @@ def _load_sku_csv() -> dict:
 SKU_REGISTRY = _load_sku_csv()
 
 def _load_ssot_master() -> dict:
-    """Load SSOT/master.json. Returns empty dict if not found."""
+    """Load the SSOT master registry. Returns empty dict if not found."""
     if SSOT_MASTER.exists():
         with open(SSOT_MASTER, "r", encoding="utf-8") as f:
             return json.load(f)

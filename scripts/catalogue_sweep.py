@@ -77,6 +77,14 @@ OVERSIZE_FRAC = 95.0      # larger than this -> effectively filling the frame
 SLOW_RENDER_S = 180.0
 SPREAD_TOLERANCE_PP = 10.0  # deviation from the template's median frame fill
 
+# Front-face brightness. Worth flagging rather than merely recording: this
+# catches a carton lit visibly darker than the rig intends, which is what the
+# light_energy square law exists to prevent and which no geometry check can see.
+# The sweep's band is deliberately looser than src.measure's reference band —
+# the vertical family measures 232.6-234.2 under the current rig, just below the
+# reference floor, and that is a known rig gap rather than a per-SKU defect.
+FRONT_FACE_MIN, FRONT_FACE_MAX = 230.0, 245.0
+
 # Object-versus-backdrop threshold. The backdrop is emissive and renders a flat
 # ~255 with no cast shadow, so a plain luminance cut separates the carton
 # cleanly; 243 is the value used for the same measurement during the 2026-08-02
@@ -95,10 +103,9 @@ STATE_DIR = PROJECT_ROOT / "00_PROJECT_STATE"
 def measure(png_path: Path, manifest_path: Path) -> dict:
     """Geometry and brightness of one rendered packshot.
 
-    Front-face brightness reuses tests.test_blender_carton._front_face_and_background,
-    which already knows how to sample the board rather than the print and whose
-    reference band (235.0-241.5) was measured off the curated references. It is
-    imported rather than copied so the two cannot drift apart.
+    Front-face brightness comes from src.measure, shared with the calibration
+    gate in tests/test_blender_carton.py so a measurement whose band was fitted
+    off the references has exactly one implementation.
     """
     import numpy as np
     from PIL import Image
@@ -131,7 +138,7 @@ def measure(png_path: Path, manifest_path: Path) -> dict:
     }
 
     try:
-        from tests.test_blender_carton import _front_face_and_background
+        from src.measure import _front_face_and_background
         front, backdrop, backdrop_sd = _front_face_and_background(
             str(png_path), manifest["palette"]["accent"])
         result["front_face_mean"] = round(float(front), 1)
@@ -308,6 +315,16 @@ def problems_for(rec: dict) -> list[str]:
             out.append(f"blank frame (<{BLANK_FRAC}%)")
         if m["oversize"]:
             out.append(f"fills frame (>{OVERSIZE_FRAC}%)")
+        front = m.get("front_face_mean")
+        if front is None:
+            # Never let a dropped measurement read as a pass. Without this the
+            # brightness pass could fail for all 30 SKU and the summary would
+            # still print "flagged: 0".
+            out.append(f"front-face brightness not measured: "
+                       f"{m.get('brightness_error', 'unknown')}")
+        elif not (FRONT_FACE_MIN <= front <= FRONT_FACE_MAX):
+            out.append(f"front face at {front}, outside the "
+                       f"{FRONT_FACE_MIN}-{FRONT_FACE_MAX} reference band")
     elif rec.get("rendered"):
         out.append(f"not measurable: {m.get('reason', 'unknown')}")
     if (rec.get("render_seconds") or 0) > SLOW_RENDER_S:
@@ -352,8 +369,21 @@ def spread_by_template(records: list[dict]) -> dict:
     return out
 
 
-def write_reports(records, group_name, started_at, interrupted=False):
+def report_paths(limit) -> tuple[Path, Path]:
+    """Where this run's reports go.
+
+    A partial run writes to its own filenames. Previously every run overwrote
+    sweep_report.*, so a three-SKU `--limit` smoke check silently replaced a
+    full group's report and left the repository claiming the group was verified
+    when a tenth of it was — which is exactly what happened once already.
+    """
+    stem = "sweep_report" if limit is None else "sweep_report.partial"
+    return STATE_DIR / f"{stem}.json", STATE_DIR / f"{stem}.md"
+
+
+def write_reports(records, group_name, started_at, interrupted=False, limit=None):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+    json_path, md_path = report_paths(limit)
     spread = spread_by_template(records)
     flagged = [(r, problems_for(r)) for r in records]
     flagged = [(r, p) for r, p in flagged if p]
@@ -364,6 +394,8 @@ def write_reports(records, group_name, started_at, interrupted=False):
         "group": group_name,
         "started_at": started_at,
         "interrupted": interrupted,
+        "limit": limit,
+        "covers_whole_group": limit is None,
         "counts": {"total": len(records),
                    "rendered": sum(1 for r in records if r.get("rendered")),
                    "failed": sum(1 for r in records if not r.get("rendered")),
@@ -376,13 +408,15 @@ def write_reports(records, group_name, started_at, interrupted=False):
         "spread_by_template": spread,
         "records": records,
     }
-    (STATE_DIR / "sweep_report.json").write_text(
+    json_path.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
     L = []
     L.append("# Catalogue sweep report")
     L.append("")
-    L.append(f"> Group `{group_name}` · started {started_at}"
+    scope = ("the whole group" if limit is None
+             else f"**a partial run — first {limit} of the group only**")
+    L.append(f"> Group `{group_name}`, {scope} · started {started_at}"
              + (" · **INTERRUPTED**" if interrupted else ""))
     L.append("")
     L.append("Generated by `scripts/catalogue_sweep.py`. Diagnostic only: nothing "
@@ -511,10 +545,10 @@ def sweep(group_name: str, limit: int | None, force: bool) -> int:
         interrupted = True
         print("\n[sweep] interrupted — writing what was collected", file=sys.stderr)
 
-    write_reports(records, group_name, started_at, interrupted)
+    write_reports(records, group_name, started_at, interrupted, limit)
     flagged = sum(1 for r in records if problems_for(r))
     print(f"[sweep] done: {len(records)} record(s), {flagged} flagged")
-    print(f"[sweep] {STATE_DIR / 'sweep_report.md'}")
+    print(f"[sweep] {report_paths(limit)[1]}")
     return 1 if interrupted else 0
 
 
