@@ -35,7 +35,6 @@ Blender Farm Pro/
 ├── 06_archive/           ← this fork's own archive (empty at creation — see its README)
 ├── input/                ← original 389 source product photos
 ├── ops/                  ← deployment & operations docs
-├── memory/               ← session/agent memory for this fork
 ├── src/, pharma_pkg/, schemas/, tests/, scripts/, assets/  ← code (forked, functional)
 ├── docs/                 ← architecture, design rationale, the Blender roadmap
 ├── config.yaml, requirements.txt, main.py, pass_tomd.py, ...  ← forked, paths remapped
