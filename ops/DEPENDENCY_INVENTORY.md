@@ -16,7 +16,7 @@
 | rich | Console logging + run summary | 15.0.0 | ✅ (degrades to plain logging if absent) |
 | pydantic | Stage 1 schema models (`schemas/common.py`, via `pharma_pkg` routing) | 2.13.x | ✅ (required for routing) |
 
-Pinned loosely in [`requirements.txt`](../../requirements.txt).
+Pinned loosely in [`requirements.txt`](../requirements.txt).
 
 ## System / external (required for Stage 2)
 

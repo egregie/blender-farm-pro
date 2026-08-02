@@ -29,8 +29,18 @@ import json
 # SSOT DATA LOADERS (for cross-validation)
 # =============================================
 
-_SSOT_MASTER_PATH = Path("SSOT/master.json")
-_SKU_CSV_PATH = Path("SSOT/SKU.csv")
+# Resolved through the central config rather than hardcoded, and anchored to the
+# project root rather than the working directory. Both used to be
+# Path("SSOT/master.json") / Path("SSOT/SKU.csv"), which quietly required a
+# duplicate SSOT/ directory to exist alongside the real one: this fork keeps the
+# data in 03_knowledge_graph/, so the hardcoded lookups missed, CHECK 8 and
+# CHECK 12 fell through their "no entry, not a failure" branches, and every
+# passport lost 0.1 confidence with nothing in the log to say why.
+from src.utils import load_config, get_path  # noqa: E402
+
+_CFG = load_config()
+_SSOT_MASTER_PATH = get_path(_CFG, "ssot_master_json")
+_SKU_CSV_PATH = get_path(_CFG, "ssot_sku_csv")
 _ssot_cache: dict | None = None
 _sku_csv_cache: dict | None = None
 

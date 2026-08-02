@@ -269,8 +269,8 @@ re-run and produces a correctly exposed, clearly visible carton: pink body
 rendered twice independently; the two PNGs are **pixel-identical**
 (`ImageChops.difference` → zero-extent diff). This is a genuine, checked
 advantage over the Gemini engine, which is non-deterministic by design (see
-[RELEASE_CERTIFICATION.md](../release/RELEASE_CERTIFICATION.md) and
-[TECHNICAL_DEBT.md](../release/TECHNICAL_DEBT.md) TD-H1) — Blender's
+[RELEASE_CERTIFICATION.md](../../00_governance/release/RELEASE_CERTIFICATION.md) and
+[TECHNICAL_DEBT.md](../../00_governance/release/TECHNICAL_DEBT.md) TD-H1) — Blender's
 determinism claim in §6 Risks is scoped to *same machine, same render settings*;
 cross-hardware (GPU vs. CPU Cycles backend) reproducibility was not tested here.
 

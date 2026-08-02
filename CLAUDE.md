@@ -195,10 +195,12 @@ still point at the *original* PharmaGen PRO layout (`SSOT/`, `pipeline/`, `rende
 `output/`). This fork remapped every path onto numbered folders, so deleting or bypassing
 `config.yaml` silently resolves paths to the wrong places.
 
-**`SSOT/` is a deliberate compatibility mirror of `03_knowledge_graph/`.** It exists because
-`verification_agent.py` hardcodes `Path("SSOT/SKU.csv")` and `Path("SSOT/master.json")` and
-does not read config. Without the mirror, CHECK 12 silently fails and every passport's
-confidence drops 1.0 → 0.9. If you make that module config-driven, the mirror can go.
+**There is no `SSOT/` directory any more — the data lives only in `03_knowledge_graph/`.**
+A mirror used to exist because `verification_agent.py` hardcoded `Path("SSOT/SKU.csv")` and
+`Path("SSOT/master.json")` outside the config system. Both now go through
+`src/utils.get_path`, so the duplicate is gone and the module works from any working
+directory. If you see `SSOT/` referenced in an older document, it means
+`03_knowledge_graph/`.
 
 **`primary_package` is `null` in the stored JSON passports.** It is computed at runtime by
 `get_primary_package()` / `resolve_secondary()` in `src/passport_generator.py` and never

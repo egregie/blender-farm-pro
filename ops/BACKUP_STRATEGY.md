@@ -47,7 +47,7 @@
 
 ## Restore procedure
 
-1. Deploy code & environment ([DEPLOYMENT.md](../../DEPLOYMENT.md)).
+1. Deploy code & environment ([DEPLOYMENT.md](DEPLOYMENT.md)).
 2. Restore Tier 1 paths into place.
 3. Run the [Acceptance Test](ACCEPTANCE_TEST.md).
 4. Continue with `python main.py --full --resume` (only missing work runs).

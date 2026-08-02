@@ -1,6 +1,6 @@
 # Design Rationale (Reverse-Engineering of Decisions)
 
-> **ADR vs. this document.** The [ADRs](DECISIONS/) record *what* was decided.
+> **ADR vs. this document.** The [ADRs](../00_governance/DECISIONS/) record *what* was decided.
 > This document reconstructs *why it had to be that way* — the forces, the
 > rejected alternatives, and what we would revisit. Some reasoning is recovered
 > from the code and git history and is marked **[confirm with author]**.
@@ -35,7 +35,7 @@ images are generated.
 receive. JSON would be machine-clean but hostile to visual review of prose-like
 art-direction rules, and it would invite treating the prompt as data to mutate
 rather than a frozen, auditable artifact. JSON is still the *input* (the passport
-record); Markdown is the *compiled prompt*. See [ADR-002](DECISIONS/ADR-002-why-markdown.md).
+record); Markdown is the *compiled prompt*. See [ADR-002](../00_governance/DECISIONS/ADR-002-why-markdown.md).
 
 **Why not JSON for the prompt specifically:** reviewability and git-diff clarity
 beat structural strictness for a prompt that is ultimately free text to the model.
@@ -49,7 +49,7 @@ Hugging Face, Pollinations, Imagen) now in `trash/_archive/`.
 **Why Gemini won.** It produced acceptable quality **and** was reachable for free
 through an interactive session, whereas the API alternative (Imagen/Vertex)
 required paid Cloud billing and the other engines fell short on quality/cost.
-See [ADR-001](DECISIONS/ADR-001-why-gemini.md). **[confirm with author]** for the
+See [ADR-001](../00_governance/DECISIONS/ADR-001-why-gemini.md). **[confirm with author]** for the
 exact quality comparison that settled it.
 
 ## 4. Why a browser (RPA), not an API?
@@ -61,7 +61,7 @@ path was a budget decision the project chose to avoid.
 into an automatable one, at the cost of fragility (DOM selectors), serialization
 (one browser/session), and a non-headless requirement. This was a deliberate
 **cost-vs-robustness trade**: zero render cost in exchange for operational
-fragility. See [ADR-004](DECISIONS/ADR-004-why-rpa.md). It is the single biggest
+fragility. See [ADR-004](../00_governance/DECISIONS/ADR-004-why-rpa.md). It is the single biggest
 architectural constraint and the main thing to revisit if volume/SLA grows
 (an API renderer would unlock concurrency and determinism).
 
@@ -73,7 +73,7 @@ small pharmaceutical label text legible.
 **Why WEBP with an auto-tuned quality ladder.** It hits a hard ≤500 KB weight cap
 with broad browser support; LANCZOS upscaling preserves text legibility. PNG has
 no practical weight cap; JPEG smears text/edges. The dynamic quality loop trades a
-little fidelity to guarantee the weight budget. See [ADR-003](DECISIONS/ADR-003-why-webp.md).
+little fidelity to guarantee the weight budget. See [ADR-003](../00_governance/DECISIONS/ADR-003-why-webp.md).
 
 ## 6. Why SSOT / `SKU.csv` as the routing authority?
 
@@ -83,7 +83,7 @@ and `SKU.csv`, producing conflicting template routing.
 **Why one CSV authority.** Routing must be deterministic, so exactly one source
 must win; `SKU.csv` `package_type` was made primary (P6.0), with
 `unit_count_standard` overriding the JSON. This trades flexibility (multiple
-sources) for predictability (one truth). See [ADR-005](DECISIONS/ADR-005-ssot-routing-authority.md).
+sources) for predictability (one truth). See [ADR-005](../00_governance/DECISIONS/ADR-005-ssot-routing-authority.md).
 
 ## 7. Why a white carton with exactly two spots of brand colour?
 

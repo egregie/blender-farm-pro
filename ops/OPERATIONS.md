@@ -2,7 +2,7 @@
 
 > The operator runbook: how to run the pipeline, read its state, and recover from
 > the errors you will actually hit. Setup is in [DEPLOYMENT.md](DEPLOYMENT.md);
-> deep failure playbooks are in [docs/ops/DISASTER_RECOVERY.md](docs/ops/DISASTER_RECOVERY.md).
+> deep failure playbooks are in [docs/ops/DISASTER_RECOVERY.md](DISASTER_RECOVERY.md).
 
 ## Pre-run checklist
 
@@ -54,7 +54,7 @@ Error appears ──▶ What to check ──▶ Recover ──▶ Continue (--re
 | All SKUs failing fast | Network / Gemini session expired | Re-login in the profile; check connectivity; re-run `--resume`. |
 | No PNG produced | `failed/error_gen_<stem>.png` | Re-run `--render-only --resume` (resume re-attempts it). |
 | Disk fills mid-run | Free space | Free space, then `--resume` (no data duplication). |
-| Gemini UI changed (selectors fail) | Repeated failures at the same stage across SKUs | See [Disaster Recovery → Gemini DOM change](docs/ops/DISASTER_RECOVERY.md). |
+| Gemini UI changed (selectors fail) | Repeated failures at the same stage across SKUs | See [Disaster Recovery → Gemini DOM change](DISASTER_RECOVERY.md). |
 
 ## Re-render a single SKU
 

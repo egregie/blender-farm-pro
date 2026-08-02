@@ -8,7 +8,7 @@
 ## DR-1 — SSD / disk failure
 - **Symptom:** machine won't boot, or `output/` / `render_output/` / `SSOT/` unreadable.
 - **Impact:** total loss of code + data if not backed up.
-- **Recovery:** new machine → follow [DEPLOYMENT.md](../../DEPLOYMENT.md) → restore from backup: `SSOT/`, `pipeline/passports/`, `output/`, `render_output/raw/`, `gemini_rpa_progress_v23.txt`, `config.yaml` → run [Acceptance Test](ACCEPTANCE_TEST.md) → `main.py --full --resume`.
+- **Recovery:** new machine → follow [DEPLOYMENT.md](DEPLOYMENT.md) → restore from backup: `SSOT/`, `pipeline/passports/`, `output/`, `render_output/raw/`, `gemini_rpa_progress_v23.txt`, `config.yaml` → run [Acceptance Test](ACCEPTANCE_TEST.md) → `main.py --full --resume`.
 - **Prevention:** scheduled backups (3-2-1); keep `output/` off the single working SSD.
 
 ## DR-2 — Chrome failure or auto-update
