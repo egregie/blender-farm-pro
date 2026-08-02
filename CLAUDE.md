@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # 137 tests (60 need Blender; 1 slow gate, opt-in)
+python -m unittest discover -s tests          # 146 tests (69 need Blender; 1 slow gate, opt-in)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -43,6 +43,12 @@ python main.py --render-only --render-engine gemini
 python -m src.render_stage --engine blender --limit 5
 python -m src.blender_renderer --estimate     # dry run: how many SKU remain
 python -m src.blender_renderer --all
+
+# Measure the built scene WITHOUT rendering — how the carton's art-direction
+# invariants are tested (tests/test_blender_carton.py), since bpy can never be
+# imported from the project's Python and pixel-inspecting a render is brittle.
+blender --background --factory-startup --python assets/blender/render_driver.py -- \
+    --job 04_passports/render_manifests/1-min.json --dump-scene scene.json
 ```
 
 `--debug` forces DEBUG logging. `--config <path>` overrides `config.yaml`.
@@ -203,6 +209,37 @@ which every SKU in the catalogue has.
 **`render.engine` defaults to `blender`** in this fork's `config.yaml`; the source project
 defaults to `gemini`.
 
+**`blender.engine_type` must be a real Blender engine identifier, and an unavailable one
+is fatal.** `CYCLES`, `BLENDER_EEVEE`, `BLENDER_WORKBENCH` — *not* `EEVEE`, which Blender
+rejects. `setup_render()` no longer substitutes a working engine for a missing one: it
+raises `SystemExit`, matching `main.py`'s refusal to call a zero-PNG Stage 2 a success.
+
+Do not test engine availability by introspecting
+`bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items`. `engine` is a *dynamic*
+enum; that expression returns only a static placeholder (`('BLENDER_EEVEE',)` on 5.1.2)
+and never lists `CYCLES`, even where Cycles is enabled and rendering fine. The driver used
+to do exactly this, so every Blender render silently came out of EEVEE with
+`blender.samples` never applied. Assign the engine and catch the error instead.
+
+Related: Blender exits **0** after printing an ordinary uncaught exception. A hard failure
+in `render_driver.py` must be `SystemExit` (exit 1) or `blender_renderer.py` will read the
+run as a success.
+
+**`blender.samples: 16` is a measured value, not a default.** Rendering 1-min at 2048²
+against a 256-sample reference: 16 samples reaches 60.6 dB PSNR, 64 reaches 63.3 dB, and
+both are far past the ~40 dB point where differences stop being visible — Cycles'
+denoiser, not the sample count, is doing the work. Stage 3's own LANCZOS resize and WEBP
+encode shift pixels *more* than the gap between 16 and 64 does, and the resulting WEBP sits
+at quality 95 / ~26 KB against a 500 KB cap, so nothing downstream is straining either.
+Cost was 67 s vs 167 s per SKU, i.e. ~7 h vs ~18 h for a full 391-SKU pass. Roughly 45 s of
+each render is fixed cost (startup, BVH build, denoiser) and Cycles' adaptive sampling
+already stops converged pixels early, so cutting samples further buys little. Re-measure
+after any change that adds glass, metal, or real global illumination to the scene.
+
+EEVEE is **not** an equivalent shortcut, despite costing ~7 s. Against the same reference
+it scores 28.1 dB with 28.6% of pixels off by more than two levels, and the difference map
+shows the whole front face shifted — a systematic exposure/saturation change, not noise.
+
 **Filename convention is `-min` stems** (`1-min.json` → `1-min.png`). The legacy
 `output/*.webp` in the source project used bare numeric names; don't reintroduce that.
 
@@ -339,11 +376,21 @@ the same angle. Only the distance scales — and therefore the power must too.
 
 Exposure is a **film** setting, kept strictly separate from those energies: pin
 `FILM_VIEW_TRANSFORM = "Standard"` and meter per carton shape —
-`FILM_EXPOSURE_LANDSCAPE = -2.75`, `FILM_EXPOSURE_PORTRAIT = -2.88`. The lighting is
+`FILM_EXPOSURE_LANDSCAPE = -2.76`, `FILM_EXPOSURE_PORTRAIT = -2.84`, measured under
+CYCLES on the true-scale carton. The lighting is
 bit-identical for both; a wide front face simply sits ~2 face-widths from the key across its
 width and reads ~0.13 stops darker than a narrow one, which is geometry rather than a defect
 (see `reference_analysis.md` §9). This is what a photographer does anyway — re-read the
 meter, don't touch the strobes.
+
+**Never introspect the render-engine enum.** `RenderSettings.engine` is a DYNAMIC enum:
+Blender builds its real item list through an RNA callback at assignment time, and
+`bl_rna.properties["engine"].enum_items` returns only the static placeholder —
+`('BLENDER_EEVEE',)` on 5.1.2. Code that checks availability that way declares CYCLES
+missing on *every* install, including ones where it renders fine, and silently falls through
+to EEVEE with `samples` never applied. Assign the engine inside `try/except` and treat
+failure as fatal: a quietly swapped renderer changes sampling, denoising and light falloff,
+and emits off-spec packshots with nothing in the log to say so.
 
 Blender's default AgX rolls the highlights off far enough to hide that the scene is ~2.8
 stops hot: the white body still looked plausible while the accent stripe rendered as a pale

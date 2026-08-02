@@ -58,10 +58,17 @@ blender:
   scenes_dir:   "assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
   driver_script: "assets/blender/render_driver.py"
   output_dir:   "02_processing/blender_test_renders"  # Blender's own render attempts (distinct from the 01_input_raster/ reference material)
-  engine_type:  "CYCLES"                         # CYCLES | EEVEE
+  engine_type:  "CYCLES"                         # Blender engine identifier, e.g. CYCLES | BLENDER_EEVEE | BLENDER_WORKBENCH.
+                                                 # Must be an identifier this Blender build accepts ("EEVEE" is not one);
+                                                 # an unavailable engine now fails the render rather than silently substituting.
   resolution:   [2048, 2048]
-  samples:      64
-  render_timeout: 300   # seconds, per SKU
+  samples:      16                               # Calibrated, not guessed: measured against a 256-sample reference on 1-min,
+                                                 # 16 lands at 60.6 dB PSNR (>40 dB is already indistinguishable) and Stage 3's
+                                                 # own resize+WEBP shifts pixels more than the sample count does. 64 cost 167 s
+                                                 # per SKU for no measurable gain; 16 costs 67 s. Roughly 45 s of that is fixed
+                                                 # (startup, BVH, denoiser), so lowering further buys little. Re-check after any
+                                                 # material/geometry change that adds glass, metal or real GI.
+  render_timeout: 300   # seconds, per SKU — ~4.5x headroom at 16 samples (was ~1.8x at 64)
 
 # ── Stage 3: final image processor (webp_converter behaviour — canonical) ────
 image_processor:

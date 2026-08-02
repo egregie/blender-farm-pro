@@ -464,6 +464,15 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     Rows are placed in the FRONT FACE's own coordinates and the objects are
     parented to the carton before it rotates, exactly like the stripe and badge.
     """
+    # A job with no label_content did not come through the contract: the field
+    # is `required` in the schema. Rendering an unlabelled carton is a silent
+    # content failure, so stop instead — the same reasoning that makes a missing
+    # carton block fatal a few lines up.
+    if label_content is None:
+        raise SystemExit(
+            "[render_driver] job has no 'label_content' block, which the render "
+            "manifest schema marks required. Rendering an unlabelled packshot "
+            "would fail silently. Regenerate the manifest via Stage 1.")
     if not label_content:
         return []
 
@@ -534,6 +543,11 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     for t in rows:
         t.parent = box
         t.matrix_parent_inverse = box.matrix_world.inverted()
+    # Counts LINES, not strings: a wrapped brand name is two. Cheap enough to
+    # print on every render and it is the one number that says at a glance
+    # whether the face came out labelled.
+    lines = sum(t.data.body.count(chr(10)) + 1 for t in rows)
+    print(f"[render_driver] label: {lines} text object(s)")
     return rows
 
 
@@ -705,7 +719,12 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, h / 2))
     box = bpy.context.active_object
     box.name = "carton"
-    box.scale = (w / 2, d / 2, h / 2)
+    # size=1.0 is a UNIT cube spanning -0.5..0.5, so its edge length is 1 and the
+    # scale factor IS the finished edge length in metres. Scaling by the HALF
+    # extents (w/2, d/2, h/2) — which is what Blender's default size=2.0 cube
+    # would want — is the trap that built every carton at half its nominal
+    # millimetres. Scene units are real metres.
+    box.scale = (w, d, h)
     bpy.ops.object.transform_apply(scale=True)
 
     body_mat = make_material("carton_body", "#FFFFFF", roughness=MATTE_ROUGHNESS)
@@ -804,7 +823,7 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
         badge.parent = box
         badge.matrix_parent_inverse = box.matrix_world.inverted()
 
-    build_label(box, label_content or {}, face_w, face_h, right_x - face_w,
+    build_label(box, label_content, face_w, face_h, right_x - face_w,
                 front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z)
 
     if manifest:
@@ -863,13 +882,13 @@ def build_background(hex_color: str, exposure: float):
 LENS_MM = 85.0        # matches the documented Gemini optical calibration
 SENSOR_MM = 36.0      # Blender's default sensor width
 # How much of the frame the carton's BOUNDING SPHERE is asked to fill. Values
-# above 1.0 are expected and safe: the sphere circumscribes a flat carton, so
-# the box's own silhouette stays well inside the frame. Calibrated against the
-# measured reference renders, whose dominant axis fills 76-88% of frame with the
-# object centred at 50-52% height; 1.7 puts the four sampled templates at
-# 74-79%. (Note the "45-55%" quoted in reference_analysis.md §1 does not match
-# a direct measurement of those same images.)
-SPHERE_FILL = 1.70
+# Calibrated against the measured reference renders, whose dominant axis fills
+# 76-88% of frame with the object centred at 50-52% height. This value belongs
+# to the TRUE-SCALE carton: while the mesh was built at half its nominal
+# millimetres the same framing needed 1.70, and the two must move together.
+# (Note the "45-55%" quoted in reference_analysis.md §1 does not match a direct
+# measurement of those same images.)
+SPHERE_FILL = 0.8365
 
 
 def setup_camera(dims_m):
@@ -1018,8 +1037,15 @@ def setup_lighting(target_size: float):
 # per-template requirement from ~1.2 stops down to 0.17. What survives is not a
 # size effect but a SHAPE one, and it separates cleanly with no overlap:
 #
-#     landscape cartons (w >= h)  want -2.71 .. -2.76      -> -2.75
-#     portrait  cartons (h >  w)  want -2.87 .. -2.88      -> -2.88
+#     landscape cartons (w >= h)  want -2.74 .. -2.77      -> -2.76
+#     portrait  cartons (h >  w)  want -2.82 .. -2.87      -> -2.84
+#
+# Re-measured under CYCLES on the TRUE-SCALE carton, which is what production
+# renders. The earlier figures (-2.75 / -2.88) came from EEVEE on the half-scale
+# mesh, because a broken engine check reported CYCLES unavailable on every
+# install and every render silently fell through. They survived the correction
+# almost intact - the rig scales with the carton and the film response is a pure
+# multiplier - but "almost" is not "measured", so these are the measured ones.
 #
 # The key is an area light roughly two face-widths from the carton. Across a WIDE
 # front face its far end is materially further away than its near end, so the
@@ -1033,8 +1059,8 @@ def setup_lighting(target_size: float):
 # pack is not touched between shots, the meter is read for each one. Two values
 # keyed on carton shape, not a nine-entry table keyed on template.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.75
-FILM_EXPOSURE_PORTRAIT = -2.88
+FILM_EXPOSURE_LANDSCAPE = -2.76
+FILM_EXPOSURE_PORTRAIT = -2.84
 
 
 def film_exposure(dims_m) -> float:
@@ -1051,13 +1077,32 @@ def setup_film(exposure: float):
 
 def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: int):
     scene = bpy.context.scene
-    valid_engines = {e.identifier for e in
-                     bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items}
-    if engine not in valid_engines:
-        print(f"[render_driver] WARNING: engine '{engine}' unavailable "
-              f"({sorted(valid_engines)}); falling back to CYCLES", file=sys.stderr)
-        engine = "CYCLES" if "CYCLES" in valid_engines else sorted(valid_engines)[0]
-    scene.render.engine = engine
+    # Ask Blender to make the assignment rather than introspecting the enum.
+    # RenderSettings.engine is a DYNAMIC enum: Blender builds its real item list
+    # through an RNA callback at assignment time, and that list is NOT what
+    # bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items returns.
+    # That introspection yields only the static placeholder — ('BLENDER_EEVEE',)
+    # on 5.1.2 — so it reported CYCLES "unavailable" on every install, including
+    # ones where Cycles is enabled and renders fine, and every render quietly
+    # fell through to EEVEE with `samples` never applied.
+    #
+    # An unavailable engine is FATAL, not substituted. Engine choice changes
+    # sampling, denoising and light falloff, so a quietly swapped renderer emits
+    # off-spec packshots with nothing in the logs to say so — the same reasoning
+    # that makes main.py fail Stage 2 when it exits 0 having produced no PNG.
+    # SystemExit specifically: Blender prints an ordinary traceback and still
+    # exits 0, which blender_renderer.py would read as a successful render.
+    try:
+        scene.render.engine = engine
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(
+            f"[render_driver] render engine '{engine}' is not available in this "
+            f"Blender ({bpy.app.version_string}); refusing to substitute a "
+            f"different one. Blender reports: {exc}. Set blender.engine_type in "
+            f"config.yaml to an identifier from that list.")
+
+    print(f"[render_driver] engine {scene.render.engine} "
+          f"({samples} samples, {res_x}x{res_y})")
     if engine == "CYCLES":
         scene.cycles.samples = samples
         scene.cycles.use_denoising = True

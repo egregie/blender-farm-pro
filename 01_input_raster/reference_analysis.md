@@ -119,8 +119,8 @@ in `src/passport_generator.py`'s prompt templates and `docs/DESIGN_RATIONALE.md`
 > Type size follows **two laws**, not one: the brand name scales with the carton
 > (6.3-30.6mm across templates, but a steady 0.131-0.209 of face height), while
 > the small print holds an absolute size (bottom row 4.4-5.5mm on eight of nine,
-> though it varies 3.5x as a fraction of the face). Row 3 (braille) and the whole
-> side panel are **not** built yet.
+> though it varies 3.5x as a fraction of the face). The side panel is built too —
+> see the note under it. Row 3, the braille, is **not**.
 
 A consistent grid appears on every front face, top to bottom:
 1. Product/brand name — **bold, large**, up to 2 lines (e.g. "Atomoxetine
@@ -196,7 +196,8 @@ Based on §2–4 above, before further Blender template work:
   printed ink sits on the same matte board.
 - Do **not** implement a literal DOF blur at f/8 — these references read as
   fully sharp; a strong DOF would look *less* like the reference set, not more.
-- The white-body / two-accent-color rule (stripe + corner badge) is confirmed
+  *Still the case: an f/8 aperture value is set but DOF stays disabled.*
+- ✅ The white-body / two-accent-color rule (stripe + corner badge) is confirmed
   and should be treated as a hard constraint on any future template, not just
   a nice-to-have.
 - **The scene was ~2.8 stops over-exposed, and Blender's default AgX view
@@ -253,6 +254,20 @@ checking.
   references themselves.
 
 **Newly open after this pass:**
+- **Front-vs-side face contrast is too flat: +9 here against +26 in `T1_1`.** The
+  references show a far more definite falloff between the lit front face and the
+  shaded side panel (§3) than the current rig produces, and this is the largest
+  remaining visual gap to them. Closing it means changing the *size or position*
+  of the key and fill — the one part of `setup_lighting()` deliberately frozen,
+  because its 25 W / 8 W replaced room-scale wattages that blew out the frame.
+  So it needs a decision before anyone touches it, not a quiet tweak.
+- Measuring a contact shadow: compare the darkest pixel under the object against
+  the backdrop **at the same image rows**, so the backdrop's own gradient cannot
+  be mistaken for a shadow. On that method the references sit at 0.7–4.0% below
+  backdrop (`T1_LARGE_352` 0.7%, `T1_1` 2.4%, `T3_111` 4.0%) and ours at 0.8% —
+  inside the reference range and shallower than two of the three. Note the
+  detached shadow that prompted this was caused by the carton *floating*; seating
+  it on the backdrop is what fixed it, not any change to the lights.
 - **A residual ~0.13-stop shape effect, corrected in the meter rather than the
   rig.** After the energy law the per-template requirement still separated
   cleanly by carton *shape*: landscape (w ≥ h) wanted −2.71…−2.76 EV, portrait
@@ -268,7 +283,9 @@ checking.
 - **A dark badge picks up more specular white than the references show.** On
   `#003366` navy the rendered badge reads R≈38 where the reference reads R≈4;
   the base colour has zero red, so the excess is the Principled BSDF's specular
-  lobe. One template (`T_VERT_DROPPER_229`) sits just outside ±30 on that channel
-  at 34; the other eight are inside. Cheap candidate fix: lower specular/IOR on
-  the printed elements. Not attempted here — it is a material change, unrelated
-  to lighting calibration.
+  lobe. Under CYCLES, which computes a real specular response rather than
+  EEVEE's approximation, two of seven sampled templates now sit outside ±30 on
+  that channel (`T_VERT_DROPPER_229` at 37, `T_VERT_VIAL_144` at 32) where under
+  EEVEE it was one of nine. Cheap candidate fix: lower specular/IOR on the
+  printed elements. Not attempted here — it is a material change, unrelated to
+  lighting calibration.

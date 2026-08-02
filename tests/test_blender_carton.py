@@ -67,8 +67,8 @@ MARGIN_TOL = 0.01
 # landscape and portrait cartons are metered separately - exactly as a
 # photographer re-reads the meter without touching the strobes.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.75
-FILM_EXPOSURE_PORTRAIT = -2.88
+FILM_EXPOSURE_LANDSCAPE = -2.76
+FILM_EXPOSURE_PORTRAIT = -2.84
 
 # Studio-strobe-scale wattages, restated independently of the driver. These are
 # the power at the rig's reference carton size, not for every carton - see
