@@ -1174,11 +1174,25 @@ def _bounds_in_frame(obj, reference):
 # Corners come off the built mesh's bound_box, never off (w, h, d) -- see the
 # note in build_box about the nominal dimensions and the mesh extents not being
 # the same thing.
-def _order_quad(pts):
-    """[top-left, top-right, bottom-right, bottom-left], in image pixels."""
-    by_y = sorted(pts, key=lambda p: p[1])
-    top = sorted(by_y[:2], key=lambda p: p[0])
-    bottom = sorted(by_y[2:], key=lambda p: p[0])
+def _order_quad(vert_px_pairs):
+    """[top-left, top-right, bottom-right, bottom-left], in image pixels.
+
+    Paired by their LOCAL Z, not by projected pixel y. The carton only ever
+    rotates about Z, so local Z is world-up regardless of ROTATION_DEG, and
+    "the two points with the smallest local Z are the bottom pair" is always
+    true. Sorting by PROJECTED y instead is the bug this replaced: on a wide,
+    shallow front face (measured failing on all T3 at 140x35x25mm, aspect
+    4.00) the far vertical edge can project ENTIRELY above the near one, so
+    the two smallest-y points come from the same edge, not opposite ones, and
+    the old code emitted a self-intersecting quad (BR-TR-BL-TL, a diagonal
+    crossing) that still passed a same-side ordering check because the sort
+    that produced it also satisfies its own consistency. Do not go back to
+    sorting the projected points -- it looks right on 370/391 SKU and is
+    silently wrong on the rest.
+    """
+    by_z = sorted(vert_px_pairs, key=lambda pair: pair[0].z)
+    bottom = sorted((px for _, px in by_z[:2]), key=lambda p: p[0])
+    top = sorted((px for _, px in by_z[2:]), key=lambda p: p[0])
     return [top[0], top[1], bottom[1], bottom[0]]
 
 
@@ -1199,13 +1213,13 @@ def _face_corners_px(box, axis: int, take_min: bool):
     face = [v for v in local if abs(v[axis] - target) < 1e-6]
     if len(face) != 4:
         return None
-    out = []
+    pairs = []
     for v in face:
         ndc = world_to_camera_view(scene, cam, box.matrix_world @ v)
         # world_to_camera_view puts (0, 0) at the frame's BOTTOM-left with y up;
         # image pixels count from the TOP-left with y down.
-        out.append([ndc.x * RES_X, (1.0 - ndc.y) * RES_Y])
-    return _order_quad(out)
+        pairs.append((v, [ndc.x * RES_X, (1.0 - ndc.y) * RES_Y]))
+    return _order_quad(pairs)
 
 
 def printed_faces_px():

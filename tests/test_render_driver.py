@@ -258,7 +258,7 @@ class TestPrintedFaceCorners(unittest.TestCase):
     """
 
     def test_front_face_corners_are_a_sane_quad_inside_the_frame(self):
-        scene = _dump_scene()          # existing helper: runs --dump-scene
+        scene = _dump_scene()          # runs --dump-scene, see _dump_scene() above
         corners = scene.get("front_face_px")
         self.assertIsNotNone(corners, "driver did not report front_face_px")
         self.assertEqual(len(corners), 4)
@@ -267,12 +267,35 @@ class TestPrintedFaceCorners(unittest.TestCase):
             self.assertTrue(0 <= x <= res_x, f"corner x={x} outside 0..{res_x}")
             self.assertTrue(0 <= y <= res_y, f"corner y={y} outside 0..{res_y}")
 
+    def _assert_shared_edge_agrees(self, scene):
+        """front_face_px and side_panel_px describe adjoining faces of the same
+        box, so they must share a vertical edge: front TL == side TR, and
+        front BL == side BR (the carton's near-left corner, seen once from
+        each face). This is derived from the geometry, not from whatever order
+        _order_quad happens to emit, so unlike a same-side inequality it
+        cannot be satisfied by an internally-consistent but wrong ordering --
+        a self-intersecting (bowtie) quad breaks it even though its own
+        left-of/above inequalities all still hold.
+        """
+        tl, tr, br, bl = scene["front_face_px"]
+        side_tl, side_tr, side_br, side_bl = scene["side_panel_px"]
+        for a, b, label in ((tl, side_tr, "front TL vs side TR"),
+                            (bl, side_br, "front BL vs side BR")):
+            self.assertAlmostEqual(a[0], b[0], places=2, msg=f"{label} (x)")
+            self.assertAlmostEqual(a[1], b[1], places=2, msg=f"{label} (y)")
+
     def test_corners_are_ordered_tl_tr_br_bl(self):
-        tl, tr, br, bl = _dump_scene()["front_face_px"]
+        scene = _dump_scene()
+        tl, tr, br, bl = scene["front_face_px"]
+        # Weak on their own: a same-side ordering holds for ANY consistent
+        # sort, including the self-intersecting one this test used to miss
+        # (see _assert_shared_edge_agrees). Kept because they are still true
+        # of a correct quad, not because they would catch a wrong one.
         self.assertLess(tl[0], tr[0], "top-left is not left of top-right")
         self.assertLess(bl[0], br[0], "bottom-left is not left of bottom-right")
         self.assertLess(tl[1], bl[1], "top-left is not above bottom-left")
         self.assertLess(tr[1], br[1], "top-right is not above bottom-right")
+        self._assert_shared_edge_agrees(scene)
 
     def test_the_quad_is_skewed_because_the_carton_is_rotated(self):
         # If this ever reads as a rectangle, either the rotation was removed or
@@ -287,6 +310,43 @@ class TestPrintedFaceCorners(unittest.TestCase):
 
     def test_side_panel_corners_are_reported_too(self):
         self.assertIsNotNone(_dump_scene().get("side_panel_px"))
+
+    def test_a_wide_shallow_carton_is_ordered_correctly(self):
+        """Regression for the family the default 1-min carton never exercises.
+
+        On a wide, shallow front face the far vertical edge can project
+        ENTIRELY above the near one, so pairing top/bottom by PROJECTED y (the
+        original algorithm) puts both smallest-y points on the same edge
+        instead of one per edge and emits a self-intersecting (bowtie) quad.
+        All 21 T3 SKU at 140x35x25mm (front-face aspect 4.00) hit this; the
+        catalogue's next-widest geometry clears the y-split by 248px where
+        this one misses it by 37px. Pairing by LOCAL Z instead (world-up,
+        since the carton only rotates about Z) has no such blind spot.
+        """
+        job = _manifest()
+        job["template_id"] = "T3"
+        job["carton"].update(width_mm=140.0, height_mm=35.0, depth_mm=25.0)
+        scene = _dump_scene(job)
+        tl, tr, br, bl = scene["front_face_px"]
+        self.assertLess(tl[0], tr[0])
+        self.assertLess(bl[0], br[0])
+        self.assertLess(tl[1], bl[1])
+        self.assertLess(tr[1], br[1])
+        self._assert_shared_edge_agrees(scene)
+
+    def test_a_vertical_family_carton_is_ordered_correctly(self):
+        """T_VERT_VIAL takes the 27.5deg/20deg camera path (VERTICAL_FAMILY in
+        render_driver.py), which no other test here projects at all."""
+        job = _manifest()
+        job["template_id"] = "T_VERT_VIAL"
+        job["carton"].update(width_mm=48.0, height_mm=115.0, depth_mm=48.0)
+        scene = _dump_scene(job)
+        tl, tr, br, bl = scene["front_face_px"]
+        self.assertLess(tl[0], tr[0])
+        self.assertLess(bl[0], br[0])
+        self.assertLess(tl[1], bl[1])
+        self.assertLess(tr[1], br[1])
+        self._assert_shared_edge_agrees(scene)
 
 
 if __name__ == "__main__":
