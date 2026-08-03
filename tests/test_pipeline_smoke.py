@@ -8,8 +8,16 @@ only a live pipeline run found it.
 The working directory is the point. Running from the repository root would not
 have caught it -- Path("docs") resolves there. Every subprocess below therefore
 runs from a temporary directory.
+
+Exit code alone is not enough to catch this class of bug: a path bug that
+*misplaces* output without raising exits 0 just like a correct run does. So
+every subprocess run here is also checked for what it left behind in its own
+working directory -- the real invariant this task exists to guard is "no stage
+writes anything relative to the working directory," and that has to be asserted
+directly rather than inferred from exit codes and output counts alone.
 """
 import hashlib
+import os
 import subprocess
 import sys
 import tempfile
@@ -33,16 +41,29 @@ def _digest(directory: Path, pattern: str) -> dict[str, str]:
             for p in sorted(directory.glob(pattern))}
 
 
-def _run_from_elsewhere(module: str, *args) -> subprocess.CompletedProcess:
+def _run_from_elsewhere(module: str, *args) -> tuple[subprocess.CompletedProcess, list[str]]:
     """Run a stage module as its own process, from a directory that is NOT the
-    repository root, with PROJECT_ROOT on sys.path so imports still resolve."""
+    repository root, with PROJECT_ROOT on sys.path so imports still resolve.
+
+    Returns (proc, leftover) where `leftover` is the sorted list of names the
+    subprocess left behind in its own working directory. `leftover` is
+    captured with the TemporaryDirectory still alive -- checking after the
+    `with` block exits would find nothing, because cleanup would have already
+    deleted whatever the subprocess wrote there. An empty `leftover` is the
+    actual invariant this module exists to check: exit code 0 alone does not
+    prove a stage anchored every path to PROJECT_ROOT, because a stage that
+    writes into the working directory by mistake still exits 0 -- it just
+    leaves something behind where nothing should be.
+    """
     with tempfile.TemporaryDirectory() as alien_cwd:
-        env = {**__import__("os").environ, "PYTHONPATH": str(PROJECT_ROOT),
+        env = {**os.environ, "PYTHONPATH": str(PROJECT_ROOT),
                "PYTHONIOENCODING": "utf-8"}
-        return subprocess.run(
+        proc = subprocess.run(
             [sys.executable, "-m", module, *args],
             cwd=alien_cwd, env=env, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=STAGE_TIMEOUT_S)
+        leftover = sorted(p.name for p in Path(alien_cwd).iterdir())
+    return proc, leftover
 
 
 class TestStageOneRunsEndToEnd(unittest.TestCase):
@@ -53,10 +74,14 @@ class TestStageOneRunsEndToEnd(unittest.TestCase):
         before_md = _digest(MD_DIR, "*.md")
         before_manifests = _digest(MANIFEST_DIR, "*.json")
 
-        proc = _run_from_elsewhere("src.passport_generator")
+        proc, leftover = _run_from_elsewhere("src.passport_generator")
         self.assertEqual(
             proc.returncode, 0,
             f"Stage 1 exited {proc.returncode}\nSTDERR:\n{proc.stderr[-3000:]}")
+        self.assertEqual(
+            leftover, [],
+            f"Stage 1 wrote {leftover} into its working directory; "
+            f"every path must be anchored to PROJECT_ROOT")
 
         after_md = _digest(MD_DIR, "*.md")
         after_manifests = _digest(MANIFEST_DIR, "*.json")
@@ -75,12 +100,16 @@ class TestStageOneRunsEndToEnd(unittest.TestCase):
 
 class TestStageTwoFacadeDispatches(unittest.TestCase):
     def test_blender_estimate_is_a_clean_dry_run(self):
-        proc = _run_from_elsewhere(
+        proc, leftover = _run_from_elsewhere(
             "src.render_stage", "--engine", "blender", "--estimate")
         self.assertEqual(
             proc.returncode, 0,
             f"Stage 2 --estimate exited {proc.returncode}\n"
             f"STDERR:\n{proc.stderr[-3000:]}")
+        self.assertEqual(
+            leftover, [],
+            f"Stage 2 --estimate wrote {leftover} into its working directory; "
+            f"every path must be anchored to PROJECT_ROOT")
         self.assertIn("[blender]", proc.stdout + proc.stderr,
                       "the blender engine did not report an estimate")
 
