@@ -19,3 +19,7 @@ verification_failures.log
 # future test fixture named *.job.json is not silently untracked.
 02_processing/blender_test_renders/*.job.json
 02_processing/blender_test_renders/*.scene.json
+
+# render_qa.py's OCR report: per-machine output regenerated on every run, not a
+# curated record -- unlike 00_PROJECT_STATE/sweep_report.md, which IS committed.
+06_docs/RENDER_QA_REPORT.md

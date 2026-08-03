@@ -45,6 +45,22 @@ class TestScriptDefaultPaths(unittest.TestCase):
                         f"{path.name}.{name} points outside the project: {value}")
 
     def test_module_level_path_defaults_exist_or_have_an_existing_parent(self):
+        """A DEFAULT_ path may legitimately not exist yet, but only in one of
+        two distinct ways -- conflating them is a category error:
+
+          - it names an OUTPUT FILE (has a suffix, e.g. a generated report):
+            the script itself creates the file on first write, the same way
+            `open(path, "w")` only needs its directory. An existing PARENT is
+            therefore sufficient on its own; CREATABLE (a set of directory
+            *names*) has no bearing on files and must not be extended for one.
+          - it names a DIRECTORY a script is allowed to create on first use
+            (its name is in CREATABLE): for those we additionally require the
+            parent to exist, to distinguish "not written yet" from "wrong
+            layout entirely" (a directory could otherwise be missing for any
+            reason, not just "not created yet").
+
+        Anything else missing is a stale path from the source project's layout.
+        """
         for path, mod in self._modules():
             for name in dir(mod):
                 if not name.startswith("DEFAULT_"):
@@ -54,6 +70,17 @@ class TestScriptDefaultPaths(unittest.TestCase):
                     continue
                 with self.subTest(script=path.name, constant=name):
                     if value.exists():
+                        continue
+                    if value.suffix:
+                        # File-valued default: an existing parent directory is
+                        # all a script needs to be able to write this file.
+                        self.assertTrue(
+                            value.parent.exists(),
+                            f"{path.name}.{name} -> {value}: this names a "
+                            f"file the script writes on first run, but even "
+                            f"its parent {value.parent} is missing, so this "
+                            f"is a stale path from the source project's "
+                            f"layout")
                         continue
                     self.assertIn(
                         value.name, CREATABLE,

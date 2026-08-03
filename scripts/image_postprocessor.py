@@ -16,10 +16,25 @@ except ImportError:
     print("[ERROR] Pillow not installed. Run: pip install Pillow")
     sys.exit(1)
 
+# Resolved through the config, not hardcoded: this fork remapped every path onto
+# numbered folders, and render_output/ -- this script's old default -- has
+# never existed here. A stale default doesn't crash; it finds no PNGs and
+# reports "0 processed", which reads exactly like a clean pass.
+# `python scripts/image_postprocessor.py` puts scripts/ (not the project root)
+# at sys.path[0], so src wouldn't be importable without this -- the same
+# pattern scripts/catalogue_sweep.py, scripts/generate_architecture_snapshot.py
+# and scripts/render_qa.py use.
+_SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+if str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+
+from src.utils import load_config, get_path, resolve_path  # noqa: E402
+
+_CFG = load_config()
 # Configuration
-DEFAULT_INPUT_DIR = Path("render_output/raw")
-DEFAULT_OUTPUT_DIR = Path("render_output/processed")
-DEFAULT_FAILED_DIR = Path("render_output/failed")
+DEFAULT_INPUT_DIR  = get_path(_CFG, "renders_raw")
+DEFAULT_OUTPUT_DIR = resolve_path(_CFG["image_processor"]["output_dir"])
+DEFAULT_FAILED_DIR = get_path(_CFG, "renders_failed")
 
 def process_image(input_path: Path, output_dir: Path, failed_dir: Path = DEFAULT_FAILED_DIR) -> tuple[bool, str]:
     """
