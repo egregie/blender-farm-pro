@@ -23,10 +23,40 @@ class TestStateArtifactsAgree(unittest.TestCase):
                 yield json_path, md_path
 
     def test_at_least_one_pair_exists(self):
-        # Without this, deleting every report would make the suite below vacuous
-        # and the guard would report success having checked nothing.
-        self.assertTrue(list(self._pairs()),
+        # Prevent vacuity: ensure each content check has at least one pair to exercise it.
+        # legibility_report.json has none of the keys the content tests look for, so deleting
+        # sweep_report.json/md would leave all three content tests passing via continue() on a
+        # pair that carries nothing. This asserts the existence of covering data before tests
+        # that would skip silently if it were absent.
+        pairs = list(self._pairs())
+        self.assertTrue(pairs,
                         f"no *.json/*.md report pairs found in {STATE_DIR}")
+
+        has_covers_whole_group = False
+        has_counts_total = False
+        has_records = False
+
+        for json_path, _ in pairs:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            if "covers_whole_group" in data:
+                has_covers_whole_group = True
+            if data.get("counts", {}).get("total") is not None:
+                has_counts_total = True
+            if "records" in data:
+                has_records = True
+
+        missing_keys = []
+        if not has_covers_whole_group:
+            missing_keys.append("covers_whole_group")
+        if not has_counts_total:
+            missing_keys.append("counts.total")
+        if not has_records:
+            missing_keys.append("records")
+
+        self.assertFalse(
+            missing_keys,
+            f"no report pairs carry keys needed for content tests: {', '.join(missing_keys)}"
+        )
 
     def test_scope_claim_matches_the_data(self):
         for json_path, md_path in self._pairs():
