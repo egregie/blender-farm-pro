@@ -54,6 +54,9 @@ _DEFAULTS = {
     "image_processor": {
         "source_dir":       "render_output/raw",
         "output_dir":       "output",
+        # Legacy default verbatim -- the source project's own image_postprocessor.py
+        # hardcoded this exact value before it read config.yaml at all.
+        "failed_dir":       "render_output/failed",
         "target_size":      [1600, 1600],
         "max_file_size_kb": 500,
     },

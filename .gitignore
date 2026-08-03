@@ -23,3 +23,10 @@ verification_failures.log
 # render_qa.py's OCR report: per-machine output regenerated on every run, not a
 # curated record -- unlike 00_PROJECT_STATE/sweep_report.md, which IS committed.
 06_docs/RENDER_QA_REPORT.md
+
+# image_postprocessor.py's own failure copies -- segregated from Stage 2's
+# renders_failed (02_processing/render_failed) so the two producers never share
+# a bin. The directory itself is tracked (.gitkeep) so DEFAULT_FAILED_DIR
+# resolves on a clean checkout; the per-run failure copies inside are not.
+02_processing/image_postprocessor_failed/*
+!02_processing/image_postprocessor_failed/.gitkeep

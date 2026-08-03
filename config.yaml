@@ -74,6 +74,12 @@ blender:
 image_processor:
   source_dir:       "01_input_raster/gemini_renders_raw"
   output_dir:       "01_input_raster/gemini_renders_final"
+  # scripts/image_postprocessor.py's own failure copies (named after the SKU
+  # stem, e.g. 1-min.png). Deliberately its own directory, NOT paths.renders_failed
+  # (02_processing/render_failed) -- that one is Stage 2's RPA/Selenium error
+  # screenshots (src/rpa_orchestrator.py), a different producer with a different
+  # naming scheme; sharing a bin invites a silent collision between the two.
+  failed_dir:       "02_processing/image_postprocessor_failed"
   target_size:      [1600, 1600]   # px (LANCZOS upscale, square 1:1)
   max_file_size_kb: 500            # hard weight cap; quality is auto-tuned
 

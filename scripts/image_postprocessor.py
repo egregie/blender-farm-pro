@@ -34,7 +34,10 @@ _CFG = load_config()
 # Configuration
 DEFAULT_INPUT_DIR  = get_path(_CFG, "renders_raw")
 DEFAULT_OUTPUT_DIR = resolve_path(_CFG["image_processor"]["output_dir"])
-DEFAULT_FAILED_DIR = get_path(_CFG, "renders_failed")
+# NOT paths.renders_failed -- that key is Stage 2's RPA/Selenium error
+# screenshots (src/rpa_orchestrator.py). This script's failure copies are named
+# after the SKU stem (e.g. 1-min.png) and must not share a bin with those.
+DEFAULT_FAILED_DIR = resolve_path(_CFG["image_processor"]["failed_dir"])
 
 def process_image(input_path: Path, output_dir: Path, failed_dir: Path = DEFAULT_FAILED_DIR) -> tuple[bool, str]:
     """

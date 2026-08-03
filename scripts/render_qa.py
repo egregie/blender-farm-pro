@@ -4,21 +4,28 @@ Version: 1.0 (2026-06-04) — P8.0
 
 PURPOSE:
     Non-blocking diagnostic module. Runs after image generation.
-    For each PNG in render_output/processed/, extracts text via OCR
+    For each PNG in the processed-images directory, extracts text via OCR
     and cross-references the corresponding passport JSON to verify:
       1. brand_name is present in the rendered image
       2. brand_name does NOT appear more than 2 times (duplication guard)
       3. Dosage numeric value appears in image
       4. Unit count number appears in image
 
-    Outputs a Markdown report to docs/RENDER_QA_REPORT.md.
+    All directories default from config.yaml (--dir, --passports, --manifests,
+    --report all override it). --dir in particular follows render.engine: the
+    blender engine's own output directory when engine is "blender", Gemini's
+    raw-render directory otherwise -- the two engines' output is segregated on
+    disk, so this script picks the one matching the configured engine rather
+    than a single hardcoded folder.
+
+    Outputs a Markdown report to 06_docs/RENDER_QA_REPORT.md by default.
     NEVER blocks the pipeline. Gracefully handles missing Tesseract.
 
 USAGE:
-    python render_qa.py
-    python render_qa.py --dir render_output/processed
-    python render_qa.py --passports 04_passports/passports_json
-    python render_qa.py --limit 20
+    python scripts/render_qa.py
+    python scripts/render_qa.py --dir 02_processing/blender_test_renders
+    python scripts/render_qa.py --passports 04_passports/passports_json
+    python scripts/render_qa.py --limit 20
 
 DEPENDENCIES:
     pip install pytesseract Pillow
