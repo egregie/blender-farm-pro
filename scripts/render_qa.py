@@ -39,9 +39,28 @@ from datetime import datetime
 # CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 
-DEFAULT_PROCESSED_DIR = Path("render_output/processed")
-DEFAULT_PASSPORTS_DIR = Path("04_passports/passports_json")
-DEFAULT_REPORT_PATH   = Path("06_docs/RENDER_QA_REPORT.md")
+# Resolved through the config, not hardcoded: this fork remapped every path onto
+# numbered folders, and a stale default does not fail loudly -- it finds no
+# images and reports a clean run over nothing.
+# `python scripts/render_qa.py` puts scripts/ (not the project root) at
+# sys.path[0], so src wouldn't be importable without this -- the same pattern
+# scripts/catalogue_sweep.py and scripts/generate_architecture_snapshot.py use.
+_SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+if str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+
+from src.utils import load_config, get_path, resolve_path, PROJECT_ROOT  # noqa: E402
+
+_CFG = load_config()
+# Source follows the selected engine. Blender writes to its own directory
+# precisely so resume and Stage 3 cannot confuse the two engines' output.
+_ENGINE = (_CFG.get("render") or {}).get("engine", "gemini")
+DEFAULT_PROCESSED_DIR = (resolve_path(_CFG["blender"]["output_dir"])
+                         if _ENGINE == "blender"
+                         else get_path(_CFG, "renders_raw"))
+DEFAULT_PASSPORTS_DIR  = get_path(_CFG, "passports_json")
+DEFAULT_MANIFESTS_DIR  = get_path(_CFG, "passports_manifests")
+DEFAULT_REPORT_PATH    = PROJECT_ROOT / "06_docs" / "RENDER_QA_REPORT.md"
 
 # Maximum allowed occurrences of brand_name in OCR text before flagging duplicate
 MAX_BRAND_OCCURRENCES = 2
@@ -366,6 +385,12 @@ def main():
         type=Path,
         default=DEFAULT_PASSPORTS_DIR,
         help=f"Directory of JSON passports (default: {DEFAULT_PASSPORTS_DIR})",
+    )
+    parser.add_argument(
+        "--manifests",
+        type=Path,
+        default=DEFAULT_MANIFESTS_DIR,
+        help=f"Directory of render manifests (default: {DEFAULT_MANIFESTS_DIR})",
     )
     parser.add_argument(
         "--report",
