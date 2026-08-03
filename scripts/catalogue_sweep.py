@@ -501,7 +501,7 @@ def write_reports(records, group_name, started_at, interrupted=False, limit=None
         L.append(f"| `{r['stem']}` | {r.get('product_name', '?')} | "
                  f"{r.get('template_id', '?')} | {carton} | {fill} | {front} | {secs} |")
     L.append("")
-    (STATE_DIR / "sweep_report.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+    md_path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
 # ── Orchestration ────────────────────────────────────────────────────────────
