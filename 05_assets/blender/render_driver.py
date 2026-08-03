@@ -23,6 +23,7 @@ Gemini prompt templates (25 deg pitch / 35 deg rotation for most families,
 framing — see 06_docs/DESIGN_RATIONALE.md.
 """
 import bpy
+import mathutils
 import sys
 import json
 import math
@@ -1164,6 +1165,76 @@ def _bounds_in_frame(obj, reference):
     }
 
 
+# ── Where the printed faces landed in the rendered frame ─────────────────────
+# OCR of a packshot needs the front face flattened first, and flattening needs
+# its four corners in pixels. The renderer holds the camera and the built mesh,
+# so it publishes the answer; a consumer that reconstructs it from the image is
+# guessing, and two attempts to do that failed.
+#
+# Corners come off the built mesh's bound_box, never off (w, h, d) -- see the
+# note in build_box about the nominal dimensions and the mesh extents not being
+# the same thing.
+def _order_quad(pts):
+    """[top-left, top-right, bottom-right, bottom-left], in image pixels."""
+    by_y = sorted(pts, key=lambda p: p[1])
+    top = sorted(by_y[:2], key=lambda p: p[0])
+    bottom = sorted(by_y[2:], key=lambda p: p[0])
+    return [top[0], top[1], bottom[1], bottom[0]]
+
+
+def _face_corners_px(box, axis: int, take_min: bool):
+    """One axis-aligned local face of *box*, projected to image pixels.
+
+    axis 0/1/2 = local X/Y/Z. The front face is local -Y and the visible side
+    panel is local -X; +ROTATION_DEG about Z turns both toward the camera.
+    """
+    from bpy_extras.object_utils import world_to_camera_view
+    scene = bpy.context.scene
+    cam = scene.camera
+    if box is None or cam is None:
+        return None
+    local = [mathutils.Vector(c) for c in box.bound_box]
+    values = [v[axis] for v in local]
+    target = min(values) if take_min else max(values)
+    face = [v for v in local if abs(v[axis] - target) < 1e-6]
+    if len(face) != 4:
+        return None
+    out = []
+    for v in face:
+        ndc = world_to_camera_view(scene, cam, box.matrix_world @ v)
+        # world_to_camera_view puts (0, 0) at the frame's BOTTOM-left with y up;
+        # image pixels count from the TOP-left with y down.
+        out.append([ndc.x * RES_X, (1.0 - ndc.y) * RES_Y])
+    return _order_quad(out)
+
+
+def printed_faces_px():
+    """Both printed faces in image pixels, plus the resolution they refer to."""
+    box = bpy.data.objects.get("carton")
+    scene = bpy.context.scene
+    # world_to_camera_view() derives the camera's view frame from the scene's
+    # CURRENT render resolution (via Camera.view_frame()), not from RES_X/RES_Y
+    # directly. On the --dump-scene path this function runs before
+    # setup_render() ever executes, so the scene still holds Blender's own
+    # default (1920x1080) rather than the requested resolution; projecting
+    # against that mismatched aspect skews the vertical axis -- measured, a
+    # corner landed at y=2162 against a reported frame height of 2048. On the
+    # render path setup_render() has already set these to the same values, so
+    # this is a no-op there and changes nothing about the render itself (it
+    # runs after setup_render, and resolution_percentage/file settings are
+    # untouched here).
+    scene.render.resolution_x = RES_X
+    scene.render.resolution_y = RES_Y
+    bpy.context.view_layer.update()
+    return {
+        "resolution": [RES_X, RES_Y],
+        "front_face_px": _face_corners_px(box, axis=1, take_min=True),
+        # Nothing consumes the side panel yet. It comes from the same call, and
+        # emitting it now avoids touching the driver twice.
+        "side_panel_px": _face_corners_px(box, axis=0, take_min=True),
+    }
+
+
 def dump_scene(path: str):
     """Write the measured geometry of the built scene as JSON."""
     box = bpy.data.objects.get("carton")
@@ -1194,6 +1265,7 @@ def dump_scene(path: str):
         # the dump reports what Blender actually holds.
         "film": {"view_transform": view.view_transform,
                  "exposure": view.exposure},
+        **printed_faces_px(),
     }
     if box is not None:
         out["carton"] = {
@@ -1305,6 +1377,13 @@ def main():
         return
 
     setup_render(OUT_PATH, ENGINE, SAMPLES, RES_X, RES_Y)
+
+    # Sidecar for post-render QA. Written before the render so it exists even if
+    # rendering later fails, and the pixels are unaffected either way.
+    view_path = Path(OUT_PATH).with_suffix(".view.json")
+    view_path.write_text(json.dumps(printed_faces_px(), indent=2), encoding="utf-8")
+    print(f"[render_driver] wrote {view_path}")
+
     bpy.ops.render.render(write_still=True)
     print(f"[render_driver] wrote {OUT_PATH}")
 

@@ -64,6 +64,43 @@ def _run_driver(engine_type: str, workdir: Path, job: dict = None, res: str = "6
     return proc, out_path
 
 
+_DUMP_SCENE_CACHE = {}
+
+
+def _dump_scene(job: dict = None):
+    """Run the driver in --dump-scene mode and return the measured geometry.
+
+    Modelled on the subprocess.run block in test_blender_carton.py:115-130.
+    Cached per distinct job so repeated calls in one test class (or across
+    the four tests in TestPrintedFaceCorners, which all want the same scene)
+    do not each pay a fresh Blender launch.
+    """
+    key = json.dumps(job, sort_keys=True) if job is not None else "__default__"
+    if key in _DUMP_SCENE_CACHE:
+        return _DUMP_SCENE_CACHE[key]
+    with tempfile.TemporaryDirectory() as td:
+        job_path = Path(td) / "job.json"
+        dump_path = Path(td) / "scene.json"
+        job_path.write_text(
+            json.dumps(_manifest() if job is None else job),
+            encoding="utf-8",
+        )
+        proc = subprocess.run(
+            [str(BLENDER_EXE), "--background", "--factory-startup",
+             "--python", str(DRIVER), "--",
+             "--job", str(job_path), "--dump-scene", str(dump_path)],
+            capture_output=True, text=True, timeout=300,
+        )
+        if not dump_path.exists():
+            raise AssertionError(
+                f"driver produced no scene dump (exit {proc.returncode})\n"
+                f"--- stdout ---\n{proc.stdout}\n--- stderr ---\n{proc.stderr}"
+            )
+        scene = json.loads(dump_path.read_text(encoding="utf-8"))
+    _DUMP_SCENE_CACHE[key] = scene
+    return scene
+
+
 @unittest.skipUnless(_HAVE_BLENDER, _SKIP_REASON)
 class TestEngineIsHonoured(unittest.TestCase):
     """The engine that was asked for is the engine that renders."""
@@ -207,6 +244,49 @@ class TestLabelContractIsEnforced(unittest.TestCase):
                                 "an unlabelled carton was rendered anyway")
             self.assertFalse(out_path.exists())
             self.assertIn("label_content", proc.stdout + proc.stderr)
+
+
+@unittest.skipUnless(_HAVE_BLENDER, _SKIP_REASON)
+class TestPrintedFaceCorners(unittest.TestCase):
+    """The renderer owns the camera, so it -- not a downstream consumer --
+    reports where each printed face landed in the frame.
+
+    Recovering these corners from the image was tried and failed: a colour mask
+    keyed on palette.accent cannot separate the accent stripe from the brand
+    badge when primary and accent are close, and an SVD principal axis is
+    sign-ambiguous (measured tilts came out at 138-178 degrees).
+    """
+
+    def test_front_face_corners_are_a_sane_quad_inside_the_frame(self):
+        scene = _dump_scene()          # existing helper: runs --dump-scene
+        corners = scene.get("front_face_px")
+        self.assertIsNotNone(corners, "driver did not report front_face_px")
+        self.assertEqual(len(corners), 4)
+        res_x, res_y = scene["resolution"]
+        for x, y in corners:
+            self.assertTrue(0 <= x <= res_x, f"corner x={x} outside 0..{res_x}")
+            self.assertTrue(0 <= y <= res_y, f"corner y={y} outside 0..{res_y}")
+
+    def test_corners_are_ordered_tl_tr_br_bl(self):
+        tl, tr, br, bl = _dump_scene()["front_face_px"]
+        self.assertLess(tl[0], tr[0], "top-left is not left of top-right")
+        self.assertLess(bl[0], br[0], "bottom-left is not left of bottom-right")
+        self.assertLess(tl[1], bl[1], "top-left is not above bottom-left")
+        self.assertLess(tr[1], br[1], "top-right is not above bottom-right")
+
+    def test_the_quad_is_skewed_because_the_carton_is_rotated(self):
+        # If this ever reads as a rectangle, either the rotation was removed or
+        # the corners are being faked from nominal dimensions.
+        tl, tr, br, bl = _dump_scene()["front_face_px"]
+        left_height = bl[1] - tl[1]
+        right_height = br[1] - tr[1]
+        self.assertGreater(
+            abs(left_height - right_height), 1.0,
+            "the front face projects as a rectangle; the carton should be "
+            "rotated 27.5-35 degrees about Z")
+
+    def test_side_panel_corners_are_reported_too(self):
+        self.assertIsNotNone(_dump_scene().get("side_panel_px"))
 
 
 if __name__ == "__main__":
