@@ -177,5 +177,72 @@ class TestPunctuationTolerantMultiTokenFields(unittest.TestCase):
             "Nandrolone Decanoate Generic 50mg 10 Vials"))
 
 
+class TestTokenMatchAlignsToWordBoundaries(unittest.TestCase):
+    """A letter-bearing token may only match text that OCR split ONE word
+    across a space -- never text formed by bridging into the middle of a
+    genuinely different, unrelated word.
+
+    Round 1 of the punctuation fix flattened the WHOLE OCR text to one
+    contiguous letters/digits blob (`"foo x yzoo"` -> `"fooxyzoo"`) and did a
+    bare substring search. That has no boundary anchor at all, so it can
+    "find" a token the text never actually contains: `"Xyz"` is not in
+    `"foo x yzoo"`, but it IS a substring of the flattened
+    `"fooxyzoo"`, spanning the tail of the unrelated word "x" and the head
+    of the unrelated word "yzoo". Code review reproduced this directly and
+    swept all 391 manifests x 4 fields for cases where it flips a real
+    verdict -- none found today, but the class of bug is exactly what a
+    verification barrier exists to keep out, latent or not.
+
+    The fix requires a match to BEGIN where some original word begins and
+    END where some (possibly later) word ends, with nothing but other
+    complete words in between -- true for "Cream" split into "Cre am" by an
+    OCR-inserted space, false for "Xyz" bridging "x" and "yzoo".
+    """
+
+    def test_intra_word_split_by_a_stray_space_still_matches(self):
+        # The exact shape this whole branch exists to tolerate: OCR drops
+        # one space into the middle of a single printed word.
+        self.assertTrue(render_qa._field_present("Cream", "Cre am"))
+        self.assertTrue(render_qa._field_present("Generic", "Gene ric"))
+        self.assertTrue(render_qa._field_present("Retin-A", "Ret in A"))
+
+    def test_bridging_into_an_unrelated_word_does_not_match(self):
+        # The counter-example from code review: "Xyz" is not written
+        # anywhere in "foo x yzoo" -- the flattened blob "fooxyzoo" merely
+        # happens to contain the substring "xyz" by coincidence of two
+        # unrelated words landing next to each other.
+        self.assertFalse(render_qa._field_present("Xyz", "foo x yzoo"))
+
+    def test_multi_token_field_still_recovers_a_genuine_intra_word_split(self):
+        # Property 1 from the review: the 98 multi-token brands must not
+        # regress. 111-min's brand_name_display, respaced the way OCR
+        # actually respaces it, must still be a full match.
+        self.assertTrue(render_qa._field_present(
+            "Retin-A Cream 0.025%", "Retin - A Cream 0.025 %"))
+
+    def test_multi_token_field_does_not_match_via_a_bridged_token(self):
+        # Same shape as the Xyz counter-example, but inside a multi-token
+        # field: "Cream" is genuinely there, but "Retin-A" is not -- it must
+        # not be manufactured by bridging into an unrelated word.
+        self.assertFalse(render_qa._field_present(
+            "Retin-A Cream 0.025%", "foo x yzoo Cream"))
+
+    def test_slash_joined_field_still_matches_when_text_has_no_space_around_it(self):
+        # Regression pinned by this fix's own 391-SKU sweep. 111-min's
+        # dosage_display is "0.025g/0.025%": the outer tokenizer splits it
+        # on '/' into two required tokens ("0.025g", "0.025%"), but if the
+        # word-boundary detector for the OCR TEXT only split on whitespace,
+        # the verbatim "0.025g/0.025%" (no space around the '/') stayed ONE
+        # undivided text word with no internal boundary, so the first token
+        # failed its end-boundary check even though it is right there,
+        # unmangled. `_TOKEN_SPLIT_RE` must be the SAME pattern on both
+        # sides to avoid this.
+        self.assertTrue(render_qa._field_present(
+            "0.025g/0.025%", "Retin-A Cream 0.025g/0.025% Tretinoin 30 Tubes"))
+        # Same shape for a word field: 239-min's active_ingredient_display.
+        self.assertTrue(render_qa._field_present(
+            "Caffeine/Ergotamine", "Cafergot Caffeine/Ergotamine 1mg 30 Pills"))
+
+
 if __name__ == '__main__':
     unittest.main()

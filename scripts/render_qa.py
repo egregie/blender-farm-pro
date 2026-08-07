@@ -218,20 +218,88 @@ def _normalize_alnum(s: str) -> str:
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
-def _token_present(token: str, text_nospace: str, text_alnum: str) -> bool:
+# The word/token split used on BOTH sides of a comparison: to cut a manifest
+# field into its significant tokens (below, in `_field_present`) and to cut
+# OCR text into the "words" `_alnum_word_index` anchors match boundaries to.
+# It must be the same pattern on both sides -- a separator the expected-field
+# splitter treats as significant ("/", ",", ":", whitespace) but the text-side
+# boundary detector does not is exactly how a legitimate match gets rejected:
+# this catalogue's own "0.025g/0.025%" and "Caffeine/Ergotamine" values, with
+# no space around the "/", round-tripped through mismatched splitters as a
+# false regression during this fix's own 391-SKU sweep (see task-7-report.md)
+# before the two were unified onto this one pattern. '.', '%' and '-' are kept
+# INSIDE a token on purpose, since those are exactly the marks OCR re-spaces
+# ("Retin - A", "0.025 %") that this whole branch exists to tolerate.
+_TOKEN_SPLIT_RE = r"[^\w.%-]+"
+
+
+def _alnum_word_index(text: str):
+    """Fold *text* to bare letters/digits the same way `_normalize_alnum`
+    folds a token, but keep where each original word (split on
+    `_TOKEN_SPLIT_RE`, the same pattern that cuts a manifest field into
+    tokens) begins and ends in the folded string.
+
+    Returns (flat, starts, ends): `flat` is the lowercased, punctuation-
+    stripped concatenation of every word in *text*, words joined with no
+    separator; `starts`/`ends` are the sets of offsets into `flat` where an
+    original word begins / one-past-ends.
+
+    This exists because a bare `needle in flattened_text` substring check --
+    the first version of this fix -- can manufacture a match the text does
+    not contain: flattening "foo x yzoo" to "fooxyzoo" and searching for
+    "xyz" finds it, spanning the tail of one unrelated word ("x") and the
+    head of the next ("yzoo"), even though neither word has anything to do
+    with "xyz". A match is only real if it starts where some word starts and
+    ends where some word (the same one, or a later one with nothing but
+    other complete words in between) ends -- which is exactly the case for
+    an OCR reading that broke ONE word into pieces at a space
+    ("Cream" -> "Cre am": starts at "Cre"'s start, ends at "am"'s end) and
+    exactly NOT the case for two genuinely different, unrelated words that
+    happen to spell the needle across their boundary.
+    """
+    flat_parts = []
+    starts, ends = set(), set()
+    pos = 0
+    for word in re.split(_TOKEN_SPLIT_RE, text):
+        piece = re.sub(r"[^a-z0-9]", "", word.lower())
+        if not piece:
+            continue
+        starts.add(pos)
+        pos += len(piece)
+        ends.add(pos)
+        flat_parts.append(piece)
+    return "".join(flat_parts), starts, ends
+
+
+def _token_present(token: str, text_nospace: str, text_index) -> bool:
     """Is *token* recognisable in the OCR text?
 
-    A token containing a letter is matched by folding both sides down to
-    bare letters/digits (see `_normalize_alnum`) -- this is the branch that
-    absorbs punctuation noise. A token that is nothing but digits and
-    punctuation ("0.025%") is matched on a digit boundary against text with
-    only whitespace collapsed, which tolerates "0.025 %" while still
-    refusing to let '5' match inside '500'; folding it down to bare digits
-    the way a letter token is folded would destroy that guarantee ('5'
-    would then match inside '500' as freely as inside '5mg').
+    A token containing a letter is matched by folding it down to bare
+    letters/digits (see `_normalize_alnum`) and searching for that needle in
+    *text_index*'s folded text -- but only accepting an occurrence that
+    starts and ends on a real word boundary (see `_alnum_word_index`), so
+    the match cannot bridge into the middle of an unrelated adjacent word.
+
+    A token that is nothing but digits and punctuation ("0.025%") is matched
+    on a digit boundary against text with only whitespace collapsed, which
+    tolerates "0.025 %" while still refusing to let '5' match inside '500';
+    folding it down to bare digits the way a letter token is folded would
+    destroy that guarantee ('5' would then match inside '500' as freely as
+    inside '5mg').
     """
     if re.search(r"[a-zA-Z]", token):
-        return _normalize_alnum(token) in text_alnum
+        flat, starts, ends = text_index
+        needle = _normalize_alnum(token)
+        if not needle:
+            return False
+        pos = 0
+        while True:
+            i = flat.find(needle, pos)
+            if i == -1:
+                return False
+            if i in starts and i + len(needle) in ends:
+                return True
+            pos = i + 1
     return _digit_bounded_search(token, text_nospace)
 
 
@@ -269,7 +337,24 @@ def _field_present(expected: str, text: str) -> bool:
     forgivingly each individual token is compared, since the false failures
     measured against this catalogue (`Retin-A Cream 0.025%` read back
     "Retin - A Cream 0.025 %", "0.03%" read back "0.03 %") are punctuation
-    respacing, not missing words. `_token_present` fixes that directly.
+    respacing, not missing words. `_token_present` fixes that directly, but
+    doing it by flattening the whole OCR text to one contiguous
+    letters-and-digits blob and substring-searching it -- this function's
+    first cut -- is itself unsound: it can find a token that spans the tail
+    of one word and the head of an unrelated next word ("Xyz" "found" inside
+    "foo x yzoo", which contains no "xyz" at all). `_token_present` therefore
+    requires a letter-bearing token's match to BEGIN where some original word
+    (split on `_TOKEN_SPLIT_RE`, the SAME pattern used to cut *expected* into
+    tokens below -- using a looser split for the text side than for the
+    expected side is its own bug, caught by this fix's own 391-SKU sweep: a
+    field like "0.025g/0.025%" or "Caffeine/Ergotamine" splits into two
+    tokens on '/' here, and if the text side only split on whitespace, the
+    verbatim "0.025g/0.025%" in the OCR text stayed ONE unsplit word with no
+    boundary at the '/', so the legitimately-present first half failed the
+    end-boundary check) begins and END where some (possibly later) word
+    ends, with nothing but other complete words in between -- true for an
+    OCR split of one word into fragments ("Cream" over "Cre am"), false for
+    a match that bridges into the middle of a genuinely different word.
     """
     expected = (expected or "").strip()
     if not expected:
@@ -278,11 +363,11 @@ def _field_present(expected: str, text: str) -> bool:
     num = extract_numeric(expected)
     if num and num == expected.split()[0].rstrip("mgMG%"):
         return _digit_bounded_search(num, text_nospace)
-    tokens = [t for t in re.split(r"[^\w.%-]+", expected) if len(t) >= 3]
-    text_alnum = _normalize_alnum(text)
+    tokens = [t for t in re.split(_TOKEN_SPLIT_RE, expected) if len(t) >= 3]
+    text_index = _alnum_word_index(text)
     if not tokens:
-        return _token_present(expected, text_nospace, text_alnum)
-    return all(_token_present(t, text_nospace, text_alnum) for t in tokens)
+        return _token_present(expected, text_nospace, text_index)
+    return all(_token_present(t, text_nospace, text_index) for t in tokens)
 
 
 def check_image(image_path: Path, manifest: dict, view: dict | None = None) -> dict:
