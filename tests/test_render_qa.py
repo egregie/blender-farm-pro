@@ -1,9 +1,12 @@
 import json
+import os
 import unittest
 from unittest.mock import patch
 from pathlib import Path
 import scripts.render_qa as render_qa
 from scripts.render_qa import check_image
+from src.utils import PROJECT_ROOT
+from scripts import render_qa
 
 class TestManifestBackedChecks(unittest.TestCase):
     """QA must check the contract the renderer actually consumed.
@@ -242,6 +245,94 @@ class TestTokenMatchAlignsToWordBoundaries(unittest.TestCase):
         # Same shape for a word field: 239-min's active_ingredient_display.
         self.assertTrue(render_qa._field_present(
             "Caffeine/Ergotamine", "Cafergot Caffeine/Ergotamine 1mg 30 Pills"))
+
+
+FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "ocr"
+_HAVE_TESSERACT = render_qa._TESSERACT_AVAILABLE
+
+
+@unittest.skipUnless(_HAVE_TESSERACT,
+                     f"Tesseract unavailable: {render_qa._TESSERACT_ERROR}")
+@unittest.skipUnless((FIXTURE_DIR / "1-min.png").exists(),
+                     f"OCR fixture missing from {FIXTURE_DIR}")
+class TestOCRBarrier(unittest.TestCase):
+    """Proves the label text is VISIBLE, which --dump-scene cannot.
+
+    A dump proves a text object holds the right string byte for byte. It cannot
+    see a correct string that fell outside the camera, ended up behind another
+    face, or rendered white on white. This can.
+
+    A committed fixture rather than a live render, because renders are not
+    tracked by git and an opt-in check is not a barrier. The slow gate below
+    re-renders the same SKU so the fixture cannot silently go stale.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.png = FIXTURE_DIR / "1-min.png"
+        cls.manifest = json.loads(
+            (FIXTURE_DIR / "1-min.manifest.json").read_text(encoding="utf-8"))
+        cls.view = json.loads(
+            (FIXTURE_DIR / "1-min.view.json").read_text(encoding="utf-8"))
+
+    def test_the_brand_name_is_readable_off_the_render(self):
+        res = render_qa.check_image(self.png, self.manifest, self.view)
+        self.assertTrue(res["deskewed"], "the fixture's view sidecar was not used")
+        self.assertTrue(
+            res["fields"]["brand_name_display"],
+            f"brand name not recognised; flags={res['flags']}")
+
+    def test_at_least_three_of_four_label_fields_are_readable(self):
+        res = render_qa.check_image(self.png, self.manifest, self.view)
+        # A threshold, not an exact string: Tesseract is a third-party
+        # recogniser and an upgrade may change its output. 5.4.0.20240606 is the
+        # version this was calibrated against.
+        self.assertGreaterEqual(
+            res["found"], 3,
+            f"only {res['found']}/{res['expected']} fields read; "
+            f"flags={res['flags']}")
+
+    def test_deskewing_is_what_makes_it_readable(self):
+        """Without this, someone could delete the deskew call and the two tests
+        above might still pass by luck on one lucky fixture."""
+        with_deskew = render_qa.check_image(self.png, self.manifest, self.view)
+        without = render_qa.check_image(self.png, self.manifest, None)
+        self.assertFalse(without["deskewed"])
+        self.assertGreater(
+            with_deskew["found"], without["found"],
+            "deskewing did not improve recognition; either the corners are "
+            "wrong or the deskew step is not being applied")
+
+
+@unittest.skipUnless(os.environ.get("PHARMAGEN_SLOW_TESTS"),
+                     "set PHARMAGEN_SLOW_TESTS=1 to re-render the fixture SKU")
+@unittest.skipUnless(_HAVE_TESSERACT,
+                     f"Tesseract unavailable: {render_qa._TESSERACT_ERROR}")
+class TestOCRAgainstAFreshRender(unittest.TestCase):
+    """The same assertions against output rendered now, so the committed
+    fixture cannot drift away from what the renderer actually produces."""
+
+    def test_a_fresh_render_of_the_fixture_sku_still_reads(self):
+        import subprocess
+        import sys
+        out_dir = Path(render_qa.DEFAULT_PROCESSED_DIR)
+        png = out_dir / "1-min.png"
+        for stale in (png, png.with_suffix(".view.json")):
+            if stale.exists():
+                stale.unlink()
+        proc = subprocess.run(
+            [sys.executable, "-m", "src.blender_renderer", "--limit", "1",
+             "--from", "1-min"],
+            cwd=str(PROJECT_ROOT), capture_output=True, text=True, timeout=600)
+        self.assertEqual(proc.returncode, 0, proc.stderr[-2000:])
+        self.assertTrue(png.exists(), "the render produced no PNG")
+
+        manifest = json.loads(
+            (Path(render_qa.DEFAULT_MANIFESTS_DIR) / "1-min.json")
+            .read_text(encoding="utf-8"))
+        view = render_qa.load_view(png)
+        res = render_qa.check_image(png, manifest, view)
+        self.assertGreaterEqual(res["found"], 3, f"flags={res['flags']}")
 
 
 if __name__ == '__main__':
