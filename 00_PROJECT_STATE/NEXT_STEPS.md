@@ -66,6 +66,29 @@ independent and can be done at any time, including in parallel.
    wrapping to a second line, abbreviating, or accepting a smaller floor — which
    is an art-direction call, not just a constant.
 
+9. **Harden three accepted edges in the verification barrier.** All three were
+   raised during the barrier's own reviews and deliberately accepted, because no
+   case in the current catalogue reaches any of them. They are recorded here
+   rather than lost: each is latent, not theoretical, and the conditions that
+   would wake them are ordinary future changes.
+
+   - **`_token_present` in `scripts/render_qa.py` ignores tokens shorter than
+     three characters.** A unit count written `30 EA` therefore falls back to
+     matching the digit alone, which is the exact defect the numeric branch was
+     hardened against — dosage and unit count satisfying each other. Zero SKU
+     use a one- or two-letter unit today; adding one re-opens it silently.
+   - **`_face_corners_px` in `05_assets/blender/render_driver.py` documents
+     itself as taking `axis` 0/1/2, but `_order_quad` now requires a *vertical*
+     face.** Passing `axis=2` gives all four corners the same local Z, the split
+     degenerates, and the quad comes back scrambled. Both call sites pass 1 and
+     0, so nothing hits it — but the docstring invites the call that would.
+     Either narrow the docstring to the two supported axes or make the function
+     reject a horizontal one.
+   - **The shared-edge assertion in `tests/test_render_driver.py` constrains only
+     the side panel's TR/BR corners.** Those are the two the side panel shares
+     with the front face, so TL/BL have nothing to anchor against and are
+     currently unchecked. A defect that moved only those two corners would pass.
+
 ## Deliberately not doing
 
 - **`T2`** — zero SKU in this catalogue.
