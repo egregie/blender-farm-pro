@@ -65,6 +65,13 @@ class TestMetadataMatchesDisk(unittest.TestCase):
             meta = d / "metadata.json"
             if not meta.exists():
                 continue
+            # The photographs are gitignored while the metadata is tracked, so a
+            # clean clone has the folder and its contract but none of its
+            # pictures. A folder with no images at all is that state, not a
+            # false manifest. A folder with SOME images and a listed one absent
+            # is the defect this guards.
+            if not _images_in(d):
+                continue
             with self.subTest(template=d.name):
                 listed = json.loads(meta.read_text(encoding="utf-8")).get(
                     "reference_images", [])

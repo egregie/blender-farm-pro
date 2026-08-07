@@ -1,0 +1,74 @@
+{
+  "sku_id": "32_T1_Viagra",
+  "artifact_type": "reverse_engineering_passport",
+  "schema_version": "2.0",
+  "product_name": "Viagra",
+  "active_ingredient": "Sildenafil",
+  "template_id": "T1_SMALL",
+  "dimensions": "110x50x18mm",
+  "camera_reconstruction": {
+    "pitch_deg": 14.0,
+    "yaw_deg": -30.0,
+    "focal_length_mm": 85.0
+  },
+  "bounding_boxes": {
+    "logo": [
+      0.06,
+      0.06,
+      0.2,
+      0.1
+    ],
+    "brand_title": [
+      0.06,
+      0.22,
+      0.55,
+      0.22
+    ],
+    "active_ingredient": [
+      0.06,
+      0.48,
+      0.4,
+      0.08
+    ],
+    "dosage": [
+      0.06,
+      0.76,
+      0.22,
+      0.12
+    ],
+    "unit_count": [
+      0.6,
+      0.76,
+      0.34,
+      0.08
+    ],
+    "accent_stripe": [
+      0.0,
+      0.92,
+      1.0,
+      0.08
+    ]
+  },
+  "palette": {
+    "primary": "#002B49",
+    "accent": "#004B87",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "VIAGRA",
+    "dosage_display": "100 mg",
+    "unit_count_display": "4 Film-coated Tablets"
+  },
+  "reference_images": [
+    "raw_viagra_back.png",
+    "raw_viagra_front.png",
+    "raw_viagra_pills.png"
+  ],
+  "quality_gate": {
+    "reverse_engineering_passport_present": true,
+    "bounding_boxes_complete": true,
+    "primitives_decomposed": true,
+    "layer_stack_defined": true
+  },
+  "status": "complete"
+}

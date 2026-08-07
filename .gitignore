@@ -37,3 +37,25 @@ verification_failures.log
 # tracked-directory/untracked-contents split as image_postprocessor_failed.
 02_processing/image_postprocessor_output/*
 !02_processing/image_postprocessor_output/.gitkeep
+
+# SAAT reference photography. The METADATA is tracked -- metadata.json, the
+# reverse-engineering passports, the collection log and the benchmark SSOT --
+# because those are what gets edited, reviewed in a diff, and consumed as a
+# contract by the Blender driver, the SVG generator and the UV builder. The
+# PHOTOGRAPHS are not: 29 templates at up to 7 images each is roughly 200 files
+# and 100+ MB, which would make every clone pay for material that is acquired
+# rather than authored.
+#
+# Consequence worth knowing before you debug it: a clean clone has the template
+# folders and their contracts but none of their pictures.
+# tests/test_reference_templates.py treats "folder holds no images at all" as
+# that state and skips, while a folder holding SOME images with a listed one
+# missing still fails -- the manifest lying is a different thing from the data
+# being elsewhere.
+Reference Templates/**/*.png
+Reference Templates/**/*.webp
+Reference Templates/**/*.jpg
+Reference Templates/**/*.jpeg
+03_knowledge_graph/reference_benchmarks_ssot/*.png
+03_knowledge_graph/reference_benchmarks_ssot/*.webp
+03_knowledge_graph/reference_benchmarks_ssot/*.jpg
