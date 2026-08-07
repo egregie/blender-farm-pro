@@ -24,14 +24,16 @@ Pinned loosely in [`requirements.txt`](../requirements.txt).
 |---|---|---|---|
 | Google Chrome | Stage 2 browser | current stable channel | Must match a chromedriver (auto via webdriver-manager). |
 | Gemini UI (`gemini.google.com`) | Image generation backend | as-is (no version) | **Architectural dependency** — UI changes can break Stage 2 (see Disaster Recovery DR-3). |
+| Blender | Stage 2 — the `blender` engine, this fork's **default** (`render.engine` in `config.yaml`) | 5.1.2, `C:\Program Files\Blender Foundation\Blender 5.1\blender.exe` | External executable, never imported — `import bpy` appears only inside `05_assets/blender/render_driver.py`, which runs inside Blender's own bundled interpreter. Not on PATH; `config.yaml`'s `blender.executable` gives the absolute path. `blender.engine_type` must be a real identifier (`CYCLES`, not `EEVEE`) — see CLAUDE.md's "Fork-specific gotchas". |
 | Windows | OS | 10/11 | Profile/Downloads paths in `config.yaml` are Windows-shaped. |
 | Authenticated Google/Gemini session | Real credential | n/a | Lives in the Chrome profile, **not** an API key. |
 
 ## Optional
 
-| Dependency | Role | Status |
-|---|---|---|
-| pytesseract + Tesseract OCR | `scripts/render_qa.py` (OCR QA diagnostic) | **Not installed**; install only if running QA. |
+| Dependency | Tested version | Location | Notes |
+|---|---|---|---|
+| pytesseract | 0.3.13 | Python package | Installed but commented out in `requirements.txt` — not needed by the core pipeline. Install by hand (`pip install pytesseract`) to run `scripts/render_qa.py` and its test coverage in `tests/test_render_qa.py`. |
+| Tesseract OCR | 5.4.0.20240606 | System binary, `C:\Program Files\Tesseract-OCR\tesseract.exe` | Post-render QA (`scripts/render_qa.py`). NOT on PATH; `render_qa` probes the absolute path. Install: `winget install --id UB-Mannheim.TesseractOCR`. Absent → the OCR tests skip. |
 
 ## Present but NOT used by the production pipeline
 

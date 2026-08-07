@@ -3,26 +3,30 @@
 > Update this file after every major step. See [NEXT_STEPS.md](NEXT_STEPS.md)
 > for what's queued and [CHANGE_LOG.md](CHANGE_LOG.md) for the running history.
 
-**Last updated:** 2026-08-02 · **Status:** The Blender engine produces recognisable
+**Last updated:** 2026-08-07 · **Status:** The Blender engine produces recognisable
 pharmaceutical packshots — geometry, branding and printed text all driven by real
-per-SKU data. Not yet run across the full catalogue, and there is still no
-post-render check of any kind.
+per-SKU data. Not yet run across the full catalogue. A post-render verification
+barrier now exists (OCR + pixel + scene checks) but it runs on one committed
+fixture SKU plus whatever the opt-in slow gate re-renders — not a catalogue-wide
+guarantee.
 
 ## Where the code lives
 
 | | |
 |---|---|
 | Remote | `github.com/egregie/blender-farm-pro` (**private**) |
-| Working branch | `dev` — in sync with `origin/dev` at `badc8b7` |
+| Working branch | `correct-brand-books-for-target-template` — at `aebc0a3`, 1 commit ahead of local `dev` (`78e494d`); not pushed |
 | Default branch | `master` at `ad72dea` — the fork baseline plus the skills cheatsheet |
-| Commits since fork | 23 |
-| Tests | **146 pass, 1 skipped** (`python -m unittest discover -s tests`, ~90 s) |
+| Commits since fork | 45 |
+| Tests | **191 pass, 2 skipped** (`python -m unittest discover -s tests`, ~90 s) |
 
-The skipped test is the pixel-level calibration gate; it renders real packshots and
-is opt-in via `PHARMAGEN_SLOW_TESTS=1`.
+The two skipped tests are both opt-in via `PHARMAGEN_SLOW_TESTS=1`: the pixel-level
+calibration gate (renders real packshots) and the fresh-render OCR gate (re-renders
+the fixture SKU to confirm the committed fixture hasn't drifted from what the
+renderer actually produces).
 
 `master` deliberately does not carry the Blender work yet. Everything below is on
-`dev`.
+this branch.
 
 ## What actually works today
 
@@ -103,11 +107,31 @@ they lead in opposite directions.
 
 ## Known gaps
 
-- **No post-render verification anywhere in the project**, for either engine. The
-  `ROADMAP_ONLY` Pydantic models in `schemas/` (`ObservedZone`, `ObservedPalette`,
-  `UVBox`) remain unused scaffolding. The only output check is `main.py` forcing a
-  failure when Stage 2 exits clean having written zero PNGs — a file count, not an
-  inspection.
+- **Post-render verification now exists, but only proves itself on one SKU.**
+  `scripts/render_qa.py` runs OCR (Tesseract) against the render manifest — the
+  contract the renderer actually consumed — reading `brand_name_display`,
+  `active_ingredient_display`, `dosage_display` and `unit_count_display` off a
+  perspective-flattened front face (`src/deskew.py`, using the `{stem}.view.json`
+  corners `render_driver.py` emits). Raw OCR on the carton's native 27.5-35°
+  rotation is unreliable: measured on the fixture SKU, the deskewed read recovers
+  4 of 4 label fields where the raw read recovers 1 of 4, with the brand coming
+  back as `Germetine`. This is proven as a barrier, not just a diagnostic —
+  `tests/test_render_qa.py::TestOCRBarrier` runs against a committed fixture render
+  and fails if the deskew step is removed or the fields stop being readable, and
+  `PHARMAGEN_SLOW_TESTS=1` re-renders that same SKU to catch fixture drift.
+  Alongside it, `scripts/catalogue_sweep.py` and `src/measure.py` already do pixel
+  checks (silhouette extent, front-face brightness) and a scene-level check (every
+  label row's bounds read via `--dump-scene`, against the face edges and the row
+  below). **The gap that remains:** none of this checks the brand badge, drawn in
+  `palette.primary` — nothing inspects colour, only text presence and layout. And
+  the barrier itself is narrow: it runs on the one fixture SKU (`1-min`) committed
+  under `tests/fixtures/ocr/`, plus whatever `scripts/catalogue_sweep.py --group
+  top30` re-renders when run by hand — it is not a catalogue-wide guarantee, and
+  the `ROADMAP_ONLY` Pydantic models in `schemas/` (`ObservedZone`,
+  `ObservedPalette`, `UVBox`) remain unused scaffolding beyond it. `main.py`
+  separately forces a failure when Stage 2 exits clean having written zero PNGs —
+  a file count, not an inspection, and unrelated to the OCR/pixel/scene checks
+  above.
 - **The full catalogue has never been rendered.** 18 PNG exist out of 391; the nine
   above are the only ones produced by current code. At roughly 67 s per SKU that is a
   ~7 h pass, and no such pass has been run.
@@ -117,17 +141,14 @@ they lead in opposite directions.
 - **One Blender process per SKU.** Roughly 20 s of every render is fixed startup
   cost, about 2 h of pure overhead across the catalogue. A persistent instance
   processing a batch was proposed and is still not built.
-- **`08_ops/` is stale.** Six of its seven documents do not mention Blender at all;
-  `ACCEPTANCE_TEST.md` still calls `src.rpa_orchestrator` directly, bypassing the
-  facade, and `DEPENDENCY_INVENTORY.md` has no row for the Blender executable even
-  though this fork defaults to that engine.
+- **`08_ops/` is mostly stale.** Six of its seven documents do not mention Blender
+  at all, and `ACCEPTANCE_TEST.md` still calls `src.rpa_orchestrator` directly,
+  bypassing the facade. `DEPENDENCY_INVENTORY.md` now has rows for the Blender
+  executable and for Tesseract OCR (added alongside this verification barrier).
 - **`06_docs/experiments/BLENDER_RENDERER_ROADMAP.md` is stale.** It still reads
   "Phase 0 complete, Phase 1 foundation in place", which has been untrue for weeks.
 - **No ADR for the Blender decision.** `00_governance/DECISIONS/` tops out at
   ADR-006.
-- **`numpy` is undeclared.** `tests/test_blender_carton.py` imports it for pixel
-  analysis but it is absent from `requirements.txt`, so a clean environment installs
-  successfully and then fails that test.
 - **Cross-machine determinism is unverified.** Renders are pixel-identical on repeat
   on one machine; GPU-versus-CPU Cycles reproducibility has never been tested.
 

@@ -253,6 +253,16 @@ ADR/audit/release docs, `docs/` is the full safety-net copy of the source projec
 The Blender roadmap exists only in `06_docs/experiments/`, despite a stale cross-reference in
 `NEXT_STEPS.md` claiming otherwise.
 
+**OCR needs the face flattened first.** The carton is rotated 27.5-35 degrees
+about Z, and Tesseract reads a skewed face very badly — measured, "Atomoxetine
+Generic" comes back as "Germetine" and one render returns an empty string, in
+every page-segmentation mode. The same strings drawn flat in the same vendored
+font read 4 of 4. `render_driver.py` therefore emits `{stem}.view.json` with the
+printed faces' corners in image pixels, and `src/deskew.py` flattens the front
+face before `scripts/render_qa.py` reads it. Do not recover those corners from
+the image: a colour mask keyed on `palette.accent` cannot separate the accent
+stripe from the brand badge.
+
 ## Reference-matching constraints
 
 Blender output is judged against the curated reference renders in `01_input_raster/reference/`,

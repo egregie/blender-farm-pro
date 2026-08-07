@@ -4,7 +4,7 @@
 > items to [CHANGE_LOG.md](CHANGE_LOG.md) as they're completed, and update
 > [CURRENT_STATE.md](CURRENT_STATE.md).
 
-**Ordering rule:** item 1 blocks items 2 and 3. Everything under Housekeeping is
+**Ordering rule:** item 1 blocks item 2. Everything under Housekeeping is
 independent and can be done at any time, including in parallel.
 
 ## Blocking decision
@@ -29,15 +29,6 @@ independent and can be done at any time, including in parallel.
    cannot show — the existing correction passes in the driver all exist because
    earlier sweeps found real breakage.
 
-3. **Add post-render verification.** There is none today, for either engine. Take
-   the rendered PNG plus its manifest and check that the label strings are actually
-   present (OCR), that the dominant colours match `palette`, and that the image is
-   not blank. The unused `ObservedZone` / `ObservedPalette` / `UVBox` models in
-   `schemas/` were scaffolded for exactly this. Treat mismatches as a confidence
-   score with warnings, mirroring `agent_2_verifier`, rather than a hard failure —
-   OCR misreads small stylised type, which is the same failure class that produced
-   the reference set's "Datels".
-
 ## Throughput, when it starts to hurt
 
 4. **Keep one Blender process alive for a batch.** About 20 s of each render is
@@ -54,9 +45,8 @@ independent and can be done at any time, including in parallel.
    layout on 2026-08-02, so the runbooks no longer send an operator to
    directories that do not exist — but they still describe a Gemini-only
    pipeline. `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing
-   the facade and contradicting the architecture, and `DEPENDENCY_INVENTORY.md`
-   has no row for the Blender executable despite it being this fork's default
-   engine.
+   the facade and contradicting the architecture. (`DEPENDENCY_INVENTORY.md` now
+   has rows for the Blender executable and Tesseract OCR — that part is done.)
 
 7. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
    "Phase 0 complete, Phase 1 foundation in place" and describes Phases 2–4 as not
