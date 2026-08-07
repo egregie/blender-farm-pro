@@ -105,5 +105,77 @@ class TestFieldPresent(unittest.TestCase):
         self.assertFalse(render_qa._field_present(None, "anything"))
 
 
+class TestPunctuationTolerantMultiTokenFields(unittest.TestCase):
+    """`_field_present` must survive OCR re-spacing punctuation, not just
+    demand every token byte-for-byte.
+
+    Values are real `brand_name_display` strings pulled from
+    04_passports/render_manifests/ (111-min: Retin-A Cream 0.025%; 351-min
+    carries a hyphenated "L-VC" token; 409/411/412-min carry the
+    "<ingredient words> Generic" collision shape at three tokens instead of
+    two). The 111-min OCR text quoted here is the ACTUAL raw (un-deskewed)
+    pytesseract output measured on this branch -- not invented -- confirming
+    that even the corrected matcher does not manufacture a match where the
+    OCR reading has genuinely lost a letter, only where it has mangled
+    punctuation/whitespace around letters that are still there.
+    """
+
+    def test_hyphen_and_percent_respacing_still_matches(self):
+        # Every punctuation mark in the field ("-", ".", "%") independently
+        # re-spaced by OCR, exactly the shape reported against 04_passports/
+        # render_manifests/111-min.json's brand_name_display.
+        self.assertTrue(render_qa._field_present(
+            "Retin-A Cream 0.025%",
+            "Retin - A Cream 0.025 % Tretinoin 30 Tubes"))
+
+    def test_percent_respacing_alone_still_matches(self):
+        # 04_passports/render_manifests declares this exact string for
+        # several SKU (e.g. Vaniqa Cream 13.9%, Lumigan 0.03%).
+        self.assertTrue(render_qa._field_present(
+            "Vaniqa Cream 13.9%", "Vaniqa Cream 13.9 % Eflornithine"))
+
+    def test_hyphenated_token_survives_hyphen_dropped_to_a_space(self):
+        # 04_passports/render_manifests/351-min.json's brand_name_display
+        # ends in the hyphenated token "L-VC".
+        self.assertTrue(render_qa._field_present(
+            "Test Pack L-VC", "Test Pack L VC kit"))
+
+    def test_verbatim_punctuation_still_matches(self):
+        # The un-mangled case must keep working: normalisation must not
+        # require noise to be present, only tolerate it when it is.
+        self.assertTrue(render_qa._field_present(
+            "Retin-A Cream 0.025%", "Retin-A Cream 0.025% Tretinoin"))
+
+    def test_a_genuinely_lost_letter_is_still_a_miss(self):
+        # The actual raw (un-deskewed) OCR reading measured on this branch
+        # for 111-min: extract_text() on 02_processing/blender_test_renders/
+        # 111-min.png returns '...retin” cream...' -- the '-A' is not
+        # respaced, it is GONE, replaced by a stray quote glyph. Punctuation
+        # normalisation can recover formatting noise; it cannot invent a
+        # letter tesseract never read. This must stay a miss -- if it did
+        # not, the matcher would have drifted from "tolerant of formatting"
+        # to "tolerant of missing content," which is the too-lax failure
+        # mode this task also has to avoid.
+        self.assertFalse(render_qa._field_present(
+            "Retin-A Cream 0.025%", "8 retin” cream Moraes p"))
+
+    def test_three_token_generic_collision_still_requires_every_token(self):
+        # 04_passports/render_manifests/409-min.json, 411-min.json and
+        # 412-min.json each carry a THREE-token brand of the
+        # "<ingredient words> Generic" shape, e.g. brand_name_display
+        # "Nandrolone Decanoate Generic" against active_ingredient_display
+        # "Nandrolone Decanoate". Punctuation tolerance must not have been
+        # achieved by also relaxing which TOKENS are required: if "Generic"
+        # is missing, the brand is still not found, even though two of its
+        # three tokens (both shared with the separately-checked ingredient
+        # field) are right there in the text.
+        self.assertFalse(render_qa._field_present(
+            "Nandrolone Decanoate Generic",
+            "Nandrolone Decanoate 50mg 10 Vials"))
+        self.assertTrue(render_qa._field_present(
+            "Nandrolone Decanoate Generic",
+            "Nandrolone Decanoate Generic 50mg 10 Vials"))
+
+
 if __name__ == '__main__':
     unittest.main()

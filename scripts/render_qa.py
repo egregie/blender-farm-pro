@@ -178,46 +178,111 @@ def extract_numeric(s: str) -> str:
 
 # Which manifest fields are checked, and what OCR has to contain for a hit.
 # A display string may carry punctuation or a unit the recogniser mangles, so
-# the significant token is matched rather than the whole string.
+# each significant token is matched independently -- and tolerant of the
+# whitespace/hyphen/percent noise OCR routinely introduces around punctuation
+# -- rather than requiring the whole string verbatim.
 CHECKED_FIELDS = ("brand_name_display", "active_ingredient_display",
                   "dosage_display", "unit_count_display")
+
+
+def _digit_bounded_search(literal: str, text: str) -> bool:
+    """Is *literal* (digits, optionally with '.', '%') present in *text* on a
+    DIGIT boundary, not a \\b WORD boundary?
+
+    '(?<!\\d)40(?!\\d)', never '\\b40\\b'. Every dosage/unit value in this
+    catalogue glues its unit straight onto the number ("40mg", "0.025%"),
+    and '\\b' cannot separate a digit from a following letter: '0' and 'm'
+    are both word characters, so '\\b40\\b' finds no boundary inside "40mg"
+    and never matches it, even though "40mg" is right there on the page. A
+    digit boundary keeps the property a plain substring match would lose:
+    '5' must not match inside '500', nor '10' inside '100'.
+    """
+    return re.search(rf"(?<!\d){re.escape(literal)}(?!\d)", text) is not None
+
+
+def _normalize_alnum(s: str) -> str:
+    """Fold *s* down to bare letters and digits, lowercased -- no spaces, no
+    punctuation.
+
+    OCR re-spaces and drops punctuation constantly: this catalogue's own
+    renders came back "Retin-A" as both a stray-quote glyph in place of the
+    hyphen and, just as often, plain respacing ("Retin - A"); "0.025%" comes
+    back "0.025 %" as readily as intact. A hyphen or a decimal point is
+    exactly the kind of thin mark a scan misses or repositions. Folding both
+    the token and the OCR text down to their letters and digits, in order,
+    absorbs that formatting noise without weakening what the check is FOR:
+    the same letters/digits must still appear contiguously and in the same
+    order, so an OCR reading that drops a letter outright -- not just its
+    punctuation -- is correctly still a miss.
+    """
+    return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def _token_present(token: str, text_nospace: str, text_alnum: str) -> bool:
+    """Is *token* recognisable in the OCR text?
+
+    A token containing a letter is matched by folding both sides down to
+    bare letters/digits (see `_normalize_alnum`) -- this is the branch that
+    absorbs punctuation noise. A token that is nothing but digits and
+    punctuation ("0.025%") is matched on a digit boundary against text with
+    only whitespace collapsed, which tolerates "0.025 %" while still
+    refusing to let '5' match inside '500'; folding it down to bare digits
+    the way a letter token is folded would destroy that guarantee ('5'
+    would then match inside '500' as freely as inside '5mg').
+    """
+    if re.search(r"[a-zA-Z]", token):
+        return _normalize_alnum(token) in text_alnum
+    return _digit_bounded_search(token, text_nospace)
 
 
 def _field_present(expected: str, text: str) -> bool:
     """Is *expected* recognisable in *text*?
 
-    Numeric fields match on a DIGIT boundary, not a \\b WORD boundary --
-    '(?<!\\d)40(?!\\d)', never '\\b40\\b'. Every dosage/unit value in this
-    catalogue glues its unit straight onto the number ("40mg", "0.025%"),
-    and '\\b' cannot separate a digit from a following letter: '0' and 'm'
-    are both word characters, so '\\b40\\b' finds no boundary inside "40mg"
-    and never matches it, even though "40mg" is right there on the page.
-    A digit boundary keeps the property a plain substring match would lose:
-    '5' must not match inside '500', nor '10' inside '100'.
+    A field whose first word is a bare number, possibly with a unit glued on
+    ("40mg", "10 Pills"), is checked on that number alone, digit-bounded --
+    see `_digit_bounded_search`.
 
-    Word fields require EVERY significant token (length >= 3), not just the
-    longest one. Matching only the longest token is a false-positive trap
-    whenever two checked fields share a word -- e.g. brand_name_display
-    "Atomoxetine Generic" and active_ingredient_display "Atomoxetine": the
-    longest token of the brand field is "Atomoxetine" itself, so the brand
-    field would read as "found" purely because the separately-checked
-    ingredient field put "Atomoxetine" on the page, even if "Generic" was
-    never printed at all.
+    Otherwise EVERY significant token (length >= 3) must be found, not just
+    the longest one and not merely a majority. Both weaker rules were tried
+    and both broke on real catalogue data:
+
+    - "longest token wins" is a false-positive trap whenever two checked
+      fields share a word -- brand_name_display "Atomoxetine Generic" and
+      active_ingredient_display "Atomoxetine" (293 of 391 SKU carry a
+      one-word ingredient this pattern repeats for -- e.g. "Colchicine
+      Generic" / "Colchicine", "Modafinil Generic" / "Modafinil"): the
+      longest token of the brand field IS the ingredient's whole value, so
+      the brand field reads "found" purely because the ingredient field put
+      it on the page, even though "Generic" was never printed anywhere.
+    - "allow one missing token out of N>=3" looks safer but is not: three
+      SKU in this catalogue (409-min, 411-min, 412-min) carry a THREE-token
+      brand of the same "<ingredient words> Generic" shape --
+      "Nandrolone Decanoate Generic" against ingredient "Nandrolone
+      Decanoate", "Testosterone Cypionate Generic" against "Testosterone
+      Cypionate". Allowing one of three tokens to be missing lets "Generic"
+      be the dropped one and still calls the brand found, on exactly the
+      same borrowed-from-another-field basis as "longest token wins".
+      There is no token-count threshold that is safe for both a 2-token and
+      a 3-token instance of the same collision shape.
+
+    What actually needed relaxing was never the token COUNT -- it was how
+    forgivingly each individual token is compared, since the false failures
+    measured against this catalogue (`Retin-A Cream 0.025%` read back
+    "Retin - A Cream 0.025 %", "0.03%" read back "0.03 %") are punctuation
+    respacing, not missing words. `_token_present` fixes that directly.
     """
     expected = (expected or "").strip()
     if not expected:
         return False
+    text_nospace = re.sub(r"\s+", "", text)
     num = extract_numeric(expected)
     if num and num == expected.split()[0].rstrip("mgMG%"):
-        return re.search(rf"(?<!\d){re.escape(num)}(?!\d)", text) is not None
+        return _digit_bounded_search(num, text_nospace)
     tokens = [t for t in re.split(r"[^\w.%-]+", expected) if len(t) >= 3]
+    text_alnum = _normalize_alnum(text)
     if not tokens:
-        return expected.lower() in text.lower()
-    if all(t.lower() in text.lower() for t in tokens):
-        return True
-    if num:
-        return re.search(rf"(?<!\d){re.escape(num)}(?!\d)", text) is not None
-    return False
+        return _token_present(expected, text_nospace, text_alnum)
+    return all(_token_present(t, text_nospace, text_alnum) for t in tokens)
 
 
 def check_image(image_path: Path, manifest: dict, view: dict | None = None) -> dict:
