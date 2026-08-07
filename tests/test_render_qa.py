@@ -6,7 +6,6 @@ from pathlib import Path
 import scripts.render_qa as render_qa
 from scripts.render_qa import check_image
 from src.utils import PROJECT_ROOT
-from scripts import render_qa
 
 class TestManifestBackedChecks(unittest.TestCase):
     """QA must check the contract the renderer actually consumed.
@@ -62,6 +61,56 @@ class TestManifestBackedChecks(unittest.TestCase):
         self.assertEqual(res["status"], "UNAVAILABLE")
         self.assertIsNone(res["confidence"])
 
+    @patch("scripts.render_qa.extract_text")
+    def test_empty_label_content_does_not_score_ok(self, mock_extract):
+        # hits == result["expected"] is 0 == 0 for a manifest with nothing
+        # checkable -- "nothing to check" must not read as "everything
+        # checked out."
+        mock_extract.return_value = (True, "anything")
+        manifest = {"sku_id": "TEST-EMPTY", "label_content": {}}
+        res = check_image(Path("dummy.png"), manifest)
+        self.assertEqual(res["expected"], 0)
+        self.assertEqual(res["found"], 0)
+        self.assertNotEqual(res["status"], "OK")
+        self.assertTrue(
+            any("no checkable fields" in f for f in res["flags"]),
+            f"flags={res['flags']}")
+
+
+class TestSidecarAbsentVsNullCorners(unittest.TestCase):
+    """A missing `{stem}.view.json` and one that exists but carries
+    `"front_face_px": null` are different failure modes -- render_driver.py
+    emits the latter whenever `_face_corners_px()` cannot locate the front
+    face. Telling an operator to "re-render to produce the sidecar" when one
+    is already sitting there sends them looking in the wrong place.
+    """
+
+    MANIFEST = TestManifestBackedChecks.MANIFEST
+
+    @patch("scripts.render_qa.extract_text")
+    def test_no_sidecar_at_all_is_reported_as_missing(self, mock_extract):
+        mock_extract.return_value = (
+            True, "Atomoxetine Generic Atomoxetine 40mg 10 Pills")
+        res = check_image(Path("dummy.png"), self.MANIFEST, view=None)
+        self.assertFalse(res["deskewed"])
+        self.assertTrue(
+            any("no {stem}.view.json" in f for f in res["flags"]),
+            f"flags={res['flags']}")
+
+    @patch("scripts.render_qa.extract_text")
+    def test_sidecar_with_null_corners_is_reported_distinctly(self, mock_extract):
+        mock_extract.return_value = (
+            True, "Atomoxetine Generic Atomoxetine 40mg 10 Pills")
+        res = check_image(Path("dummy.png"), self.MANIFEST,
+                          view={"front_face_px": None})
+        self.assertFalse(res["deskewed"])
+        self.assertTrue(
+            any("front_face_px is null" in f for f in res["flags"]),
+            f"flags={res['flags']}")
+        self.assertFalse(
+            any("no {stem}.view.json" in f for f in res["flags"]),
+            "a sidecar that exists must not be reported as missing")
+
 
 class TestFieldPresent(unittest.TestCase):
     """Pins `_field_present` directly, independent of `check_image`.
@@ -102,6 +151,26 @@ class TestFieldPresent(unittest.TestCase):
             render_qa._field_present(
                 "Atomoxetine Generic",
                 "Atomoxetine Generic Atomoxetine 40mg 10 Pills"))
+
+    def test_numeric_field_does_not_satisfy_a_different_numeric_field(self):
+        # 04_passports/render_manifests/21-min.json: dosage_display "30mg",
+        # unit_count_display "30 Pills". Both reduce to the digits "30", and
+        # the numeric branch used to stop at the number and never check
+        # "Pills" -- so a render missing the whole unit-count row still
+        # scored unit_count_display as found, purely because the dosage
+        # printed "30mg" somewhere on the page. 11 of 391 SKU carry this
+        # exact collision shape.
+        text = "Cymbalta Duloxetine 30mg"  # no "Pills" anywhere
+        self.assertTrue(
+            render_qa._field_present("30mg", text),
+            "the dosage itself is on the page and must still be found")
+        self.assertFalse(
+            render_qa._field_present("30 Pills", text),
+            "'Pills' never appears; reducing the field to its digits alone "
+            "lets the dosage's '30mg' satisfy the unit count too")
+        self.assertTrue(
+            render_qa._field_present("30 Pills", text + " 30 Pills"),
+            "once 'Pills' is actually on the page the field is found")
 
     def test_blank_expected_is_never_present(self):
         self.assertFalse(render_qa._field_present("", "anything"))

@@ -354,7 +354,19 @@ def _field_present(expected: str, text: str) -> bool:
 
     A field whose first word is a bare number, possibly with a unit glued on
     ("40mg", "10 Pills"), is checked on that number alone, digit-bounded --
-    see `_digit_bounded_search`.
+    see `_digit_bounded_search` -- but that is not the WHOLE check: whatever
+    comes after that leading number ("Pills" in "30 Pills") still has to be
+    found via `_token_present`, the same as any other significant token.
+    Reducing the field to its number and stopping there -- what this branch
+    used to do -- lets one numeric field satisfy another: 11 of 391 SKU pair
+    a `dosage_display` and `unit_count_display` that reduce to the same
+    digits ("30mg" / "30 Pills", "20mg" / "20 Pills", ...), e.g. 21-min's
+    "30mg" and "30 Pills". Before this fix, `_field_present("30 Pills",
+    "... Zolpidem 30mg")` returned True with no "Pills" anywhere in the
+    text -- the exact defect this docstring already calls out for the
+    brand/ingredient pair, just reached from the numeric path instead of the
+    token path. A bare "40mg" has no trailing word, so it is unaffected;
+    "10 Pills" additionally requires "Pills" to be found.
 
     Otherwise EVERY significant token (length >= 3) must be found, not just
     the longest one and not merely a majority. Both weaker rules were tried
@@ -406,8 +418,17 @@ def _field_present(expected: str, text: str) -> bool:
     if not expected:
         return False
     num = extract_numeric(expected)
-    if num and num == expected.split()[0].rstrip("mgMG%"):
-        return _digit_bounded_search(num, text)
+    leading = expected.split()[0]
+    if num and num == leading.rstrip("mgMG%"):
+        if not _digit_bounded_search(num, text):
+            return False
+        # Whatever follows the leading number ("Pills" in "30 Pills") is a
+        # significant token like any other and must still be found -- the
+        # number alone is not the whole field.
+        remaining = expected[len(leading):].strip()
+        text_index = _alnum_word_index(text)
+        tokens = [t for t in re.split(_TOKEN_SPLIT_RE, remaining) if len(t) >= 3]
+        return all(_token_present(t, text, text_index) for t in tokens)
     tokens = [t for t in re.split(_TOKEN_SPLIT_RE, expected) if len(t) >= 3]
     text_index = _alnum_word_index(text)
     if not tokens:
@@ -444,10 +465,23 @@ def check_image(image_path: Path, manifest: dict, view: dict | None = None) -> d
             result["deskewed"] = True
         except Exception as e:
             result["flags"].append(f"deskew failed, reading the raw frame: {e}")
-    else:
+    elif view is None:
+        # No {stem}.view.json beside the image at all -- distinct from the
+        # branch below, where the sidecar exists but carries no corners.
+        # Conflating the two tells an operator to re-render to produce a
+        # sidecar that is already sitting there.
         result["flags"].append(
             "no {stem}.view.json; reading the raw frame, where a rotated "
             "carton reads poorly")
+    else:
+        # The sidecar exists but front_face_px is null -- render_driver.py
+        # emits exactly this when _face_corners_px() could not locate the
+        # front face. Re-rendering without also fixing that would reproduce
+        # the same null.
+        result["flags"].append(
+            "{stem}.view.json exists but front_face_px is null (the "
+            "renderer could not locate the front face); reading the raw "
+            "frame, where a rotated carton reads poorly")
 
     ok, text = extract_text(source)
     result["ocr_ok"] = ok
@@ -469,7 +503,17 @@ def check_image(image_path: Path, manifest: dict, view: dict | None = None) -> d
     if len(text) < MIN_OCR_TEXT_LENGTH:
         result["flags"].append(
             "OCR returned very little text; the image may be blank")
-    result["status"] = "OK" if hits == result["expected"] else "WARN"
+    if result["expected"] == 0:
+        # Not reachable through the schema today -- CHECKED_FIELDS are all
+        # required -- but check_image is a public entry point, and
+        # `hits == result["expected"]` is `0 == 0` for a manifest with an
+        # empty label_content. "Nothing to check" must not read as
+        # "everything checked out."
+        result["flags"].append(
+            "label_content has no checkable fields; nothing was verified")
+        result["status"] = "WARN"
+    else:
+        result["status"] = "OK" if hits == result["expected"] else "WARN"
     return result
 
 
