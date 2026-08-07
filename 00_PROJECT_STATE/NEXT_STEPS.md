@@ -31,31 +31,31 @@ independent and can be done at any time, including in parallel.
 
 ## Throughput, when it starts to hurt
 
-4. **Keep one Blender process alive for a batch.** About 20 s of each render is
+3. **Keep one Blender process alive for a batch.** About 20 s of each render is
    fixed startup, roughly 2 h wasted across a full pass. Worth doing before the
    catalogue is rendered repeatedly, not before it is rendered once.
 
-5. **Let Stage 3 consume Blender output.** `image_processor.source_dir` still points
+4. **Let Stage 3 consume Blender output.** `image_processor.source_dir` still points
    at the Gemini directory, so producing final WEBP from Blender renders needs a
    manual `--config`. Make the source follow the engine.
 
 ## Housekeeping
 
-6. **Give `08_ops/` a Blender chapter.** Its paths were remapped onto this fork's
+5. **Give `08_ops/` a Blender chapter.** Its paths were remapped onto this fork's
    layout on 2026-08-02, so the runbooks no longer send an operator to
    directories that do not exist — but they still describe a Gemini-only
    pipeline. `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing
    the facade and contradicting the architecture. (`DEPENDENCY_INVENTORY.md` now
    has rows for the Blender executable and Tesseract OCR — that part is done.)
 
-7. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
+6. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
    "Phase 0 complete, Phase 1 foundation in place" and describes Phases 2–4 as not
    started, when most of Phase 2 has shipped.
 
-8. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
+7. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
    ADR-006 and has nothing on why this fork exists.
 
-9. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
+8. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
    and now the clearest open defect in the renderer. The driver fits a long
    label row by shrinking it, with no lower bound, so a long ingredient on a
    narrow face sets below legibility rather than overflowing: 9 of the

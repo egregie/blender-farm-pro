@@ -15,10 +15,10 @@ guarantee.
 | | |
 |---|---|
 | Remote | `github.com/egregie/blender-farm-pro` (**private**) |
-| Working branch | `correct-brand-books-for-target-template` — at `aebc0a3`, carries this verification-barrier round's work; not pushed. Diverged from local `dev` (`78e494d`) — run `git rev-list --count dev..HEAD` for the current distance, since that number grows with every commit on this branch and would be stale the moment it was written down here. |
+| Working branch | `correct-brand-books-for-target-template`, carries this verification-barrier round's work; not pushed. |
 | Default branch | `master` at `ad72dea` — the fork baseline plus the skills cheatsheet |
 | Commits since fork | Grows with every commit on this branch, so not recorded as a static number here — run `git rev-list --count ad72dea..HEAD` for the current count. |
-| Tests | **191 pass, 2 skipped** (`python -m unittest discover -s tests`, ~90 s) |
+| Tests | **200 pass, 2 skipped** (`python -m unittest discover -s tests`, ~90-105 s) |
 
 The two skipped tests are both opt-in via `PHARMAGEN_SLOW_TESTS=1`: the pixel-level
 calibration gate (renders real packshots) and the fresh-render OCR gate (re-renders

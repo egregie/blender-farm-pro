@@ -21,7 +21,7 @@ No venv is checked in. Python 3.10.11 is on PATH and the suite passes against it
 
 ```bash
 # Tests — stdlib unittest, NOT pytest (pytest is not a dependency)
-python -m unittest discover -s tests          # 146 tests (69 need Blender; 1 slow gate, opt-in)
+python -m unittest discover -s tests          # 200 tests (69 need Blender; 2 slow gates, opt-in)
 python -m unittest tests.test_verifier        # one module
 python -m unittest tests.test_verifier.TestVerifier.test_name   # one test
 
@@ -410,9 +410,13 @@ pastel. Measure that stop count off an *unclipped* render, never off an AgX one 
 linear, and estimating from it gives ~2.0, which still clips the T1 front face.
 
 `python -m unittest discover -s tests` asserts the rig's invariants (directions, key:fill
-ratio, energy-vs-size law) from `--dump-scene`, without rendering. The pixel-level
-calibration gate is opt-in because it renders real packshots:
+ratio, energy-vs-size law) from `--dump-scene`, without rendering. Two gates are opt-in
+because each renders real packshots: the pixel-level calibration gate, and
+`tests.test_render_qa.TestOCRAgainstAFreshRender`, which re-renders the fixture SKU
+(`1-min`) and re-runs the OCR barrier against it so the committed fixture under
+`tests/fixtures/ocr/` cannot silently drift from what the renderer actually produces:
 
 ```bash
 PHARMAGEN_SLOW_TESTS=1 python -m unittest tests.test_blender_carton
+PHARMAGEN_SLOW_TESTS=1 python -m unittest tests.test_render_qa.TestOCRAgainstAFreshRender
 ```
