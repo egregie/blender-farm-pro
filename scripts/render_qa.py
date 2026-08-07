@@ -185,6 +185,41 @@ CHECKED_FIELDS = ("brand_name_display", "active_ingredient_display",
                   "dosage_display", "unit_count_display")
 
 
+def _respaced_pattern(literal: str) -> str:
+    """Escape *literal* into a pattern that tolerates OCR re-spacing AROUND
+    its punctuation while keeping its digits glued to one another.
+
+    "0.025%" becomes r"0\\s*\\.\\s*025\\s*%": a space may open either side of
+    the '.' and before the '%', because those thin marks are exactly what the
+    recogniser re-spaces -- this catalogue's own renders read "0.025%" back as
+    "0.025 %" as readily as intact -- but no gap is allowed between '0' and
+    '2', or '2' and '5'.
+
+    Refusing a gap between two digits is the whole point. A space between
+    digits is evidence of two separate tokens, not of one token respaced: a
+    literal "10" permitted to match "1 0" would weld two unrelated
+    single-digit values together, which is the same defect this function's
+    caller was fixed for, only occurring inside the match instead of at its
+    edge. Punctuation carries no such ambiguity -- nothing on these labels
+    prints a lone '%' or '.' as a token of its own -- so a gap beside one is
+    safe to forgive.
+    """
+    out, prev = [], ""
+    for ch in literal:
+        if ch.isspace():
+            # Whitespace already IN the expected value marks a place a gap is
+            # allowed; it must not force one, since OCR may read the value
+            # closed up. Recorded as a non-digit so the next character opens
+            # a gap rather than gluing onto the previous digit.
+            prev = " "
+            continue
+        if out and not (prev.isdigit() and ch.isdigit()):
+            out.append(r"\s*")
+        out.append(re.escape(ch))
+        prev = ch
+    return "".join(out)
+
+
 def _digit_bounded_search(literal: str, text: str) -> bool:
     """Is *literal* (digits, optionally with '.', '%') present in *text* on a
     DIGIT boundary, not a \\b WORD boundary?
@@ -196,8 +231,18 @@ def _digit_bounded_search(literal: str, text: str) -> bool:
     and never matches it, even though "40mg" is right there on the page. A
     digit boundary keeps the property a plain substring match would lose:
     '5' must not match inside '500', nor '10' inside '100'.
+
+    *text* is the OCR text with its ORIGINAL spacing. Tolerating the "0.025 %"
+    reading by deleting every space from the text instead -- what this did
+    before -- cannot tell a space OCR inserted inside one token from a space
+    that was printed between two, and this catalogue prints a dosage directly
+    before a unit count: "0.025% 30 Tubes" collapsed to "0.025%30Tubes", where
+    the trailing '(?!\\d)' hit the '3' of a different token and rejected a
+    value plainly present on the label. The tolerance belongs on the pattern,
+    where the literal's own shape says where a gap is plausible (see
+    `_respaced_pattern`), not on the text, which cannot know.
     """
-    return re.search(rf"(?<!\d){re.escape(literal)}(?!\d)", text) is not None
+    return re.search(rf"(?<!\d){_respaced_pattern(literal)}(?!\d)", text) is not None
 
 
 def _normalize_alnum(s: str) -> str:
@@ -271,7 +316,7 @@ def _alnum_word_index(text: str):
     return "".join(flat_parts), starts, ends
 
 
-def _token_present(token: str, text_nospace: str, text_index) -> bool:
+def _token_present(token: str, text: str, text_index) -> bool:
     """Is *token* recognisable in the OCR text?
 
     A token containing a letter is matched by folding it down to bare
@@ -281,11 +326,12 @@ def _token_present(token: str, text_nospace: str, text_index) -> bool:
     the match cannot bridge into the middle of an unrelated adjacent word.
 
     A token that is nothing but digits and punctuation ("0.025%") is matched
-    on a digit boundary against text with only whitespace collapsed, which
-    tolerates "0.025 %" while still refusing to let '5' match inside '500';
-    folding it down to bare digits the way a letter token is folded would
-    destroy that guarantee ('5' would then match inside '500' as freely as
-    inside '5mg').
+    on a digit boundary against *text* as OCR read it, by a pattern that
+    tolerates a gap beside the token's own punctuation ("0.025 %") while
+    still refusing to let '5' match inside '500' -- see
+    `_digit_bounded_search`. Folding it down to bare digits the way a letter
+    token is folded would destroy that guarantee ('5' would then match inside
+    '500' as freely as inside '5mg').
     """
     if re.search(r"[a-zA-Z]", token):
         flat, starts, ends = text_index
@@ -300,7 +346,7 @@ def _token_present(token: str, text_nospace: str, text_index) -> bool:
             if i in starts and i + len(needle) in ends:
                 return True
             pos = i + 1
-    return _digit_bounded_search(token, text_nospace)
+    return _digit_bounded_search(token, text)
 
 
 def _field_present(expected: str, text: str) -> bool:
@@ -359,15 +405,14 @@ def _field_present(expected: str, text: str) -> bool:
     expected = (expected or "").strip()
     if not expected:
         return False
-    text_nospace = re.sub(r"\s+", "", text)
     num = extract_numeric(expected)
     if num and num == expected.split()[0].rstrip("mgMG%"):
-        return _digit_bounded_search(num, text_nospace)
+        return _digit_bounded_search(num, text)
     tokens = [t for t in re.split(_TOKEN_SPLIT_RE, expected) if len(t) >= 3]
     text_index = _alnum_word_index(text)
     if not tokens:
-        return _token_present(expected, text_nospace, text_index)
-    return all(_token_present(t, text_nospace, text_index) for t in tokens)
+        return _token_present(expected, text, text_index)
+    return all(_token_present(t, text, text_index) for t in tokens)
 
 
 def check_image(image_path: Path, manifest: dict, view: dict | None = None) -> dict:
