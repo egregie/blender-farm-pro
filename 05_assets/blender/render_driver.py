@@ -1189,8 +1189,21 @@ def _order_quad(vert_px_pairs):
     that produced it also satisfies its own consistency. Do not go back to
     sorting the projected points -- it looks right on 370/391 SKU and is
     silently wrong on the rest.
+
+    Requires a VERTICAL face, i.e. one whose four corners do not share a
+    single local Z. On a horizontal face -- the carton's lid or base -- all
+    four Z values are equal, the sort order between them is arbitrary, and the
+    "bottom pair / top pair" split separates nothing: the returned quad would
+    be a scramble that still looks well-formed to a caller. Returns None
+    rather than that, so a wrong answer cannot be mistaken for a right one.
     """
     by_z = sorted(vert_px_pairs, key=lambda pair: pair[0].z)
+    if by_z[2][0].z - by_z[1][0].z < 1e-6:
+        print("[render_driver] WARNING: _order_quad was given a face whose "
+              "corners share one local Z (a horizontal face). It orders "
+              "corners by height, so there is nothing to split on; returning "
+              "no corners rather than a scrambled quad.", file=sys.stderr)
+        return None
     bottom = sorted((px for _, px in by_z[:2]), key=lambda p: p[0])
     top = sorted((px for _, px in by_z[2:]), key=lambda p: p[0])
     return [top[0], top[1], bottom[1], bottom[0]]
@@ -1199,8 +1212,16 @@ def _order_quad(vert_px_pairs):
 def _face_corners_px(box, axis: int, take_min: bool):
     """One axis-aligned local face of *box*, projected to image pixels.
 
-    axis 0/1/2 = local X/Y/Z. The front face is local -Y and the visible side
-    panel is local -X; +ROTATION_DEG about Z turns both toward the camera.
+    axis is 0 or 1 -- local X or Y -- because those are the faces that stand
+    upright, and `_order_quad` orders corners by their local Z. **axis 2 is
+    not supported**: the lid and base are horizontal, their four corners share
+    one Z, and the split `_order_quad` relies on has nothing to separate. It
+    returns None in that case rather than a scrambled quad, so this function
+    does too; an earlier version of this docstring advertised 0/1/2 and would
+    have walked a caller straight into it.
+
+    The front face is local -Y and the visible side panel is local -X;
+    +ROTATION_DEG about Z turns both toward the camera.
     """
     from bpy_extras.object_utils import world_to_camera_view
     scene = bpy.context.scene

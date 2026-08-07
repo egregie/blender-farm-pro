@@ -284,6 +284,36 @@ class TestPrintedFaceCorners(unittest.TestCase):
             self.assertAlmostEqual(a[0], b[0], places=2, msg=f"{label} (x)")
             self.assertAlmostEqual(a[1], b[1], places=2, msg=f"{label} (y)")
 
+        # The shared edge anchors only the side panel's TR and BR. Its other
+        # two corners are the far vertical edge, which the front face never
+        # touches, so nothing above constrains them and a defect that moved
+        # only TL/BL would pass. Perspective supplies the missing anchor: the
+        # far edge is further from the camera than the near one, so it must
+        # project both further LEFT (the -X face turns leftward under
+        # +ROTATION_DEG) and SHORTER (foreshortening). Measured on the T1
+        # fixture, 630.4 px against 679.5.
+        near_h = abs(side_tr[1] - side_br[1])
+        far_h = abs(side_tl[1] - side_bl[1])
+        self.assertLess(side_tl[0], side_tr[0],
+                        "side TL is not left of side TR; the far edge of the "
+                        "-X panel must recede leftward")
+        self.assertLess(side_bl[0], side_br[0],
+                        "side BL is not left of side BR")
+        self.assertLess(far_h, near_h,
+                        f"the side panel's far vertical edge ({far_h:.1f} px) "
+                        f"is not shorter than its near one ({near_h:.1f} px); "
+                        f"under perspective the further edge foreshortens, so "
+                        f"TL/BL are mis-ordered or mis-projected")
+        # Weak in the same way as the front face's own above/below pair: it
+        # follows from _order_quad's local-Z sort, so a sorting bug satisfies
+        # it. Kept because it is NOT vacuous against a projection bug -- drop
+        # the y-flip in _face_corners_px and TL lands below BL. Measured: the
+        # checks above catch a near/far edge swap; this catches an inverted
+        # axis; a pure TL-BL transposition is left to the Z sort that produced
+        # them.
+        self.assertLess(side_tl[1], side_bl[1],
+                        "side TL is not above side BL")
+
     def test_corners_are_ordered_tl_tr_br_bl(self):
         scene = _dump_scene()
         tl, tr, br, bl = scene["front_face_px"]

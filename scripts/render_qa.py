@@ -366,7 +366,11 @@ def _field_present(expected: str, text: str) -> bool:
     text -- the exact defect this docstring already calls out for the
     brand/ingredient pair, just reached from the numeric path instead of the
     token path. A bare "40mg" has no trailing word, so it is unaffected;
-    "10 Pills" additionally requires "Pills" to be found.
+    "10 Pills" additionally requires "Pills" to be found. A remainder too
+    SHORT to be a significant token ("30 EA") is checked whole rather than
+    dropped -- dropping it left an empty token list, which satisfies `all()`
+    and reopened the same collision by a second route. The catalogue's
+    shortest unit today is "Pen", exactly at the three-character threshold.
 
     Otherwise EVERY significant token (length >= 3) must be found, not just
     the longest one and not merely a majority. Both weaker rules were tried
@@ -428,6 +432,15 @@ def _field_present(expected: str, text: str) -> bool:
         remaining = expected[len(leading):].strip()
         text_index = _alnum_word_index(text)
         tokens = [t for t in re.split(_TOKEN_SPLIT_RE, remaining) if len(t) >= 3]
+        if remaining and not tokens:
+            # A remainder too short to clear the significance filter is still
+            # part of the field and still has to be on the page. Letting the
+            # empty token list satisfy `all()` below is the same collision one
+            # more time: a unit count written "30 EA" would fall back to
+            # matching the digits alone, and a "30mg" dosage elsewhere on the
+            # page would satisfy it. This is the fallback the general branch
+            # already applies; the numeric branch was simply missing it.
+            return _token_present(remaining, text, text_index)
         return all(_token_present(t, text, text_index) for t in tokens)
     tokens = [t for t in re.split(_TOKEN_SPLIT_RE, expected) if len(t) >= 3]
     text_index = _alnum_word_index(text)

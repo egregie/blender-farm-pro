@@ -135,8 +135,26 @@ class TestFieldPresent(unittest.TestCase):
             "'5' must not match inside '500'")
 
     def test_numeric_field_matches_with_surrounding_punctuation(self):
+        # The property under test is the digit boundary surviving punctuation
+        # pressed against the number -- "5," here.
         self.assertTrue(
-            render_qa._field_present("5 mg", "TestDrug dosage: 5, quantity: 10"))
+            render_qa._field_present("5 mg", "TestDrug dosage: 5, mg quantity: 10"))
+
+    def test_a_separated_unit_is_part_of_the_field_and_must_be_on_the_page(self):
+        # This case USED to pass with the text below, which contains no "mg" at
+        # all: the remainder "mg" is two characters, fell under the significance
+        # filter, left an empty token list, and an empty `all()` is True. That
+        # made the assertion "a field counts as found when part of it is
+        # demonstrably absent", which is the false-OK this module exists to
+        # avoid -- certifying a packshot is worse than nagging about one.
+        #
+        # Nothing in the catalogue has this shape: dosages glue their unit
+        # ("40mg", the sole remainder form across all 391), and every unit-count
+        # remainder is a word of three characters or more. So this is a contract
+        # statement, not a live behaviour change.
+        self.assertFalse(
+            render_qa._field_present("5 mg", "TestDrug dosage: 5, quantity: 10"),
+            "'mg' is not on the page, so the field is not fully present")
 
     def test_two_word_phrase_requires_every_token_not_just_the_longest(self):
         # "Atomoxetine" (11 chars) is longer than "Generic" (7), so a
@@ -171,6 +189,36 @@ class TestFieldPresent(unittest.TestCase):
         self.assertTrue(
             render_qa._field_present("30 Pills", text + " 30 Pills"),
             "once 'Pills' is actually on the page the field is found")
+
+    def test_a_short_unit_word_is_checked_like_any_other(self):
+        # The significance filter drops tokens under three characters, which is
+        # right for the general branch -- a one- or two-letter fragment is OCR
+        # noise as often as it is a word. But in the numeric branch the filter
+        # was applied to the REMAINDER and an empty result silently satisfied
+        # `all()`, reopening the collision the test above closes: a unit count
+        # written "30 EA" fell straight back to matching the digits alone, so a
+        # dosage of "30mg" elsewhere on the page satisfied it.
+        #
+        # No SKU in the catalogue uses a unit shorter than three characters
+        # today -- the shortest is "Pen", exactly at the threshold -- so this
+        # guards a future catalogue rather than a present defect.
+        text = "Brand Ingredient 30mg"  # no "EA" anywhere
+        self.assertFalse(
+            render_qa._field_present("30 EA", text),
+            "'EA' never appears; a remainder too short to be a significant "
+            "token must still be required, not dropped")
+        self.assertTrue(
+            render_qa._field_present("30 EA", text + " 30 EA"),
+            "once 'EA' is on the page the field is found")
+
+    def test_the_shortest_real_unit_in_the_catalogue_still_works(self):
+        # "Pen" is three characters, exactly on the significance threshold, and
+        # is a live value -- it must not become collateral damage of the test
+        # above. If someone lowers or raises that threshold, this fails.
+        self.assertTrue(render_qa._field_present("1 Pen", "Lantus 100IU 1 Pen"))
+        self.assertFalse(
+            render_qa._field_present("1 Pen", "Lantus 100IU 1 unit"),
+            "'Pen' is not on the page")
 
     def test_blank_expected_is_never_present(self):
         self.assertFalse(render_qa._field_present("", "anything"))
