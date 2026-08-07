@@ -91,11 +91,27 @@ class TestStageOneRunsEndToEnd(unittest.TestCase):
         self.assertEqual(len(after_manifests), expected,
                          "Stage 1 did not write one render manifest per passport")
         # Idempotence is a documented invariant of this fork; assert it rather
-        # than trusting it. A diff here means Stage 1 has become non-deterministic.
+        # than trusting it. A diff here has two possible explanations, not
+        # one: genuine non-determinism in Stage 1, OR the 391 tracked
+        # manifests/prompts were simply stale before this run started -- the
+        # normal state after any legitimate Stage 1 edit that changes their
+        # content. This run's own `after_*` digest just became the new
+        # baseline on disk, so a second run right now would pass either way;
+        # that is what tells the two apart, not this message alone.
         self.assertEqual(before_md, after_md,
-                         "Stage 1 changed its Markdown output on a re-run")
+                         "Stage 1 changed its Markdown output on a re-run -- "
+                         "either Stage 1 is non-deterministic, or the "
+                         "committed passports_md were merely stale before "
+                         "this run (expected after a legitimate Stage 1 "
+                         "edit); re-run this test once more to tell them "
+                         "apart -- a stale-fixture diff will not repeat")
         self.assertEqual(before_manifests, after_manifests,
-                         "Stage 1 changed its manifests on a re-run")
+                         "Stage 1 changed its manifests on a re-run -- "
+                         "either Stage 1 is non-deterministic, or the "
+                         "committed render_manifests were merely stale "
+                         "before this run (expected after a legitimate "
+                         "Stage 1 edit); re-run this test once more to tell "
+                         "them apart -- a stale-fixture diff will not repeat")
 
 
 class TestStageTwoFacadeDispatches(unittest.TestCase):
