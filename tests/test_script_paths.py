@@ -5,6 +5,18 @@ source project's layout does not crash on import -- it runs, finds nothing, and
 reports an empty result, which reads exactly like a clean pass. scripts/
 render_qa.py defaulted to render_output/processed, a directory this repository
 has never contained.
+
+RELIANCE THIS TEST DEPENDS ON, NOT SOMETHING IT VERIFIES: coverage below walks
+module-level `DEFAULT_*` `Path` constants, not each script's `argparse` parser
+directly. That finds every current script's path defaults only because all six
+of them happen to route their `--dir`/`--input`/`--output`/etc. defaults
+through a `DEFAULT_*` constant at import time. An inline
+`parser.add_argument(..., default=Path("render_output/x"))`, with no
+module-level constant behind it, would be invisible to this test and pass
+silently while pointing at a directory the fork does not have. Follow that
+convention in any new operator script, or extend this test to read
+`parser.parse_args([]).<dest>` (or inspect `parser._actions` for `default`
+values) instead of `dir(mod)`.
 """
 import unittest
 from pathlib import Path
@@ -91,6 +103,26 @@ class TestScriptDefaultPaths(unittest.TestCase):
                         f"{path.name}.{name} -> {value}: even its parent "
                         f"{value.parent} is missing, so this is a stale path "
                         f"from the source project's layout")
+
+    def test_image_postprocessor_output_does_not_collide_with_canonical_stage3(self):
+        """scripts/image_postprocessor.py is a non-canonical alternative to
+        src/image_processor.py (see scripts/README.md), but both scripts
+        derive the same {stem}.webp filename from an input PNG. If they ever
+        again pointed at the same directory, running the non-canonical script
+        would silently overwrite the canonical Stage 3 output --
+        01_input_raster/gemini_renders_final, where git tracks 389 real
+        deliverables -- with a 2048px/quality-85 file that violates the
+        documented Stage 3 contract (1600px, <=500KB auto-tuned).
+        """
+        import scripts.image_postprocessor as postprocessor
+        from src.utils import load_config, resolve_path
+
+        canonical_output = resolve_path(load_config()["image_processor"]["output_dir"])
+        self.assertNotEqual(
+            postprocessor.DEFAULT_OUTPUT_DIR, canonical_output,
+            "image_postprocessor.py's DEFAULT_OUTPUT_DIR must not be "
+            "image_processor.output_dir -- that key is src/image_processor.py's "
+            "canonical Stage 3 output directory")
 
 
 if __name__ == "__main__":

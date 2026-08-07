@@ -30,3 +30,10 @@ verification_failures.log
 # resolves on a clean checkout; the per-run failure copies inside are not.
 02_processing/image_postprocessor_failed/*
 !02_processing/image_postprocessor_failed/.gitkeep
+
+# image_postprocessor.py's own output -- segregated from image_processor.py's
+# CANONICAL Stage 3 output (01_input_raster/gemini_renders_final, 389 tracked
+# deliverables) so this non-canonical script can never overwrite them. Same
+# tracked-directory/untracked-contents split as image_postprocessor_failed.
+02_processing/image_postprocessor_output/*
+!02_processing/image_postprocessor_output/.gitkeep

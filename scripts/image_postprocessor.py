@@ -28,12 +28,20 @@ _SCRIPT_ROOT = Path(__file__).resolve().parent.parent
 if str(_SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_ROOT))
 
-from src.utils import load_config, get_path, resolve_path  # noqa: E402
+from src.utils import load_config, resolve_path  # noqa: E402
 
 _CFG = load_config()
 # Configuration
-DEFAULT_INPUT_DIR  = get_path(_CFG, "renders_raw")
-DEFAULT_OUTPUT_DIR = resolve_path(_CFG["image_processor"]["output_dir"])
+# image_processor.source_dir, not paths.renders_raw: the two happen to hold
+# the same value today, but they are read by different scripts for different
+# purposes and could silently diverge if only one were ever edited.
+DEFAULT_INPUT_DIR  = resolve_path(_CFG["image_processor"]["source_dir"])
+# NOT image_processor.output_dir -- that key is src/image_processor.py's
+# CANONICAL Stage 3 output, and git tracks 389 deliverables there. Both
+# scripts derive the same {stem}.webp filename from an input PNG, so sharing
+# output_dir would let this script (2048px, quality 85) silently overwrite
+# every canonical deliverable (1600px, <=500KB) with an off-spec file.
+DEFAULT_OUTPUT_DIR = resolve_path(_CFG["image_processor"]["postprocessor_output_dir"])
 # NOT paths.renders_failed -- that key is Stage 2's RPA/Selenium error
 # screenshots (src/rpa_orchestrator.py). This script's failure copies are named
 # after the SKU stem (e.g. 1-min.png) and must not share a bin with those.

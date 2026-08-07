@@ -57,6 +57,11 @@ _DEFAULTS = {
         # Legacy default verbatim -- the source project's own image_postprocessor.py
         # hardcoded this exact value before it read config.yaml at all.
         "failed_dir":       "render_output/failed",
+        # Legacy default verbatim -- image_postprocessor.py's own
+        # DEFAULT_OUTPUT_DIR before it read config.yaml at all. Distinct from
+        # output_dir above (src/image_processor.py's canonical Stage 3 output)
+        # for the same reason failed_dir is distinct from paths.renders_failed.
+        "postprocessor_output_dir": "render_output/processed",
         "target_size":      [1600, 1600],
         "max_file_size_kb": 500,
     },

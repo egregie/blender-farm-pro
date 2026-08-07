@@ -80,6 +80,15 @@ image_processor:
   # screenshots (src/rpa_orchestrator.py), a different producer with a different
   # naming scheme; sharing a bin invites a silent collision between the two.
   failed_dir:       "02_processing/image_postprocessor_failed"
+  # scripts/image_postprocessor.py's own output (2048px WEBP, quality 85 --
+  # see scripts/README.md, "non-canonical"). Deliberately its own directory,
+  # NOT output_dir above: output_dir is src/image_processor.py's CANONICAL
+  # Stage 3 output, and git tracks 389 deliverables there. Both scripts derive
+  # the same {stem}.webp filename, so sharing output_dir would let this script
+  # silently overwrite every canonical deliverable with a file that violates
+  # the documented Stage 3 contract (1600px, <=500KB) -- same failure shape
+  # failed_dir above was split out to avoid, one directory over.
+  postprocessor_output_dir: "02_processing/image_postprocessor_output"
   target_size:      [1600, 1600]   # px (LANCZOS upscale, square 1:1)
   max_file_size_kb: 500            # hard weight cap; quality is auto-tuned
 
