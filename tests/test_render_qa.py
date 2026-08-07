@@ -247,6 +247,74 @@ class TestTokenMatchAlignsToWordBoundaries(unittest.TestCase):
             "Caffeine/Ergotamine", "Cafergot Caffeine/Ergotamine 1mg 30 Pills"))
 
 
+class TestNumericTokenIsNotWeldedToTheNextNumber(unittest.TestCase):
+    """A numeric token's digit boundary must be judged against the REAL
+    spacing of the OCR text, not against text with every space deleted.
+
+    `_digit_bounded_search` used to run on `re.sub(r"\\s+", "", text)`, so a
+    percent-ending token printed next to an unrelated number -- exactly how
+    this catalogue lays out a label, dosage then unit count -- had the two
+    welded into one string: "0.025% 30 Tubes" collapsed to "0.025%30Tubes",
+    and the trailing '(?!\\d)' then saw the '3' of an entirely different
+    token and rejected a value that is plainly printed on the page.
+
+    18 of 391 SKU carry a percent-ending `dosage_display` (04_passports/
+    render_manifests: 10g/1% x3, 5mg/5% x2, 0.025g/0.025%, 15g/13.9%,
+    1.62%, 0.005%, 5g/2.5% ...) and every one of them is followed by a
+    `unit_count_display` that starts with a digit ("30 Tubes", "1 Tube",
+    "30 Sachets"). Feeding all 391 manifests a PERFECT reading of their own
+    four label fields, 317-min ("5g/2.5%" beside "1 Tube") already scored its
+    own correct dosage as missing before this fix; the other 17 were masked
+    only because the same value also appears in their brand field ahead of a
+    letter.
+
+    The stripping was not gratuitous -- it was there to tolerate OCR
+    re-spacing punctuation ("0.025%" read back "0.025 %"), which is why the
+    naive repair of simply searching the raw text is wrong too. Both
+    properties are pinned here together, because a fix that only satisfies
+    one of them is not a fix.
+    """
+
+    def test_percent_token_followed_by_a_separate_number_is_found(self):
+        # 111-min: dosage_display "0.025g/0.025%", unit_count_display
+        # "30 Tubes". The '%' half is matched by the digit-bounded path; the
+        # '3' of "30" is a different token and must not act as its boundary.
+        self.assertTrue(render_qa._field_present(
+            "0.025g/0.025%", "BrandX IngredientY 0.025g/0.025% 30 Tubes"))
+        # 317-min: the one SKU already mis-scored against a perfect reading.
+        self.assertTrue(render_qa._field_present(
+            "5g/2.5%", "Zovirax Acyclovir 5g/2.5% 1 Tube"))
+        # 143-min: a bare percent dosage, no '/' half to fall back on.
+        self.assertTrue(render_qa._field_present(
+            "1.62%", "Rogaine Minoxidil 1.62% 30 Sachets"))
+
+    def test_a_number_before_the_token_does_not_hide_it_either(self):
+        # The same welding in the other direction: stripping the space makes
+        # the leading '(?<!\\d)' see the '0' of "30" ahead of "1.62%".
+        self.assertTrue(render_qa._field_present(
+            "1.62%", "Rogaine 30 1.62% Sachets"))
+
+    def test_respacing_inside_the_token_is_still_tolerated_beside_a_number(self):
+        # Both properties at once, which is what makes this a real pin: the
+        # space OCR inserts BEFORE the '%' still has to be forgiven, while
+        # the genuine space AFTER it still has to count as a boundary. A
+        # repair that just searches the raw text passes the two tests above
+        # and fails this one.
+        self.assertTrue(render_qa._field_present(
+            "1.62%", "Rogaine Minoxidil 1.62 % 30 Sachets"))
+        self.assertTrue(render_qa._field_present(
+            "0.025g/0.025%", "Retin-A Cream 0.025g / 0.025 % 30 Tubes"))
+
+    def test_a_digit_glued_to_the_token_is_still_not_a_boundary(self):
+        # The guarantee the digit boundary exists for, unchanged: tolerating
+        # a real space must not also tolerate a digit printed hard against
+        # the token. "2.5%" is not present in "12.5%".
+        self.assertFalse(render_qa._field_present(
+            "2.5%", "Cream 12.5% 1 Tube"))
+        self.assertFalse(render_qa._field_present(
+            "5 mg", "TestDrug 500mg 10 Pills"))
+
+
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "ocr"
 _HAVE_TESSERACT = render_qa._TESSERACT_AVAILABLE
 
