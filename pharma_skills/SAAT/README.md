@@ -128,8 +128,16 @@ content element, and the graphic signature.
 ### 5.3 Sources, in order of priority
 
 **1. Official manufacturer** → **2. European pharmacy or distributor** →
-**3. Another reliable European source** → **4. Grey or unofficial source, as a
-visual reference only.**
+**3. Another reliable European source** (regulator, national formulary) →
+**4. Established news, editorial, clinical or encyclopedic publisher** →
+**5. Grey or unofficial source, as a visual reference only.**
+
+Tier 4 is not a compromise. A pack photographed for a BBC or Guardian article is
+the same box photographed for a pharmacy listing, and for reading a design the
+provenance of the photograph is irrelevant — what matters is that the front face
+is legible. These publishers also routinely show European packs that no
+commercial source will display, precisely because editorial use is not
+advertising and is not restricted by it.
 
 Work down the list. Exhausting the white segment without a usable image is **not
 grounds to stop searching** — it is grounds to move to the next step.
@@ -141,10 +149,33 @@ What each step is worth in practice, measured on 2026-08-07 rather than assumed:
 | Regulatory databases (EMA, MHRA, medicines.org.uk) | **No imagery at all.** SmPC and PIL text only |
 | Licensed German pharmacies (Shop Apotheke, DocMorris, medpex) | **Placeholders for prescription products** — German advertising law forbids showing the pack. `placeholder-prescription-ad.png`, "Abbildung ähnlich" |
 | FDA / DailyMed | Real flat unfoldings, but **US packaging**: NDC codes, US warnings |
-| Manufacturer sites | Varies by company; the best white-segment bet |
+| Manufacturer sites | Product pages carry prescribing text, not pack photography. Pfizer's own XANAX page shows no box at all |
+| Swiss `compendium.ch`, Swedish FASS | Text and **tablet** photographs. FASS's "Bilder" section is tablets and scoring, not cartons |
+| News, editorial and clinical publishers | **Real photographs of real packs, including European ones.** Editorial use is not advertising and is not restricted by it |
 
-The consequence is that for much of this catalogue the white segment is empty by
-construction, not by bad luck.
+The consequence is that for much of this catalogue the commercial white segment
+is empty **by construction**: the more strictly a source is regulated as a seller,
+the less it may show a picture of the box. Editorial sources are unaffected by
+that rule, which is why tier 4 often succeeds where tiers 1–3 cannot.
+
+### 5.3.1 Local brand names come first
+
+A European pack cannot be found under a US brand name. Establish the local name
+before searching, and record it:
+
+| Catalogue name | European name |
+|---|---|
+| Xanax | **Xanor** (Nordic); Xanax in Italy, Belgium, France |
+| Ambien | **Stilnox** |
+| Klonopin | **Rivotril** |
+| Ativan | **Temesta**, **Tavor** (Germany) |
+| Tapentadol | **Palexia** |
+| Provigil | **Modiodal** (France, Nordic) |
+| Lexotanil | **Lexomil** (France) |
+
+Verified 2026-08-07 against FASS, Felleskatalogen, compendium.ch and Vidal. This
+step is a prerequisite the original ТЗ did not contain, and skipping it is why an
+early search for "Strattera" returned only US material.
 
 ### 5.4 Using a grey source
 

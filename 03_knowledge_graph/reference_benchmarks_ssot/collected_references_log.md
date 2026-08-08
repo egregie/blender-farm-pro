@@ -260,3 +260,73 @@ origin must be verified separately.
 **We reproduce the appearance of a package, not the activity of the site it was
 found on.** Source tier is recorded in each `metadata.json` so tier 1 and tier 4
 stay distinguishable without re-deriving them.
+
+---
+
+## 2026-08-07 — Source research, round two: the tiers that actually work
+
+### The white commercial segment is empty by construction
+
+Five source types checked for a single prescription product (alprazolam), and the
+result is structural rather than product-specific:
+
+| Tier | Source | Result |
+|---|---|---|
+| 1 | Pfizer product page for XANAX | **No image of the box at all** |
+| 2 | Shop Apotheke, DocMorris, medpex | `placeholder-prescription-ad.png` — German advertising law forbids showing a prescription pack |
+| 3 | EMA, MHRA, medicines.org.uk | SmPC and PIL text only |
+| 3 | FASS (Sweden), compendium.ch (Switzerland) | Text and **tablet** photographs; FASS's "Bilder" section is tablets and scoring |
+
+The pattern: the more strictly a source is regulated **as a seller**, the less it
+may show a picture of the box. Editorial and reference publishers are not bound
+by that rule, which is why the tier that works is further down.
+
+### Local brand names are a prerequisite
+
+A European pack cannot be found under a US name. Verified against FASS,
+Felleskatalogen, compendium.ch and Vidal:
+
+Xanax → **Xanor** (Nordic) · Ambien → **Stilnox** · Klonopin → **Rivotril** ·
+Ativan → **Temesta** / **Tavor** · Tapentadol → **Palexia** · Provigil →
+**Modiodal** · Lexotanil → **Lexomil** (France)
+
+Skipping this step is why an early search for "Strattera" returned only US
+material. The step is absent from the original ТЗ.
+
+### Wikimedia Commons is the best source found
+
+`Category:Benzodiazepines packaging` holds 63 files, at least 15 of them
+photographs of **cartons**. French filenames using `boite`/`boites` mark them, and
+French packs are European. Directly relevant to this queue:
+
+| File | Serves template |
+|---|---|
+| `Boites de Valium44.jpg` | 16, 21 |
+| `Boite de Lexomil avec une boite de bromazépam.jpg` | 23 (Lexotanil = Lexomil in France) |
+| `Boites d'alprazolam444.jpg` | 15, 24 |
+| `(Alprazolam) Xanor.jpg` | 15, 24 — Nordic name, 980×605, CC BY-SA 4.0 |
+
+Freely licensed, categorised by packaging, and not subject to pharmaceutical
+advertising restriction.
+
+### Two access limits, both mine rather than the sources'
+
+**No image search.** `WebSearch` returns titles and URLs as text. There is no
+image tab, no thumbnails, no reverse image search. Every source above was reached
+by reasoning about which pages would describe a picture in words — which is why
+regulatory databases were tried first and editorial sources last. A human with
+Google Images finds a European Xanax pack in one query; this tool cannot.
+
+**Crawler blocks and rate limits.** BBC, the Guardian, the Independent and the
+Telegraph refuse the Anthropic user agent outright — the search API rejects those
+domains. Wikimedia returns HTTP 429 to downloads from this address even with a
+descriptive User-Agent, and the limit was not worked around.
+
+### The division of labour this implies
+
+Visual selection belongs to the owner, who has an image search and a browser.
+Everything downstream belongs here: download by URL, deduplicate by pixel hash,
+measure the colour system, determine the market from braille / "film-coated" /
+"IP" markers, write the passport and metadata, keep the log, hold the guards.
+
+That is not a workaround. It is where each side is actually better.
