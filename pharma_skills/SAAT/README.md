@@ -160,11 +160,37 @@ Under that use:
 - the legal availability of the drug is **not assessed**;
 - **nothing else on the page is used** — not the product description, not the
   price, not stock, not purchasing information;
-- packaging found on a grey site is **not automatically European packaging**. If
-  the European version is specifically required, the pack's origin and market
-  must be verified separately;
 - among several candidates, prefer the sharpest image in which the front and
   side faces can be reliably examined.
+
+### 5.5 Source tier and packaging market are independent axes
+
+**Neither may be inferred from the other.** A grey site may host a photograph of
+a genuine European carton; a white European pharmacy may host a photograph of an
+Indian or other non-European variant. The domain records where the picture was
+found and says nothing about which market the box was printed for.
+
+Market is read **off the packaging itself**. The markers are legible in every
+reference this project already holds:
+
+| Marker on the pack | Reads as |
+|---|---|
+| Braille on the front face | European — mandatory under EU Directive 2004/27/EC |
+| "film-coated tablets", multilingual panels, small counts (4, 28) | European |
+| EAN / GTIN barcode and no NDC | European |
+| NDC code, "Rx only", single language, counts of 30/90/100 | United States |
+| "IP" after the ingredient name — Indian Pharmacopoeia | India |
+| "Mfd. by" with an Indian address | India |
+
+Worked examples from the benchmark set itself: `raw_cialis_front.png` and
+`raw_viagra_front.png` both carry braille and read "4 film-coated tablets" —
+European. `raw_Kamagra_front_01.png` reads "Sildenafil Citrate Tablets **IP**" —
+Indian, while sitting in the same benchmark folder as the other two.
+
+Record the two axes separately in `metadata.json`: `source_tier` (1–4, where the
+image came from) and `packaging_market` (`eu` / `us` / `in` / `unknown`, what the
+box is). Conflating them is how a US carton gets treated as a European reference,
+which has already happened once here.
 
 **The governing limit: we reproduce the appearance of a package, not the
 activity of the site it was found on.** The file is saved, its URL and date are

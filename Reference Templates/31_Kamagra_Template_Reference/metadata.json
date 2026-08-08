@@ -48,5 +48,8 @@
     "single_source": true,
     "colour_shares_include_loose_tablet": true
   },
-  "status": "complete_single_source"
+  "status": "complete_single_source",
+  "source_tier": null,
+  "packaging_market": "in",
+  "market_evidence": "\"Sildenafil Citrate Tablets IP\" — Indian Pharmacopoeia"
 }

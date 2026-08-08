@@ -51,5 +51,8 @@
     }
   ],
   "coordinate_space": "design zones are approximate; camera is not reconstructed",
-  "measurement_source": "scripts/reference_measure.py, 2026-08-07"
+  "measurement_source": "scripts/reference_measure.py, 2026-08-07",
+  "source_tier": null,
+  "packaging_market": "eu",
+  "market_evidence": "braille on the front face; \"film-coated tablets\"; pack of 4"
 }
