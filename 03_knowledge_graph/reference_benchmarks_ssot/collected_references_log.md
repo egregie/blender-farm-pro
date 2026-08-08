@@ -100,3 +100,64 @@ The 1079 floor is one pixel below a round 1080 because `raw_cialis_front.png` is
 1079 wide. It is left exact rather than rounded: rounding down to 1000 would
 admit candidates worse than every benchmark, which is the opposite of what the
 floor is for.
+
+---
+
+## 2026-08-07 — Pilot: `01_T1_Strattera`
+
+**Accepted: 7 of 7 (cap reached).** All from DailyMed (NIH), setid
+`309de576-c318-404a-bc15-660c2b1876fb`, downloaded 2026-08-07.
+
+| File | Dosage | Size | Front colour | Share of front panel |
+|---|---:|---|---|---:|
+| `raw_strattera_label_10mg.jpg` | 10 mg | 776×372 | `#CCB40C` | 24.1% |
+| `raw_strattera_label_18mg.jpg` | 18 mg | 775×373 | `#E46C24` | 27.4% |
+| `raw_strattera_label_25mg.jpg` | 25 mg | 767×370 | `#FCB40C` | 23.4% |
+| `raw_strattera_label_40mg.jpg` | 40 mg | 769×367 | `#5484B4` | 27.4% |
+| `raw_strattera_label_60mg.jpg` | 60 mg | 766×367 | `#545454` | 32.6% |
+| `raw_strattera_label_80mg.jpg` | 80 mg | 767×366 | `#6C2424` | 28.4% |
+| `raw_strattera_label_100mg.jpg` | 100 mg | 770×367 | `#0C2454` | 28.5% |
+
+**Rejected sources.** `medicines.org.uk`, `ema.europa.eu`, `mhra.gov.uk` and
+`lilly.com` were searched for this product and returned only SmPC and PIL text
+documents — no packaging imagery. Not a quality rejection; the imagery is not
+published there.
+
+### What the pilot established, and why it ran before the other 28
+
+**Regulatory databases publish flat label unfoldings, not packshots.** Every
+panel in one plane, no perspective, no carton. Better for reading a design than
+any photograph and useless for proportions or material. The owner accepted both
+source types with separate handling.
+
+**The benchmark floors do not transfer to this source type.** All seven images
+are 766–776 px on the long edge against a floor of 1079 derived from packshots.
+That is a property of DailyMed, not of this product — the floor cannot be met by
+anything from that source. Cropped to the front panel the usable width is ~240 px:
+enough for colour and archetype, not for small print.
+
+**Subject-area and colour-share floors are meaningless on an unfolding.** Measured
+over the whole scan, the dominant "colour" came out as `#281828` at 40% — a black
+service block, not the design. Only the front panel is measurable, and only after
+someone marks it.
+
+**Front-panel identification is a human step.** Automatic detection by text
+orientation was tried and failed: Tesseract reads rotated side-panel text as
+horizontal nonsense, so the horizontal and rotated token spans overlap almost
+entirely (0.055–0.785 against 0.160–0.957). Recorded as a limitation rather than
+worked around by guessing.
+
+**Dosage colour coding found.** Substrate, typography and layout are identical
+across all seven strengths; only the colour field changes, and it encodes the
+strength. Per the owner's ruling the front colour is now chosen by the SKU's
+dosage rather than per product. Both catalogue SKUs served by this template
+(`1-min`, `2-min`) are 40 mg → `#5484B4`.
+
+The 60 mg entry is achromatic grey. A first pass looking for saturated colour
+reported no accent for it — a fault in the detector, corrected, not a property of
+the packaging.
+
+**Catalogue palette contradicted.** `1-min` and `2-min` both carry `primary
+#DDA7A5`, `accent #6B2D5C`. Neither colour is on the carton, and the same palette
+is assigned to a brand and its generic. Recorded here; fixing it belongs to the
+pipeline, not to reference collection.
