@@ -60,12 +60,26 @@ class TestBuildManifest(unittest.TestCase):
     def test_carton_comes_from_the_passports_own_secondary_dimensions(self):
         # 1-min declares "115x55x48mm"; those exact numbers must survive to
         # the manifest rather than being round-tripped through the primary
-        # package, which is lossy.
+        # package, which is lossy. Since contract 1.3 they survive in
+        # passport_dimensions -- the geometry beside them is art-directed and is
+        # deliberately NOT these numbers.
         m = build_manifest(_passport("1-min"))
-        self.assertEqual(m["carton"]["source"], "passport_secondary")
-        self.assertAlmostEqual(m["carton"]["width_mm"], 115.0)
-        self.assertAlmostEqual(m["carton"]["height_mm"], 55.0)
-        self.assertAlmostEqual(m["carton"]["depth_mm"], 48.0)
+        real = m["carton"]["passport_dimensions"]
+        self.assertEqual(real["source"], "passport_secondary")
+        self.assertAlmostEqual(real["width_mm"], 115.0)
+        self.assertAlmostEqual(real["height_mm"], 55.0)
+        self.assertAlmostEqual(real["depth_mm"], 48.0)
+
+    def test_the_printed_size_is_never_the_rendered_size_by_accident(self):
+        # The one mistake contract 1.3 exists to prevent: printing art-directed
+        # measurements on pharmaceutical packaging. If a reshape ever silently
+        # stops happening, this catches it before a packshot carries a number
+        # that is real by coincidence rather than by construction.
+        m = build_manifest(_passport("1-min"))
+        self.assertEqual(m["carton"]["source"], "art_direction")
+        self.assertNotAlmostEqual(m["carton"]["height_mm"],
+                                  m["carton"]["passport_dimensions"]["height_mm"],
+                                  places=3)
 
     def test_template_id_matches_the_router(self):
         from src.passport_generator import agent_1_router
@@ -125,7 +139,8 @@ class TestBuildManifest(unittest.TestCase):
         data["secondary_packaging"] = dict(data["secondary_packaging"],
                                            dimensions="not a size")
         m = build_manifest(data)
-        self.assertNotEqual(m["carton"]["source"], "passport_secondary",
+        self.assertNotEqual(m["carton"]["passport_dimensions"]["source"],
+                            "passport_secondary",
                             "test premise: this should have left the happy path")
         self.assertEqual(m["carton"]["features"],
                          data["secondary_packaging"]["features"])
@@ -162,13 +177,14 @@ class TestCartonFallbacks(unittest.TestCase):
         data = dict(self.BASE, secondary_packaging={"dimensions": "medium sized"})
         m = build_manifest(data)
         validate_manifest(m)
-        self.assertEqual(m["carton"]["source"], "derived_from_primary")
+        self.assertEqual(m["carton"]["passport_dimensions"]["source"],
+                         "derived_from_primary")
         self.assertGreater(m["carton"]["width_mm"], 0)
 
     def test_missing_secondary_packaging_still_yields_dimensions(self):
         m = build_manifest(dict(self.BASE))
         validate_manifest(m)
-        self.assertIn(m["carton"]["source"],
+        self.assertIn(m["carton"]["passport_dimensions"]["source"],
                       ("derived_from_primary", "template_ratio"))
         self.assertGreater(m["carton"]["height_mm"], 0)
 
@@ -220,15 +236,32 @@ class TestOrientation(unittest.TestCase):
         self.assertEqual(orient_for_template((55.0, 100.0, 55.0), "T_BOTTLE_BOX"),
                          (55.0, 100.0, 55.0))
 
-    def test_every_vertical_family_sku_renders_portrait(self):
+    def test_every_vertical_family_sku_stands_upright_before_reshaping(self):
+        for f in sorted(PASSPORTS.glob("*.json")):
+            m = build_manifest(json.loads(f.read_text(encoding="utf-8")))
+            if m["template_id"] in ("T_BOTTLE_BOX", "T_VERT_VIAL",
+                                    "T_VERT_DROPPER", "T_VERT_INHALER"):
+                c = m["carton"]["passport_dimensions"]
+                self.assertGreaterEqual(
+                    c["height_mm"], max(c["width_mm"], c["depth_mm"]),
+                    f"{f.stem} ({m['template_id']}) is not upright",
+                )
+
+    def test_every_vertical_family_sku_still_PHOTOGRAPHS_portrait(self):
+        # The claim worth holding is about the picture, and after reshaping it
+        # is no longer the same claim as "the box is taller than it is wide".
+        # T_VERT_VIAL solves to 172x170x35: wider than tall, and still a portrait
+        # photograph at 0.9224 because the camera looks down a portrait carton.
+        # Asserting on the box edges here would fail on a correct reshape.
         for f in sorted(PASSPORTS.glob("*.json")):
             m = build_manifest(json.loads(f.read_text(encoding="utf-8")))
             if m["template_id"] in ("T_BOTTLE_BOX", "T_VERT_VIAL",
                                     "T_VERT_DROPPER", "T_VERT_INHALER"):
                 c = m["carton"]
-                self.assertGreaterEqual(
-                    c["height_mm"], max(c["width_mm"], c["depth_mm"]),
-                    f"{f.stem} ({m['template_id']}) is not upright",
+                dims = (c["width_mm"], c["height_mm"], c["depth_mm"])
+                self.assertLess(
+                    silhouette.visible_faces_aspect(dims, m["template_id"]), 1.0,
+                    f"{f.stem} ({m['template_id']}) photographs landscape",
                 )
 
 
@@ -237,6 +270,33 @@ class TestContractRejectsDrift(unittest.TestCase):
 
     def setUp(self):
         self.valid = build_manifest(_passport("1-min"))
+
+    def test_a_1_2_manifest_is_rejected_rather_than_read_as_1_3(self):
+        """The bump that must not be forgiving.
+
+        1.3 repurposed carton.width_mm/height_mm/depth_mm from the carton's real
+        size to art-directed scene geometry. A 1.2 file has the old meaning in
+        the new field names and no passport_dimensions at all, so a consumer that
+        accepted it would build the box from real dimensions -- merely wrong --
+        and print whatever it could find -- not merely wrong. Both failure modes
+        are silent, which is why the version is a const and not a minimum.
+        """
+        from jsonschema import ValidationError
+        legacy = json.loads(json.dumps(self.valid))
+        legacy["manifest_version"] = "1.2"
+        real = legacy["carton"].pop("passport_dimensions")
+        legacy["carton"].update({k: real[k] for k in
+                                 ("width_mm", "height_mm", "depth_mm")})
+        legacy["carton"]["source"] = real["source"]
+        with self.assertRaises(ValidationError):
+            validate_manifest(legacy)
+
+    def test_a_manifest_without_the_real_dimensions_is_rejected(self):
+        from jsonschema import ValidationError
+        bad = json.loads(json.dumps(self.valid))
+        bad["carton"].pop("passport_dimensions")
+        with self.assertRaises(ValidationError):
+            validate_manifest(bad)
 
     def test_unknown_field_is_rejected(self):
         from jsonschema import ValidationError
@@ -283,7 +343,7 @@ class TestWholeCatalogue(unittest.TestCase):
             try:
                 m = build_manifest(json.loads(f.read_text(encoding="utf-8")))
                 validate_manifest(m)
-                if m["carton"]["source"] == "template_ratio":
+                if m["carton"]["passport_dimensions"]["source"] == "template_ratio":
                     guessed.append(f.stem)
             except Exception as e:  # noqa: BLE001 - report all, not just the first
                 failures.append(f"{f.stem}: {type(e).__name__}: {e}")

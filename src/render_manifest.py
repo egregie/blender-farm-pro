@@ -40,7 +40,7 @@ import json
 import functools
 from pathlib import Path
 
-MANIFEST_VERSION = "1.2"
+MANIFEST_VERSION = "1.3"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -89,12 +89,16 @@ VERTICAL_FAMILY = {
 # uncertainty and three cautions about reading them are in
 # 01_input_raster/reference_analysis.md section 10.
 #
+# Compare these against src.silhouette.visible_faces_aspect, never against
+# silhouette_aspect: a reference draws its top face and our render cannot show
+# one, so only the visible quantity is like for like. Using the whole box
+# understates our width by 13-14% on the landscape templates.
+#
 # These are targets by the owner's decision, taken with the measurements in
-# hand: two templates already sit inside the instrument's own 4% uncertainty
-# (T1 at -1.2%, T1_SMALL at -0.7%) and the reference set draws the identical
-# 115x55x48 carton three ways across a 13% spread, so part of this table is
-# scatter being adopted as art direction. Recorded, not hidden -- the decision
-# was to target all nine.
+# hand. One caution travels with them: the references draw the identical
+# 115x55x48 carton three ways, at 1.3036, 1.3109 and 1.1480, so the 10 points
+# separating T1_LARGE from T1 are scatter being adopted as art direction. The
+# decision was to target all nine anyway. Recorded, not hidden.
 #
 # T2 is absent deliberately: zero SKU in the catalogue route to it, so there is
 # no reference to measure and nothing to reshape.
@@ -243,26 +247,19 @@ def _parse_dimension_string(text: str) -> tuple[float, float, float] | None:
     return nums[0], nums[1], nums[2]
 
 
-def resolve_carton(passport: dict, template_id: str) -> dict:
-    """Carton dimensions in mm, plus where they came from.
+def _resolve_passport_dimensions(passport: dict, template_id: str) -> dict:
+    """The carton's real size in mm, plus where it came from.
 
     Tried in descending order of fidelity; always succeeds, because a consumer
     freed from null-handling is the main thing the contract buys.
     """
     # 1. The passport's own secondary-packaging string IS the carton size.
     secondary = passport.get("secondary_packaging") or {}
-    # Construction data travels with the dimensions, on every path below: the
-    # side panel is drawn from it, and a carton that reached the renderer with
-    # its features stripped would quietly lose the zones it declares.
-    extras = {
-        "features": [str(f) for f in (secondary.get("features") or [])],
-        "material": str(secondary.get("material") or ""),
-    }
     parsed = _parse_dimension_string(secondary.get("dimensions", ""))
     if parsed:
         w, h, d = orient_for_template(parsed, template_id)
         return {"width_mm": w, "height_mm": h, "depth_mm": d,
-                "source": "passport_secondary", **extras}
+                "source": "passport_secondary"}
 
     # 2. No usable string: classify the primary package and size a carton
     #    around it, reusing the existing owner of that calculation.
@@ -273,7 +270,7 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
         return {"width_mm": float(secondary_tpl.box_width_mm),
                 "height_mm": float(secondary_tpl.box_height_mm),
                 "depth_mm": float(secondary_tpl.box_depth_mm),
-                "source": "derived_from_primary", **extras}
+                "source": "derived_from_primary"}
     except Exception:
         # 3. Last resort: the template's documented aspect ratio. Reaching here
         #    means the SKU has no dimensional data at all; the whole-catalogue
@@ -282,7 +279,43 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
         longest = max(rw, rh, rd)
         scale = NOMINAL_LONG_EDGE_MM / longest
         return {"width_mm": rw * scale, "height_mm": rh * scale,
-                "depth_mm": rd * scale, "source": "template_ratio", **extras}
+                "depth_mm": rd * scale, "source": "template_ratio"}
+
+
+def resolve_carton(passport: dict, template_id: str) -> dict:
+    """The carton as Stage 2 receives it: scene geometry AND the real size.
+
+    The two are separate on purpose and the separation is the whole of contract
+    1.3. ``width_mm``/``height_mm``/``depth_mm`` are solved onto the template's
+    measured reference proportion and exist to build the box.
+    ``passport_dimensions`` are untouched and exist to be printed. A consumer
+    that prints the first set puts invented measurements on pharmaceutical
+    packaging, which is the same act this project already refuses when it
+    declines to print a plausible LOT or EXP.
+    """
+    secondary = passport.get("secondary_packaging") or {}
+    # Construction data travels with the dimensions on every resolution path:
+    # the side panel is drawn from it, and a carton that reached the renderer
+    # with its features stripped would quietly lose the zones it declares.
+    extras = {
+        "features": [str(f) for f in (secondary.get("features") or [])],
+        "material": str(secondary.get("material") or ""),
+    }
+    passport_dims = _resolve_passport_dimensions(passport, template_id)
+    real = (passport_dims["width_mm"], passport_dims["height_mm"],
+            passport_dims["depth_mm"])
+
+    geometry, reshaped = reshape_to_art_direction(real, template_id)
+    if reshaped:
+        source = "art_direction"
+    elif template_id in TARGET_SILHOUETTE_ASPECT:
+        source = "art_direction_declined_orientation"
+    else:
+        source = passport_dims["source"]
+
+    return {"width_mm": geometry[0], "height_mm": geometry[1],
+            "depth_mm": geometry[2], "passport_dimensions": passport_dims,
+            "source": source, **extras}
 
 
 # ── provider ─────────────────────────────────────────────────────────────────
