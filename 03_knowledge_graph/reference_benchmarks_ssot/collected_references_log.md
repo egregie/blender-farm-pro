@@ -161,3 +161,43 @@ the packaging.
 #DDA7A5`, `accent #6B2D5C`. Neither colour is on the carton, and the same palette
 is assigned to a brand and its generic. Recorded here; fixing it belongs to the
 pipeline, not to reference collection.
+
+---
+
+## 2026-08-07 — `09_T1_Lyrica`: rejected, wrong package type
+
+Seven images acquired from DailyMed set `60185c88-ecfd-46f9-adb9-b97c6b00a553`
+and **deleted after inspection**. They are bottle wrap labels, not cartons —
+"90 Capsules", "Dispense in tight (USP), child-resistant containers". Template
+`09_T1_Lyrica` is T1, a folding carton, and the catalogue SKU `139-min` is
+Lyrica 75 mg / 30 Pills. Neither the package form nor the dosage matched.
+
+Owner's ruling: **carton unfoldings only.** Bottle and blister labels are
+rejected regardless of image quality.
+
+### What they proved before being deleted
+
+**Dosage colour coding is industry practice, not a Strattera quirk.** A second
+manufacturer, on a different product, codes strength the same way — seven
+strengths, seven colours, everything else identical:
+
+| Image | Accent | Share of front panel |
+|---|---|---:|
+| `lyrica-15` (25 mg) | `#E46CB4` pink | 4.8% |
+| `lyrica-18` | `#3CB4CC` cyan | 5.2% |
+| `lyrica-21` | `#6CB46C` green | 5.7% |
+| `lyrica-24` | `#FC9C24` orange | 4.9% |
+| `lyrica-27` | `#6C0C3C` dark maroon | 7.2% |
+| `lyrica-30` | `#B424B4` magenta | 4.3% |
+
+**The archetype differs even though the principle does not.** Strattera devotes
+23–32% of its front panel to the colour field, which occupies its lower half.
+Lyrica devotes 4.3–7.2% — a narrow plate around the dosage. Same rule, different
+design language, and a reason not to assume one carton's proportions from
+another's.
+
+**Whole-unfolding measurement hides the accent entirely.** Measured across the
+full scan, Lyrica read as `#FCFCFC` 56% and `#242424` 16% with no colour at all;
+the pink is only visible once the front panel is cropped out. This is the second
+template where measuring the unfolding rather than the panel produced a wrong
+answer, and it is now a standing rule rather than an observation.
