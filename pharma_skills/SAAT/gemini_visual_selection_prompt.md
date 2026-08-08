@@ -152,6 +152,37 @@ and we track that separately.
   products but online-pharmacy variants. They may have no distinct packaging at
   all. If you find only standard Cialis packs, say so rather than substituting.
 
+## Run unattended — do not stop to ask
+
+Work through the whole list without pausing for confirmation. Nobody is watching
+the screen.
+
+**Proceed on your own, without asking, for anything read-only:**
+
+- opening links, following results, opening and closing tabs;
+- navigating between pages and back;
+- scrolling, zooming, viewing an image at full size;
+- running further searches and refining queries;
+- moving between products in the list.
+
+None of that changes anything on the far side, so there is nothing to confirm.
+
+**Stop and ask — or simply skip and note it — for anything with consequences:**
+
+- signing in, creating an account, entering any credential;
+- filling or submitting a form, entering personal or payment details;
+- adding to a cart, starting a checkout, placing an order;
+- accepting terms, granting permissions, or agreeing to anything;
+- downloading or running a file;
+- posting, commenting or contacting anyone.
+
+None of those are needed for this task. If a page demands one to show you a
+picture, that page is not worth it — skip it, note it, move to the next
+candidate. A cookie banner is the one exception: dismiss it by **declining
+non-essential cookies**, and carry on.
+
+If you hit a CAPTCHA, do not attempt it. Note the URL and move on.
+
 ## What to return
 
 A JSON array. One object per image. Nothing else — no commentary, no summary
