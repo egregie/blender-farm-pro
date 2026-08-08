@@ -432,3 +432,50 @@ face — is then a judgement about what "matching the reference" means, and this
 document has established that it cannot be settled by measuring what we render.
 The three differ by 13–18%. That is the open question, and it is smaller than the
 36–77% the vertical family is out by, which stays true under all three.
+
+## 12. The carton had no volume, and the rig was lighting the lid
+
+Spotted by eye — the top face read as nothing at all — then measured 2026-08-09.
+
+| | top face | backdrop | contrast |
+|---|---:|---:|---:|
+| ours, `T1` / `T3` / `T1_LARGE` / `T_MULTIPACK` | **255.0** | 254.96 | **−0.04** |
+| ours, vertical family | 252.5–253.3 | 254.96 | 1.6–2.4 |
+| the nine references | 221.8–244.8 | 254.6 | 9.8–32.8 |
+
+The top face was clipped to pure white and was *brighter than the backdrop*. There
+is no tone in it to see, which is why the box read as a flat label rather than an
+object.
+
+**The cause is the key's position, computed from the rig.** At `KEY_OFFSET =
+(2, -2, 3)` the printed front face stands almost edge-on to the key:
+
+| light | cos(front face) | cos(top face) | top/front |
+|---|---:|---:|---:|
+| key `(2, -2, 3)` | 0.119 | 0.728 | 6.11× |
+| fill `(-2, -1.5, 2)` | 0.742 | 0.625 | 0.84× |
+
+Weighted by 25 W and 8 W, the rig delivered 8.91 to the front face and 23.19 to
+the top: **2.60×**. And of the front face's 8.91, the fill supplied 5.94 against
+the key's 2.98 — a light a third the wattage doing twice the work. The key was
+functionally a top light, and the roughly three stops of negative exposure
+compensation were the frame being pulled back down afterwards.
+
+**Exposure could never have fixed it.** Metering the front face to 238 is exactly
+what pushes a face receiving 2.6× as much light past clipping.
+
+**The fix is `KEY_OFFSET = (2, -4.5, 3)`** — same side, same elevation band, moved
+forward. Top/front falls to 1.06, inside the references' 0.89–1.04; the key takes
+back 1.85× the fill's share of the front face. Re-metered against the reference
+band of 235.0–241.5: `1-min` renders its front face at 238.23 and `229-min` at
+238.93, with the top face at 0.93–1.05 of the front. Exposures move from
+−2.76/−2.84 to −1.77/−1.87.
+
+`tests/test_blender_carton.py` computes the ratio from the rig — no render needed
+— and fails above 1.35. Restoring the old offset makes it fail at 2.60.
+
+**What this unblocks.** Sections 10, 11 and 11a all foundered on the same thing:
+a top face at the backdrop's own brightness has no edge, so the silhouette could
+not be measured continuously and no art-direction target could be solved onto it.
+With the lid carrying tone that obstacle is gone, and the targets in section 10
+are worth re-measuring against renders that have a top face.

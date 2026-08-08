@@ -67,9 +67,17 @@ MARGIN_TOL = 0.01
 # to the key across its width and reads ~0.13 stops darker than a narrow one, so
 # landscape and portrait cartons are metered separately - exactly as a
 # photographer re-reads the meter without touching the strobes.
+#
+# Re-metered 2026-08-09 after the key moved forward to (2, -4.5, 3). The old
+# -2.76 / -2.84 belonged to a rig whose key stood almost edge-on to the printed
+# face and blew the top face to a clipped 255; with the key doing its job the
+# frame is about a stop less hot. Measured, not derived: 1-min renders its front
+# face at 238.23 and 229-min at 238.93, both inside the reference band of
+# 235.0-241.5, and the top face now lands at 0.93-1.05 of the front face where
+# the nine references put theirs at 0.89-1.04.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.76
-FILM_EXPOSURE_PORTRAIT = -2.84
+FILM_EXPOSURE_LANDSCAPE = -1.77
+FILM_EXPOSURE_PORTRAIT = -1.87
 
 # Studio-strobe-scale wattages, restated independently of the driver. These are
 # the power at the rig's reference carton size, not for every carton - see
@@ -481,6 +489,37 @@ class TestLightingIsOneStudio(unittest.TestCase):
                            "key light must stay on the camera's right (+X)")
         self.assertLess(self.small["fill_light"]["location"][0], 0,
                         "fill light must stay on the camera's left (-X)")
+
+    def test_the_key_lights_the_printed_face_not_the_lid(self):
+        """The defect this guards was visible before it was measured: the carton
+        read as a flat label because its top face rendered at a clipped 255.0,
+        BRIGHTER than the 254.96 backdrop, so the box had no volume at all.
+
+        Cause, computed from the rig rather than guessed: at the old
+        KEY_OFFSET (2, -2, 3) the printed front face stood almost edge-on to the
+        key -- cos 0.119 against the top face's 0.728 -- so key and fill together
+        put 2.60x more light on the lid than on the face. The nine references sit
+        near 1.0. Exposure cannot fix it: metering the front face to 238 is
+        exactly what pushes the top past clipping.
+
+        Asserted here rather than on a render because it is a property of the
+        rig, so it costs nothing and cannot be skipped for want of Blender.
+        """
+        rot = math.radians(35.0)                 # the carton's Z rotation, T1 family
+        nf = (-math.sin(rot), -math.cos(rot), 0.0)
+        front = top = 0.0
+        for name in ("key_light", "fill_light"):
+            loc = self.small[name]["location"]
+            energy = self.small[name]["energy"]
+            norm = math.sqrt(sum(c * c for c in loc))
+            front += energy * max(0.0, (nf[0] * loc[0] + nf[1] * loc[1]) / norm)
+            top += energy * max(0.0, loc[2] / norm)
+        ratio = top / front
+        self.assertLess(
+            ratio, 1.35,
+            f"the rig puts {ratio:.2f}x more light on the top face than on the "
+            f"printed front face; the references sit at 0.89-1.04 and anything "
+            f"much above 1 clips the lid to white and flattens the carton")
 
     def test_key_to_fill_ratio_is_constant(self):
         for lighting, label in ((self.small, "small"), (self.big, "big")):

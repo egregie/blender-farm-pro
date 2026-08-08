@@ -943,7 +943,27 @@ def setup_camera(dims_m):
 # angle, whatever the carton measures. Directions are as built, NOT as sometimes
 # described in prose — the key is on the camera's RIGHT (+X) and the fill on its
 # LEFT (-X); do not "correct" them the other way round.
-KEY_OFFSET  = (2.0, -2.0, 3.0)    # x, y, z in multiples of target_size
+#
+# The key sits WELL IN FRONT of the carton, not beside it, and that is the whole
+# of it. At the old (2, -2, 3) the printed front face stood almost edge-on to the
+# key: cos 0.119 against the top face's cos 0.728, so the key put 6.1x more light
+# on the lid than on the face it exists to light. Two things followed, both
+# measured on 2026-08-09.
+#
+# The top face rendered at 255.0 -- pure clipped white, brighter than the 254.96
+# backdrop -- so the carton lost its volume and read as a flat label. The nine
+# references put their top face 10 to 33 levels BELOW the backdrop, at 0.89-1.04
+# of their own front face. Ours was at 2.60x.
+#
+# And the fill was doing the key's job: 5.94 of the front face's light against
+# the key's 2.98, twice as much from a light a third the wattage. That is also
+# why the film exposure had to be pulled nearly three stops -- the rig was
+# lighting the lid and the frame, and the face was catching the spill.
+#
+# (2, -4.5, 3) keeps the key on the camera's right and at a similar elevation,
+# and moves it forward: top/front falls to 1.06, in the references' band, and the
+# key takes back 1.85x the fill's share of the front face.
+KEY_OFFSET  = (2.0, -4.5, 3.0)    # x, y, z in multiples of target_size
 FILL_OFFSET = (-2.0, -1.5, 2.0)
 LIGHT_SIZE_FRAC = 2.0             # area-light edge, also in multiples
 
@@ -1067,8 +1087,8 @@ def setup_lighting(target_size: float):
 # pack is not touched between shots, the meter is read for each one. Two values
 # keyed on carton shape, not a nine-entry table keyed on template.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.76
-FILM_EXPOSURE_PORTRAIT = -2.84
+FILM_EXPOSURE_LANDSCAPE = -1.77
+FILM_EXPOSURE_PORTRAIT = -1.87
 
 
 def film_exposure(dims_m) -> float:

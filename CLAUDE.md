@@ -383,17 +383,35 @@ the same angle. Only the distance scales — and therefore the power must too.
   against a reference band of 235–241. After, 236–239. Don't "simplify" the square away.
 - **The key is on the camera's RIGHT (+X), the fill on its LEFT.** Prose descriptions of
   this project have had it the other way round; the code is correct, the prose is not.
+- **`KEY_OFFSET = (2, -4.5, 3)` — the key stands well IN FRONT of the carton, not beside
+  it, and moving it back flattens the packshot.** At the old `(2, -2, 3)` the printed front
+  face stood almost edge-on to the key (cos 0.119 against the top face's 0.728), so key and
+  fill together put **2.60× more light on the lid than on the face**. The top face rendered
+  at a clipped **255.0 — brighter than the 254.96 backdrop** — and the carton lost its
+  volume entirely, reading as a flat label. The nine references put their top face 10–33
+  levels *below* the backdrop, at 0.89–1.04 of their own front face; we now sit at
+  0.93–1.05. The old rig also had the *fill* doing the key's job: 5.94 of the front face's
+  light against the key's 2.98. `test_the_key_lights_the_printed_face_not_the_lid` computes
+  this ratio from the rig and fails above 1.35, so the regression cannot return quietly.
 - **Light size has no lower clamp.** A clamp makes small cartons relatively softer-lit than
   big ones — a per-template style difference, which is what the rig exists to avoid.
 
 Exposure is a **film** setting, kept strictly separate from those energies: pin
 `FILM_VIEW_TRANSFORM = "Standard"` and meter per carton shape —
-`FILM_EXPOSURE_LANDSCAPE = -2.76`, `FILM_EXPOSURE_PORTRAIT = -2.84`, measured under
-CYCLES on the true-scale carton. The lighting is
-bit-identical for both; a wide front face simply sits ~2 face-widths from the key across its
-width and reads ~0.13 stops darker than a narrow one, which is geometry rather than a defect
-(see `reference_analysis.md` §9). This is what a photographer does anyway — re-read the
-meter, don't touch the strobes.
+`FILM_EXPOSURE_LANDSCAPE = -1.77`, `FILM_EXPOSURE_PORTRAIT = -1.87`, measured under
+CYCLES on the true-scale carton. (They were −2.76 / −2.84 for the old edge-on key; with the
+key lighting the face the frame is about a stop less hot. Exposure could never have fixed
+that rig: metering the front face to 238 is precisely what pushed the lid past clipping.)
+The lighting is bit-identical for both shapes; a wide front face simply sits ~2 face-widths
+from the key across its width and reads ~0.1 stops darker than a narrow one, which is
+geometry rather than a defect (see `reference_analysis.md` §9, §12). This is what a
+photographer does anyway — re-read the meter, don't touch the strobes.
+
+**`film_exposure()` picks its shape from `width_mm >= height_mm`, and since contract 1.3
+that is the art-directed geometry, not the carton.** `T_VERT_VIAL` reshapes to 172×170 and
+is metered as landscape although it photographs portrait — the same box-versus-picture
+confusion the reshape's flip guard exists to avoid. Known, not yet fixed: the driver cannot
+import `src.silhouette` to ask which way the picture falls.
 
 **Never introspect the render-engine enum.** `RenderSettings.engine` is a DYNAMIC enum:
 Blender builds its real item list through an RNA callback at assignment time, and
