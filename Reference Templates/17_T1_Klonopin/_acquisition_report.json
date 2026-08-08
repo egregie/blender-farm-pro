@@ -1,0 +1,28 @@
+{
+  "folder": "17_T1_Klonopin",
+  "searches": [
+    "Rivotril 0.5mg Roche box",
+    "Clonazepam Rivotril 0.5mg Tab"
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Clonazepam%28RIVOTRIL-0-5mg_Tab%29_2014-05-28_23-55.JPG",
+      "reason": "download_blocked",
+      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
+      "candidate_status": "open -- not assessed"
+    }
+  ],
+  "blocked_hosts": [
+    {
+      "host": "upload.wikimedia.org",
+      "reason": "http_429"
+    }
+  ],
+  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "owner_review": {
+    "date": "2026-08-08",
+    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
+    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+  }
+}

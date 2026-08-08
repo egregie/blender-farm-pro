@@ -1,0 +1,13 @@
+{
+  "folder": "03_T1_SMALL_Cialis_Professional",
+  "searches": [],
+  "accepted": [],
+  "rejected": [],
+  "blocked_hosts": [],
+  "outcome": "0 accepted, 0 rejected -- NOT SEARCHED. This folder is outstanding work.",
+  "owner_review": {
+    "date": "2026-08-08",
+    "finding": "No search was run for this folder. execution/acquire_references_pipeline.py carries a hardcoded candidate list and this folder's entry is `\"candidates\": []` with a pre-written explanation -- a literal in the script, not a result. Google Images was never queried; the whole candidate set is 14 Wikimedia Commons URLs already present in the repository from the previous session.",
+    "action": "Outcome text replaced: the folder is unsearched, not exhausted."
+  }
+}

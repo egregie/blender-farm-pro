@@ -1,0 +1,27 @@
+{
+  "folder": "23_T1_Lexotanil",
+  "searches": [
+    "Boite de Lexomil avec une boite de bromazépam.jpg"
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Boite_de_Lexomil_avec_une_boite_de_bromaz%C3%A9pam.jpg",
+      "reason": "download_blocked",
+      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
+      "candidate_status": "open -- not assessed"
+    }
+  ],
+  "blocked_hosts": [
+    {
+      "host": "upload.wikimedia.org",
+      "reason": "http_429"
+    }
+  ],
+  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "owner_review": {
+    "date": "2026-08-08",
+    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
+    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+  }
+}

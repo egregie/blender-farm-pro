@@ -1,0 +1,29 @@
+{
+  "folder": "12_T1_Provigil",
+  "searches": [
+    "Modiodal 100mg boîte",
+    "Provigil modafinil Cephalon box"
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/Benzodiaz%C3%A9pines_inconnues_du_public.png",
+      "reason": "download_blocked",
+      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
+      "candidate_status": "open -- not assessed",
+      "caution": "The candidate filename is 'Benzodiazepines inconnues du public'. Modafinil is not a benzodiazepine, and the name indicates a multi-carton collection shot rather than a single pack. Content not verified -- the file was never downloaded."
+    }
+  ],
+  "blocked_hosts": [
+    {
+      "host": "upload.wikimedia.org",
+      "reason": "http_429"
+    }
+  ],
+  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "owner_review": {
+    "date": "2026-08-08",
+    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
+    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+  }
+}

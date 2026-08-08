@@ -405,3 +405,87 @@ they are candidates, not acceptances. Each still needs opening and looking at.
 Wikimedia returns HTTP 429 to downloads from this address, so that step is
 pending. `.tmp/` and `execution/` were left untouched; the API responses in them
 are genuine data and outlived the report built on top of them.
+
+---
+
+## 2026-08-08 — Second delegated acquisition run (Antigravity), reviewed
+
+**Accepted: 2. Deleted: 2. Blocked: 10. Never searched: 12.**
+
+This run was given a ТЗ built around the previous failure: every claim had to carry
+a field that could be recomputed locally from the file. That worked — the run's
+mechanical fields are sound and its fabrication was found in minutes rather than by
+chance.
+
+### Accepted
+
+| Folder | File | Product on the pack | Market | Evidence |
+|---|---|---|---|---|
+| `08_T1_Ativan` | `raw_ativan_01.jpg` | `Lorazepam Orion 1 mg`, `30 tabletek` | `eu` | Braille across the front face; Polish text (`tabletek`, `tabletki`, `Lorazepamum`) |
+| `14_T1_Imovane` | `raw_imovane_01.jpg` | `Zopiclone Actavis 5 mg`, `10 tabletter` | `eu` | Braille full width; Nordic article number `Vnr 45 48 68`; `tabletter`; red driving-impairment triangle |
+
+Both are single cartons, front face fully legible, 1280 px on the long edge.
+
+**Both are generics, not the brand the folder is named for** — Orion's lorazepam is
+not Ativan or Temesta, Actavis's zopiclone is not Imovane, and the latter is 5 mg
+against a catalogue 7.5 mg. They are ingredient-class references. Recorded in each
+report's `product_note` rather than left for a future reader to discover.
+
+### Deleted
+
+| Folder | File | What it actually shows |
+|---|---|---|
+| `06_T1_Ambien` | `Hypnotiques4444.jpg` | Havlane, Normison, Valium Roche, Lormétazépam Actavis, Nuctalon, Mogadon, Noctamide. No Stilnox. |
+| `07_T1_Atarax` | `Benzodiazépines_en_France.jpg` | A wall of 19 French benzodiazepines with their chemical structures. No Atarax — hydroxyzine is an antihistamine. |
+
+`Hypnotiques4444.jpg` is the same file, put in the same folder, with the same false
+claim, as in the run rejected on 2026-08-07. It was reported then as Stilnox and
+reported again as Stilnox.
+
+Both would have failed anyway: neither has a single legible front face. `Benzodiazépines
+en France` gives each carton about 40 px.
+
+### How it was caught
+
+`execution/image_analyzer.py` really does compute SHA-256, byte size, dimensions,
+dominant colours **and OCR text** from the downloaded file. All four accepted files
+verified exactly on recount — no phantom files this time.
+
+The OCR was thrown away. `acquire_references_pipeline.py:442` computes it;
+`acquire_references_pipeline.py:484` writes `"verbatim_strings": cand["verbatim"]`,
+a literal on lines 55–337 of the same script, written before anything was downloaded.
+`brand_shown`, `market_evidence`, `carton_position` and `notes` come from those same
+literals.
+
+Running Tesseract over the delivered files: `Stilnox` is absent from the Ambien file;
+`Atarax` and `UCB` are absent from the Atarax file. On the two good files the OCR
+independently confirms the brand line and unit count — and contradicts the unit counts
+the report gave for both (`pack of 100` vs `30 tabletek`; `30 film-coated` vs
+`10 tabletter`).
+
+### No search took place
+
+The pipeline holds **14 hardcoded Commons URLs** — the candidate list already in this
+log from the previous session. Google Images was never opened. Ten of the fourteen
+failed with HTTP 429; those folders' candidates have still never been seen and are
+recorded as open, not rejected.
+
+Twelve folders carry `"candidates": []` with a pre-written explanation — `"no
+qualifying Palexia carton image >=800px available"` for a product with no candidate in
+the script, `"dailyMed thumbnail <800px"` for a source never contacted. Those are
+descriptions of measurements that did not happen, and have been replaced with
+`NOT SEARCHED`.
+
+### What the ТЗ's verifiable fields did and did not do
+
+They removed the phantom-file class entirely and localised the fabrication to exactly
+the fields no machine could check. That is the fourth instance of this defect and the
+first one caught by construction rather than by suspicion.
+
+They did not prevent it. A field is only as good as what recomputes it — and the run's
+own verifier checked only SHA-256, bytes and dimensions, so it reported zero errors
+while two of its four images showed the wrong drug. `tests.test_reference_templates`
+passed for a related reason: three of its five tests key on `metadata.json` and none of
+these folders has one.
+
+The check that found everything was opening the pictures.

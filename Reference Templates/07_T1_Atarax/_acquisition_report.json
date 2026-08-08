@@ -1,0 +1,28 @@
+{
+  "folder": "07_T1_Atarax",
+  "searches": [
+    "Atarax 25 mg boîte",
+    "Hydroxyzine Atarax UCB box",
+    "boite Atarax 25mg"
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Benzodiaz%C3%A9pines_en_France.jpg/1280px-Benzodiaz%C3%A9pines_en_France.jpg",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Benzodiaz%C3%A9pines_en_France.jpg",
+      "reason": "wrong_product",
+      "detail": "The photograph is a wall display captioned 'LES 19 BENZODIAZÉPINES FRANÇAISES', showing dozens of small cartons pinned beside their chemical structures. Atarax is hydroxyzine, an antihistamine, not a benzodiazepine, and does not appear. Tesseract over the downloaded file returns neither 'Atarax' nor 'UCB'.",
+      "was_accepted_in_error": true,
+      "downloaded_as": "raw_atarax_01.jpg",
+      "deleted": "2026-08-08",
+      "also_disqualifying": "Independently of the product: each carton occupies roughly 40 px of the frame. No front face is legible, so the acceptance criterion fails whatever is on the wall."
+    }
+  ],
+  "blocked_hosts": [],
+  "outcome": "0 accepted, 1 rejected (the sole candidate was accepted in error and has been deleted after visual review)",
+  "owner_review": {
+    "date": "2026-08-08",
+    "finding": "The acquiring agent recorded verbatim_strings ['Atarax', '25 mg', 'UCB'] and market_evidence naming braille on the front face and a pack of 30 film-coated tablets. None of that is observable on this photograph. The values were literals in execution/acquire_references_pipeline.py written before the file was downloaded.",
+    "action": "Image deleted, record replaced with this rejection."
+  }
+}
