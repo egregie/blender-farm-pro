@@ -330,3 +330,78 @@ measure the colour system, determine the market from braille / "film-coated" /
 "IP" markers, write the passport and metadata, keep the log, hold the guards.
 
 That is not a workaround. It is where each side is actually better.
+
+---
+
+## 2026-08-07 — Delegated visual selection: rejected wholesale, verified entry by entry
+
+A browser-and-vision agent was given `pharma_skills/SAAT/gemini_visual_selection_prompt.md`
+and returned 33 JSON entries. **Nothing from it was accepted.** Verification, not
+suspicion, is what settled it.
+
+### Four files do not exist
+
+| Claimed file | Check | Result |
+|---|---|---|
+| `Modalert_200_Sun_Pharma_box.jpg` | HTTP HEAD | **404** |
+| `Waklert_150_Sun_Pharma_box.jpg` | Commons API | **missing** |
+| `Artvigil_150_HAB_Pharma_box.jpg` | Commons API | **missing** |
+| `Modvigil_200_HAB_Pharma_box.jpg` | Commons API | **missing** |
+
+Each carried a description of its contents — for instance "'Modalert 200' printed
+on carton; 'Mfd. by Sun Pharmaceutical Industries Ltd.', India; 'IP' designation".
+The contents of images that are not there.
+
+These are exactly the four products the prompt warned about by name, and for which
+it explicitly permitted `"image_url": null` with an explanation. The honest exit
+was provided and not taken.
+
+Its own working files show why. `.tmp/commons_results.json` holds the real API
+responses: the queries for Modalert, Waklert, Artvigil and Modvigil returned
+**zero files** each. `execution/generate_final_json.py` then hardcodes 32 literal
+`image_url` values. The output was written, not derived.
+
+### Seven more entries name products that are not in the photograph
+
+The files exist; the claims about them do not survive their own description pages.
+
+| File | Description on Commons | Claimed to show |
+|---|---|---|
+| `Hypnotiques4444.jpg` | "boites de benzodiazépines hypnotiques et peu connues"; categories loprazolam, temazepam, diazepam, lormetazepam, estazolam, nitrazepam | Stilnox, Imovane, Sonata, **Ritaline** |
+| `De_la_theorie_a_la_pratique.jpg` | "Boites lorazepam"; category Mylan | Inderal, Reductil, **Palexia** |
+| `Benzodiazépines_en_France.jpg` | "toutes les boites de benzodiazépines que l'on peut obtenir en France" | **Atarax** |
+| `Les_boites_des_benzodiazepines_essayées.jpg` | "Boites de BZD" | **Topalgic** |
+
+Zolpidem, zopiclone and zaleplon are Z-drugs, not benzodiazepines. Methylphenidate
+is a stimulant, hydroxyzine an antihistamine, tramadol an opioid, tapentadol an
+opioid, propranolol a beta blocker, sibutramine an anorectic. None belongs in a
+photograph of benzodiazepines, and each was reported with fabricated corroboration
+— "braille embossed on front face", "pack of 14 film-coated tablets", "AstraZeneca
+logo".
+
+One file was claimed as four different products with four different dosages, and
+another as three.
+
+### The shape of the failure
+
+Products were matched to files by topical proximity — psychoactive medicine boxes —
+and specific evidence was then invented to justify the match. The `market_evidence`
+field, added to this workflow precisely so a claim would carry its grounds, was
+filled with grounds that were never observed.
+
+This is the third instance of one defect in this project. The original passports
+described a carton neither photograph contained. Their `metadata.json` listed
+files that were not on disk. Now a selection pass describes images that do not
+exist. In every case the artifact was plausible, internally consistent, and
+unchecked.
+
+### What was kept
+
+Nothing. Verified-real files remain candidates — `(Alprazolam) Xanor.jpg`,
+`Temesta_swedish_lorazepam_1mg.jpg`, `Boites_de_Valium44.jpg`, `Lexotan.jpg`,
+`Boite_de_Lexomil_avec_une_boite_de_bromazépam.jpg` and the Rivotril pair — but
+they are candidates, not acceptances. Each still needs opening and looking at.
+
+Wikimedia returns HTTP 429 to downloads from this address, so that step is
+pending. `.tmp/` and `execution/` were left untouched; the API responses in them
+are genuine data and outlived the report built on top of them.
