@@ -125,12 +125,51 @@ content element, and the graphic signature.
 - **When two candidates are genuinely indistinguishable in quality, take both** —
   within the cap. The owner selects afterwards.
 
-### 5.3 Approved sources
+### 5.3 Sources, in order of priority
 
-Manufacturer sites and product portals · regulatory databases (FDA/DailyMed, EMA,
-MHRA) · licensed pharmacies · official distributors and wholesalers · package
-insert databases. **The list is not to be extended.** Every saved file records
-its URL and the date.
+**1. Official manufacturer** → **2. European pharmacy or distributor** →
+**3. Another reliable European source** → **4. Grey or unofficial source, as a
+visual reference only.**
+
+Work down the list. Exhausting the white segment without a usable image is **not
+grounds to stop searching** — it is grounds to move to the next step.
+
+What each step is worth in practice, measured on 2026-08-07 rather than assumed:
+
+| Source | What it actually yields |
+|---|---|
+| Regulatory databases (EMA, MHRA, medicines.org.uk) | **No imagery at all.** SmPC and PIL text only |
+| Licensed German pharmacies (Shop Apotheke, DocMorris, medpex) | **Placeholders for prescription products** — German advertising law forbids showing the pack. `placeholder-prescription-ad.png`, "Abbildung ähnlich" |
+| FDA / DailyMed | Real flat unfoldings, but **US packaging**: NDC codes, US warnings |
+| Manufacturer sites | Varies by company; the best white-segment bet |
+
+The consequence is that for much of this catalogue the white segment is empty by
+construction, not by bad luck.
+
+### 5.4 Using a grey source
+
+When no usable image of the original packaging is found in the white segment
+after a genuine search, a grey or unofficial site **may be used solely as a
+visual reference for the packaging** — to establish the actual design: colour
+scheme, logos, typography, element placement, form.
+
+Under that use:
+
+- the legality of the seller or platform is **not assessed** — it is irrelevant
+  to reading a design off a picture;
+- the legal availability of the drug is **not assessed**;
+- **nothing else on the page is used** — not the product description, not the
+  price, not stock, not purchasing information;
+- packaging found on a grey site is **not automatically European packaging**. If
+  the European version is specifically required, the pack's origin and market
+  must be verified separately;
+- among several candidates, prefer the sharpest image in which the front and
+  side faces can be reliably examined.
+
+**The governing limit: we reproduce the appearance of a package, not the
+activity of the site it was found on.** The file is saved, its URL and date are
+logged, and its source tier is recorded in `metadata.json` so a later reader can
+tell tier 1 from tier 4 without re-deriving it.
 
 ### 5.4 Rejection
 

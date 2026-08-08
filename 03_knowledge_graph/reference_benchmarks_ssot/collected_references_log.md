@@ -201,3 +201,62 @@ full scan, Lyrica read as `#FCFCFC` 56% and `#242424` 16% with no colour at all;
 the pink is only visible once the front panel is cropped out. This is the second
 template where measuring the unfolding rather than the panel produced a wrong
 answer, and it is now a standing rule rather than an observation.
+
+---
+
+## 2026-08-07 — Source research, and the US material removed
+
+`01_T1_Strattera` (7 files) and `20_T1_Stromectol` (2 files) were **deleted** on
+the owner's instruction. Both are US packaging — NDC codes, US warnings,
+"Distributed by Merck Sharp & Dohme LLC, Rahway NJ" — and the standard for this
+project is European. Keeping them would have taught the renderer a US layout.
+
+### What each source tier actually yields, measured
+
+| Source | Result |
+|---|---|
+| EMA, MHRA, `medicines.org.uk` | **No imagery.** SmPC and PIL text only. Checked twice, on Strattera and Atarax |
+| Licensed German pharmacies (Shop Apotheke, DocMorris, medpex, APONEO) | **Placeholders for prescription products.** `placeholder-prescription-ad.png`, "Abbildung ähnlich". German advertising law forbids showing the pack |
+| FDA / DailyMed | Real unfoldings, but US packaging. Also roughly half the queue is bottle labels rather than cartons |
+| Manufacturer sites | The best white-segment option; coverage varies by company |
+| Grey pharmacies | Real packshots. Tier 4 under the rule below |
+
+The white segment is empty **by construction** for much of this catalogue, not by
+bad luck: the more strictly regulated the source, the less likely it is to show a
+picture of the box.
+
+### The test group is not homogeneous
+
+29 templates, split by whether European packaging exists at all:
+
+- **Originator brands with a real European carton (13):** Cialis, Tramadol,
+  Atarax, Ativan, Imovane, Xanax ×2, Valium ×2, Inderal, Lexotanil, Ritalin,
+  Viagra. Tapentadol exists in the EU as Palexia.
+- **Indian generics (6):** Modalert, Waklert, Artvigil, Modvigil, Modafinil
+  Generic, Kamagra. No European packaging exists. Manufacturers publish no
+  consumer packshots; a search returns grey resellers almost exclusively.
+- **No European equivalent (5):** Klonopin (the EU brand is Rivotril), Adderall,
+  Hydrocodone, Slimex (sibutramine, withdrawn in the EU in 2010), Sonata.
+- **Not standalone products (3):** Cialis Professional, Cialis Super Active — not
+  licensed products but online-pharmacy variants with no packaging of their own.
+- Ambien is Stilnox in the EU; Provigil is an originator.
+
+Worth naming: **the benchmark set is itself mixed.** Kamagra is Indian packaging;
+Cialis and Viagra are European. "European standard" was already not uniform
+across the three references the whole stage is calibrated on.
+
+### Source rule, set by the owner 2026-08-07
+
+Priority: **manufacturer → European pharmacy or distributor → other reliable
+European source → grey source as a visual reference.** Running out of white
+sources is not grounds to stop searching.
+
+A grey source may be used **only to read the packaging design** — colours, logos,
+typography, layout, form. Seller legality is not assessed, drug availability is
+not assessed, and nothing but the image is taken from the page. Packaging found
+that way is **not automatically European**; if the European version is required,
+origin must be verified separately.
+
+**We reproduce the appearance of a package, not the activity of the site it was
+found on.** Source tier is recorded in each `metadata.json` so tier 1 and tier 4
+stay distinguishable without re-deriving them.
