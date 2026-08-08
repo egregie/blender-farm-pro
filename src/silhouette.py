@@ -166,3 +166,124 @@ def silhouette_aspect(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
     """Silhouette width divided by its height. The art-direction target."""
     w_pct, h_pct = frame_fill(dims_mm, template_id, resolution)
     return w_pct / h_pct
+
+
+# ── The same quantity, measured off pixels ──────────────────────────────────
+#
+# Needed for the nine curated references, which carry no dimensions: there is no
+# model to project, so the only way to learn their proportion is to look. It is
+# NOT the way to learn ours -- for our own renders the model above is exact and
+# this is the inferior instrument. Both live here so their disagreement is
+# testable rather than theoretical.
+#
+# Two facts about these images decide the method, both measured 2026-08-09 over
+# the 40 current-era renders in 02_processing/blender_test_renders.
+#
+# The backdrop is not flat. It means 254.96 with sd 0.32, but Cycles noise takes
+# individual pixels down to 244.7 -- darker than anything a threshold could
+# exclude without also discarding the carton. A bounding box built from the
+# extreme subject pixels therefore spans the entire frame: 7 stray pixels on the
+# border are enough. Eroding the mask by one pixel removes them, because noise
+# is not connected to anything and the carton is. Skipping the erosion is not a
+# small error, it is a total one.
+#
+# The top face cannot be separated from the backdrop AT ALL. Measured across the
+# carton's own top rows it reads 254.7-254.9 against a backdrop of 254.96 -- the
+# same value, not a close one. That is the light rig working as designed: a
+# white board under near-shadowless high-key lighting in front of a 255 backdrop
+# has no upper edge in pixels. No threshold exists that keeps it, and raising the
+# threshold only makes the measurement catch the top face on cartons whose
+# geometry gives it a gradient while still missing it on cartons where it is
+# flat. That is why the residual against the model is structured by template
+# rather than random.
+#
+# The nine references do NOT have this problem, and that asymmetry is the whole
+# reason the instrument is usable. Their topmost band reads 225-243 -- a real
+# drawn edge -- and moving the threshold from 250 to 252 shifts their top row by
+# 0 or 1 pixel. Gemini shades the top face; our rig deliberately does not.
+#
+# So the same call returns two different quantities depending on the subject:
+#
+#   * on a reference, the FULL silhouette, top face included;
+#   * on one of our renders, only the VERTICAL faces, because the top has no
+#     pixels to find.
+#
+# Which makes one comparison legitimate and one worthless. Reference measurement
+# against ``silhouette_px`` is like for like. Reference measurement against a
+# pixel measurement of our own render is not -- it would read our lighting as a
+# proportion difference and report roughly 14% of shape that is not there.
+#
+# What the numbers are, at threshold 250 with one-pixel erosion, measured
+# 2026-08-09:
+#
+#   * our renders against ``visible_faces_px``, which is what they actually
+#     show: aspect error +1.3% mean, sd 2.9, worst 10.0%;
+#   * the same renders against ``silhouette_px``: +14.1% mean -- the missing top
+#     face, not an error in either the model or this code;
+#   * across thresholds 248-253 on the nine references: 0.6-3.6%, except
+#     T_VERT_DROPPER at 7.6%.
+#
+# So MEASURE_UNCERTAINTY_PCT below is not a safety margin someone chose. It is
+# what the instrument does. A difference smaller than it is not evidence of
+# anything, and tuning geometry to close such a gap is tuning noise.
+MEASURE_THRESHOLD = 250.0
+MEASURE_ERODE_R = 1
+MEASURE_UNCERTAINTY_PCT = 4.0
+
+
+def visible_faces_px(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
+    """(min_x, min_y, max_x, max_y) of the carton's VERTICAL faces only.
+
+    What a high-key photograph of a white carton on a white backdrop can show:
+    the front face and the side panel, and nothing of the top. Narrower than
+    ``silhouette_px``, and the quantity a pixel measurement of one of our own
+    renders is actually returning.
+    """
+    corners = (list(front_face_px(dims_mm, template_id, resolution))
+               + list(side_panel_px(dims_mm, template_id, resolution)))
+    xs = [c[0] for c in corners]
+    ys = [c[1] for c in corners]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def _erode(mask, r):
+    """Binary erosion by a (2r+1) square. Kept local: no scipy in requirements."""
+    import numpy as np
+    from numpy.lib.stride_tricks import sliding_window_view
+
+    k = 2 * r + 1
+    out = np.zeros_like(mask)
+    core = sliding_window_view(mask, (k, k)).all(axis=(2, 3))
+    out[r:r + core.shape[0], r:r + core.shape[1]] = core
+    return out
+
+
+def measured_silhouette_px(image_path, threshold=MEASURE_THRESHOLD,
+                           erode_r=MEASURE_ERODE_R):
+    """(min_x, min_y, max_x, max_y) of the carton, read off the pixels.
+
+    Comparable with ``silhouette_px`` only within ``MEASURE_UNCERTAINTY_PCT`` --
+    see the note above for why, and for why that is a property of the subject
+    rather than of this code.
+    """
+    import numpy as np
+    from PIL import Image
+
+    grey = np.asarray(Image.open(image_path).convert("RGB")).astype(float).mean(axis=2)
+    mask = grey < threshold
+    if erode_r:
+        mask = _erode(mask, erode_r)
+    if not mask.any():
+        raise AssertionError(
+            f"nothing darker than {threshold} in {image_path} after erosion: "
+            f"either the frame is empty or the backdrop is darker than the subject")
+    ys, xs = np.nonzero(mask)
+    return (float(xs.min() - erode_r), float(ys.min() - erode_r),
+            float(xs.max() + erode_r), float(ys.max() + erode_r))
+
+
+def measured_silhouette_aspect(image_path, threshold=MEASURE_THRESHOLD,
+                               erode_r=MEASURE_ERODE_R):
+    """Measured silhouette width divided by its height."""
+    x0, y0, x1, y1 = measured_silhouette_px(image_path, threshold, erode_r)
+    return (x1 - x0) / (y1 - y0)

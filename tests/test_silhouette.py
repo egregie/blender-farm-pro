@@ -154,5 +154,132 @@ class TestFrameFill(unittest.TestCase):
         self.assertAlmostEqual(a[1], b[1], places=6)
 
 
+REFERENCES = PROJECT_ROOT / "01_input_raster" / "reference"
+RENDERS = PROJECT_ROOT / "02_processing" / "blender_test_renders"
+
+# The seven renders predating the emissive backdrop. Their whole frame border
+# sits below 250, so they are not measurements of current code and must not be
+# calibrated against a model that describes it. Identified by the border test
+# in the same 2026-08-09 pass, not by filename.
+STALE_RENDERS = {"4-min", "5-min", "6-min", "8-min", "9-min", "11-min", "12-min"}
+
+
+def _current_era_renders():
+    """Renders whose backdrop matches current code, with their manifests."""
+    import numpy as np
+    from PIL import Image
+
+    out = []
+    for job in sorted(RENDERS.glob("*.job.json")):
+        stem = job.name[:-len(".job.json")]
+        png = job.with_name(stem + ".png")
+        if stem in STALE_RENDERS or not png.exists():
+            continue
+        grey = np.asarray(Image.open(png).convert("RGB")).astype(float).mean(axis=2)
+        border = np.concatenate([grey[0], grey[-1], grey[:, 0], grey[:, -1]])
+        if (border < 250.0).mean() >= 0.01:
+            continue
+        out.append((stem, json.loads(job.read_text(encoding="utf-8")), png, grey))
+    return out
+
+
+class TestMeasuredSilhouette(unittest.TestCase):
+    """The pixel instrument, and the size of its own error.
+
+    The model above is exact; this is not, and the project needs it anyway
+    because the nine curated references carry no dimensions to project. What
+    matters is that its error is known and does not quietly grow.
+    """
+
+    def setUp(self):
+        try:
+            import numpy  # noqa: F401
+            from PIL import Image  # noqa: F401
+        except ImportError as e:  # pragma: no cover - environment, not logic
+            self.skipTest(f"Pillow/numpy unavailable: {e}")
+
+    def test_erosion_is_what_makes_the_measurement_possible_at_all(self):
+        # Without it the backdrop's own Cycles noise -- individual pixels down to
+        # 244.7 -- puts subject pixels on all four frame edges, and a bounding box
+        # of extremes becomes the whole frame. This is not a refinement worth 1%;
+        # drop it and every measurement reads exactly 1.0.
+        renders = _current_era_renders() if RENDERS.exists() else []
+        if not renders:
+            self.skipTest(f"{RENDERS.name}/ holds no current-era render to measure")
+        stem, _, png, grey = renders[0]
+        res_y, res_x = grey.shape
+        naive = silhouette.measured_silhouette_px(png, erode_r=0)
+        self.assertAlmostEqual((naive[2] - naive[0]) / (naive[3] - naive[1]), 1.0,
+                               places=3,
+                               msg=f"{stem}: without erosion the bbox should span the "
+                                   f"frame; if it no longer does, the backdrop changed "
+                                   f"and the note in silhouette.py is out of date")
+        eroded = silhouette.measured_silhouette_px(png)
+        self.assertLess(eroded[2] - eroded[0], 0.95 * res_x)
+        self.assertLess(eroded[3] - eroded[1], 0.95 * res_y)
+
+    def test_the_references_measure_stably_across_thresholds(self):
+        # They are the only images this instrument is FOR, so their stability is
+        # what licenses using it. Anything outside this band means the reference
+        # set changed and the uncertainty figure needs re-deriving.
+        if not REFERENCES.exists():
+            self.skipTest("reference renders are not in this checkout")
+        images = sorted(REFERENCES.glob("*.webp"))
+        self.assertTrue(images, "reference directory exists but holds no .webp")
+        for path in images:
+            with self.subTest(reference=path.name):
+                values = [silhouette.measured_silhouette_aspect(path, threshold=t)
+                          for t in (248.0, 250.0, 252.0, 253.0)]
+                spread = 100.0 * (max(values) - min(values)) / (sum(values) / len(values))
+                # 7.6% is T_VERT_DROPPER, the worst of the nine as measured
+                # 2026-08-09; 8.5 leaves it a little room without admitting a
+                # different order of magnitude.
+                self.assertLess(spread, 8.5,
+                                f"{path.name} moves {spread:.2f}% across thresholds")
+
+    def _render_errors(self, model_fn):
+        renders = _current_era_renders() if RENDERS.exists() else []
+        if not renders:
+            self.skipTest(f"{RENDERS.name}/ holds no current-era render to measure")
+        errors = []
+        for stem, manifest, png, grey in renders:
+            carton = manifest["carton"]
+            dims = (carton["width_mm"], carton["height_mm"], carton["depth_mm"])
+            res = (grey.shape[1], grey.shape[0])
+            x0, y0, x1, y1 = model_fn(dims, manifest["template_id"], res)
+            model = (x1 - x0) / (y1 - y0)
+            errors.append(100.0 * (silhouette.measured_silhouette_aspect(png) / model - 1.0))
+        return errors
+
+    def test_our_renders_measure_as_their_vertical_faces(self):
+        # A regression guard on the instrument, not a claim that it is accurate.
+        # If this band moves, either the light rig changed or the measurement did,
+        # and MEASURE_UNCERTAINTY_PCT stops describing reality.
+        errors = self._render_errors(silhouette.visible_faces_px)
+        mean = sum(errors) / len(errors)
+        worst = max(abs(e) for e in errors)
+        self.assertLess(abs(mean), 4.0,
+                        f"mean aspect error {mean:+.2f}% over {len(errors)} renders")
+        self.assertLess(worst, 12.0, f"worst aspect error {worst:.2f}%")
+
+    def test_our_renders_do_not_measure_as_their_full_silhouette(self):
+        # The top face's invisibility, asserted as a number rather than as prose.
+        # It is why a reference measurement may be compared with silhouette_px
+        # but never with a pixel measurement of one of our own renders: the two
+        # are different quantities and differ by about this much.
+        errors = self._render_errors(silhouette.silhouette_px)
+        mean = sum(errors) / len(errors)
+        self.assertGreater(
+            mean, 8.0,
+            f"the measured silhouette is only {mean:+.2f}% wider than the modelled "
+            f"one; if the top face has become visible, the note in silhouette.py "
+            f"and the comparison it licenses both need redoing")
+
+    def test_the_stated_uncertainty_is_not_smaller_than_the_error(self):
+        # The constant exists to stop geometry being tuned against noise. It is
+        # only worth anything if it is at least as large as the noise.
+        self.assertGreaterEqual(silhouette.MEASURE_UNCERTAINTY_PCT, 2.9)
+
+
 if __name__ == "__main__":
     unittest.main()

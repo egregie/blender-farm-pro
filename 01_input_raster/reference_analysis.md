@@ -289,3 +289,58 @@ checking.
   EEVEE it was one of nine. Cheap candidate fix: lower specular/IOR on the
   printed elements. Not attempted here — it is a material change, unrelated to
   lighting calibration.
+
+## 10. Silhouette proportion: what the references actually ask for
+
+Measured 2026-08-09 with `src.silhouette.measured_silhouette_aspect` (threshold
+250, one-pixel erosion) against `src.silhouette.silhouette_px` on the same SKU's
+manifest. Aspect is silhouette width over height — framing-invariant, so unlike
+frame fill it survives the bounding-sphere camera and can be compared at all.
+
+| Template | SKU | Carton (mm) | Reference | Model | Reference / model |
+|---|---|---|---:|---:|---:|
+| `T1` | 1 | 115×55×48 | 1.3036 | 1.3198 | **−1.2%** |
+| `T1_SMALL` | 103 | 115×55×48 | 1.3109 | 1.3198 | **−0.7%** |
+| `T_BOTTLE_BOX` | 10 | 55×100×55 | 0.6203 | 0.6603 | −6.1% |
+| `T_MULTIPACK` | 347 | 110×50×18 | 1.4066 | 1.3228 | +6.3% |
+| `T1_LARGE` | 352 | 115×55×48 | 1.1480 | 1.3198 | −13.0% |
+| `T3` | 111 | 140×35×25 | 1.5322 | 1.7602 | −13.0% |
+| `T_VERT_INHALER` | 268 | 55×115×48 | 0.8057 | 0.5685 | **+41.7%** |
+| `T_VERT_DROPPER` | 229 | 50×110×18 | 0.7723 | 0.4767 | **+62.0%** |
+| `T_VERT_VIAL` | 144 | 80×170×35 | 0.9224 | 0.5026 | **+83.5%** |
+
+The instrument's own uncertainty is 0.6–3.6% across thresholds 248–253, except
+`T_VERT_DROPPER` at 7.6% (`MEASURE_UNCERTAINTY_PCT = 4.0`).
+
+**Three findings, and they do not point the same way.**
+
+**Two templates already match, and two more are close.** `T1` at −1.2% and
+`T1_SMALL` at −0.7% are inside the measurement's own noise: there is no
+disagreement there to settle. `T_BOTTLE_BOX` and `T_MULTIPACK` at ∓6% are barely
+outside it. Reshaping those is tuning against the instrument, not against the
+art direction.
+
+**The reference set contradicts itself where the data says it should not.**
+`T1`, `T1_SMALL` and `T1_LARGE` are all SKU whose passports give the identical
+carton, 115×55×48. The references draw them at 1.3036, 1.3109 and 1.1480 — a
+13% spread over three pictures of the same box. That is what "the Gemini prompt
+carries no dimensions" looks like when measured: the proportion is invented per
+image. `T1_LARGE`'s −13% is therefore not evidence of a wanted shape; it is
+evidence of scatter, and it is the same magnitude as `T3`'s −13%, which may not
+be.
+
+**The vertical family is a different phenomenon entirely.** +42%, +62%, +83.5%
+are ten to twenty times the instrument's uncertainty and far outside the
+reference set's own scatter, and all three lean the same way: the references draw
+a much squarer box than the catalogue's dimensions produce. Whatever is decided
+about the rest, this is real and systematic.
+
+**One comparison that looks obvious and is wrong.** Do not put a pixel
+measurement of one of our renders in the "model" column. On a reference the
+measurement returns the full silhouette — Gemini shades the top face, its topmost
+band reads 225–243, and the threshold moves the top row by at most one pixel. On
+one of ours it returns only the vertical faces, because a white board under
+near-shadowless high-key light reads 254.7–254.9 against a backdrop of 254.96 and
+has no upper edge in pixels at any threshold. The two differ by ~14%, and that
+gap is our lighting rather than a proportion. `tests/test_silhouette.py` asserts
+both halves of this so the confusion cannot return quietly.
