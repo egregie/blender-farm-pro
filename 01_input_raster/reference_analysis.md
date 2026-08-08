@@ -398,3 +398,37 @@ face's projected quad is one — the driver already emits it per render as
 `{stem}.view.json`, and `src/silhouette.front_face_px` computes it exactly — but
 the references carry no such sidecar, so recovering their front-face quad means
 locating the accent stripe and badge in each image. Not attempted here.
+
+### 11a. The front face cannot be measured either, and what that leaves
+
+Tried 2026-08-09, following the decision to retarget onto the front face.
+`src.silhouette.front_face_aspect` computes it exactly and is smooth in the
+geometry — 1.9591, 1.7959, 1.6838, 1.5224 for T1 at heights 55, 60, 64 and 70.79.
+The model half works. The measurement half does not.
+
+**Our renders have no front/top boundary.** Reading a column down through the
+carton at x=608: 255, 255, 255, 254.7, 251.3, 249.7, 246.0, 243.0, 240.0, 236.0,
+232.0, then the accent stripe at 78. The front face is not a flat 238 — it runs a
+smooth vertical gradient from about 254 at its top edge to about 232 at its
+bottom, and it meets the top face continuously. The "235–241" in section 3 is a
+mean over the band just above the stripe, not a value for the whole face. So the
+face's top edge has no pixel signature, and a threshold walk from the stripe
+upward stops wherever the gradient happens to cross it, which is what it did:
++39.9% mean error over 40 renders, +144% worst.
+
+**Neither do the references.** `T1_1.webp` at x=1100 reads 255, 246, 246, 246,
+245, 243, 243, 242, 241, 240 — one step of about 9 levels where the backdrop
+meets the carton, then a smooth ramp down the face. The step is the silhouette's
+top edge, not the front face's. Gemini shades the two faces alike.
+
+**What is left.** Only the carton's outer silhouette is measurable on a reference,
+and on our own renders even that is ambiguous by up to the regime gap. So no
+measurement of our own output can serve as the target; the target has to be an
+exact model quantity, solved analytically, and the apparent result accepted to
+differ from it by up to the top face's worth of ambiguity.
+
+Which model quantity is the right one — full silhouette, visible faces, or front
+face — is then a judgement about what "matching the reference" means, and this
+document has established that it cannot be settled by measuring what we render.
+The three differ by 13–18%. That is the open question, and it is smaller than the
+36–77% the vertical family is out by, which stays true under all three.

@@ -246,6 +246,30 @@ def visible_faces_px(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
     return min(xs), min(ys), max(xs), max(ys)
 
 
+def front_face_aspect(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
+    """Apparent proportion of the printed front face: width over height.
+
+    The quantity to art-direct on, because it is a CONTINUOUS function of the
+    geometry. A silhouette bounding box is not: whether the carton's far top edge
+    clears a brightness threshold flips with shape, and the measured box gains a
+    whole face at once. Rendering 1-min at five heights put T1's silhouette
+    target inside that jump, where no carton reaches it -- see
+    01_input_raster/reference_analysis.md section 11.
+
+    The face is a rectangle in 3D and a quadrilateral once projected, so its two
+    horizontal edges differ in length and so do its vertical ones. Averaging each
+    pair keeps the answer smooth; taking a bounding box instead would reintroduce
+    a corner-dependent kink.
+    """
+    (x0, y0), (x1, y1), (x2, y2), (x3, y3) = front_face_px(dims_mm, template_id,
+                                                           resolution)
+    top = math.hypot(x1 - x0, y1 - y0)
+    bottom = math.hypot(x2 - x3, y2 - y3)
+    left = math.hypot(x3 - x0, y3 - y0)
+    right = math.hypot(x2 - x1, y2 - y1)
+    return (0.5 * (top + bottom)) / (0.5 * (left + right))
+
+
 def visible_faces_aspect(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
     """Width over height of the vertical faces. What our render appears to be.
 
