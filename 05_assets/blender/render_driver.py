@@ -673,9 +673,16 @@ def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
                  for o in built for cnr in o.evaluated_get(dg).bound_box)
     block_top = min(v_at(DATA_BLOCK_TOP_FRAC),
                     lowest - DATA_BLOCK_GAP_FRAC * panel_h)
+    # The printed size is carton.passport_dimensions, NEVER carton.width_mm and
+    # its siblings. Since contract 1.3 those are art-directed scene geometry --
+    # the shape solved to match the template's reference proportion -- and
+    # printing them would put measurements on pharmaceutical packaging that no
+    # carton has. This project already refuses to print a plausible LOT or EXP
+    # for that reason; a plausible size is the same act in numbers.
+    printed = carton["passport_dimensions"]
     lines = [str(carton.get("material") or ""),
-             f"{carton['width_mm']:.0f}x{carton['height_mm']:.0f}"
-             f"x{carton['depth_mm']:.0f}mm",
+             f"{printed['width_mm']:.0f}x{printed['height_mm']:.0f}"
+             f"x{printed['depth_mm']:.0f}mm",
              str(manifest.get("packaging_geometry") or "")]
     features = carton.get("features") or []
     if features:

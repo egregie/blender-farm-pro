@@ -1,14 +1,20 @@
 {
-  "manifest_version": "1.2",
+  "manifest_version": "1.3",
   "sku_id": "161-min.jpg",
   "template_id": "T3",
   "is_bottle_override": false,
   "packaging_geometry": "SACHET",
   "carton": {
     "width_mm": 130.0,
-    "height_mm": 90.0,
+    "height_mm": 56.92275994888523,
     "depth_mm": 40.0,
-    "source": "passport_secondary",
+    "passport_dimensions": {
+      "width_mm": 130.0,
+      "height_mm": 90.0,
+      "depth_mm": 40.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
     "features": [
       "Braille",
       "DataMatrix_Zone",

@@ -5,6 +5,7 @@ Both sides of the boundary are checked against the SAME artifact
 expectations, which is the point of the contract.
 """
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -470,6 +471,86 @@ class TestReshapeToArtDirection(unittest.TestCase):
         self.assertLessEqual(
             len(refused), 2,
             f"{len(refused)} SKU refused reshaping, expected at most 2: {refused}")
+
+
+class TestManifestsOnDisk(unittest.TestCase):
+    """What Stage 2 will actually open, not what build_manifest would produce.
+
+    Those are the same thing only while the files are current, and a stale
+    manifest is precisely the failure the version const exists to make loud. So
+    these read the files.
+    """
+
+    MANIFESTS = PROJECT_ROOT / "04_passports" / "render_manifests"
+
+    def setUp(self):
+        if not self.MANIFESTS.exists():
+            self.skipTest("render manifests have not been generated in this checkout")
+        self.files = sorted(self.MANIFESTS.glob("*.json"))
+        self.assertTrue(self.files, "manifest directory exists but is empty")
+
+    def test_every_manifest_on_disk_satisfies_the_current_contract(self):
+        # A partial migration is the worst of the three states: it renders, and
+        # it renders some SKU one way and some another.
+        stale = []
+        for f in self.files:
+            m = json.loads(f.read_text(encoding="utf-8"))
+            if m.get("manifest_version") != MANIFEST_VERSION:
+                stale.append(f"{f.stem}={m.get('manifest_version')}")
+                continue
+            validate_manifest(m)
+        self.assertEqual(stale, [],
+                         f"{len(stale)} manifests predate {MANIFEST_VERSION}; "
+                         f"regenerate Stage 1 rather than migrate them by hand")
+
+    def test_the_printed_dimensions_still_match_the_passport(self):
+        # The reshape must not have leaked into the numbers that get printed.
+        # Checked against the passport's own string rather than against
+        # build_manifest, so a bug shared by both would not cancel out.
+        if not PASSPORTS.exists():
+            self.skipTest("passports are not in this checkout")
+        checked = 0
+        for f in self.files:
+            m = json.loads(f.read_text(encoding="utf-8"))
+            passport_file = PASSPORTS / f.name
+            if not passport_file.exists():
+                continue
+            declared = (json.loads(passport_file.read_text(encoding="utf-8"))
+                        .get("secondary_packaging") or {}).get("dimensions")
+            numbers = re.findall(r"\d+(?:\.\d+)?", str(declared or ""))
+            if len(numbers) != 3:
+                continue
+            real = m["carton"]["passport_dimensions"]
+            with self.subTest(sku=f.stem):
+                self.assertEqual(
+                    sorted(float(n) for n in numbers),
+                    sorted(real[k] for k in ("width_mm", "height_mm", "depth_mm")),
+                    "the printed size is not the size the passport declares")
+            checked += 1
+        self.assertGreater(checked, 300, "too few SKU checked to mean anything")
+
+    def test_every_reshaped_manifest_hits_its_template_target(self):
+        declined = []
+        for f in self.files:
+            m = json.loads(f.read_text(encoding="utf-8"))
+            carton, tid = m["carton"], m["template_id"]
+            dims = (carton["width_mm"], carton["height_mm"], carton["depth_mm"])
+            if carton["source"] == "art_direction":
+                with self.subTest(sku=f.stem):
+                    self.assertAlmostEqual(
+                        silhouette.visible_faces_aspect(dims, tid),
+                        TARGET_SILHOUETTE_ASPECT[tid], places=3)
+            elif carton["source"] == "art_direction_declined_orientation":
+                declined.append(f.stem)
+                real = m["carton"]["passport_dimensions"]
+                with self.subTest(sku=f.stem):
+                    self.assertEqual(
+                        dims, (real["width_mm"], real["height_mm"], real["depth_mm"]),
+                        "a declined reshape must leave the geometry alone")
+        # The two upright vials that routed to a landscape template. A third is a
+        # shape nobody has looked at yet.
+        self.assertEqual(len(declined), 2,
+                         f"expected 2 declined reshapes, got {len(declined)}: {declined}")
 
 
 class TestManifestPaths(unittest.TestCase):

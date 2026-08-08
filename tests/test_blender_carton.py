@@ -79,14 +79,20 @@ KEY_W, FILL_W = 25.0, 8.0
 # A representative job. Deliberately a literal rather than a manifest read off
 # disk: these assertions are about how the driver TREATS a manifest, so the
 # input must stay fixed even if the catalogue changes.
+# The two dimension sets differ on purpose and by a lot. If they were equal the
+# side-panel test below could not tell which one the driver printed, and that is
+# the single thing contract 1.3 exists to keep straight.
 JOB = {
-    "manifest_version": "1.2",
+    "manifest_version": "1.3",
     "sku_id": "test-carton",
     "template_id": "T1",
     "is_bottle_override": False,
     "packaging_geometry": "BLISTER",
-    "carton": {"width_mm": 115.0, "height_mm": 55.0, "depth_mm": 48.0,
-               "source": "passport_secondary",
+    "carton": {"width_mm": 115.0, "height_mm": 70.8, "depth_mm": 48.0,
+               "passport_dimensions": {"width_mm": 115.0, "height_mm": 55.0,
+                                       "depth_mm": 48.0,
+                                       "source": "passport_secondary"},
+               "source": "art_direction",
                "features": ["Braille", "DataMatrix_Zone", "Tamper_Evident_Seal"],
                "material": "GZ-Cardboard (Pharmaceutical Grade)"},
     "palette": {"primary": "#DDA7A5", "accent": "#6B2D5C", "background": "#FFFFFF"},
@@ -866,9 +872,12 @@ class TestSidePanel(unittest.TestCase):
 
     def test_every_panel_string_comes_from_the_manifest(self):
         """Same guarantee the front panel has: nothing invented, nothing padded."""
+        real = JOB["carton"]["passport_dimensions"]
         allowed = {"LOT", "EXP", JOB["sku_id"], JOB["packaging_geometry"],
                    JOB["carton"]["material"],
-                   "115x55x48mm", " / ".join(JOB["carton"]["features"])}
+                   f"{real['width_mm']:.0f}x{real['height_mm']:.0f}"
+                   f"x{real['depth_mm']:.0f}mm",
+                   " / ".join(JOB["carton"]["features"])}
         for o in self.panel:
             if not o["body"]:
                 continue
@@ -876,6 +885,24 @@ class TestSidePanel(unittest.TestCase):
                 self.assertIn(
                     line, allowed,
                     f"{line!r} is on the carton but not in the manifest")
+
+    def test_the_panel_prints_the_real_size_and_not_the_art_directed_one(self):
+        """Invariant 1 of the art-direction work, as an assertion on the carton.
+
+        The geometry beside it is solved to match a reference proportion and
+        belongs to no physical box. Printing it would put a measurement on
+        pharmaceutical packaging that nothing measured -- the same act as
+        printing a plausible LOT, which this driver already refuses.
+        """
+        carton, real = JOB["carton"], JOB["carton"]["passport_dimensions"]
+        printed = (f"{real['width_mm']:.0f}x{real['height_mm']:.0f}"
+                   f"x{real['depth_mm']:.0f}mm")
+        art = (f"{carton['width_mm']:.0f}x{carton['height_mm']:.0f}"
+               f"x{carton['depth_mm']:.0f}mm")
+        self.assertNotEqual(printed, art, "test premise: the two must differ")
+        bodies = "\n".join(o["body"] for o in self.panel if o["body"]).split("\n")
+        self.assertIn(printed, bodies, "the real size is not on the panel")
+        self.assertNotIn(art, bodies, "the art-directed size reached the carton")
 
     def test_nothing_on_the_panel_reaches_the_front_face(self):
         for o in self.panel:

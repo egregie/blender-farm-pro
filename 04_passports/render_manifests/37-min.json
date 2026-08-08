@@ -1,14 +1,20 @@
 {
-  "manifest_version": "1.2",
+  "manifest_version": "1.3",
   "sku_id": "37-min.jpg",
   "template_id": "T3",
   "is_bottle_override": false,
   "packaging_geometry": "TUBE",
   "carton": {
     "width_mm": 140.0,
-    "height_mm": 35.0,
+    "height_mm": 55.52027023833445,
     "depth_mm": 25.0,
-    "source": "passport_secondary",
+    "passport_dimensions": {
+      "width_mm": 140.0,
+      "height_mm": 35.0,
+      "depth_mm": 25.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
     "features": [
       "Braille",
       "DataMatrix_Zone",
