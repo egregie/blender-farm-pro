@@ -246,6 +246,20 @@ def visible_faces_px(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
     return min(xs), min(ys), max(xs), max(ys)
 
 
+def visible_faces_aspect(dims_mm, template_id, resolution=DEFAULT_RESOLUTION):
+    """Width over height of the vertical faces. What our render appears to be.
+
+    This, not ``silhouette_aspect``, is the number to compare a reference
+    measurement against: a reference shows its top face and ours does not, so
+    matching apparent shape to apparent shape means matching the reference's
+    full silhouette to our visible one. Comparing against the full model instead
+    understates our width by 13-14% on the landscape templates and reports
+    cartons as already matching when they are not.
+    """
+    x0, y0, x1, y1 = visible_faces_px(dims_mm, template_id, resolution)
+    return (x1 - x0) / (y1 - y0)
+
+
 def _erode(mask, r):
     """Binary erosion by a (2r+1) square. Kept local: no scipy in requirements."""
     import numpy as np

@@ -83,6 +83,40 @@ VERTICAL_FAMILY = {
 }
 
 
+# Silhouette aspect (width / height of the projected bounding box) that each
+# template's curated reference actually shows. MEASURED 2026-08-09 with
+# src.silhouette.measured_silhouette_aspect; the raw numbers, the instrument's
+# uncertainty and three cautions about reading them are in
+# 01_input_raster/reference_analysis.md section 10.
+#
+# These are targets by the owner's decision, taken with the measurements in
+# hand: two templates already sit inside the instrument's own 4% uncertainty
+# (T1 at -1.2%, T1_SMALL at -0.7%) and the reference set draws the identical
+# 115x55x48 carton three ways across a 13% spread, so part of this table is
+# scatter being adopted as art direction. Recorded, not hidden -- the decision
+# was to target all nine.
+#
+# T2 is absent deliberately: zero SKU in the catalogue route to it, so there is
+# no reference to measure and nothing to reshape.
+TARGET_SILHOUETTE_ASPECT = {
+    "T1":             1.3036,
+    "T1_SMALL":       1.3109,
+    "T1_LARGE":       1.1480,
+    "T3":             1.5322,
+    "T_BOTTLE_BOX":   0.6203,
+    "T_MULTIPACK":    1.4066,
+    "T_VERT_VIAL":    0.9224,
+    "T_VERT_DROPPER": 0.7723,
+    "T_VERT_INHALER": 0.8057,
+}
+
+# How far the solver may stretch the free edge, as a multiple of the anchor. The
+# bracket only has to contain the answer; the flip guard below is what actually
+# bounds the result.
+_SOLVE_SPAN = (0.02, 50.0)
+_SOLVE_STEPS = 200
+
+
 def orient_for_template(extents: tuple[float, float, float], template_id: str) -> tuple[float, float, float]:
     """Assign three carton extents to the (width, height, depth) axes.
 
@@ -97,6 +131,76 @@ def orient_for_template(extents: tuple[float, float, float], template_id: str) -
     height, *rest = sorted(extents, reverse=True)
     width, depth = max(rest), min(rest)
     return width, height, depth
+
+
+def reshape_to_art_direction(
+    extents: tuple[float, float, float], template_id: str,
+) -> tuple[tuple[float, float, float], bool]:
+    """Solve the carton's shape onto its template's reference proportion.
+
+    Returns ``(dimensions, was_reshaped)``. Call AFTER ``orient_for_template``:
+    the anchor rule reads the width/height assignment that orientation makes.
+
+    **Depth and the longer face edge are kept; the shorter one is solved.** Depth
+    barely moves the silhouette -- it only adds the sliver of side panel the
+    camera's 35-degree rotation shows -- so solving on it would need enormous
+    changes for small effect and would turn slim cartons into cubes. The longer
+    edge is kept because it is the one the eye reads as the carton's size, and
+    because keeping it makes the result idempotent.
+
+    **A reshape that would turn the PICTURE over is refused.** Two SKU in the
+    catalogue, 55x100x55 and 45x80x45, are upright vials that routed to a
+    landscape template; solving them onto T1's proportion stretches them past
+    three times their width and lays the product on its side. The test is on
+    which side of 1.0 the silhouette aspect falls, not on which box edge is
+    longer -- those differ, and using the edges refuses cases that are fine.
+    T_VERT_VIAL solves to 173x170: wider than tall as a box, yet its silhouette
+    reads 0.92 because the camera looks down a portrait carton, so the picture
+    stays upright and the reshape is correct. The caller records any refusal in
+    ``carton.source`` -- "why were these two not reshaped" has to be readable
+    from the data rather than from this docstring.
+
+    Scale is untouched by construction: the camera frames from the bounding
+    sphere, so only proportion is art-directable at all.
+    """
+    target = TARGET_SILHOUETTE_ASPECT.get(template_id)
+    if target is None:
+        return extents, False
+
+    # The VISIBLE faces, not the whole box. A reference draws its top face and
+    # our render cannot show one, so apparent shape matches apparent shape only
+    # on this quantity -- see src/silhouette.visible_faces_aspect.
+    from src.silhouette import visible_faces_aspect
+
+    width, height, depth = (float(e) for e in extents)
+    keep_width = width >= height
+    anchor = width if keep_width else height
+
+    def aspect_for(free: float) -> float:
+        dims = (anchor, free, depth) if keep_width else (free, anchor, depth)
+        return visible_faces_aspect(dims, template_id)
+
+    lo, hi = (anchor * s for s in _SOLVE_SPAN)
+    a_lo, a_hi = aspect_for(lo), aspect_for(hi)
+    if (target - a_lo) * (target - a_hi) > 0:
+        # The target lies outside anything this anchor can reach. Not expected
+        # for any catalogue shape; refusing beats returning the nearest edge of
+        # the bracket and calling it a solution.
+        return extents, False
+
+    for _ in range(_SOLVE_STEPS):
+        mid = 0.5 * (lo + hi)
+        if (target - aspect_for(lo)) * (target - aspect_for(mid)) <= 0:
+            hi = mid
+        else:
+            lo = mid
+    free = 0.5 * (lo + hi)
+
+    passport_aspect = visible_faces_aspect((width, height, depth), template_id)
+    if (target >= 1.0) != (passport_aspect >= 1.0):
+        return extents, False          # the picture turned over; keep the passport
+
+    return (anchor, free, depth) if keep_width else (free, anchor, depth), True
 
 
 # ── the contract artifact ────────────────────────────────────────────────────

@@ -8,10 +8,15 @@ import json
 import unittest
 from pathlib import Path
 
+from src import silhouette
 from src.render_manifest import (
     MANIFEST_VERSION,
+    TARGET_SILHOUETTE_ASPECT,
     build_manifest,
     load_schema,
+    orient_for_template,
+    reshape_to_art_direction,
+    resolve_carton,
     validate_manifest,
     manifest_path_for,
 )
@@ -286,6 +291,125 @@ class TestWholeCatalogue(unittest.TestCase):
         # Not an assertion about correctness, but a guard against silently
         # regressing to guessed geometry for the whole catalogue.
         self.assertEqual(guessed, [], "these SKU fell back to guessed dimensions")
+
+
+class TestReshapeToArtDirection(unittest.TestCase):
+    """Geometry solved to the reference proportion, with the product kept upright.
+
+    The targets are measurements, recorded in 01_input_raster/reference_analysis.md
+    section 10; the solver is checked against the model that produced them, so a
+    wrong constant and a wrong solve cannot cancel out.
+    """
+
+    def test_every_reshaped_carton_lands_on_its_template_target(self):
+        for template_id, target in TARGET_SILHOUETTE_ASPECT.items():
+            with self.subTest(template=template_id):
+                base = orient_for_template((115.0, 55.0, 48.0), template_id)
+                dims, reshaped = reshape_to_art_direction(base, template_id)
+                self.assertTrue(reshaped, f"{template_id} refused a plain carton")
+                self.assertAlmostEqual(
+                    silhouette.visible_faces_aspect(dims, template_id), target, places=4)
+
+    def test_the_target_is_matched_on_the_visible_faces_not_the_whole_box(self):
+        # The distinction is worth a test of its own because getting it wrong is
+        # silent: both quantities exist, both look plausible, and the wrong one
+        # reports T1 as already correct when it is 14% out.
+        base = orient_for_template((115.0, 55.0, 48.0), "T1")
+        dims, _ = reshape_to_art_direction(base, "T1")
+        target = TARGET_SILHOUETTE_ASPECT["T1"]
+        self.assertAlmostEqual(silhouette.visible_faces_aspect(dims, "T1"), target,
+                               places=4)
+        self.assertNotAlmostEqual(silhouette.silhouette_aspect(dims, "T1"), target,
+                                  places=2)
+
+    def test_the_vial_becomes_the_squat_box_its_reference_shows(self):
+        # 80x170x35 is a tall pen-shaped carton; T_VERT_VIAL_144.webp is a squat
+        # 10-vial box, and the measurement says so at +77%. Solving lands on
+        # 172x170x35 -- wider than tall as a box, still a portrait PICTURE at
+        # 0.9224, which is why the flip guard reads the silhouette rather than
+        # the edges.
+        #
+        # The ТЗ predicted 159x170 from an earlier measurement of the same
+        # reference. That measurement is superseded, not reconciled: it paired a
+        # reference's full silhouette against a model of our printed faces, which
+        # are different quantities.
+        base = orient_for_template((80.0, 170.0, 35.0), "T_VERT_VIAL")
+        dims, reshaped = reshape_to_art_direction(base, "T_VERT_VIAL")
+        self.assertTrue(reshaped)
+        self.assertAlmostEqual(dims[1], 170.0, places=6, msg="height is the anchor")
+        self.assertAlmostEqual(dims[2], 35.0, places=6, msg="depth is never solved")
+        self.assertAlmostEqual(dims[0], 172.0, delta=2.0)
+        self.assertLess(silhouette.visible_faces_aspect(dims, "T_VERT_VIAL"), 1.0,
+                        "the picture must stay portrait")
+
+    def test_the_anchor_is_the_larger_face_edge_and_the_depth(self):
+        for dims_in, template_id in (((115.0, 55.0, 48.0), "T1"),
+                                     ((140.0, 35.0, 25.0), "T3"),
+                                     ((80.0, 170.0, 35.0), "T_VERT_VIAL")):
+            with self.subTest(template=template_id):
+                base = orient_for_template(dims_in, template_id)
+                out, _ = reshape_to_art_direction(base, template_id)
+                self.assertAlmostEqual(out[2], base[2], places=6, msg="depth moved")
+                keep = 0 if base[0] >= base[1] else 1
+                self.assertAlmostEqual(out[keep], base[keep], places=6,
+                                       msg="the anchored edge moved")
+
+    def test_a_carton_that_would_flip_keeps_its_passport_shape(self):
+        # 55x100x55 and 45x80x45 are upright vials that routed to a landscape
+        # template. Solving for T1's proportion would stretch them past three
+        # times their width and stand the product on its side.
+        for dims_in in ((55.0, 100.0, 55.0), (45.0, 80.0, 45.0)):
+            with self.subTest(dims=dims_in):
+                out, reshaped = reshape_to_art_direction(dims_in, "T1")
+                self.assertFalse(reshaped)
+                self.assertEqual(out, dims_in)
+
+    def test_an_unknown_template_is_left_alone_rather_than_guessed(self):
+        out, reshaped = reshape_to_art_direction((100.0, 50.0, 20.0), "T2")
+        self.assertFalse(reshaped)
+        self.assertEqual(out, (100.0, 50.0, 20.0))
+
+    def test_reshaping_is_idempotent(self):
+        base = orient_for_template((115.0, 55.0, 48.0), "T1")
+        once, _ = reshape_to_art_direction(base, "T1")
+        twice, _ = reshape_to_art_direction(once, "T1")
+        for a, b in zip(once, twice):
+            self.assertAlmostEqual(a, b, places=6)
+
+    def test_scale_does_not_change_the_answer_but_shape_does(self):
+        # The camera frames from the bounding sphere, so only proportion is
+        # art-directable. A carton twice the size must reshape to twice the size.
+        small, _ = reshape_to_art_direction((115.0, 55.0, 48.0), "T1")
+        big, _ = reshape_to_art_direction((230.0, 110.0, 96.0), "T1")
+        for a, b in zip(small, big):
+            self.assertAlmostEqual(2.0 * a, b, places=4)
+
+    def test_every_catalogue_carton_either_reshapes_or_says_why(self):
+        if not PASSPORTS.exists():
+            self.skipTest("passports are not in this checkout")
+        from src.passport_generator import agent_1_router
+
+        refused = []
+        for f in sorted(PASSPORTS.glob("*.json")):
+            passport = json.loads(f.read_text(encoding="utf-8"))
+            template_id, _ = agent_1_router(passport)
+            if template_id not in TARGET_SILHOUETTE_ASPECT:
+                continue
+            carton = resolve_carton(passport, template_id)
+            dims = (carton["width_mm"], carton["height_mm"], carton["depth_mm"])
+            out, reshaped = reshape_to_art_direction(dims, template_id)
+            if reshaped:
+                self.assertAlmostEqual(
+                    silhouette.visible_faces_aspect(out, template_id),
+                    TARGET_SILHOUETTE_ASPECT[template_id], places=3,
+                    msg=f"{f.stem} missed its target")
+            else:
+                refused.append((f.stem, template_id, dims))
+        # The two known upright vials in a landscape template, and nothing else.
+        # A third refusal is a new shape the rule has not been thought about for.
+        self.assertLessEqual(
+            len(refused), 2,
+            f"{len(refused)} SKU refused reshaping, expected at most 2: {refused}")
 
 
 class TestManifestPaths(unittest.TestCase):
