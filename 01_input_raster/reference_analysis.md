@@ -347,3 +347,54 @@ flip.
 predicted `80x170 -> 159x170` for the vial. That came from pairing a reference's
 full silhouette against a model of our printed faces — the two quantities this
 section exists to keep apart — and does not survive the correction.
+
+## 11. The silhouette target is not reachable, and the measurement is why
+
+Measured 2026-08-09 by rendering `1-min` at five heights, holding width 115mm and
+depth 48mm, and measuring each render the same way the references were measured.
+
+| Height (mm) | Rendered | Full model | Visible model |
+|---:|---:|---:|---:|
+| 56.39 | 1.5347 | 1.3036 | 1.5004 |
+| 60.00 | 1.4736 | 1.2631 | 1.4455 |
+| 64.00 | **1.2021** | 1.2212 | 1.3893 |
+| 67.00 | 1.1710 | 1.1916 | 1.3500 |
+| 70.79 | 1.1351 | 1.1563 | 1.3036 |
+
+Up to 60mm the render measures as its **visible faces**. From 64mm it measures as
+its **full silhouette**. Between them the measured value jumps from 1.4736 to
+1.2021 without passing through anything in between — the carton's far top edge
+crosses the brightness threshold and the bounding box gains 145 pixels of height
+at once.
+
+**`T1`'s target of 1.3036 sits inside that jump.** No carton height renders to it.
+Solving against the visible model gives 70.79mm, which renders at 1.1351, 12.9%
+low. Solving against the full model gives 56.39mm, which renders at 1.5347, 17.7%
+high. Both were rendered and measured, not predicted.
+
+**The discontinuity is in the instrument, not in the picture.** A carton at 60mm
+and one at 64mm look almost identical; what changes is whether a threshold finds
+the top edge. So a threshold-derived bounding box is not a quantity that can be
+art-directed onto: it is not a continuous function of the geometry that produces
+it.
+
+**This also puts the reference targets in question.** All nine references sit in
+the "top edge found" regime — their topmost band reads 225–243. But the regime
+gap measured here is about 18%, and the spread between `T1` at 1.3036 and
+`T1_LARGE` at 1.1480 for the identical 115×55×48 carton is 13%. Those are the
+same order of magnitude, so part of what section 10 calls reference scatter may
+be this switch happening between one reference image and another rather than
+Gemini drawing the box differently. Not yet separated.
+
+**What this does not invalidate.** The analytic model is exact and unaffected —
+it never used pixels. The reshape solver is correct for whatever target it is
+given. The disagreement the whole exercise set out to settle is real and large:
+the vertical family is 36–77% away from its references by any of these measures,
+far outside the regime gap. What is now in doubt is the precision of the targets,
+not their direction.
+
+**Open.** A target has to be a continuous function of the geometry. The front
+face's projected quad is one — the driver already emits it per render as
+`{stem}.view.json`, and `src/silhouette.front_face_px` computes it exactly — but
+the references carry no such sidecar, so recovering their front-face quad means
+locating the accent stripe and badge in each image. Not attempted here.

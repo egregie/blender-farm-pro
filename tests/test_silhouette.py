@@ -251,29 +251,43 @@ class TestMeasuredSilhouette(unittest.TestCase):
             errors.append(100.0 * (silhouette.measured_silhouette_aspect(png) / model - 1.0))
         return errors
 
-    def test_our_renders_measure_as_their_vertical_faces(self):
-        # A regression guard on the instrument, not a claim that it is accurate.
-        # If this band moves, either the light rig changed or the measurement did,
-        # and MEASURE_UNCERTAINTY_PCT stops describing reality.
-        errors = self._render_errors(silhouette.visible_faces_px)
-        mean = sum(errors) / len(errors)
-        worst = max(abs(e) for e in errors)
-        self.assertLess(abs(mean), 4.0,
-                        f"mean aspect error {mean:+.2f}% over {len(errors)} renders")
-        self.assertLess(worst, 12.0, f"worst aspect error {worst:.2f}%")
+    def test_the_measurement_is_bracketed_by_the_two_models(self):
+        """Neither model predicts it; both bound it, and that is the whole story.
 
-    def test_our_renders_do_not_measure_as_their_full_silhouette(self):
-        # The top face's invisibility, asserted as a number rather than as prose.
-        # It is why a reference measurement may be compared with silhouette_px
-        # but never with a pixel measurement of one of our own renders: the two
-        # are different quantities and differ by about this much.
-        errors = self._render_errors(silhouette.silhouette_px)
-        mean = sum(errors) / len(errors)
-        self.assertGreater(
-            mean, 8.0,
-            f"the measured silhouette is only {mean:+.2f}% wider than the modelled "
-            f"one; if the top face has become visible, the note in silhouette.py "
-            f"and the comparison it licenses both need redoing")
+        Whether the carton's far top edge falls below the threshold depends on
+        the carton's shape, so the same call returns the vertical faces on one
+        geometry and the full silhouette on another. Measured on 1-min at five
+        heights, holding width and depth: 56.4mm and 60mm render to 1.5347 and
+        1.4736, tracking the VISIBLE model; 64mm, 67mm and 70.8mm render to
+        1.2021, 1.1710 and 1.1351, tracking the FULL one. The switch happens
+        somewhere between 60 and 64 and it is a jump, not a slope.
+
+        So the honest claim is a bracket. Asserting either edge as "the" answer
+        is what an earlier version of this test did, and it passed only because
+        every render in the set happened to sit on the same side.
+        """
+        full = self._render_errors(silhouette.silhouette_px)
+        visible = self._render_errors(silhouette.visible_faces_px)
+        for f, v in zip(full, visible):
+            # full model is the taller box, so its aspect is the smaller number:
+            # a measurement between the two reads as >= 0 against full and <= 0
+            # against visible, with a tolerance for the instrument's own noise.
+            self.assertGreater(f, -silhouette.MEASURE_UNCERTAINTY_PCT)
+            self.assertLess(v, silhouette.MEASURE_UNCERTAINTY_PCT)
+
+    def test_the_two_models_are_far_enough_apart_to_matter(self):
+        # If they ever converge, the bracket above becomes a point and the
+        # ambiguity this module documents has gone away -- which would be good
+        # news, and would mean the notes here need rewriting rather than trusting.
+        gaps = []
+        for dims, tid in (((115.0, 55.0, 48.0), "T1"),
+                          ((140.0, 35.0, 25.0), "T3"),
+                          ((80.0, 170.0, 35.0), "T_VERT_VIAL")):
+            a = silhouette.silhouette_aspect(dims, tid)
+            b = silhouette.visible_faces_aspect(dims, tid)
+            gaps.append(100.0 * (b / a - 1.0))
+        self.assertGreater(min(gaps), 3.0,
+                           f"model gap has closed to {min(gaps):.1f}%: {gaps}")
 
     def test_the_stated_uncertainty_is_not_smaller_than_the_error(self):
         # The constant exists to stop geometry being tuned against noise. It is
