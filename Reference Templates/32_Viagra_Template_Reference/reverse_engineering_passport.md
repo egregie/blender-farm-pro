@@ -1,149 +1,152 @@
-# Reverse Engineering Passport — Viagra 100mg (Sildenafil) [SKU 32 / 32_T1_Viagra]
+# Design Passport — Viagra 50mg (sildenafil) [32_T1_Viagra]
 
-> **SKU:** 32_T1_Viagra | **Template:** T1_SMALL | **Generated:** 2026-08-03
-> **Artifact Type:** `reverse_engineering_passport` | **Schema Version:** 2.0
-> **Analysis Basis:** Direct visual reverse engineering of 1080x810 studio packshot photographs (`raw_01_angle_left.png`, `raw_02_front.png`, `raw_03_angle_right.png`)
-> **Confidence:** MAXIMUM (1.00 — Pfizer Studio Packshot Authority)
+> **SKU:** 32_T1_Viagra | **Template:** T1_SMALL | **Rebuilt:** 2026-08-07
+> **Source:** `raw_viagra_front.png`, 1080×810 RGBA
+> **Measurements:** `scripts/reference_measure.py` → `03_knowledge_graph/reference_benchmarks_ssot/benchmark_measurements.json`
+
+**What this document is for.** Reconstructing the *design* — the colour system,
+the layout archetype and where each piece of content belongs. The camera is not
+reconstructed: the render chooses its own angle, so measuring this photograph's
+is effort spent on a number nothing consumes. Content zones are approximate by
+intent; a renderer needs to know the dosage sits beside the brand, not that its
+box begins at 0.3817.
+
+**It replaces a passport that described a different carton.** The previous
+version placed the brand at 0.060,0.220, the ingredient at the left margin and a
+full-width `#004B87` stripe across the bottom — all tagged `[Measured]`, none of
+it present. Its boxes were also identical to three decimals to the Cialis
+passport's, which measurement cannot produce. The layout it described is the one
+this project's own Blender driver renders, so it documented the renderer instead
+of the photograph.
 
 ---
 
-## Section A. Camera Reconstruction
+## A. Design Archetype
 
-| Parameter | Unit / Format | Status | Value |
+`[Observed]` **A pale board carton with one dark vertical side panel, printed in
+a two-column layout.**
+
+The distinguishing feature is that the brand colour lives on the **side panel**,
+not on the front face. The front face is almost entirely substrate; the only
+colour on it is a small violet block in the upper right. Nothing wraps around the
+corner, and there is no band along the bottom.
+
+This is worth stating plainly because it is the opposite of the archetype this
+project currently renders — white body, accent stripe along the bottom of the
+front face, badge in the top-right corner.
+
+---
+
+## B. Content Zones
+
+Approximate placement, in thirds of the front face. Precision beyond this is not
+useful: the render sets its own geometry.
+
+| Content | Zone | Relative size | Notes |
 |---|---|---|---|
-| Estimated Camera Distance | Meters (m) | `[Estimated]` (Conf: High) | 0.85 m |
-| Pitch (theta_x) | Degrees (deg) | `[Measured]` | 14.0° |
-| Yaw (theta_y) | Degrees (deg) | `[Measured]` | -30.0° |
-| Roll (theta_z) | Degrees (deg) | `[Measured]` | 0.0° |
-| Equivalent Focal Length | Millimeters (mm) | `[Estimated]` (Conf: High) | 85.0 mm |
-| Field of View (FOV) | Horizontal Degrees | `[Estimated]` (Conf: High) | 28.0° |
-| Projected Front Face Aspect | Width:Height Ratio | `[Measured]` | 2.20 : 1 (110mm x 50mm) |
-| Vanishing Point 1 (VP_x) | Normalized (x,y) | `[Measured]` | (-2.40, 0.13) |
-| Vanishing Point 2 (VP_y) | Normalized (x,y) | `[Measured]` | (1.85, 0.08) |
+| Brand name `VIAGRA` | Upper left–centre | Largest element on the face, roughly 45% of carton width | ALL CAPS |
+| Dosage `50 mg` | Directly below the brand, left column | About half the brand's height | |
+| Form `film-coated tablets` | Right column, level with the dosage | Small | Lowercase |
+| Active ingredient `sildenafil` | Right column, below the form line | Small | Lowercase, **not** at the left margin |
+| Unit count `4 film-coated tablets` | Lower centre | Small | |
+| Manufacturer mark `Pfizer` | Side panel, upper area | Medium | `[Observed]` — on the panel, not the face |
+| Security hologram | Lower right of the face | Small patch | `[Observed]` |
+| Braille | Across the centre of the face | — | `[Observed]` embossing, not ink |
+
+**The layout is two-column.** A left column carries brand and dosage; a right
+column carries the form line and the ingredient at a smaller size. The previous
+passport described a single left-aligned column, which the photograph contradicts.
 
 ---
 
-## Section B. Bounding Boxes
+## C. Colour System
 
-Normalized coordinates relative to front face (x, y, w, h in [0.0, 1.0]):
+`[Measured]` over the alpha-masked carton. Shares are of the carton, not the frame.
 
-```markdown
-- OBJ_01_PFIZER_LOGO: [Measured] x=0.060, y=0.060, w=0.200, h=0.100 (Confidence: High)
-- OBJ_02_BRAND_TITLE ("VIAGRA"): [Measured] x=0.060, y=0.220, w=0.550, h=0.220 (Confidence: High)
-- OBJ_03_ACTIVE_INGREDIENT ("sildenafil"): [Measured] x=0.060, y=0.480, w=0.400, h=0.080 (Confidence: High)
-- OBJ_04_DOSAGE_STRENGTH ("100 mg"): [Measured] x=0.060, y=0.760, w=0.220, h=0.120 (Confidence: High)
-- OBJ_05_UNIT_COUNT ("4 Film-coated Tablets"): [Measured] x=0.600, y=0.760, w=0.340, h=0.080 (Confidence: High)
-- OBJ_06_ACCENT_STRIPE (Pfizer Blue Bottom): [Measured] x=0.000, y=0.920, w=1.000, h=0.080 (Confidence: High)
-- OBJ_07_TOP_RIGHT_BADGE (Blue Oval): [Measured] x=0.760, y=0.060, w=0.180, h=0.160 (Confidence: High)
+| Role | HEX | Share | Where |
+|---|---|---|---|
+| Substrate | `#D8D8D8` | 64.2% | Front face body |
+| Brand dark | `#082858` | 21.5% | Side panel |
+| Neutral | `#787888` | 9.5% | Hologram and shaded edges |
+| Accent | `#282898` | 3.4% | Upper-right block on the face |
+
+The substrate reads `#D8D8D8` rather than pure white because that is the printed
+board under studio light. A renderer targeting pure white will look colder than
+the reference.
+
+**Colour distribution is the design's signature here:** one large dark field on a
+*separate face*, and a single small accent on the front. Two colours, one of them
+almost entirely off the front face.
+
+---
+
+## D. Graphic Signature
+
+`[Observed]` Rectilinear. No curves, no swooshes, no gradient fields. The design
+is set entirely in rectangular blocks and type. The only non-rectangular elements
+are the Pfizer oval on the side panel and the hologram patch.
+
+This matters for search: a candidate carrying wave forms or curved colour
+divisions is a different design language, however similar the product.
+
+---
+
+## E. Layer Order
+
+`[Estimated]` (Medium) — inferred from occlusion.
+
+```
+substrate board
+  → side panel field (a different FACE, not a layer on the front)
+  → upper-right accent block
+  → braille embossing (relief, not ink)
+  → brand type → dosage → form line → ingredient → unit count
+  → hologram patch [top]
 ```
 
----
-
-## Section C. Primitive Decomposition
-
-| Primitive ID | Type | Geometric Specification | Fill / Stroke | Layer |
-|---|---|---|---|---|
-| PRIM_01 | Rectangle (Substrate) | `x=0.00, y=0.00, w=1.00, h=1.00, rx=0` | Fill: `#FFFFFF` | Layer 01 |
-| PRIM_02 | Rectangle (Bottom Stripe) | `x=0.00, y=0.92, w=1.00, h=0.08, rx=0` | Fill: `#004B87` | Layer 03 |
-| PRIM_03 | Rounded Rectangle (Badge) | `x=0.76, y=0.06, w=0.18, h=0.16, rx=0.02` | Fill: `#002B49` | Layer 04 |
-| PRIM_04 | Text Block | `x=0.06, y=0.22, string="VIAGRA"` | Fill: `#111111` | Layer 06 |
-| PRIM_05 | Text Block | `x=0.06, y=0.48, string="sildenafil"` | Fill: `#333333` | Layer 07 |
-| PRIM_06 | Text Block | `x=0.06, y=0.76, string="100 mg"` | Fill: `#111111` | Layer 08 |
+The side panel is called out because treating it as a layer of the front face is
+exactly the error that turned it into a bottom stripe last time.
 
 ---
 
-## Section D. Curve Reconstruction
+## F. Typography Character
 
-- CURVE_01 (Pfizer Oval & Blue Arc):
-  - Type: Cubic Bezier
-  - Start Point: `[Measured]` (0.060, 0.060)
-  - Control Point 1: `[Estimated]` (0.160, 0.020)
-  - Control Point 2: `[Estimated]` (0.220, 0.020)
-  - End Point: `[Measured]` (0.260, 0.060)
-  - Stroke Thickness: `[Measured]` 0.006 (relative height)
-  - Confidence: High
+`[Observed]` — character, not metrics. Families are not identified; recognising a
+typeface from a skewed photograph is a real inference and was not performed.
 
----
+- Brand: heavy weight, ALL CAPS, wide tracking, by far the largest element.
+- Everything else: light-to-regular weight, **lowercase**, small.
+- The contrast between the brand and everything else is the layout's whole
+  hierarchy — there is no intermediate size.
 
-## Section E. Layer Stack (Z-Ordering)
-
-```text
-Layer 01 [Bottom]: Substrate Base White (#FFFFFF)
-Layer 02: Blue Curved Background Zone
-Layer 03: Primary Bottom Accent Band (Pfizer Royal Blue #004B87)
-Layer 04: Brand Badge Overlay Geometry (#002B49)
-Layer 05: Pfizer Oval Logotype Mark
-Layer 06: Primary Brand Typography (`VIAGRA`)
-Layer 07: Generic Name Subtitle (`sildenafil`)
-Layer 08: Technical Annotations (`100 mg`, `4 Film-coated Tablets`)
-Layer 09 [Top]: Holographic Security Stamp / Viatris/Pfizer Seal
-```
+Worth noting against this project's current render, which sets the active
+ingredient in title case. Here it is lowercase, as is every non-brand string.
 
 ---
 
-## Section F. Design Grid
+## G. Material Impression
 
-| Grid Line | Normalized Position | Status | Description |
-|---|---|---|---|
-| Left Margin (u_min) | 0.060 | `[Measured]` | Primary left-alignment baseline |
-| Right Margin (u_max) | 0.940 | `[Measured]` | Right alignment boundary |
-| Baseline v_1 | 0.220 | `[Measured]` | Brand Title (`VIAGRA`) baseline |
-| Baseline v_2 | 0.480 | `[Measured]` | Active Ingredient (`sildenafil`) baseline |
-| Baseline v_3 | 0.760 | `[Measured]` | Dosage (`100 mg`) & Unit count baseline |
+- `[Estimated]` (High) Matte board — no specular highlight across the face.
+- `[Observed]` Reflective foil on the hologram patch.
+- `[Unknown]` Whether the brand title carries spot gloss cannot be told from this
+  view.
 
----
-
-## Section G. Typography Geometry
-
-| Text ID | String | Font Family (Est.) | Weight | Case | Baseline (v) | Cap Height (% face) | Tracking | Alignment |
-|---|---|---|---|---|---|---|---|---|
-| TXT_01 | `VIAGRA` | Helvetica Bold | Extra Bold | ALL CAPS | 0.220 | 22.0% | +0.02 | Left |
-| TXT_02 | `sildenafil` | Arial Medium | Medium | Lowercase | 0.480 | 8.0% | 0.00 | Left |
-| TXT_03 | `100 mg` | Helvetica Bold | Bold | Mixed | 0.760 | 12.0% | -0.01 | Left |
-| TXT_04 | `4 Film-coated Tablets` | Arial Regular | Regular | Title Case | 0.760 | 8.0% | 0.00 | Right |
+No roughness, metallic or clearcoat numbers are given. A shader parameter cannot
+be measured from a photograph, and inventing one puts an unsupported value
+straight into a renderer.
 
 ---
 
-## Section H. Color Zones
+## H. Reconstruction Constraints
 
-| Zone ID | Polygon Vertices | HEX | RGB | Area % | Neighbor Zones |
-|---|---|---|---|---|---|
-| ZONE_01 | `(0,0)-(1,0)-(1,0.92)-(0,0.92)` | `#FFFFFF` | (255,255,255) | 88.0% | ZONE_02, ZONE_03 |
-| ZONE_02 | `(0,0.92)-(1,0.92)-(1,1.0)-(0,1.0)` | `#004B87` | (0,75,135) | 8.0% | ZONE_01 |
-| ZONE_03 | `(0.76,0.06)-(0.94,0.06)-(0.94,0.22)-(0.76,0.22)` | `#002B49` | (0,43,73) | 4.0% | ZONE_01 |
-
----
-
-## Section I. Material Zones
-
-| Zone ID | Target Surface | Material Finish | Roughness | Metallic | Clearcoat | Confidence |
-|---|---|---|---|---|---|---|
-| MAT_01 | Main Carton Body | Matte Cardboard | 0.70 | 0.00 | 0.00 | `[Measured]` High |
-| MAT_02 | Brand Title ("VIAGRA") | Spot UV Gloss | 0.15 | 0.00 | 0.85 | `[Measured]` High |
-| MAT_03 | Security Hologram Dot | Holographic Foil | 0.05 | 1.00 | 0.00 | `[Measured]` High |
-
----
-
-## Section J. Relative Measurements
-
-- Logo Height Ratio: `[Measured]` 10.0% of front face height
-- Brand Title Height Ratio: `[Measured]` 22.0% of front face height
-- Active Ingredient Height Ratio: `[Measured]` 8.0% of front face height
-- Accent Stripe Height Ratio: `[Measured]` 8.0% of front face height
-- Accent Stripe Area Share: `[Measured]` 8.0% of total front face area
-
----
-
-## Section K. Visual Hierarchy
-
-- **Primary Focal Point:** Brand Title (`VIAGRA`) — 22% cap height.
-- **Secondary Focal Point:** Dosage Strength (`100 mg`) & Pfizer Royal Blue Accent Band (`#004B87`).
-- **Reading Order:** Top Pfizer Logo -> Main Title -> INN Subtitle -> Dosage & Quantity.
-- **Whitespace Ratio:** `[Measured]` 58.0% negative space.
-
----
-
-## Section L. Reconstruction Constraints
-
-- CONSTRAINT_01: `[Observed]` High-resolution 1080x810 studio packshot photographs acquired (`raw_01_angle_left.png`, `raw_02_front.png`, `raw_03_angle_right.png`).
-- CONSTRAINT_02: `[Observed]` Pfizer / Viatris official packaging design layout verified.
+- `[Unknown]` The rear panel, top and bottom flaps are not visible here.
+  `raw_viagra_back.png` exists and was not analysed for this passport.
+- `[Unknown]` Font families.
+- `[Unknown]` The braille content.
+- `[Observed]` The `Pfizer` mark was legible to the eye but not returned by OCR.
+- `[Measured]` **The photograph shows 50 mg. `metadata.json` recorded
+  `"dosage_display": "100 mg"`.** Corrected; the photograph governs.
+- `[Observed]` Reading these files needs two things that are not obvious: the
+  PNGs carry alpha and no background, so a straight RGB conversion turns
+  transparent into black and destroys OCR contrast; and Tesseract's default
+  segmentation returns only the small print — the brand and dosage need `--psm 3`.

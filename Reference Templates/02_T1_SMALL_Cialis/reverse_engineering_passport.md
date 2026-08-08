@@ -1,141 +1,160 @@
-# Reverse Engineering Passport — Cialis (Tadalafil)
+# Design Passport — Cialis 10mg (tadalafil) [02_T1_SMALL_Cialis]
 
-> **SKU:** 59-min | **Template:** T1_SMALL | **Generated:** 2026-08-03
-> **Artifact Type:** `reverse_engineering_passport` | **Schema Version:** 2.0
-> **Analysis Basis:** Direct visual inspection of acquired reference packshots (raw_01_angle_left.png, raw_02_front.png, raw_03_angle_right.png)
-> **Confidence:** HIGH
+> **SKU:** 02_T1_SMALL_Cialis | **Template:** T1_SMALL | **Rebuilt:** 2026-08-07
+> **Source:** `raw_cialis_front.png`, 1079×810 RGBA
+> **Measurements:** `scripts/reference_measure.py` → `03_knowledge_graph/reference_benchmarks_ssot/benchmark_measurements.json`
+
+**What this document is for.** Reconstructing the *design*. The camera is not
+reconstructed: the render chooses its own angle. Content zones are approximate by
+intent.
+
+**It replaces a passport that described a different carton.** The previous
+version gave bounding boxes identical to three decimals to the Viagra passport's
+— logo 0.060,0.060, brand 0.060,0.220, a full-width accent stripe at 0.000,0.920
+— all tagged `[Measured]`. Two packages from different manufacturers cannot
+measure the same, and neither photograph contains that layout. It described this
+project's own renderer.
+
+**OCR is largely unavailable here, and that shapes the document.** The carton is
+photographed at a strong angle and the recogniser returned almost nothing usable
+— `SSS`, `SS`, `<—_—` are it reading the curved graphic elements as letters. Only
+`tablets` came back with confidence. Content below is therefore `[Observed]` by
+eye rather than `[Measured]`, and is tagged accordingly.
 
 ---
 
-## Section A. Camera Reconstruction
+## A. Design Archetype
 
-| Parameter | Unit / Format | Status | Value |
+`[Observed]` **A cream carton crossed by large curved green fields entering from
+both sides, with the type set in the light channel between them.**
+
+The green does not sit in a block or a band. It sweeps in as broad S-curves from
+the left and right edges, and the printed content occupies the pale corridor they
+leave open through the middle. The design is built around negative space carved
+by curves.
+
+Colour also carries a functional role: the dosage is set in white on a solid
+green rectangle, so the badge is part of the colour system rather than an overlay
+on the substrate.
+
+---
+
+## B. Content Zones
+
+Approximate placement, in thirds of the front face. `[Observed]` throughout —
+OCR could not confirm these positions at this angle.
+
+| Content | Zone | Relative size | Notes |
 |---|---|---|---|
-| Estimated Camera Distance | Meters (m) | `[Estimated]` (Conf: High) | 0.85 m |
-| Pitch (theta_x) | Degrees (deg) | `[Measured]` | 12.5° |
-| Yaw (theta_y) | Degrees (deg) | `[Measured]` | -35.0° |
-| Roll (theta_z) | Degrees (deg) | `[Measured]` | 0.0° |
-| Equivalent Focal Length | Millimeters (mm) | `[Estimated]` (Conf: High) | 85.0 mm |
-| Field of View (FOV) | Horizontal Degrees | `[Estimated]` (Conf: High) | 28.5° |
-| Projected Front Face Aspect | Width:Height Ratio | `[Measured]` | 2.20 : 1 |
+| Brand `Cialis®` | Centre left, mid-height | Largest element on the face | Title case, not all caps |
+| Dosage `10 mg` | Immediately right of the brand, same baseline | Medium | White type on a solid green block |
+| Form `film-coated tablets` | Below the brand, centred | Small | Lowercase |
+| Active ingredient `tadalafil` | Below the form line | Medium-small | Lowercase, larger than the form line |
+| Unit count `4 film-coated tablets` | Upper right of the face | Small | `[Measured]` — the one string OCR returned confidently |
+| Manufacturer mark `Lilly` | Lower right | Medium | Red script on a silver holographic oval |
+| Braille | Across the centre-left of the face | — | `[Observed]` embossing |
+| Side panel | Far left, vertical | Narrow, dark | Carries a 2D data-matrix code |
+
+**The dosage shares a baseline with the brand**, set to its right. That differs
+from both other benchmarks: Viagra puts the dosage below the brand, Kamagra fuses
+it into the brand and repeats it in a badge.
+
+**The ingredient is set larger than the form line**, reversing the usual
+relationship — `tadalafil` reads as a second-order headline rather than fine print.
 
 ---
 
-## Section B. Bounding Boxes
+## C. Colour System
 
-Normalized coordinates relative to front face (x, y, w, h in [0.0, 1.0]):
+`[Measured]` over the alpha-masked carton.
 
-```markdown
-- OBJ_01_LOGO: [Measured] x=0.060, y=0.060, w=0.200, h=0.100 (Confidence: High)
-- OBJ_02_BRAND_TITLE: [Measured] x=0.060, y=0.220, w=0.550, h=0.200 (Confidence: High)
-- OBJ_03_ACTIVE_INGREDIENT: [Measured] x=0.060, y=0.480, w=0.400, h=0.080 (Confidence: High)
-- OBJ_04_DOSAGE_STRENGTH: [Measured] x=0.060, y=0.760, w=0.220, h=0.120 (Confidence: High)
-- OBJ_05_UNIT_COUNT: [Measured] x=0.600, y=0.760, w=0.340, h=0.080 (Confidence: High)
-- OBJ_06_ACCENT_STRIPE: [Measured] x=0.000, y=0.920, w=1.000, h=0.080 (Confidence: High)
+| Role | HEX | Share | Where |
+|---|---|---|---|
+| Substrate | `#D8D8D8` | 57.8% | Cream-white board |
+| Brand green | `#385808` | 23.9% | Curved fields and the dosage block |
+| Neutral | `#686868` | 10.1% | Side panel, shading, hologram |
+| Dark | `#181808` | 3.9% | Type and the side panel's darkest areas |
+| Light neutral | `#989888` | 3.1% | Edges and gradients |
+
+The green is an **olive**, `#385808` — yellow-shifted, not a blue-green. Rendering
+it as a generic green loses the brand immediately.
+
+Substrate to brand colour runs about 58:24 — the carton reads as predominantly
+pale with substantial colour, sitting between Viagra (64:21, colour mostly off the
+front face) and Kamagra (47:38, near-equal fields).
+
+---
+
+## D. Graphic Signature
+
+`[Observed]` **Broad S-curves in olive green entering from the left and right
+edges**, meeting nowhere and leaving a light corridor through the middle where all
+type sits. They are the single most recognisable feature and the reason OCR
+misreads this carton — the recogniser tries to read them as letterforms.
+
+`[Observed]` A silver holographic oval carrying the manufacturer's script mark,
+lower right. It is the only reflective element.
+
+A candidate for this template without curved colour fields is a different design
+language, however close the product.
+
+---
+
+## E. Layer Order
+
+`[Estimated]` (Medium) — inferred from occlusion.
+
+```
+cream substrate
+  → left curved green field
+  → right curved green field
+  → dosage block (solid green, behind the dosage type)
+  → braille embossing (relief, not ink)
+  → type: brand → dosage → form line → ingredient → unit count
+  → holographic oval + manufacturer script [top]
+  → side panel field with data-matrix [separate face]
 ```
 
 ---
 
-## Section C. Primitive Decomposition
+## F. Typography Character
 
-| Primitive ID | Type | Geometric Specification | Fill / Stroke | Layer |
-|---|---|---|---|---|
-| PRIM_01 | Rectangle (Substrate) | `x=0.00, y=0.00, w=1.00, h=1.00, rx=0` | Fill: `#FFFFFF` | Layer 01 |
-| PRIM_02 | Rectangle (Bottom Stripe) | `x=0.00, y=0.92, w=1.00, h=0.08, rx=0` | Fill: `#C9A227` | Layer 03 |
-| PRIM_03 | Rounded Rectangle (Badge) | `x=0.76, y=0.06, w=0.18, h=0.16, rx=0.02` | Fill: `#006A4E` | Layer 04 |
-| PRIM_04 | Text Block | `x=0.06, y=0.22, string="Cialis"` | Fill: `#111111` | Layer 06 |
-| PRIM_05 | Text Block | `x=0.06, y=0.48, string="Tadalafil"` | Fill: `#333333` | Layer 07 |
-| PRIM_06 | Text Block | `x=0.06, y=0.76, string="20mg"` | Fill: `#111111` | Layer 08 |
+`[Observed]` — character, not metrics. Families not identified.
 
----
-
-## Section D. Curve Reconstruction
-
-- CURVE_01 (Accent Line / Logo Curve):
-  - Type: Linear / Polyline
-  - Start Point: `[Measured]` (0.000, 0.920)
-  - End Point: `[Measured]` (1.000, 0.920)
-  - Stroke Thickness: `[Measured]` 0.006 (relative height)
-  - Confidence: High
+- Brand: regular-to-medium weight, **Title Case**, by far the largest element.
+  Notably *not* bold and *not* all caps — unlike both other benchmarks.
+- Dosage: medium weight, reversed out in white on green.
+- Ingredient: light weight, lowercase, second-largest string.
+- Form line and unit count: light, lowercase, smallest.
+- Four distinct sizes, a wider hierarchy than Viagra's two or Kamagra's three.
 
 ---
 
-## Section E. Layer Stack (Z-Ordering)
+## G. Material Impression
 
-```text
-Layer 01 [Bottom]: Substrate Base White (#FFFFFF)
-Layer 02: Background Color Tint Zone
-Layer 03: Primary Bottom Accent Band (#C9A227)
-Layer 04: Brand Badge Geometry (#006A4E)
-Layer 05: Brand Logo Mark
-Layer 06: Primary Brand Typography (`Cialis`)
-Layer 07: Subtitle Typography (`Tadalafil`)
-Layer 08: Technical Annotations (`20mg`, `30 Pills`)
-```
+- `[Estimated]` (High) Matte board across the printed faces.
+- `[Observed]` Holographic foil on the manufacturer oval — visibly iridescent.
+- `[Observed]` Physical braille relief across the face.
+- `[Unknown]` Whether the brand carries spot gloss.
+
+No roughness, metallic or clearcoat numbers are given; they cannot be measured
+from a photograph.
 
 ---
 
-## Section F. Design Grid
+## H. Reconstruction Constraints
 
-| Grid Line | Normalized Position | Status | Description |
-|---|---|---|---|
-| Left Margin (u_min) | 0.060 | `[Measured]` | Primary left-alignment baseline |
-| Right Margin (u_max) | 0.940 | `[Measured]` | Right alignment boundary |
-| Baseline v_1 | 0.220 | `[Measured]` | Brand Title baseline |
-| Baseline v_2 | 0.480 | `[Measured]` | INN Subtitle baseline |
-| Baseline v_3 | 0.760 | `[Measured]` | Dosage & Unit count baseline |
-
----
-
-## Section G. Typography Geometry
-
-| Text ID | String | Font Family (Est.) | Weight | Case | Baseline (v) | Cap Height (% face) | Tracking | Alignment |
-|---|---|---|---|---|---|---|---|---|
-| TXT_01 | `Cialis` | DejaVu Sans | Extra Bold | ALL CAPS | 0.220 | 20.0% | +0.02 | Left |
-| TXT_02 | `Tadalafil` | DejaVu Sans | Medium | Title Case | 0.480 | 8.0% | 0.00 | Left |
-| TXT_03 | `20mg` | DejaVu Sans | Bold | Mixed | 0.760 | 12.0% | -0.01 | Left |
-| TXT_04 | `30 Pills` | DejaVu Sans | Regular | Title Case | 0.760 | 8.0% | 0.00 | Right |
-
----
-
-## Section H. Color Zones
-
-| Zone ID | Polygon Vertices | HEX | RGB | Area % | Neighbor Zones |
-|---|---|---|---|---|---|
-| ZONE_01 | `(0,0)-(1,0)-(1,0.92)-(0,0.92)` | `#FFFFFF` | (255,255,255) | 88.0% | ZONE_02, ZONE_03 |
-| ZONE_02 | `(0,0.92)-(1,0.92)-(1,1.0)-(0,1.0)` | `#C9A227` | — | 8.0% | ZONE_01 |
-| ZONE_03 | `(0.76,0.06)-(0.94,0.06)-(0.94,0.22)-(0.76,0.22)` | `#006A4E` | — | 4.0% | ZONE_01 |
-
----
-
-## Section I. Material Zones
-
-| Zone ID | Target Surface | Material Finish | Roughness | Metallic | Clearcoat | Confidence |
-|---|---|---|---|---|---|---|
-| MAT_01 | Main Carton Body | Matte Cardboard | 0.70 | 0.00 | 0.00 | `[Measured]` High |
-| MAT_02 | Brand Title | Spot UV Gloss | 0.15 | 0.00 | 0.85 | `[Estimated]` Medium |
-
----
-
-## Section J. Relative Measurements
-
-- Logo Height Ratio: `[Measured]` 10.0% of front face height
-- Brand Title Height Ratio: `[Measured]` 20.0% of front face height
-- Active Ingredient Height Ratio: `[Measured]` 8.0% of front face height
-- Accent Stripe Height Ratio: `[Measured]` 8.0% of front face height
-
----
-
-## Section K. Visual Hierarchy
-
-- **Primary Focal Point:** Brand Title (`Cialis`) — 20% cap height.
-- **Secondary Focal Point:** Dosage (`20mg`) & Accent Stripe (`#C9A227`).
-- **Reading Order:** Top Logo -> Main Title -> INN Subtitle -> Dosage & Quantity.
-- **Whitespace Ratio:** `[Measured]` 60.0% negative space.
-
----
-
-## Section L. Reconstruction Constraints
-
-- CONSTRAINT_01: `[Observed]` Reference photographs registered: raw_01_angle_left.png, raw_02_front.png, raw_03_angle_right.png.
-- CONSTRAINT_02: `[Observed]` All candidate images preserved for human manual selection.
+- `[Unknown]` **Text positions are eye-read, not measured.** The angle defeats
+  OCR: it returned `SSS`, `SS` and `<—_—`, which are the curved fields being read
+  as letterforms, plus `tablets` at confidence 96. Nothing in Section B except the
+  unit count should be treated as measured.
+- `[Unknown]` The rear panel and flaps. `raw_cialis_back.png` exists and was not
+  analysed for this passport.
+- `[Unknown]` Font families.
+- `[Unknown]` The braille content and the side panel's data-matrix payload.
+- `[Measured]` **The photograph shows 10 mg. `metadata.json` recorded
+  `"dosage_display": "20mg"`.** The photograph governs.
+- `[Observed]` The curved fields make this the hardest of the three benchmarks to
+  reconstruct from measurement alone. If precise geometry is ever needed here, a
+  flatter view of the same carton is worth acquiring rather than deriving it from
+  this one.

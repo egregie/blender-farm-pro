@@ -7,57 +7,45 @@
   "template_id": "T1_SMALL",
   "dimensions": "110x50x18mm",
   "camera_reconstruction": {
-    "pitch_deg": 14.0,
-    "yaw_deg": -30.0,
-    "focal_length_mm": 85.0
+    "note": "pitch, yaw and focal length are not recoverable from one uncalibrated view; see Section A",
+    "carton_bbox_aspect": 1.161,
+    "carton_share_of_frame_pct": 62.47
   },
   "bounding_boxes": {
-    "logo": [
-      0.06,
-      0.06,
-      0.2,
-      0.1
-    ],
     "brand_title": [
-      0.06,
-      0.22,
-      0.55,
-      0.22
+      0.381,
+      0.176,
+      0.449,
+      0.102
+    ],
+    "dosage_value": [
+      0.382,
+      0.302,
+      0.063,
+      0.058
     ],
     "active_ingredient": [
-      0.06,
-      0.48,
-      0.4,
-      0.08
-    ],
-    "dosage": [
-      0.06,
-      0.76,
-      0.22,
-      0.12
+      0.707,
+      0.343,
+      0.123,
+      0.051
     ],
     "unit_count": [
-      0.6,
-      0.76,
-      0.34,
-      0.08
-    ],
-    "accent_stripe": [
-      0.0,
-      0.92,
-      1.0,
-      0.08
+      0.382,
+      0.842,
+      0.301,
+      0.058
     ]
   },
   "palette": {
-    "primary": "#002B49",
-    "accent": "#004B87",
-    "background": "#FFFFFF"
+    "primary": "#082858",
+    "accent": "#282898",
+    "background": "#D8D8D8"
   },
   "label_content": {
     "brand_name_display": "VIAGRA",
-    "dosage_display": "100 mg",
-    "unit_count_display": "4 Film-coated Tablets"
+    "dosage_display": "50 mg",
+    "unit_count_display": "4 film-coated tablets"
   },
   "reference_images": [
     "raw_viagra_back.png",
@@ -70,5 +58,29 @@
     "primitives_decomposed": true,
     "layer_stack_defined": true
   },
-  "status": "complete"
+  "status": "complete",
+  "coordinate_space": "carton image bounding box, NOT front-face coordinates",
+  "color_zones": [
+    {
+      "id": "ZONE_01",
+      "hex": "#D8D8D8",
+      "area_pct": 64.24
+    },
+    {
+      "id": "ZONE_02",
+      "hex": "#082858",
+      "area_pct": 21.5
+    },
+    {
+      "id": "ZONE_03",
+      "hex": "#787888",
+      "area_pct": 9.5
+    },
+    {
+      "id": "ZONE_04",
+      "hex": "#282898",
+      "area_pct": 3.43
+    }
+  ],
+  "measurement_source": "scripts/reference_measure.py, 2026-08-07"
 }
