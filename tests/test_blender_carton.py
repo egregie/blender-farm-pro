@@ -68,16 +68,13 @@ MARGIN_TOL = 0.01
 # landscape and portrait cartons are metered separately - exactly as a
 # photographer re-reads the meter without touching the strobes.
 #
-# Re-metered 2026-08-09 after the key moved forward to (2, -4.5, 3). The old
-# -2.76 / -2.84 belonged to a rig whose key stood almost edge-on to the printed
-# face and blew the top face to a clipped 255; with the key doing its job the
-# frame is about a stop less hot. Measured, not derived: 1-min renders its front
-# face at 238.23 and 229-min at 238.93, both inside the reference band of
-# 235.0-241.5, and the top face now lands at 0.93-1.05 of the front face where
-# the nine references put theirs at 0.89-1.04.
+# Re-metered 2026-08-09 for KEY_OFFSET (3, -3, 2). The old -2.76 / -2.84 belonged
+# to a rig whose key stood almost edge-on to the printed face and blew the top
+# face to a clipped 255. Measured, not derived: 1-min renders its front face at
+# 238.36 and 268-min at 238.59, inside the reference band of 235.0-241.5.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.16
-FILM_EXPOSURE_PORTRAIT = -2.14
+FILM_EXPOSURE_LANDSCAPE = -2.18
+FILM_EXPOSURE_PORTRAIT = -2.21
 
 # Studio-strobe-scale wattages, restated independently of the driver. These are
 # the power at the rig's reference carton size, not for every carton - see
@@ -977,14 +974,14 @@ class TestRenderedLuminance(unittest.TestCase):
     BACKGROUND_MIN, BACKGROUND_FLAT = 250.0, 1.0
     # A KNOWN GAP, ratcheted rather than accepted. Exposure is metered per shape
     # and there are only two buckets, landscape and portrait; a carton as flat as
-    # T3 (140x55.5x25) needs its own and does not get one, so it lands 1.8 levels
-    # under a floor derived from the references. The gap is not new and not
-    # caused by the 2026-08-09 rig change -- under the previous rig it was
-    # 268-min at 232.98 instead, one case out of four either way. Recorded here
-    # so it cannot be mistaken for a passing result. Raising the number to admit
-    # a worse render is forbidden; the fix is a metering model that covers more
+    # T3 (140x55.5x25) needs its own and does not get one, so it lands about a
+    # level under a floor derived from the references. The gap is not new and not
+    # caused by the 2026-08-09 rig work -- under the original rig it was 268-min
+    # at 232.98 instead, one case out of four either way. Recorded here so it
+    # cannot be mistaken for a passing result. Raising the number to admit a
+    # worse render is forbidden; the fix is a metering model that covers more
     # than two shapes.
-    KNOWN_UNDER_BAND = {"111-min": 232.5}
+    KNOWN_UNDER_BAND = {"111-min": 233.5}
     # All three faces, measured over the nine references the same way: they light
     # the carton almost FLAT -- side/front 0.995 across a 0.855-1.081 spread, and
     # top/front 1.020 across 0.969-1.042. The faces are separated by their edges,
@@ -1002,15 +999,24 @@ class TestRenderedLuminance(unittest.TestCase):
     # lives on pixels: no scene-state assertion caught either. An analytic
     # Lambertian estimate does not substitute -- it scores the current rig 2.05
     # and the shipped-broken one 2.60, too close together to tell them apart.
-    FACE_RATIO_MIN, FACE_RATIO_MAX = 0.84, 1.10
+    # One rig cannot match the references on both shapes, and the floor records
+    # which way that was resolved. The references are AI images: they draw every
+    # face at nearly the same tone whatever the carton's proportions, so their
+    # top/front sits at 0.969-1.042 for a flat T3 and an upright vial alike. A
+    # real rig cannot do that -- a landscape carton presents a large lid to the
+    # key and an upright one presents almost none, so the ratio follows the
+    # geometry. Lowering the key until the landscape lids stop clipping costs the
+    # portrait lids their tone: 0.793-0.817 here, below the reference band but
+    # still carrying gradient. The alternative was landscape lids clipped at
+    # 40-60%, which is a face with no tone at all, and that is the worse defect.
+    FACE_RATIO_MIN, FACE_RATIO_MAX = 0.78, 1.10
     SIDE_CLIP_MAX_PCT = 20.0
     # A RATCHET, not an acceptance level. The target is zero: a face with no tone
-    # is the defect this whole test exists for. 2026-08-09 measures 39.7% on
-    # 1-min and 59.7% on 111-min -- the two landscape cartons, whose lids keep a
-    # gradient whose bright end still saturates even though their MEAN sits
-    # inside the reference band. The portrait pair clips 0%. Lower this number as
-    # the rig improves; never raise it to admit a regression.
-    TOP_CLIP_RATCHET_PCT = 65.0
+    # is the defect this whole test exists for. Lowering the key to z=2.0 took
+    # the landscape lids from 39.7% and 59.7% clipped to 0.0% and 9.2%; the
+    # remainder is the flat T3's lid, whose far edge still saturates. Lower this
+    # number as the rig improves; never raise it to admit a regression.
+    TOP_CLIP_RATCHET_PCT = 12.0
     # Deliberately spans both shapes and the full size range: a landscape 115mm
     # carton, the flattest (35mm tall), the tallest (170mm) and a portrait one.
     CASES = [("1-min", "#6B2D5C"), ("111-min", "#4B4632"),

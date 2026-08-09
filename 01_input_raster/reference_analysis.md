@@ -479,3 +479,35 @@ a top face at the backdrop's own brightness has no edge, so the silhouette could
 not be measured continuously and no art-direction target could be solved onto it.
 With the lid carrying tone that obstacle is gone, and the targets in section 10
 are worth re-measuring against renders that have a top face.
+
+### 12a. Landscape lids: fixed by lowering the key, and what it cost
+
+`(3, -3, 3)` cleared the side panel but left the landscape lids clipped in their
+brightest 40–60%: the mean sat inside the reference band while the gradient's
+bright end saturated. Lowering the key to **`(3, -3, 2)`** is what stops that.
+
+| | 1-min lid | 111-min lid |
+|---|---:|---:|
+| before | 39.7% clipped | 59.7% clipped |
+| after | **0.0%** | **9.2%** |
+
+Exposures re-metered to −2.18 / −2.21. Side/front stays inside the reference
+spread on all four gate shapes (0.958–1.004 against 0.855–1.081), and `111-min`'s
+front face improves from 233.17 to 234.04 against a floor of 235.0.
+
+**The elevation has an optimum rather than a direction.** Measured at z = 3.0,
+2.4, 2.0, 1.7 and 1.4: clipping falls to a minimum near 1.7–2.0 and rises again
+below it, while the side panel climbs out of the reference spread.
+
+**Moving the whole rig farther makes it worse.** Tested at 1.8×, 3× and 5× the
+offsets with matched angular size and compensated exposure: top/front rises from
+1.17 to 1.31. At distance the rig approaches a directional light, where the lid's
+geometric cosine (0.577) dwarfs the printed face's (0.142). The proximity of the
+lights was helping, not hurting.
+
+**The cost, stated rather than hidden: portrait lids go dark.** top/front lands at
+0.793–0.817 against a reference band of 0.969–1.042. One rig cannot satisfy both
+shapes, because the references are AI images that draw every face at nearly one
+tone whatever the carton's proportions, while a real rig gives a landscape carton
+a large lid facing the key and an upright one almost none. A dim lid still carries
+gradient; a clipped one carries nothing, so the trade goes this way.

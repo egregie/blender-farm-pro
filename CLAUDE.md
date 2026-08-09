@@ -401,8 +401,26 @@ the same angle. Only the distance scales — and therefore the power must too.
     the key's job on the front face, 5.94 against the key's 2.98.
   - `(2, -4.5, 3)` fixed the lid and blew the **side panel** instead — 95.4% clipped, so
     the panel merged into the backdrop and its barcode and LOT/EXP appeared to float.
-  - `(3, -3, 3)` measures side/front 0.946–0.979 and top/front 0.915–1.081 across the four
-    gate shapes, all inside the reference spread.
+  - `(3, -3, 3)` cleared both, but its landscape lids still clipped in their brightest
+    40–60%: the mean sat inside the band while the gradient's bright end saturated.
+  - `(3, -3, 2)` — the key LOWERED, which is what stops that. Landscape lid clipping goes
+    39.7% → 0.0% on `1-min` and 59.7% → 9.2% on `111-min`. Exposures −2.18 / −2.21.
+
+  **The elevation has an optimum, not a direction.** Below z≈1.7 clipping starts rising
+  again and the side panel climbs out of the reference spread — measured at z = 3.0, 2.4,
+  2.0, 1.7 and 1.4.
+
+  **Moving the whole rig farther away makes it worse, not better.** Tested at 1.8×, 3× and
+  5× the offsets with matched angular size and compensated exposure: top/front rises 1.17 →
+  1.31 because at distance the rig approaches a directional light, where the lid's
+  geometric cosine (0.577) dwarfs the printed face's (0.142). Proximity was helping.
+
+  **One rig cannot match the references on both shapes.** They are AI images and draw every
+  face at nearly one tone whatever the carton's proportions; a real rig cannot, because a
+  landscape carton presents a large lid to the key and an upright one presents almost none.
+  Lowering the key to clear the landscape lids costs the portrait lids their tone —
+  top/front 0.793–0.817 against a reference band of 0.969–1.042. That trade is deliberate:
+  a dim lid still carries gradient, a clipped one carries nothing.
 
   **Do not estimate this from a Lambertian dot product.** That model scores the shipped-
   broken rig 2.60 and the working one 2.05 — too close to tell apart, and it says nothing
@@ -413,7 +431,7 @@ the same angle. Only the distance scales — and therefore the power must too.
 
 Exposure is a **film** setting, kept strictly separate from those energies: pin
 `FILM_VIEW_TRANSFORM = "Standard"` and meter per carton shape —
-`FILM_EXPOSURE_LANDSCAPE = -2.16`, `FILM_EXPOSURE_PORTRAIT = -2.14`, measured under
+`FILM_EXPOSURE_LANDSCAPE = -2.18`, `FILM_EXPOSURE_PORTRAIT = -2.21`, measured under
 CYCLES on the true-scale carton. (They were −2.76 / −2.84 for the old edge-on key. Exposure
 could never have fixed that rig: metering the front face to 238 is precisely what pushed
 the lid past clipping.)

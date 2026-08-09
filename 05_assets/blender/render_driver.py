@@ -963,7 +963,7 @@ def setup_camera(dims_m):
 # (2, -4.5, 3) keeps the key on the camera's right and at a similar elevation,
 # and moves it forward: top/front falls to 1.06, in the references' band, and the
 # key takes back 1.85x the fill's share of the front face.
-KEY_OFFSET  = (3.0, -3.0, 3.0)    # x, y, z in multiples of target_size
+KEY_OFFSET  = (3.0, -3.0, 2.0)    # x, y, z in multiples of target_size
 FILL_OFFSET = (-2.0, -1.5, 2.0)
 LIGHT_SIZE_FRAC = 2.0             # area-light edge, also in multiples
 
@@ -1087,8 +1087,8 @@ def setup_lighting(target_size: float):
 # pack is not touched between shots, the meter is read for each one. Two values
 # keyed on carton shape, not a nine-entry table keyed on template.
 FILM_VIEW_TRANSFORM = "Standard"
-FILM_EXPOSURE_LANDSCAPE = -2.16
-FILM_EXPOSURE_PORTRAIT = -2.14
+FILM_EXPOSURE_LANDSCAPE = -2.18
+FILM_EXPOSURE_PORTRAIT = -2.21
 
 
 def film_exposure(dims_m) -> float:
