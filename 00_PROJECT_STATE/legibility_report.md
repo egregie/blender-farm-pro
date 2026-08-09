@@ -6,7 +6,7 @@ The driver never lets a label row overrun its face — it shrinks the row to fit
 
 The curated references hold small print to 4.4-5.5mm (`reference_analysis.md` §6). Flagged here below **4.0mm**.
 
-Scanned the **15** longest ingredient strings of **391** SKU. **9** fall below the floor.
+Scanned the **40** longest ingredient strings of **391** SKU. **7** fall below the floor.
 
 | SKU | Template | Face mm | Chars | Type mm | Ingredient |
 |---|---|---:|---:|---:|---|
@@ -15,16 +15,41 @@ Scanned the **15** longest ingredient strings of **391** SKU. **9** fall below t
 | `350-min` | T_MULTIPACK | 110 | 54 | 3.59 ⚠ | Sildenafil / Tadalafil / Vardenafil (XXL Specimen Mi |
 | `349-min` | T_MULTIPACK | 110 | 51 | 3.88 ⚠ | Sildenafil / Tadalafil / Vardenafil (Mini Specimen) |
 | `347-min` | T_MULTIPACK | 110 | 50 | 3.93 ⚠ | Sildenafil / Tadalafil / Vardenafil (Specimen Mix) |
-| `146-min` | T_VERT_VIAL | 80 | 42 | 2.92 ⚠ | Human Chorionic Gonadotropin (hCG) 10000IU |
-| `144-min` | T_VERT_VIAL | 80 | 41 | 3.00 ⚠ | Human Chorionic Gonadotropin (hCG) 2000IU |
-| `145-min` | T_VERT_VIAL | 80 | 41 | 3.00 ⚠ | Human Chorionic Gonadotropin (hCG) 5000IU |
-| `248-min` | T3 | 140 | 41 | 4.46 | Clotrimazole + Betamethasone Dipropionate |
+| `146-min` | T_VERT_VIAL | 172 | 42 | 5.31 | Human Chorionic Gonadotropin (hCG) 10000IU |
+| `144-min` | T_VERT_VIAL | 172 | 41 | 5.31 | Human Chorionic Gonadotropin (hCG) 2000IU |
+| `145-min` | T_VERT_VIAL | 172 | 41 | 5.31 | Human Chorionic Gonadotropin (hCG) 5000IU |
+| `248-min` | T3 | 140 | 41 | 5.31 | Clotrimazole + Betamethasone Dipropionate |
 | `400-min` | T1 | 110 | 39 | 4.56 | Zinc Acetate + Doxycycline + Ivermectin |
 | `353-min` | T1 | 110 | 37 | 4.81 | Benzocaine + Cetylpyridinium Chloride |
 | `357-min` | T1 | 115 | 37 | 4.64 | Amphetamine / Dextroamphetamine Salts |
 | `252-min` | T1 | 115 | 35 | 5.31 | Nitroglycerin (Glyceryl Trinitrate) |
-| `393-min` | T_VERT_INHALER | 50 | 35 | 2.42 ⚠ | Fluticasone Propionate / Salmeterol |
+| `393-min` | T_VERT_INHALER | 95 | 35 | 4.60 | Fluticasone Propionate / Salmeterol |
 | `70-min` | T1_SMALL | 110 | 35 | 5.31 | Sildenafil Citrate + Dapoxetine HCl |
+| `71-min` | T1_SMALL | 110 | 35 | 5.31 | Sildenafil Citrate + Dapoxetine HCl |
+| `422-min` | T1_LARGE | 115 | 34 | 4.87 | Methenolone Enanthate (Primobolan) |
+| `132-min` | T1 | 115 | 33 | 5.31 | Levonorgestrel + Ethinylestradiol |
+| `147-min` | T_VERT_VIAL | 172 | 33 | 5.31 | Testosterone Blend (Sustanon 250) |
+| `181-min` | T1 | 115 | 33 | 5.31 | Levonorgestrel + Ethinylestradiol |
+| `410-min` | T_BOTTLE_BOX | 72 | 33 | 3.21 ⚠ | Testosterone Blend (Sustanon 250) |
+| `116-min` | T1 | 115 | 32 | 5.31 | Sibutramine HCl (Herbal Formula) |
+| `138-min` | T1 | 110 | 31 | 5.31 | Codeine Phosphate & Paracetamol |
+| `90-min` | T1_SMALL | 110 | 30 | 5.31 | Sildenafil Citrate + Tadalafil |
+| `255-min` | T1 | 115 | 29 | 5.31 | Prednisolone Sodium Phosphate |
+| `364-min` | T1 | 115 | 29 | 5.31 | Oxycodone HCl + Acetaminophen |
+| `177-min` | T1 | 45 | 27 | 2.86 ⚠ | Penicillin G / Penicillin V |
+| `316-min` | T_VERT_INHALER | 95 | 27 | 5.31 | Beclomethasone Dipropionate |
+| `99-min` | T1 | 115 | 27 | 5.31 | Acetaminophen (Paracetamol) |
+| `162-min` | T1_SMALL | 110 | 26 | 5.31 | Tadalafil + Dapoxetine HCl |
+| `314-min` | T1_SMALL | 110 | 25 | 5.31 | Avanafil + Dapoxetine HCl |
+| `89-min` | T1 | 110 | 25 | 5.31 | Boswellia Serrata Extract |
+| `418-min` | T1_LARGE | 115 | 24 | 5.31 | Methandienone (Dianabol) |
+| `148-min` | T_VERT_VIAL | 172 | 23 | 5.31 | Drostanolone Propionate |
+| `323-min` | T1 | 115 | 23 | 5.31 | Hoodia Gordonii Extract |
+| `398-min` | T_VERT_VIAL | 172 | 23 | 5.31 | Testosterone Propionate |
+| `417-min` | T_BOTTLE_BOX | 106 | 23 | 5.31 | Drostanolone Propionate |
+| `355-min` | T3 | 140 | 22 | 5.31 | Hydrocortisone Acetate |
+| `362-min` | T1 | 110 | 22 | 5.31 | Hydrocodone Bitartrate |
+| `399-min` | T1 | 115 | 22 | 5.31 | Meldonium (Mildronate) |
 
 The pattern is a long string on a narrow face, so the worst case is not simply the longest string: a 42-character ingredient on an 80mm `T_VERT_VIAL` face sets smaller than a 61-character one on a 110mm `T_MULTIPACK`.
 

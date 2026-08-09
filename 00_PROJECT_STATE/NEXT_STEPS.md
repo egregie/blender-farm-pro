@@ -76,21 +76,38 @@ tuning anything it might move. Housekeeping is independent throughout.
 10. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
    ADR-006 and has nothing on why this fork exists.
 
-11. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
-   and now the clearest open defect in the renderer. The driver fits a long
-   label row by shrinking it, with no lower bound, so a long ingredient on a
-   narrow face sets below legibility rather than overflowing: 9 of the
-   catalogue's 15 longest strings fall under the 4.0mm the references imply,
-   worst at 2.42mm on `393-min`. **Now confirmed in an actual render, not only in
-   the scan:** the `families` sweep of 2026-08-09 caught `350-min` and `351-min`
-   (`T_MULTIPACK`) setting `label_ingredient` at 3.59mm and 3.60mm for 54- and
-   55-character strings — 2 of 18, and invisible to `top30`, which renders no
-   `T_MULTIPACK` at all. Reproduce with
-   `python scripts/catalogue_sweep.py --group families` or
-   `python scripts/catalogue_sweep.py --legibility-scan`. Fixing it means
-   deciding what gives when the string will not fit at a legible size —
-   wrapping to a second line, abbreviating, or accepting a smaller floor — which
-   is an art-direction call, not just a constant.
+11. **Put a floor under the small print — now a string-length problem, not a
+   geometry one.** The driver fits a long label row by shrinking it, with no lower
+   bound, so a long ingredient on a narrow face sets below legibility rather than
+   overflowing. The references hold small print to 4.4-5.5mm.
+
+   **The 2026-08-09 reshape fixed most of it as a side effect.** Widening the
+   vertical family's faces to their reference proportions gave the type room:
+   `393-min`, previously the catalogue's worst at **2.42mm**, now sets at
+   **4.60mm** — above the floor and inside the reference range — because its face
+   went from 50mm to 95.1mm. Scanning the 40 longest strings leaves **7 below
+   4.0mm**, where the old scan had 9 of the 15 longest:
+
+   | SKU | Template | Face mm | Chars | Type mm |
+   |---|---|---:|---:|---:|
+   | `177-min` | T1 | 45.0 | 27 | **2.86** |
+   | `410-min` | T_BOTTLE_BOX | 72.1 | 33 | 3.21 |
+   | `348-min` | T_MULTIPACK | 110.0 | 61 | 3.24 |
+   | `350-min` | T_MULTIPACK | 110.0 | 54 | 3.59 |
+   | `351-min` | T_MULTIPACK | 110.0 | 55 | 3.60 |
+   | `349-min` | T_MULTIPACK | 110.0 | 51 | 3.88 |
+   | `347-min` | T_MULTIPACK | 110.0 | 50 | 3.93 |
+
+   Five of the seven are **all five** `T_MULTIPACK` SKU in the catalogue, and their
+   faces are not narrow — 110mm — they simply carry 50-61 character ingredient
+   names (`Sildenafil / Tadalafil / Vardenafil / Avanafil (Specimen Mix)`).
+   `177-min` is the opposite case: a short string on a 45mm face.
+
+   So the fix is no longer one thing. Deciding what gives — wrapping to a second
+   line, abbreviating a combination product, or accepting a smaller floor — is an
+   art-direction call, and it is now needed for two distinct situations rather than
+   a spread across the catalogue. Reproduce with
+   `python scripts/catalogue_sweep.py --legibility-scan 40`.
 
 ## Deliberately not doing
 

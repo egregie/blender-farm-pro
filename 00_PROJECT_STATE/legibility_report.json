@@ -1,8 +1,8 @@
 {
-  "scanned": 15,
+  "scanned": 40,
   "catalogue_size": 391,
   "floor_mm": 4.0,
-  "below_floor": 9,
+  "below_floor": 7,
   "rows": [
     {
       "stem": "348-min",
@@ -52,29 +52,29 @@
     {
       "stem": "146-min",
       "template_id": "T_VERT_VIAL",
-      "face_width_mm": 80.0,
+      "face_width_mm": 172.0023810030916,
       "ingredient_chars": 42,
       "ingredient": "Human Chorionic Gonadotropin (hCG) 10000IU",
-      "smallest_fitted_row_mm": 2.92,
-      "below_floor": true
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
     },
     {
       "stem": "144-min",
       "template_id": "T_VERT_VIAL",
-      "face_width_mm": 80.0,
+      "face_width_mm": 172.0023810030916,
       "ingredient_chars": 41,
       "ingredient": "Human Chorionic Gonadotropin (hCG) 2000IU",
-      "smallest_fitted_row_mm": 3.0,
-      "below_floor": true
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
     },
     {
       "stem": "145-min",
       "template_id": "T_VERT_VIAL",
-      "face_width_mm": 80.0,
+      "face_width_mm": 172.0023810030916,
       "ingredient_chars": 41,
       "ingredient": "Human Chorionic Gonadotropin (hCG) 5000IU",
-      "smallest_fitted_row_mm": 3.0,
-      "below_floor": true
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
     },
     {
       "stem": "248-min",
@@ -82,7 +82,7 @@
       "face_width_mm": 140.0,
       "ingredient_chars": 41,
       "ingredient": "Clotrimazole + Betamethasone Dipropionate",
-      "smallest_fitted_row_mm": 4.46,
+      "smallest_fitted_row_mm": 5.31,
       "below_floor": false
     },
     {
@@ -124,11 +124,11 @@
     {
       "stem": "393-min",
       "template_id": "T_VERT_INHALER",
-      "face_width_mm": 50.0,
+      "face_width_mm": 95.14671100108438,
       "ingredient_chars": 35,
       "ingredient": "Fluticasone Propionate / Salmeterol",
-      "smallest_fitted_row_mm": 2.42,
-      "below_floor": true
+      "smallest_fitted_row_mm": 4.6,
+      "below_floor": false
     },
     {
       "stem": "70-min",
@@ -136,6 +136,231 @@
       "face_width_mm": 110.0,
       "ingredient_chars": 35,
       "ingredient": "Sildenafil Citrate + Dapoxetine HCl",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "71-min",
+      "template_id": "T1_SMALL",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 35,
+      "ingredient": "Sildenafil Citrate + Dapoxetine HCl",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "422-min",
+      "template_id": "T1_LARGE",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 34,
+      "ingredient": "Methenolone Enanthate (Primobolan)",
+      "smallest_fitted_row_mm": 4.87,
+      "below_floor": false
+    },
+    {
+      "stem": "132-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 33,
+      "ingredient": "Levonorgestrel + Ethinylestradiol",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "147-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 172.0023810030916,
+      "ingredient_chars": 33,
+      "ingredient": "Testosterone Blend (Sustanon 250)",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "181-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 33,
+      "ingredient": "Levonorgestrel + Ethinylestradiol",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "410-min",
+      "template_id": "T_BOTTLE_BOX",
+      "face_width_mm": 72.06604768052557,
+      "ingredient_chars": 33,
+      "ingredient": "Testosterone Blend (Sustanon 250)",
+      "smallest_fitted_row_mm": 3.21,
+      "below_floor": true
+    },
+    {
+      "stem": "116-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 32,
+      "ingredient": "Sibutramine HCl (Herbal Formula)",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "138-min",
+      "template_id": "T1",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 31,
+      "ingredient": "Codeine Phosphate & Paracetamol",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "90-min",
+      "template_id": "T1_SMALL",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 30,
+      "ingredient": "Sildenafil Citrate + Tadalafil",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "255-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 29,
+      "ingredient": "Prednisolone Sodium Phosphate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "364-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 29,
+      "ingredient": "Oxycodone HCl + Acetaminophen",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "177-min",
+      "template_id": "T1",
+      "face_width_mm": 45.0,
+      "ingredient_chars": 27,
+      "ingredient": "Penicillin G / Penicillin V",
+      "smallest_fitted_row_mm": 2.86,
+      "below_floor": true
+    },
+    {
+      "stem": "316-min",
+      "template_id": "T_VERT_INHALER",
+      "face_width_mm": 95.14671100108438,
+      "ingredient_chars": 27,
+      "ingredient": "Beclomethasone Dipropionate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "99-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 27,
+      "ingredient": "Acetaminophen (Paracetamol)",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "162-min",
+      "template_id": "T1_SMALL",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 26,
+      "ingredient": "Tadalafil + Dapoxetine HCl",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "314-min",
+      "template_id": "T1_SMALL",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 25,
+      "ingredient": "Avanafil + Dapoxetine HCl",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "89-min",
+      "template_id": "T1",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 25,
+      "ingredient": "Boswellia Serrata Extract",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "418-min",
+      "template_id": "T1_LARGE",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 24,
+      "ingredient": "Methandienone (Dianabol)",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "148-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 172.0023810030916,
+      "ingredient_chars": 23,
+      "ingredient": "Drostanolone Propionate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "323-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 23,
+      "ingredient": "Hoodia Gordonii Extract",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "398-min",
+      "template_id": "T_VERT_VIAL",
+      "face_width_mm": 172.0023810030916,
+      "ingredient_chars": 23,
+      "ingredient": "Testosterone Propionate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "417-min",
+      "template_id": "T_BOTTLE_BOX",
+      "face_width_mm": 105.97025602450978,
+      "ingredient_chars": 23,
+      "ingredient": "Drostanolone Propionate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "355-min",
+      "template_id": "T3",
+      "face_width_mm": 140.0,
+      "ingredient_chars": 22,
+      "ingredient": "Hydrocortisone Acetate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "362-min",
+      "template_id": "T1",
+      "face_width_mm": 110.0,
+      "ingredient_chars": 22,
+      "ingredient": "Hydrocodone Bitartrate",
+      "smallest_fitted_row_mm": 5.31,
+      "below_floor": false
+    },
+    {
+      "stem": "399-min",
+      "template_id": "T1",
+      "face_width_mm": 115.0,
+      "ingredient_chars": 22,
+      "ingredient": "Meldonium (Mildronate)",
       "smallest_fitted_row_mm": 5.31,
       "below_floor": false
     }
