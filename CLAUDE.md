@@ -105,11 +105,13 @@ Two things the manifest exists to get right:
   `orient_for_template()` stands the longest edge up for the vertical family and leaves
   every other template in the passport's own order.
 
-`carton.source` records provenance (`passport_secondary` / `derived_from_primary` /
-`template_ratio`) so guessed geometry is visible rather than silent. All 391 SKU currently
-resolve to `passport_secondary`, and a test fails if any regresses to a guess.
+`carton.source` records provenance so guessed geometry is visible rather than silent. Since
+1.3 it describes the SCENE geometry (`art_direction` / `art_direction_declined_orientation`
+/ the three raw-size values); where the real measurements came from moved to
+`carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
+a test fails if any regresses to a guess.
 
-**Contract version is `1.2`.** Both bumps so far added *required* fields — deliberately not
+**Contract version is `1.3`.** Every bump so far added or repurposed *required* fields — deliberately not
 additive-optional changes, so a manifest written before them fails validation loudly instead
 of quietly producing a packshot with something missing. `manifest_version` is pinned by
 `const` in the schema, so stale files on disk are rejected until Stage 1 regenerates them.
@@ -117,6 +119,11 @@ of quietly producing a packshot with something missing. `manifest_version` is pi
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the
   ingredient at its **top level**, as `active_ingredient`.
+- `1.3` — **repurposed** `carton.width_mm/height_mm/depth_mm` into art-directed scene
+  geometry and moved the carton's real size to `carton.passport_dimensions`. Build the box
+  from the first; **print only the second**. Printing solved geometry would put a
+  measurement on pharmaceutical packaging that no carton has — the same act as printing a
+  plausible LOT, which this driver already refuses.
 - `1.2` — `carton.features` and `carton.material`, which the side panel is drawn from.
   `features` is real per-SKU data, not decoration: 370 of 391 declare
   `["Braille", "DataMatrix_Zone", "Tamper_Evident_Seal"]` and **21 declare nothing**, so a
@@ -383,25 +390,40 @@ the same angle. Only the distance scales — and therefore the power must too.
   against a reference band of 235–241. After, 236–239. Don't "simplify" the square away.
 - **The key is on the camera's RIGHT (+X), the fill on its LEFT.** Prose descriptions of
   this project have had it the other way round; the code is correct, the prose is not.
-- **`KEY_OFFSET = (2, -4.5, 3)` — the key stands well IN FRONT of the carton, not beside
-  it, and moving it back flattens the packshot.** At the old `(2, -2, 3)` the printed front
-  face stood almost edge-on to the key (cos 0.119 against the top face's 0.728), so key and
-  fill together put **2.60× more light on the lid than on the face**. The top face rendered
-  at a clipped **255.0 — brighter than the 254.96 backdrop** — and the carton lost its
-  volume entirely, reading as a flat label. The nine references put their top face 10–33
-  levels *below* the backdrop, at 0.89–1.04 of their own front face; we now sit at
-  0.93–1.05. The old rig also had the *fill* doing the key's job: 5.94 of the front face's
-  light against the key's 2.98. `test_the_key_lights_the_printed_face_not_the_lid` computes
-  this ratio from the rig and fails above 1.35, so the regression cannot return quietly.
+- **`KEY_OFFSET = (3, -3, 3)`, and the constraint is all three faces at once.** The
+  references light a carton almost flat: side/front 0.995 across a 0.855–1.081 spread,
+  top/front 1.020 across 0.969–1.042. The faces are separated by their edges, not by
+  modelling. Two rigs failed that in opposite directions, and the front-face band was
+  correct in both, which is why neither was caught by a test:
+  - `(2, -2, 3)` stood the printed face almost edge-on to the key (cos 0.119 against the
+    top face's 0.728) and rendered the **top face at a clipped 255.0, brighter than the
+    254.96 backdrop**. The carton had no lid and read as a flat label. The *fill* was doing
+    the key's job on the front face, 5.94 against the key's 2.98.
+  - `(2, -4.5, 3)` fixed the lid and blew the **side panel** instead — 95.4% clipped, so
+    the panel merged into the backdrop and its barcode and LOT/EXP appeared to float.
+  - `(3, -3, 3)` measures side/front 0.946–0.979 and top/front 0.915–1.081 across the four
+    gate shapes, all inside the reference spread.
+
+  **Do not estimate this from a Lambertian dot product.** That model scores the shipped-
+  broken rig 2.60 and the working one 2.05 — too close to tell apart, and it says nothing
+  about the side panel, which turned out to be where the light actually went.
+  `test_no_face_of_the_carton_is_blown_to_white` measures pixels instead.
 - **Light size has no lower clamp.** A clamp makes small cartons relatively softer-lit than
   big ones — a per-template style difference, which is what the rig exists to avoid.
 
 Exposure is a **film** setting, kept strictly separate from those energies: pin
 `FILM_VIEW_TRANSFORM = "Standard"` and meter per carton shape —
-`FILM_EXPOSURE_LANDSCAPE = -1.77`, `FILM_EXPOSURE_PORTRAIT = -1.87`, measured under
-CYCLES on the true-scale carton. (They were −2.76 / −2.84 for the old edge-on key; with the
-key lighting the face the frame is about a stop less hot. Exposure could never have fixed
-that rig: metering the front face to 238 is precisely what pushed the lid past clipping.)
+`FILM_EXPOSURE_LANDSCAPE = -2.16`, `FILM_EXPOSURE_PORTRAIT = -2.14`, measured under
+CYCLES on the true-scale carton. (They were −2.76 / −2.84 for the old edge-on key. Exposure
+could never have fixed that rig: metering the front face to 238 is precisely what pushed
+the lid past clipping.)
+
+**Two exposure buckets are not enough, and one shape is knowingly out of band.** `111-min`
+(T3, the flattest carton at 140×55.5×25) lands at 233.2 against a reference floor of 235.0.
+This is not new and not caused by the rig change — under the previous rig the case out of
+band was `268-min` at 232.98 instead, one of four either way. `TestRenderedLuminance.
+KNOWN_UNDER_BAND` ratchets it so it cannot quietly get worse; the fix is a metering model
+covering more than landscape and portrait.
 The lighting is bit-identical for both shapes; a wide front face simply sits ~2 face-widths
 from the key across its width and reads ~0.1 stops darker than a narrow one, which is
 geometry rather than a defect (see `reference_analysis.md` §9, §12). This is what a
