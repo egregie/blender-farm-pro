@@ -570,3 +570,53 @@ list of folders to keep was written from memory instead of from the judgements
 just made, and it omitted the best file in the batch. Recorded because the same
 slip in the other direction — keeping something that had been rejected — would
 not have announced itself.
+
+---
+
+## 2026-08-09 — The twelve folders nobody had searched
+
+Searched Wikimedia Commons for each, kept only files over the 1079 px floor,
+downloaded the plausible ones and opened every one. **Accepted 3 files across
+2 folders, rejected 4 after looking, marked 7 `insufficient_references`.**
+
+### Accepted
+
+| Folder | File | Product | Size |
+|---|---|---|---|
+| `30_T1_Ritalin` | `raw_ritalin_01.jpg` | Eight German methylphenidate cartons, **including Ritalin 10 mg Novartis** | 4000×2667 |
+| `30_T1_Ritalin` | `raw_ritalin_02.jpg` | `Motiron® 10 mg` methylphenidate, Sandoz, Nordic | 2348×1086 |
+| `25_T1_Modafinil_Generic` | `raw_modafinil_generic_01.jpg` | `ASPENDOS 100mg comprimate Modafinil`, Romanian | 1159×809 |
+
+`raw_ritalin_01` is worth more than one carton: seven manufacturers solving the
+same label for the same molecule at the same strength, in one frame. It separates
+what is convention from what is brand — which is the question a design passport
+has to answer and a single box cannot.
+
+Aspendos went into `25_T1_Modafinil_Generic` rather than `26_T1_Modvigil` on
+purpose. Folder 25 is named for the molecule; folder 26 is named for a specific
+Indian brand, and putting a Romanian generic there would be inventing.
+
+### Rejected after looking
+
+| Folder | Reason | What it showed |
+|---|---|---|
+| `10_T1_Modalert` | blister only | A `Modalert® 200 / Modafinil Tablets IP` strip, Sun Pharma, Assam. Right product, no carton in frame. |
+| `22_T1_Sonata` | no packaging | Thirty loose capsules on a book cover. |
+| `29_T1_Tapentadol` | wrong market | `Palexia® IR 50 mg`, single carton, flat-on, 2973×1361 — and `AUST R 165310`, Australian. |
+| `04_T1_SMALL_Cialis_Super_Active` | wrong variant | A German `Cialis® 5 mg` carton, braille, Lilly oval, 1550×1322, fully legible — but standard Cialis, not Super Active. |
+
+**Two of those are worth the owner's attention rather than closing.** The German
+Cialis is a stronger European reference than anything now in
+`02_T1_SMALL_Cialis`, but 02 is a sealed baseline under this ТЗ. And Palexia
+fails only on register — the Grünenthal EU pack is very likely the same artwork.
+
+### insufficient_references — 7
+
+`03` Cialis Professional, `11` Waklert, `13` Artvigil, `19` Slimex, `26` Modvigil,
+`27` Adderall, `28` Hydrocodone.
+
+Four of these were predicted: Waklert, Artvigil and Modvigil are Indian export
+generics with no consumer photography, and Adderall and Hydrocodone have no
+European product at all. Slimex returned only Moscow trolleybuses — sibutramine
+left the EU in 2010 and took its packaging with it. This is the marker the ТЗ
+asked for and no previous pass had ever used.

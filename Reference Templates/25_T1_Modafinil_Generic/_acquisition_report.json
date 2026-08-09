@@ -4,7 +4,36 @@
     "Psyykenlääkkeitä.jpg Modafinil",
     "Modafinil Teva 200mg box"
   ],
-  "accepted": [],
+  "accepted": [
+    {
+      "file": "raw_modafinil_generic_01.jpg",
+      "sha256": "98fe71bc5db5bc89e8a25d3da30ec96cbeef8a0685ce19f479ad953166f6fd01",
+      "bytes": 173351,
+      "width": 1159,
+      "height": 809,
+      "below_benchmark_floor": false,
+      "verbatim_strings": [
+        "ASPENDOS 100mg",
+        "ASPENDOS",
+        "100mg",
+        "comprimate",
+        "Modafinil",
+        "30 comprimate"
+      ],
+      "brand_shown": "ASPENDOS",
+      "dosage_shown": "100 mg",
+      "unit_count_shown": "30 comprimate",
+      "packaging_market": "eu",
+      "market_evidence": "Romanian text ('comprimate'); EU generic; no NDC and no IP designation.",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Modafinil-generic-aspendos.jpg",
+      "source_tier": 4,
+      "optical_pass": {
+        "sha256_bytes_dimensions": "Pillow",
+        "visual_fields": "owner review, 2026-08-09, full size"
+      },
+      "notes": "Single carton, three-quarter view, front face legible. White board, the only graphic a row of three rounded violet squares repeated at two sizes, dosage in red at the right. Manufacturer mark bottom right. Aspendos is a European modafinil generic, which is exactly what this folder is for -- the folder is named for the molecule, not a brand."
+    }
+  ],
   "rejected": [
     {
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Psyykenl%C3%A4%C3%A4kkeit%C3%A4.jpg",
@@ -14,7 +43,7 @@
     }
   ],
   "blocked_hosts": [],
-  "outcome": "0 accepted, 1 rejected (wrong_product)",
+  "outcome": "1 accepted",
   "owner_review": {
     "date": "2026-08-09",
     "finding": "The HTTP 429 is gone; the candidate was downloaded and opened.",
