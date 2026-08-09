@@ -1,20 +1,27 @@
 {
-  "group": "top30",
-  "started_at": "2026-08-02 19:51:24",
+  "group": "families",
+  "started_at": "2026-08-09 11:19:10",
   "interrupted": false,
   "limit": null,
   "covers_whole_group": true,
   "counts": {
-    "total": 30,
-    "rendered": 30,
+    "total": 18,
+    "rendered": 18,
     "failed": 0,
-    "flagged": 0
+    "flagged": 2
   },
   "templates_covered": [
     "T1",
-    "T1_SMALL"
+    "T1_LARGE",
+    "T1_SMALL",
+    "T3",
+    "T_BOTTLE_BOX",
+    "T_MULTIPACK",
+    "T_VERT_DROPPER",
+    "T_VERT_INHALER",
+    "T_VERT_VIAL"
   ],
-  "total_render_seconds": 1205.4,
+  "total_render_seconds": 528.7,
   "thresholds": {
     "blank_pct": 5.0,
     "oversize_pct": 95.0,
@@ -23,55 +30,104 @@
   },
   "spread_by_template": {
     "T1": {
-      "count": 27,
-      "min": 68.9,
+      "count": 2,
+      "min": 71.4,
+      "max": 71.4,
+      "median": 71.4,
+      "outliers": []
+    },
+    "T1_LARGE": {
+      "count": 2,
+      "min": 67.5,
+      "max": 67.5,
+      "median": 67.5,
+      "outliers": []
+    },
+    "T1_SMALL": {
+      "count": 2,
+      "min": 70.3,
+      "max": 71.5,
+      "median": 70.9,
+      "outliers": []
+    },
+    "T3": {
+      "count": 2,
+      "min": 74.2,
       "max": 74.2,
       "median": 74.2,
       "outliers": []
     },
-    "T1_SMALL": {
-      "count": 3,
-      "min": 68.9,
-      "max": 74.2,
-      "median": 68.9,
+    "T_BOTTLE_BOX": {
+      "count": 2,
+      "min": 76.3,
+      "max": 76.3,
+      "median": 76.3,
+      "outliers": []
+    },
+    "T_MULTIPACK": {
+      "count": 2,
+      "min": 69.5,
+      "max": 69.5,
+      "median": 69.5,
+      "outliers": []
+    },
+    "T_VERT_DROPPER": {
+      "count": 2,
+      "min": 70.5,
+      "max": 70.5,
+      "median": 70.5,
+      "outliers": []
+    },
+    "T_VERT_INHALER": {
+      "count": 2,
+      "min": 69.4,
+      "max": 69.4,
+      "median": 69.4,
+      "outliers": []
+    },
+    "T_VERT_VIAL": {
+      "count": 2,
+      "min": 66.4,
+      "max": 66.4,
+      "median": 66.4,
       "outliers": []
     }
   },
   "records": [
     {
-      "stem": "2-min",
-      "requested_as": "Strattera (Atomoxetine)",
+      "stem": "99-min",
+      "requested_as": "T1               +22%",
       "rendered": true,
-      "render_seconds": 47.3,
+      "render_seconds": 30.7,
       "error": null,
-      "sku_id": "2-min.jpg",
+      "sku_id": "99-min.jpg",
       "template_id": "T1",
       "carton_mm": [
         115.0,
-        55.0,
+        70.79227967958224,
         48.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Strattera",
+      "carton_source": "art_direction",
+      "product_name": "Acetaminophen",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
+        "frame_fill_width_pct": 71.4,
+        "frame_fill_height_pct": 62.6,
+        "frame_fill_dominant_pct": 71.4,
         "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
+          "top": 434,
+          "bottom": 332,
+          "left": 280,
+          "right": 306
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
-        "front_face_mean": 238.5,
+        "front_face_mean": 238.6,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
       },
@@ -84,38 +140,38 @@
           {
             "name": "label_brand",
             "x_mm": [
-              -48.64,
-              8.15
+              -49.41,
+              30.65
             ],
             "z_mm": [
-              38.84,
-              47.39
+              53.28,
+              62.17
             ],
-            "body": "Strattera"
+            "body": "Acetaminophen"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -49.39,
-              -1.57
+              -49.4,
+              51.8
             ],
             "z_mm": [
-              22.59,
-              28.43
+              30.64,
+              37.1
             ],
-            "body": "Atomoxetine"
+            "body": "Acetaminophen (Paracetamol)"
           },
           {
             "name": "label_dosage",
             "x_mm": [
-              -49.14,
-              -28.43
+              -48.92,
+              -23.65
             ],
             "z_mm": [
-              4.4,
-              10.97
+              6.31,
+              12.88
             ],
-            "body": "40mg"
+            "body": "500mg"
           },
           {
             "name": "label_unit_count",
@@ -124,8 +180,8 @@
               51.42
             ],
             "z_mm": [
-              5.78,
-              11.09
+              7.69,
+              13.0
             ],
             "body": "30 Pills"
           }
@@ -133,227 +189,227 @@
       }
     },
     {
-      "stem": "59-min",
-      "requested_as": "Cialis (Tadalafil)",
+      "stem": "98-min",
+      "requested_as": "T1               +22%",
       "rendered": true,
-      "render_seconds": 43.8,
+      "render_seconds": 30.7,
       "error": null,
-      "sku_id": "59-min.jpg",
-      "template_id": "T1_SMALL",
-      "carton_mm": [
-        110.0,
-        50.0,
-        18.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Cialis",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
-        "margins_px": {
-          "top": 619,
-          "bottom": 445,
-          "left": 263,
-          "right": 374
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 236.7,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -46.79,
-              -16.59
-            ],
-            "z_mm": [
-              35.3,
-              43.27
-            ],
-            "body": "Cialis"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -47.32,
-              -15.8
-            ],
-            "z_mm": [
-              19.89,
-              25.73
-            ],
-            "body": "Tadalafil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -46.76,
-              -26.28
-            ],
-            "z_mm": [
-              4.0,
-              10.57
-            ],
-            "body": "20mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              25.69,
-              49.17
-            ],
-            "z_mm": [
-              5.38,
-              10.69
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "60-min",
-      "requested_as": "Cialis Professional",
-      "rendered": true,
-      "render_seconds": 42.6,
-      "error": null,
-      "sku_id": "60-min.jpg",
-      "template_id": "T1_SMALL",
-      "carton_mm": [
-        110.0,
-        50.0,
-        18.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Cialis Professional",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
-        "margins_px": {
-          "top": 619,
-          "bottom": 445,
-          "left": 263,
-          "right": 374
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 236.7,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -46.83,
-              17.77
-            ],
-            "z_mm": [
-              27.5,
-              43.41
-            ],
-            "body": "Cialis\nProfessional"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -47.32,
-              -15.8
-            ],
-            "z_mm": [
-              19.89,
-              25.73
-            ],
-            "body": "Tadalafil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -46.76,
-              -26.28
-            ],
-            "z_mm": [
-              4.0,
-              10.57
-            ],
-            "body": "20mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              25.92,
-              49.17
-            ],
-            "z_mm": [
-              5.38,
-              10.69
-            ],
-            "body": "10 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "62-min",
-      "requested_as": "Cialis Super Active",
-      "rendered": true,
-      "render_seconds": 44.4,
-      "error": null,
-      "sku_id": "62-min.jpg",
-      "template_id": "T1_SMALL",
+      "sku_id": "98-min.jpg",
+      "template_id": "T1",
       "carton_mm": [
         115.0,
-        55.0,
+        70.79227967958224,
         48.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Cialis Super Active",
+      "carton_source": "art_direction",
+      "product_name": "Zanaflex",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
+        "frame_fill_width_pct": 71.4,
+        "frame_fill_height_pct": 62.6,
+        "frame_fill_dominant_pct": 71.4,
         "margins_px": {
-          "top": 681,
-          "bottom": 383,
-          "left": 225,
-          "right": 304
+          "top": 434,
+          "bottom": 332,
+          "left": 280,
+          "right": 306
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
         "front_face_mean": 238.5,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -48.8,
+              21.52
+            ],
+            "z_mm": [
+              49.99,
+              61.26
+            ],
+            "body": "Zanaflex"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -49.47,
+              -11.38
+            ],
+            "z_mm": [
+              31.12,
+              36.96
+            ],
+            "body": "Tizanidine"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -49.14,
+              -33.2
+            ],
+            "z_mm": [
+              6.31,
+              12.79
+            ],
+            "body": "4mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              27.94,
+              51.42
+            ],
+            "z_mm": [
+              7.69,
+              13.0
+            ],
+            "body": "30 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "422-min",
+      "requested_as": "T1_LARGE         +36%",
+      "rendered": true,
+      "render_seconds": 29.8,
+      "error": null,
+      "sku_id": "422-min.jpg",
+      "template_id": "T1_LARGE",
+      "carton_mm": [
+        115.0,
+        85.82243885934318,
+        48.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Methenolone",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 67.5,
+        "frame_fill_height_pct": 66.7,
+        "frame_fill_dominant_pct": 67.5,
+        "margins_px": {
+          "top": 388,
+          "bottom": 295,
+          "left": 326,
+          "right": 339
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 238.4,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 4.87,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -48.48,
+              27.81
+            ],
+            "z_mm": [
+              67.28,
+              75.46
+            ],
+            "body": "Methenolone"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -48.91,
+              52.29
+            ],
+            "z_mm": [
+              40.56,
+              45.42
+            ],
+            "body": "Methenolone Enanthate (Primobolan)"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -48.68,
+              -28.43
+            ],
+            "z_mm": [
+              9.32,
+              15.89
+            ],
+            "body": "10mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              23.81,
+              51.42
+            ],
+            "z_mm": [
+              10.7,
+              16.01
+            ],
+            "body": "100 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "420-min",
+      "requested_as": "T1_LARGE         +36%",
+      "rendered": true,
+      "render_seconds": 30.0,
+      "error": null,
+      "sku_id": "420-min.jpg",
+      "template_id": "T1_LARGE",
+      "carton_mm": [
+        115.0,
+        85.82243885934318,
+        48.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Oxymetholone",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 67.5,
+        "frame_fill_height_pct": 66.7,
+        "frame_fill_dominant_pct": 67.5,
+        "margins_px": {
+          "top": 388,
+          "bottom": 295,
+          "left": 326,
+          "right": 339
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 238.4,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
       },
@@ -367,119 +423,25 @@
             "name": "label_brand",
             "x_mm": [
               -48.98,
-              17.65
+              27.32
             ],
             "z_mm": [
-              30.25,
-              47.92
+              66.42,
+              75.65
             ],
-            "body": "Cialis\nSuper Active"
+            "body": "Oxymetholone"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -49.47,
-              -17.95
+              -49.03,
+              42.71
             ],
             "z_mm": [
-              22.59,
-              28.43
+              37.77,
+              45.07
             ],
-            "body": "Tadalafil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.91,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "20mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              28.17,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "10 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "107-min",
-      "requested_as": "Tramadol",
-      "rendered": true,
-      "render_seconds": 45.2,
-      "error": null,
-      "sku_id": "107-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Tramadol",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              9.72
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Tramadol"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.47,
-              1.09
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Tramadol HCl"
+            "body": "Oxymetholone (Anadrol)"
           },
           {
             "name": "label_dosage",
@@ -488,60 +450,60 @@
               -28.43
             ],
             "z_mm": [
-              4.4,
-              10.97
+              9.32,
+              15.89
             ],
             "body": "50mg"
           },
           {
             "name": "label_unit_count",
             "x_mm": [
-              27.9,
+              23.81,
               51.42
             ],
             "z_mm": [
-              5.78,
-              11.09
+              10.7,
+              16.01
             ],
-            "body": "60 Pills"
+            "body": "100 Pills"
           }
         ]
       }
     },
     {
-      "stem": "133-min",
-      "requested_as": "Ambien (Zolpidem)",
+      "stem": "337-min",
+      "requested_as": "T1_SMALL         +22%",
       "rendered": true,
-      "render_seconds": 44.7,
+      "render_seconds": 29.5,
       "error": null,
-      "sku_id": "133-min.jpg",
-      "template_id": "T1",
+      "sku_id": "337-min.jpg",
+      "template_id": "T1_SMALL",
       "carton_mm": [
-        115.0,
-        55.0,
-        48.0
+        130.0,
+        73.72868814009686,
+        40.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Ambien",
+      "carton_source": "art_direction",
+      "product_name": "Kamagra Effervescent",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
+        "frame_fill_width_pct": 70.3,
+        "frame_fill_height_pct": 59.8,
+        "frame_fill_dominant_pct": 70.3,
         "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
+          "top": 457,
+          "bottom": 366,
+          "left": 281,
+          "right": 327
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
-        "front_face_mean": 238.4,
+        "front_face_mean": 236.5,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
       },
@@ -554,1404 +516,88 @@
           {
             "name": "label_brand",
             "x_mm": [
-              -49.39,
-              -2.07
+              -54.69,
+              37.38
             ],
             "z_mm": [
-              38.84,
-              47.59
+              41.96,
+              63.73
             ],
-            "body": "Ambien"
+            "body": "Kamagra\nEffervescent"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -49.11,
-              -14.55
+              -55.4,
+              6.41
             ],
             "z_mm": [
-              21.13,
-              28.43
+              32.7,
+              38.54
             ],
-            "body": "Zolpidem"
+            "body": "Sildenafil Citrate"
           },
           {
             "name": "label_dosage",
             "x_mm": [
-              -48.68,
-              -28.43
+              -55.13,
+              -30.1
             ],
             "z_mm": [
-              4.4,
-              10.97
+              6.9,
+              13.47
             ],
-            "body": "10mg"
+            "body": "100mg"
           },
           {
             "name": "label_unit_count",
             "x_mm": [
-              27.94,
-              51.42
+              39.09,
+              58.17
             ],
             "z_mm": [
-              5.78,
-              11.09
+              8.28,
+              13.59
             ],
-            "body": "30 Pills"
+            "body": "7 Pills"
           }
         ]
       }
     },
     {
-      "stem": "134-min",
-      "requested_as": "Atarax (Hydroxyzine)",
+      "stem": "79-min",
+      "requested_as": "T1_SMALL         +22%",
       "rendered": true,
-      "render_seconds": 43.6,
+      "render_seconds": 29.6,
       "error": null,
-      "sku_id": "134-min.jpg",
-      "template_id": "T1",
+      "sku_id": "79-min.jpg",
+      "template_id": "T1_SMALL",
       "carton_mm": [
         115.0,
-        55.0,
+        70.17759573331637,
         48.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Atarax",
+      "carton_source": "art_direction",
+      "product_name": "Viagra Super Active",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
+        "frame_fill_width_pct": 71.5,
+        "frame_fill_height_pct": 62.4,
+        "frame_fill_dominant_pct": 71.5,
         "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              -7.3
-            ],
-            "z_mm": [
-              38.84,
-              47.25
-            ],
-            "body": "Atarax"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -2.8
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Hydroxyzine"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.91,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "25mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "135-min",
-      "requested_as": "Ativan (Lorazepam)",
-      "rendered": true,
-      "render_seconds": 44.9,
-      "error": null,
-      "sku_id": "135-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Ativan",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.3,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              -9.22
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Ativan"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -8.18
-            ],
-            "z_mm": [
-              21.13,
-              28.2
-            ],
-            "body": "Lorazepam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.68,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "1mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "139-min",
-      "requested_as": "Lyrica (Pregabalin)",
-      "rendered": true,
-      "render_seconds": 42.9,
-      "error": null,
-      "sku_id": "139-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Lyrica",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              -11.95
-            ],
-            "z_mm": [
-              36.55,
-              47.59
-            ],
-            "body": "Lyrica"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -10.0
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Pregabalin"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.99,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "75mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "149-min",
-      "requested_as": "Modalert (Modafinil)",
-      "rendered": true,
-      "render_seconds": 44.9,
-      "error": null,
-      "sku_id": "149-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Modalert",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
+          "top": 436,
+          "bottom": 334,
+          "left": 279,
           "right": 304
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
         "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              7.61
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Modalert"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -15.89
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Modafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.91,
-              -23.65
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "200mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "150-min",
-      "requested_as": "Waklert (Armodafinil)",
-      "rendered": true,
-      "render_seconds": 44.7,
-      "error": null,
-      "sku_id": "150-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Waklert",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.11,
-              0.48
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Waklert"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.39,
-              -6.79
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Armodafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.68,
-              -23.65
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "150mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "151-min",
-      "requested_as": "Provigil (Modafinil)",
-      "rendered": true,
-      "render_seconds": 40.4,
-      "error": null,
-      "sku_id": "151-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        110.0,
-        50.0,
-        18.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Provigil",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
-        "margins_px": {
-          "top": 620,
-          "bottom": 445,
-          "left": 263,
-          "right": 374
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 236.8,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -46.36,
-              -3.83
-            ],
-            "z_mm": [
-              33.23,
-              43.27
-            ],
-            "body": "Provigil"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -46.56,
-              -13.74
-            ],
-            "z_mm": [
-              19.89,
-              25.73
-            ],
-            "body": "Modafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -46.76,
-              -21.5
-            ],
-            "z_mm": [
-              4.0,
-              10.57
-            ],
-            "body": "200mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              25.69,
-              49.17
-            ],
-            "z_mm": [
-              5.38,
-              10.69
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "152-min",
-      "requested_as": "Artvigil (Armodafinil)",
-      "rendered": true,
-      "render_seconds": 44.7,
-      "error": null,
-      "sku_id": "152-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Artvigil",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              -3.54
-            ],
-            "z_mm": [
-              36.55,
-              47.59
-            ],
-            "body": "Artvigil"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.39,
-              -6.79
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Armodafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.68,
-              -23.65
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "150mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "155-min",
-      "requested_as": "Imovane (Zopiclone)",
-      "rendered": true,
-      "render_seconds": 40.5,
-      "error": null,
-      "sku_id": "155-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Imovane",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              4.53
-            ],
-            "z_mm": [
-              38.84,
-              47.25
-            ],
-            "body": "Imovane"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.11,
-              -12.9
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Zopiclone"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.99,
-              -25.82
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "7.5mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "156-min",
-      "requested_as": "Xanax (Alprazolam)",
-      "rendered": true,
-      "render_seconds": 40.7,
-      "error": null,
-      "sku_id": "156-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Xanax",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.23,
-              -10.27
-            ],
-            "z_mm": [
-              38.84,
-              47.25
-            ],
-            "body": "Xanax"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.39,
-              -7.68
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Alprazolam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -49.12,
-              -25.82
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "0.5mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "157-min",
-      "requested_as": "Valium (Diazepam)",
-      "rendered": true,
-      "render_seconds": 35.0,
-      "error": null,
-      "sku_id": "157-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Valium",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              -6.34
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Valium"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -12.2
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Diazepam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.92,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "5mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "158-min",
-      "requested_as": "Klonopin (Clonazepam)",
-      "rendered": true,
-      "render_seconds": 32.6,
-      "error": null,
-      "sku_id": "158-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Klonopin",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.3,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              5.96
-            ],
-            "z_mm": [
-              36.64,
-              47.59
-            ],
-            "body": "Klonopin"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.03,
-              -3.34
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Clonazepam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.68,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "1mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "221-min",
-      "requested_as": "Inderal (Propranolol)",
-      "rendered": true,
-      "render_seconds": 34.6,
-      "error": null,
-      "sku_id": "221-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Inderal",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              -5.26
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Inderal"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -7.17
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Propranolol"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -49.14,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "40mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "230-min",
-      "requested_as": "Slimex",
-      "rendered": true,
-      "render_seconds": 35.5,
-      "error": null,
-      "sku_id": "230-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Slimex",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.64,
-              -6.95
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Slimex"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.95,
-              11.29
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Sibutramine HCl"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.68,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "15mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "258-min",
-      "requested_as": "Stromectol (Ivermectin)",
-      "rendered": true,
-      "render_seconds": 37.6,
-      "error": null,
-      "sku_id": "258-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Stromectol",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.64,
-              19.75
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Stromectol"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -9.68
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Ivermectin"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.99,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "3mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "272-min",
-      "requested_as": "Valium Brand",
-      "rendered": true,
-      "render_seconds": 38.4,
-      "error": null,
-      "sku_id": "272-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Valium Brand",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
       },
@@ -1965,841 +611,939 @@
             "name": "label_brand",
             "x_mm": [
               -49.4,
-              -9.89
+              30.81
             ],
             "z_mm": [
-              30.25,
-              47.75
+              40.13,
+              61.27
             ],
-            "body": "Valium\nBrand"
+            "body": "Viagra\nSuper Active"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -48.71,
-              -12.2
+              -48.95,
+              12.86
             ],
             "z_mm": [
-              21.13,
-              28.43
+              30.79,
+              36.62
             ],
-            "body": "Diazepam"
+            "body": "Sildenafil Citrate"
           },
           {
             "name": "label_dosage",
             "x_mm": [
-              -48.92,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.88
-            ],
-            "body": "5mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "304-min",
-      "requested_as": "Sonata (Zaleplon)",
-      "rendered": true,
-      "render_seconds": 35.5,
-      "error": null,
-      "sku_id": "304-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        110.0,
-        50.0,
-        18.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Sonata",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
-        "margins_px": {
-          "top": 619,
-          "bottom": 445,
-          "left": 263,
-          "right": 374
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 236.7,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -46.56,
-              -7.5
-            ],
-            "z_mm": [
-              35.3,
-              43.09
-            ],
-            "body": "Sonata"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -46.96,
-              -15.13
-            ],
-            "z_mm": [
-              18.43,
-              25.73
-            ],
-            "body": "Zaleplon"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -46.53,
-              -26.28
-            ],
-            "z_mm": [
-              4.0,
-              10.57
-            ],
-            "body": "10mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              25.69,
-              49.17
-            ],
-            "z_mm": [
-              5.38,
-              10.69
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "308-min",
-      "requested_as": "Lexotanil (Bromazepam)",
-      "rendered": true,
-      "render_seconds": 38.6,
-      "error": null,
-      "sku_id": "308-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Lexotanil",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              8.42
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Lexotanil"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              0.14
-            ],
-            "z_mm": [
-              21.13,
-              28.2
-            ],
-            "body": "Bromazepam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.99,
-              -33.2
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "3mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "340-min",
-      "requested_as": "Xanax (Alprazolam) by Pfizer",
-      "rendered": true,
-      "render_seconds": 38.9,
-      "error": null,
-      "sku_id": "340-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Xanax by Pfizer",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.4,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.25,
-              4.3
-            ],
-            "z_mm": [
-              30.25,
-              47.75
-            ],
-            "body": "Xanax by\nPfizer"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.39,
-              -7.68
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Alprazolam"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -49.12,
-              -25.82
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "0.5mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "344-min",
-      "requested_as": "Modafinil",
-      "rendered": true,
-      "render_seconds": 38.0,
-      "error": null,
-      "sku_id": "344-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Modafinil Generic",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.93,
-              4.18
-            ],
-            "z_mm": [
-              30.25,
-              47.75
-            ],
-            "body": "Modafinil\nGeneric"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -15.89
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Modafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.91,
+              -48.68,
               -23.65
             ],
             "z_mm": [
-              4.4,
-              10.97
+              6.19,
+              12.76
+            ],
+            "body": "100mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              27.94,
+              51.42
+            ],
+            "z_mm": [
+              7.57,
+              12.88
+            ],
+            "body": "30 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "76-min",
+      "requested_as": "T3               +58%",
+      "rendered": true,
+      "render_seconds": 29.6,
+      "error": null,
+      "sku_id": "76-min.jpg",
+      "template_id": "T3",
+      "carton_mm": [
+        130.0,
+        56.92275994888523,
+        40.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Viagra Oral Jelly",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 74.2,
+        "frame_fill_height_pct": 54.4,
+        "frame_fill_dominant_pct": 74.2,
+        "margins_px": {
+          "top": 515,
+          "bottom": 419,
+          "left": 229,
+          "right": 299
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 236.5,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -55.85,
+              -6.67
+            ],
+            "z_mm": [
+              31.31,
+              49.6
+            ],
+            "body": "Viagra\nOral Jelly"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -55.4,
+              6.41
+            ],
+            "z_mm": [
+              23.63,
+              29.47
+            ],
+            "body": "Sildenafil Citrate"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -55.13,
+              -30.1
+            ],
+            "z_mm": [
+              4.55,
+              11.12
+            ],
+            "body": "100mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              25.36,
+              58.17
+            ],
+            "z_mm": [
+              5.94,
+              11.25
+            ],
+            "body": "7 Sachets"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "65-min",
+      "requested_as": "T3               +58%",
+      "rendered": true,
+      "render_seconds": 28.9,
+      "error": null,
+      "sku_id": "65-min.jpg",
+      "template_id": "T3",
+      "carton_mm": [
+        130.0,
+        56.92275994888523,
+        40.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Kamagra Oral Jelly",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 74.2,
+        "frame_fill_height_pct": 54.4,
+        "frame_fill_dominant_pct": 74.2,
+        "margins_px": {
+          "top": 515,
+          "bottom": 419,
+          "left": 229,
+          "right": 299
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 236.5,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -55.42,
+              -6.67
+            ],
+            "z_mm": [
+              31.31,
+              49.3
+            ],
+            "body": "Kamagra\nOral Jelly"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -55.4,
+              6.41
+            ],
+            "z_mm": [
+              23.63,
+              29.47
+            ],
+            "body": "Sildenafil Citrate"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -55.13,
+              -30.1
+            ],
+            "z_mm": [
+              4.55,
+              11.12
+            ],
+            "body": "100mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              25.36,
+              58.17
+            ],
+            "z_mm": [
+              5.94,
+              11.25
+            ],
+            "body": "7 Sachets"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "412-min",
+      "requested_as": "T_BOTTLE_BOX     +44%",
+      "rendered": true,
+      "render_seconds": 28.4,
+      "error": null,
+      "sku_id": "412-min.jpg",
+      "template_id": "T_BOTTLE_BOX",
+      "carton_mm": [
+        72.06604768052557,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Testosterone Enanthate Generic",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 45.7,
+        "frame_fill_height_pct": 76.3,
+        "frame_fill_dominant_pct": 76.3,
+        "margins_px": {
+          "top": 247,
+          "bottom": 238,
+          "left": 541,
+          "right": 572
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 231.9,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 4.1,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -30.97,
+              12.27
+            ],
+            "z_mm": [
+              91.29,
+              98.17
+            ],
+            "body": "Testosterone\nEnanthate Generic"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -31.0,
+              32.41
+            ],
+            "z_mm": [
+              54.41,
+              58.51
+            ],
+            "body": "Testosterone Enanthate"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -30.45,
+              -5.19
+            ],
+            "z_mm": [
+              14.15,
+              20.72
+            ],
+            "body": "250mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              13.21,
+              32.09
+            ],
+            "z_mm": [
+              15.54,
+              20.84
+            ],
+            "body": "1 Pills"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "411-min",
+      "requested_as": "T_BOTTLE_BOX     +44%",
+      "rendered": true,
+      "render_seconds": 28.8,
+      "error": null,
+      "sku_id": "411-min.jpg",
+      "template_id": "T_BOTTLE_BOX",
+      "carton_mm": [
+        72.06604768052557,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Testosterone Cypionate Generic",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 45.7,
+        "frame_fill_height_pct": 76.3,
+        "frame_fill_dominant_pct": 76.3,
+        "margins_px": {
+          "top": 247,
+          "bottom": 238,
+          "left": 541,
+          "right": 572
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 231.9,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.16,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -30.97,
+              12.27
+            ],
+            "z_mm": [
+              90.35,
+              98.16
+            ],
+            "body": "Testosterone\nCypionate Generic"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -31.0,
+              32.41
+            ],
+            "z_mm": [
+              53.34,
+              58.5
+            ],
+            "body": "Testosterone Cypionate"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -30.45,
+              -5.19
+            ],
+            "z_mm": [
+              14.15,
+              20.72
             ],
             "body": "200mg"
           },
           {
             "name": "label_unit_count",
             "x_mm": [
-              27.94,
-              51.42
+              13.21,
+              32.09
             ],
             "z_mm": [
-              5.78,
-              11.09
+              15.54,
+              20.84
             ],
-            "body": "30 Pills"
+            "body": "1 Pills"
           }
         ]
       }
     },
     {
-      "stem": "346-min",
-      "requested_as": "Modvigil",
+      "stem": "351-min",
+      "requested_as": "T_MULTIPACK       +0%",
       "rendered": true,
-      "render_seconds": 36.7,
+      "render_seconds": 28.3,
       "error": null,
-      "sku_id": "346-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Modvigil",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -48.41,
-              3.85
-            ],
-            "z_mm": [
-              36.55,
-              47.59
-            ],
-            "body": "Modvigil"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -48.71,
-              -15.89
-            ],
-            "z_mm": [
-              22.59,
-              28.43
-            ],
-            "body": "Modafinil"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.91,
-              -23.65
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "200mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "357-min",
-      "requested_as": "Adderall",
-      "rendered": true,
-      "render_seconds": 38.0,
-      "error": null,
-      "sku_id": "357-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Adderall",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 682,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 4.64,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              3.21
-            ],
-            "z_mm": [
-              38.84,
-              47.59
-            ],
-            "body": "Adderall"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.41,
-              51.79
-            ],
-            "z_mm": [
-              24.25,
-              28.89
-            ],
-            "body": "Amphetamine / Dextroamphetamine Salts"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.99,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.97
-            ],
-            "body": "30mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              27.94,
-              51.42
-            ],
-            "z_mm": [
-              5.78,
-              11.09
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "362-min",
-      "requested_as": "Hydrocodone",
-      "rendered": true,
-      "render_seconds": 35.3,
-      "error": null,
-      "sku_id": "362-min.jpg",
-      "template_id": "T1",
+      "sku_id": "351-min.jpg",
+      "template_id": "T_MULTIPACK",
       "carton_mm": [
         110.0,
-        50.0,
+        50.010048623727656,
         18.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Hydrocodone",
+      "carton_source": "art_direction",
+      "product_name": "Original Test pack L-VC",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
+        "frame_fill_width_pct": 69.5,
+        "frame_fill_height_pct": 52.8,
+        "frame_fill_dominant_pct": 69.5,
         "margins_px": {
-          "top": 619,
+          "top": 521,
           "bottom": 445,
-          "left": 263,
-          "right": 374
+          "left": 269,
+          "right": 355
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
-        "front_face_mean": 236.7,
+        "front_face_mean": 233.9,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
       },
       "layout": {
         "checked": true,
         "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
+        "issues": [
+          "label_ingredient set at 3.60mm, under the 4.0mm the references hold small print to (55 characters)"
+        ],
+        "smallest_fitted_row_mm": 3.6,
         "rows": [
           {
             "name": "label_brand",
             "x_mm": [
-              -46.36,
-              28.93
+              -46.87,
+              14.53
             ],
             "z_mm": [
-              33.23,
-              43.27
+              27.51,
+              43.57
             ],
-            "body": "Hydrocodone"
+            "body": "Original Test\npack L-VC"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -46.56,
-              41.17
+              -47.05,
+              49.75
             ],
             "z_mm": [
-              18.43,
-              25.73
+              22.78,
+              26.38
             ],
-            "body": "Hydrocodone Bitartrate"
+            "body": "Sildenafil / Tadalafil / Vardenafil (Original Specimen)"
           },
           {
             "name": "label_dosage",
             "x_mm": [
-              -46.53,
+              -46.77,
               -26.28
             ],
             "z_mm": [
               4.0,
               10.57
-            ],
-            "body": "10mg"
-          },
-          {
-            "name": "label_unit_count",
-            "x_mm": [
-              25.69,
-              49.17
-            ],
-            "z_mm": [
-              5.38,
-              10.69
-            ],
-            "body": "30 Pills"
-          }
-        ]
-      }
-    },
-    {
-      "stem": "365-min",
-      "requested_as": "Tapentadol",
-      "rendered": true,
-      "render_seconds": 37.2,
-      "error": null,
-      "sku_id": "365-min.jpg",
-      "template_id": "T1",
-      "carton_mm": [
-        115.0,
-        55.0,
-        48.0
-      ],
-      "carton_source": "passport_secondary",
-      "product_name": "Tapentadol",
-      "measurement": {
-        "measured": true,
-        "resolution": [
-          2048,
-          2048
-        ],
-        "frame_fill_width_pct": 74.2,
-        "frame_fill_height_pct": 48.1,
-        "frame_fill_dominant_pct": 74.2,
-        "margins_px": {
-          "top": 681,
-          "bottom": 382,
-          "left": 225,
-          "right": 304
-        },
-        "cropped": false,
-        "blank": false,
-        "oversize": false,
-        "front_face_mean": 238.5,
-        "backdrop_mean": 254.9,
-        "backdrop_sd": 0.3
-      },
-      "layout": {
-        "checked": true,
-        "row_count": 4,
-        "issues": [],
-        "smallest_fitted_row_mm": 5.31,
-        "rows": [
-          {
-            "name": "label_brand",
-            "x_mm": [
-              -49.39,
-              21.59
-            ],
-            "z_mm": [
-              36.64,
-              47.59
-            ],
-            "body": "Tapentadol"
-          },
-          {
-            "name": "label_ingredient",
-            "x_mm": [
-              -49.47,
-              7.8
-            ],
-            "z_mm": [
-              21.13,
-              28.43
-            ],
-            "body": "Tapentadol HCl"
-          },
-          {
-            "name": "label_dosage",
-            "x_mm": [
-              -48.92,
-              -28.43
-            ],
-            "z_mm": [
-              4.4,
-              10.97
             ],
             "body": "50mg"
           },
           {
             "name": "label_unit_count",
             "x_mm": [
-              27.94,
-              51.42
+              4.08,
+              49.48
             ],
             "z_mm": [
-              5.78,
-              11.09
+              5.77,
+              10.76
             ],
-            "body": "30 Pills"
+            "body": "Assorted Pack"
           }
         ]
       }
     },
     {
-      "stem": "404-min",
-      "requested_as": "Ritalin (Generic)",
+      "stem": "350-min",
+      "requested_as": "T_MULTIPACK       +0%",
       "rendered": true,
-      "render_seconds": 38.2,
+      "render_seconds": 28.5,
       "error": null,
-      "sku_id": "404-min.jpg",
-      "template_id": "T1",
+      "sku_id": "350-min.jpg",
+      "template_id": "T_MULTIPACK",
       "carton_mm": [
         110.0,
-        50.0,
+        50.010048623727656,
         18.0
       ],
-      "carton_source": "passport_secondary",
-      "product_name": "Ritalin",
+      "carton_source": "art_direction",
+      "product_name": "Test Pack XXL-VCL",
       "measurement": {
         "measured": true,
         "resolution": [
           2048,
           2048
         ],
-        "frame_fill_width_pct": 68.9,
-        "frame_fill_height_pct": 48.0,
-        "frame_fill_dominant_pct": 68.9,
+        "frame_fill_width_pct": 69.5,
+        "frame_fill_height_pct": 52.8,
+        "frame_fill_dominant_pct": 69.5,
         "margins_px": {
-          "top": 620,
+          "top": 521,
           "bottom": 445,
-          "left": 263,
-          "right": 374
+          "left": 269,
+          "right": 355
         },
         "cropped": false,
         "blank": false,
         "oversize": false,
-        "front_face_mean": 236.7,
+        "front_face_mean": 233.9,
         "backdrop_mean": 254.9,
         "backdrop_sd": 0.3
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [
+          "label_ingredient set at 3.59mm, under the 4.0mm the references hold small print to (54 characters)"
+        ],
+        "smallest_fitted_row_mm": 3.59,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -47.25,
+              4.32
+            ],
+            "z_mm": [
+              27.51,
+              43.42
+            ],
+            "body": "Test Pack\nXXL-VCL"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -47.06,
+              49.74
+            ],
+            "z_mm": [
+              22.79,
+              26.38
+            ],
+            "body": "Sildenafil / Tadalafil / Vardenafil (XXL Specimen Mix)"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -46.53,
+              -21.5
+            ],
+            "z_mm": [
+              4.0,
+              10.57
+            ],
+            "body": "100mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              4.08,
+              49.48
+            ],
+            "z_mm": [
+              5.77,
+              10.76
+            ],
+            "body": "Assorted Pack"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "379-min",
+      "requested_as": "T_VERT_DROPPER   +80%",
+      "rendered": true,
+      "render_seconds": 29.4,
+      "error": null,
+      "sku_id": "379-min.jpg",
+      "template_id": "T_VERT_DROPPER",
+      "carton_mm": [
+        90.07040929159263,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Lumigan 0.03%",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 52.9,
+        "frame_fill_height_pct": 70.5,
+        "frame_fill_dominant_pct": 70.5,
+        "margins_px": {
+          "top": 317,
+          "bottom": 288,
+          "left": 466,
+          "right": 498
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 235.1,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 4.11,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -38.18,
+              15.86
+            ],
+            "z_mm": [
+              77.73,
+              97.07
+            ],
+            "body": "Lumigan\n0.03%"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -37.99,
+              7.3
+            ],
+            "z_mm": [
+              50.83,
+              58.13
+            ],
+            "body": "Bimatoprost"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -38.5,
+              -1.87
+            ],
+            "z_mm": [
+              17.08,
+              21.19
+            ],
+            "body": "0.03ml/0.03%"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              14.34,
+              40.17
+            ],
+            "z_mm": [
+              15.54,
+              20.84
+            ],
+            "body": "1 Bottle"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "229-min",
+      "requested_as": "T_VERT_DROPPER   +80%",
+      "rendered": true,
+      "render_seconds": 29.0,
+      "error": null,
+      "sku_id": "229-min.jpg",
+      "template_id": "T_VERT_DROPPER",
+      "carton_mm": [
+        90.07040929159263,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Lumigan 0.01%",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 52.9,
+        "frame_fill_height_pct": 70.5,
+        "frame_fill_dominant_pct": 70.5,
+        "margins_px": {
+          "top": 317,
+          "bottom": 288,
+          "left": 466,
+          "right": 498
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 235.1,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 4.11,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -38.18,
+              15.86
+            ],
+            "z_mm": [
+              77.73,
+              97.07
+            ],
+            "body": "Lumigan\n0.01%"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -37.99,
+              7.3
+            ],
+            "z_mm": [
+              50.83,
+              58.13
+            ],
+            "body": "Bimatoprost"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -38.5,
+              -1.87
+            ],
+            "z_mm": [
+              17.08,
+              21.19
+            ],
+            "body": "0.01ml/0.01%"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              14.34,
+              40.17
+            ],
+            "z_mm": [
+              15.54,
+              20.84
+            ],
+            "body": "1 Bottle"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "393-min",
+      "requested_as": "T_VERT_INHALER   +90%",
+      "rendered": true,
+      "render_seconds": 29.1,
+      "error": null,
+      "sku_id": "393-min.jpg",
+      "template_id": "T_VERT_INHALER",
+      "carton_mm": [
+        95.14671100108438,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Advair Diskus Generic Inhaler",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 54.4,
+        "frame_fill_height_pct": 69.4,
+        "frame_fill_dominant_pct": 69.4,
+        "margins_px": {
+          "top": 329,
+          "bottom": 298,
+          "left": 449,
+          "right": 485
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 235.2,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 4.6,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -40.88,
+              16.21
+            ],
+            "z_mm": [
+              86.76,
+              97.89
+            ],
+            "body": "Advair Diskus\nGeneric Inhaler"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -40.45,
+              43.28
+            ],
+            "z_mm": [
+              54.0,
+              58.6
+            ],
+            "body": "Fluticasone Propionate / Salmeterol"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -40.37,
+              -11.05
+            ],
+            "z_mm": [
+              14.15,
+              20.72
+            ],
+            "body": "250mcg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              13.16,
+              42.82
+            ],
+            "z_mm": [
+              15.54,
+              20.84
+            ],
+            "body": "1 Inhaler"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "316-min",
+      "requested_as": "T_VERT_INHALER   +90%",
+      "rendered": true,
+      "render_seconds": 29.6,
+      "error": null,
+      "sku_id": "316-min.jpg",
+      "template_id": "T_VERT_INHALER",
+      "carton_mm": [
+        95.14671100108438,
+        110.0,
+        18.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Beconase AQ",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 54.4,
+        "frame_fill_height_pct": 69.4,
+        "frame_fill_dominant_pct": 69.4,
+        "margins_px": {
+          "top": 329,
+          "bottom": 298,
+          "left": 449,
+          "right": 485
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 235.2,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
       },
       "layout": {
         "checked": true,
@@ -2810,50 +1554,238 @@
           {
             "name": "label_brand",
             "x_mm": [
-              -46.36,
-              -10.42
+              -40.86,
+              16.23
             ],
             "z_mm": [
-              35.3,
-              43.27
+              77.72,
+              96.87
             ],
-            "body": "Ritalin"
+            "body": "Beconase\nAQ"
           },
           {
             "name": "label_ingredient",
             "x_mm": [
-              -46.56,
-              15.85
+              -40.37,
+              43.36
             ],
             "z_mm": [
-              18.43,
-              25.73
+              53.06,
+              58.46
             ],
-            "body": "Methylphenidate"
+            "body": "Beclomethasone Dipropionate"
           },
           {
             "name": "label_dosage",
             "x_mm": [
-              -46.53,
-              -26.28
+              -40.38,
+              -19.89
             ],
             "z_mm": [
-              4.0,
-              10.57
+              14.15,
+              20.72
             ],
-            "body": "10mg"
+            "body": "50mg"
           },
           {
             "name": "label_unit_count",
             "x_mm": [
-              25.69,
-              49.17
+              13.16,
+              42.82
             ],
             "z_mm": [
-              5.38,
-              10.69
+              15.54,
+              20.84
             ],
-            "body": "30 Pills"
+            "body": "1 Inhaler"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "416-min",
+      "requested_as": "T_VERT_VIAL     +115%",
+      "rendered": true,
+      "render_seconds": 29.0,
+      "error": null,
+      "sku_id": "416-min.jpg",
+      "template_id": "T_VERT_VIAL",
+      "carton_mm": [
+        172.0023810030916,
+        170.0,
+        35.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Trenbolone Enanthate",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 59.1,
+        "frame_fill_height_pct": 66.4,
+        "frame_fill_dominant_pct": 66.4,
+        "margins_px": {
+          "top": 366,
+          "bottom": 322,
+          "left": 399,
+          "right": 438
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 237.9,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -73.88,
+              29.82
+            ],
+            "z_mm": [
+              122.66,
+              150.24
+            ],
+            "body": "Trenbolone\nEnanthate"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -73.98,
+              -31.69
+            ],
+            "z_mm": [
+              84.69,
+              90.53
+            ],
+            "body": "Trenbolone"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -73.42,
+              -48.16
+            ],
+            "z_mm": [
+              26.15,
+              32.72
+            ],
+            "body": "200mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              50.97,
+              77.07
+            ],
+            "z_mm": [
+              27.54,
+              32.84
+            ],
+            "body": "10 Vials"
+          }
+        ]
+      }
+    },
+    {
+      "stem": "415-min",
+      "requested_as": "T_VERT_VIAL     +115%",
+      "rendered": true,
+      "render_seconds": 29.8,
+      "error": null,
+      "sku_id": "415-min.jpg",
+      "template_id": "T_VERT_VIAL",
+      "carton_mm": [
+        172.0023810030916,
+        170.0,
+        35.0
+      ],
+      "carton_source": "art_direction",
+      "product_name": "Trenbolone Acetate",
+      "measurement": {
+        "measured": true,
+        "resolution": [
+          2048,
+          2048
+        ],
+        "frame_fill_width_pct": 59.1,
+        "frame_fill_height_pct": 66.4,
+        "frame_fill_dominant_pct": 66.4,
+        "margins_px": {
+          "top": 366,
+          "bottom": 322,
+          "left": 399,
+          "right": 438
+        },
+        "cropped": false,
+        "blank": false,
+        "oversize": false,
+        "front_face_mean": 237.9,
+        "backdrop_mean": 254.9,
+        "backdrop_sd": 0.29
+      },
+      "layout": {
+        "checked": true,
+        "row_count": 4,
+        "issues": [],
+        "smallest_fitted_row_mm": 5.31,
+        "rows": [
+          {
+            "name": "label_brand",
+            "x_mm": [
+              -73.88,
+              29.82
+            ],
+            "z_mm": [
+              122.66,
+              150.24
+            ],
+            "body": "Trenbolone\nAcetate"
+          },
+          {
+            "name": "label_ingredient",
+            "x_mm": [
+              -73.98,
+              -31.69
+            ],
+            "z_mm": [
+              84.69,
+              90.53
+            ],
+            "body": "Trenbolone"
+          },
+          {
+            "name": "label_dosage",
+            "x_mm": [
+              -73.19,
+              -48.16
+            ],
+            "z_mm": [
+              26.15,
+              32.72
+            ],
+            "body": "100mg"
+          },
+          {
+            "name": "label_unit_count",
+            "x_mm": [
+              50.97,
+              77.07
+            ],
+            "z_mm": [
+              27.54,
+              32.84
+            ],
+            "body": "10 Vials"
           }
         ]
       }

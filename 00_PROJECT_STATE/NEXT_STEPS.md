@@ -24,9 +24,21 @@ tuning anything it might move. Housekeeping is independent throughout.
    direction is settled either way.
 
 3. **Give the light rig a metering model that covers more than two shapes.** Exposure
-   has landscape and portrait buckets; a carton as flat as T3 needs its own and lands
-   about a level under the reference floor without it. Ratcheted in
-   `TestRenderedLuminance.KNOWN_UNDER_BAND` so it cannot slip further.
+   has landscape and portrait buckets, and two sweeps on 2026-08-09 show that is not
+   enough — the front face lands under the reference floor of 235.0 for:
+
+   | | front face | what they share |
+   |---|---:|---|
+   | `T_BOTTLE_BOX` 411, 412 | 231.9 | the deepest carton relative to its face |
+   | `T_MULTIPACK` 350, 351 | 233.9 | |
+   | `T3` 111 | 234.0 | the flattest carton |
+   | 6 of 30 in `top30` | 234.0 | all 18mm deep |
+
+   **Depth is the missing variable**, and the 18mm group makes that plain: six SKU
+   with identical 110x56.7x18 cartons all read exactly 234.0 while their deeper
+   siblings sit at 238. Ratcheted in `TestRenderedLuminance.KNOWN_UNDER_BAND` so it
+   cannot slip further, but the fix is metering that reads the carton rather than a
+   two-way branch on its shape.
 
 4. **Close the remaining lid clipping.** 9.2% of the flat T3's lid still saturates,
    and the portrait lids sit at 0.79-0.82 of their front face against a reference band
@@ -69,7 +81,12 @@ tuning anything it might move. Housekeeping is independent throughout.
    label row by shrinking it, with no lower bound, so a long ingredient on a
    narrow face sets below legibility rather than overflowing: 9 of the
    catalogue's 15 longest strings fall under the 4.0mm the references imply,
-   worst at 2.42mm on `393-min`. Reproduce with
+   worst at 2.42mm on `393-min`. **Now confirmed in an actual render, not only in
+   the scan:** the `families` sweep of 2026-08-09 caught `350-min` and `351-min`
+   (`T_MULTIPACK`) setting `label_ingredient` at 3.59mm and 3.60mm for 54- and
+   55-character strings — 2 of 18, and invisible to `top30`, which renders no
+   `T_MULTIPACK` at all. Reproduce with
+   `python scripts/catalogue_sweep.py --group families` or
    `python scripts/catalogue_sweep.py --legibility-scan`. Fixing it means
    deciding what gives when the string will not fit at a legible size —
    wrapping to a second line, abbreviating, or accepting a smaller floor — which
