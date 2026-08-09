@@ -620,3 +620,47 @@ generics with no consumer photography, and Adderall and Hydrocodone have no
 European product at all. Slimex returned only Moscow trolleybuses — sibutramine
 left the EU in 2010 and took its packaging with it. This is the marker the ТЗ
 asked for and no previous pass had ever used.
+
+---
+
+## 2026-08-10 — Three re-searches: one paid off, two are dead ends
+
+### `15_T1_Xanax` — the Xanor rejection is resolved, and better than asked
+
+Two files accepted. Neither is Xanor; both beat it.
+
+| File | What it is | Size |
+|---|---|---|
+| `raw_xanax_01.jpg` | Six French cartons: **XANAX® Pfizer at 0,25 and 0,50 mg**, plus Alprazolam Sandoz, Mylan and EG | 1795×1722 |
+| `raw_xanax_02.jpg` | `Alprazolam EG® 0,25 mg`, Italian, single carton flat-on | 4160×2340 |
+
+`raw_xanax_01` carries two things at once. It is the real **Pfizer Xanax** the
+folder is named for rather than a generic standing in — the Nordic Xanor was only
+ever the local brand of the same product. And it shows that brand at two strengths
+with the colour block changed and nothing else: **magenta at 0,25 mg, violet at
+0,50 mg**. That is the owner's dosage-colour rule photographed on the exact
+product this folder is about, which the 980×605 Xanor could not have shown at all.
+
+`raw_xanax_02` is the largest alprazolam face acquired anywhere in this project.
+The Italian EG pack is a different design from the French EG box in the group
+photo, so the two are not redundant — one is the comparative frame, the other the
+measurable one.
+
+### `16_T1_Valium` — insufficient_references, and the reason is worth keeping
+
+Every European diazepam **carton** on Commons is one photograph, and it is already
+in `21_T1_Valium_Brand`. Confirmed by pixel hash rather than by filename:
+`Boites_de_Valium44.jpg` and `21/raw_valium_brand_01.jpg` are both
+`de02ad591b5cbd76…` — the same picture.
+
+Duplicating one image across two folders is forbidden, so 16 stays empty rather
+than sharing it. Everything else the search returned is not packaging: a Pakistani
+Martin Dow blister strip made under Roche licence, three loose tablets on a table,
+a ratiopharm ampoule, a stock bottle.
+
+### `29_T1_Tapentadol` — insufficient_references
+
+Searched Palexia Grunenthal, Palexia retard, Tapentadol Packung, Palexia boite,
+tapentadol confezione. **Zero files above the floor, and none below it either.**
+The only Palexia carton on Commons is the Australian `AUST R` pack already
+rejected on market. There is no European Palexia photograph there to find.

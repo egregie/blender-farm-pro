@@ -4,7 +4,69 @@
     "(Alprazolam) Xanor.jpg",
     "Xanax 0.5mg Pfizer box"
   ],
-  "accepted": [],
+  "accepted": [
+    {
+      "file": "raw_xanax_01.jpg",
+      "sha256": "65b203945cb07c500e3c18703f0ba2aa31d84a999aa2ccd6c4f10dde42413ea1",
+      "bytes": 663679,
+      "width": 1795,
+      "height": 1722,
+      "below_benchmark_floor": false,
+      "verbatim_strings": [
+        "Pfizer",
+        "XANAX®",
+        "0,25 mg",
+        "0,50 mg",
+        "ALPRAZOLAM",
+        "30 comprimés sécables",
+        "Alprazolam Sandoz®",
+        "SANDOZ a Novartis company",
+        "Alprazolam Mylan",
+        "Alprazolam EG®",
+        "Voie orale"
+      ],
+      "brand_shown": "XANAX® (Pfizer), plus Sandoz, Mylan and EG generics",
+      "dosage_shown": "0,25 mg / 0,50 mg",
+      "unit_count_shown": "30 comprimés sécables",
+      "packaging_market": "eu",
+      "market_evidence": "Braille on every carton; French text ('comprimés sécables', 'Voie orale'); CIP codes, which are French; no NDC.",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boites_de_Xanax_et_d'alprazolam_en_ce_moment_dans_les_pharmacies.jpg",
+      "source_tier": 4,
+      "optical_pass": {
+        "sha256_bytes_dimensions": "Pillow",
+        "visual_fields": "owner review, 2026-08-10, full size"
+      },
+      "notes": "Six cartons stacked, all front faces legible. Carries the two things this folder needs at once. It is the real Pfizer XANAX the folder is named for, not a generic standing in. And it shows the SAME brand at two strengths with the colour block changed and nothing else -- magenta at 0,25 mg, violet at 0,50 mg -- which is the owner's dosage-colour rule on the exact product. The four generics beside it solve the same label four other ways."
+    },
+    {
+      "file": "raw_xanax_02.jpg",
+      "sha256": "10a8726e9c7d53b54b62fb9993efd04206e7fb4de6e74d0b9b7f092d6371afd6",
+      "bytes": 2553099,
+      "width": 4160,
+      "height": 2340,
+      "below_benchmark_floor": false,
+      "verbatim_strings": [
+        "Alprazolam EG®",
+        "0,25 mg",
+        "compresse",
+        "Medicinale equivalente",
+        "USO ORALE",
+        "20 compresse"
+      ],
+      "brand_shown": "Alprazolam EG®",
+      "dosage_shown": "0,25 mg",
+      "unit_count_shown": "20 compresse",
+      "packaging_market": "eu",
+      "market_evidence": "Braille across the front face; Italian text ('compresse', 'Medicinale equivalente', 'USO ORALE'); no NDC.",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Alprazolam_EG_0.25mg.jpg",
+      "source_tier": 4,
+      "optical_pass": {
+        "sha256_bytes_dimensions": "Pillow",
+        "visual_fields": "owner review, 2026-08-10, full size"
+      },
+      "notes": "Single carton flat-on at 4160x2340, the largest alprazolam face acquired. Teal field on the left carrying a large white 'A' as a watermark, pink dosage block top right, braille across the middle. The Italian EG pack is a different design from the French EG box in raw_xanax_01, so the two are not redundant: one is the comparative frame, this is the measurable one."
+    }
+  ],
   "rejected": [
     {
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/%28Alprazolam%29_Xanor.jpg",
@@ -14,10 +76,10 @@
     }
   ],
   "blocked_hosts": [],
-  "outcome": "0 accepted, 1 rejected (below_resolution_floor)",
+  "outcome": "2 accepted, 1 rejected",
   "owner_review": {
-    "date": "2026-08-09",
-    "finding": "The HTTP 429 is gone; the candidate was downloaded and opened.",
-    "action": "Rejected, file deleted."
+    "date": "2026-08-10",
+    "finding": "Re-searched at the owner's request after the first candidate was rejected at 980x605 against the 1079 px floor.",
+    "action": "Accepted."
   }
 }

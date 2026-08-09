@@ -10,10 +10,10 @@
     }
   ],
   "blocked_hosts": [],
-  "outcome": "0 accepted, 1 rejected",
+  "outcome": "insufficient_references — no European Palexia carton exists on Commons at any resolution",
   "owner_review": {
-    "date": "2026-08-09",
-    "finding": "Searched Commons and looked.",
-    "action": "Rejected: wrong_market."
+    "date": "2026-08-10",
+    "finding": "Re-searched at the owner's request across Palexia Grunenthal, Palexia retard, Tapentadol Packung, Palexia boite and tapentadol confezione. ZERO files above the 1079 px floor, and none below it either. The only Palexia carton on Commons is the Australian AUST R pack already rejected on market.",
+    "action": "Marked insufficient_references."
   }
 }
