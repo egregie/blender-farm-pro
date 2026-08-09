@@ -69,6 +69,33 @@ GROUPS = {
         ("365-min", "Tapentadol"),
         ("404-min", "Ritalin (Generic)"),
     ],
+    # `top30` is a commercial selection and turns out to be all T1 and T1_SMALL:
+    # it never renders the other SEVEN templates, so any layout failure specific
+    # to a flat T3 or a vial carton is invisible to it. This group exists to
+    # cover shape rather than sales, two SKU per template, and within each
+    # template it takes the two whose front-face proportion the 2026-08-09
+    # reshape moved MOST -- those are where a grid fitted to the old proportions
+    # is likeliest to break. The percentages are that movement, measured.
+    "families": [
+        ("99-min",  "T1               +22%"),
+        ("98-min",  "T1               +22%"),
+        ("422-min", "T1_LARGE         +36%"),
+        ("420-min", "T1_LARGE         +36%"),
+        ("337-min", "T1_SMALL         +22%"),
+        ("79-min",  "T1_SMALL         +22%"),
+        ("76-min",  "T3               +58%"),
+        ("65-min",  "T3               +58%"),
+        ("412-min", "T_BOTTLE_BOX     +44%"),
+        ("411-min", "T_BOTTLE_BOX     +44%"),
+        ("351-min", "T_MULTIPACK       +0%"),
+        ("350-min", "T_MULTIPACK       +0%"),
+        ("379-min", "T_VERT_DROPPER   +80%"),
+        ("229-min", "T_VERT_DROPPER   +80%"),
+        ("393-min", "T_VERT_INHALER   +90%"),
+        ("316-min", "T_VERT_INHALER   +90%"),
+        ("416-min", "T_VERT_VIAL     +115%"),
+        ("415-min", "T_VERT_VIAL     +115%"),
+    ],
 }
 
 # ── Thresholds a SKU is flagged against ──────────────────────────────────────

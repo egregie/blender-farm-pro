@@ -144,6 +144,68 @@ def build_scene(job):
 
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
+class TestSilhouetteModelAcrossFamilies(unittest.TestCase):
+    """`src.silhouette` must agree with Blender on more than one shape.
+
+    The model is what the reshape solves against, so if it drifts from the
+    driver every manifest in the catalogue is solved onto the wrong number. It
+    was validated against a single committed fixture (1-min, T1); one matching
+    point does not establish a projection. These take the real manifests for
+    three families -- landscape, the flattest, and the vertical camera, which
+    uses a different pitch and rotation -- and compare against the driver's own
+    arithmetic.
+    """
+
+    CASES = ("1-min", "111-min", "144-min")
+
+    def test_the_model_reproduces_the_drivers_own_projection(self):
+        from src import silhouette
+
+        manifests = resolve_path("04_passports/render_manifests")
+        for stem in self.CASES:
+            job = json.loads((Path(manifests) / f"{stem}.json").read_text(encoding="utf-8"))
+            carton = job["carton"]
+            dims = (carton["width_mm"], carton["height_mm"], carton["depth_mm"])
+            scene = build_scene(job)
+            res = (scene["render"]["resolution_x"], scene["render"]["resolution_y"]) \
+                if "render" in scene else silhouette.DEFAULT_RESOLUTION
+            for key, fn in (("front_face_px", silhouette.front_face_px),
+                            ("side_panel_px", silhouette.side_panel_px)):
+                with self.subTest(sku=stem, face=key, template=job["template_id"]):
+                    theirs = scene[key]
+                    ours = fn(dims, job["template_id"], res)
+                    self.assertEqual(len(theirs), len(ours))
+                    for (tx, ty), (ox, oy) in zip(theirs, ours):
+                        self.assertAlmostEqual(
+                            tx, ox, places=1,
+                            msg=f"{stem} {key}: model and driver disagree in x")
+                        self.assertAlmostEqual(
+                            ty, oy, places=1,
+                            msg=f"{stem} {key}: model and driver disagree in y")
+
+    def test_the_reshaped_geometry_is_what_blender_actually_builds(self):
+        """The manifest's solved dimensions must reach the box, not just the file."""
+        manifests = resolve_path("04_passports/render_manifests")
+        for stem in self.CASES:
+            job = json.loads((Path(manifests) / f"{stem}.json").read_text(encoding="utf-8"))
+            carton = job["carton"]
+            scene = build_scene(job)
+            built = scene["carton"]["dimensions"]          # metres
+            with self.subTest(sku=stem):
+                for axis, key in enumerate(("width_mm", "height_mm", "depth_mm")):
+                    self.assertAlmostEqual(
+                        built[axis] * 1000.0, carton[key], places=3,
+                        msg=f"{stem}: Blender built {built[axis]*1000:.2f}mm on axis "
+                            f"{axis} where the manifest says {carton[key]:.2f}")
+                real = carton["passport_dimensions"]
+                self.assertNotAlmostEqual(
+                    built[1] * 1000.0, real["height_mm"], places=1,
+                    msg=f"{stem}: the built box matches the PRINTED size, so either "
+                        f"the reshape did not reach Blender or it did nothing")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
 class TestCartonGeometry(unittest.TestCase):
     """The accent stripe must be a band welded to the bottom of the FRONT face."""
 
