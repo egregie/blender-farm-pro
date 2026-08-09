@@ -190,18 +190,30 @@ class TestSilhouetteModelAcrossFamilies(unittest.TestCase):
             job = json.loads((Path(manifests) / f"{stem}.json").read_text(encoding="utf-8"))
             carton = job["carton"]
             scene = build_scene(job)
-            built = scene["carton"]["dimensions"]          # metres
+            built = scene["carton"]["dimensions"]          # metres, Blender's X/Y/Z
+            # Width maps to X, DEPTH to Y and HEIGHT to Z -- the manifest's own
+            # order is width/height/depth, so the two are not the same sequence.
             with self.subTest(sku=stem):
-                for axis, key in enumerate(("width_mm", "height_mm", "depth_mm")):
+                for axis, key in ((0, "width_mm"), (1, "depth_mm"), (2, "height_mm")):
                     self.assertAlmostEqual(
                         built[axis] * 1000.0, carton[key], places=3,
                         msg=f"{stem}: Blender built {built[axis]*1000:.2f}mm on axis "
-                            f"{axis} where the manifest says {carton[key]:.2f}")
-                real = carton["passport_dimensions"]
-                self.assertNotAlmostEqual(
-                    built[1] * 1000.0, real["height_mm"], places=1,
-                    msg=f"{stem}: the built box matches the PRINTED size, so either "
-                        f"the reshape did not reach Blender or it did nothing")
+                            f"{axis} where the manifest says {key}={carton[key]:.2f}")
+                # And the built box must not BE the passport box. Which edge moved
+                # depends on the anchor: the reshape keeps the longer face edge
+                # and the depth, so a portrait carton like T_VERT_VIAL keeps its
+                # 170mm height and gains width instead. Asserting on any single
+                # axis would therefore be wrong for half the catalogue.
+                if carton["source"] == "art_direction":
+                    real = carton["passport_dimensions"]
+                    moved = [abs(built[a] * 1000.0 - real[k]) > 0.1
+                             for a, k in ((0, "width_mm"), (1, "depth_mm"),
+                                          (2, "height_mm"))]
+                    self.assertTrue(
+                        any(moved),
+                        f"{stem}: the built box is exactly the printed size on every "
+                        f"axis, so either the reshape did not reach Blender or it "
+                        f"did nothing")
 
 
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
