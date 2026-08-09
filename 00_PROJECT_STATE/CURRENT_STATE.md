@@ -60,50 +60,35 @@ setting, kept separate from light energy.
 end to end through the `src/render_stage.py` facade, with unit coverage for the
 dispatch and for the two architectural invariants behind it.
 
-## Verified on 2026-08-02
+## Carton proportions: settled 2026-08-09
 
-All nine reference SKU were re-rendered from the current merged code and compared
-against `01_input_raster/reference/`. The renders read as real packshots: white body,
-correct badge, correct stripe, legible text on the correct rows.
+**The reference set defines the art direction.** The owner's decision, taken with the
+measurements in hand. Geometry is now solved onto each template's measured reference
+proportion at the manifest boundary; the carton's real size travels beside it as
+`carton.passport_dimensions` and is the only size printed on the pack.
 
-Measured silhouette fill, reference versus render, dominant axis:
+The table that used to sit here compared reference frame fill against render frame
+fill. Both numbers were real, but the comparison was not: frame fill is not
+reproducible under shared framing, because the camera solves from the bounding sphere
+and the two axes' fills are locked together. It has been replaced by silhouette
+aspect, which is framing-invariant — see `01_input_raster/reference_analysis.md` §10
+for the measured table, §11 for why a threshold-derived silhouette is not a target
+that can be solved onto, and §12 for the light-rig defects that search uncovered.
 
-| Template | ref w/h | render w/h |
-|---|---|---|
-| T1 | 78/60 | 74/48 |
-| T1_LARGE | 84/74 | 74/48 |
-| T1_SMALL | 76/59 | 74/48 |
-| T3 | 88/57 | 74/37 |
-| T_BOTTLE_BOX | 48/80 | 51/80 |
-| T_MULTIPACK | 83/60 | 69/48 |
-| T_VERT_DROPPER | 57/79 | 36/75 |
-| T_VERT_INHALER | 58/76 | 43/79 |
-| T_VERT_VIAL | 67/77 | 38/79 |
+Where things stand:
 
-## The one open question that needs a decision
+- `reshape_to_art_direction()` in `src/render_manifest.py` solves the shape; 389 of
+  391 SKU carry `carton.source = "art_direction"`, and 2 upright vials that routed to
+  a landscape template are recorded as `art_direction_declined_orientation` rather
+  than turned on their side.
+- Contract **1.3** carries both sizes, and a 1.2 manifest is rejected.
+- The side panel prints `passport_dimensions`, never the solved geometry.
 
-**The reference renders and the passport dimensions disagree about carton
-proportions, and only a human can say which wins.**
-
-The table above shows the vertical family and T3 rendering markedly narrower or
-flatter than their references — `T_VERT_VIAL` occupies 38% of frame width against the
-reference's 67%, `T_VERT_DROPPER` 36% against 57%.
-
-This is not a bug in the geometry. It follows from a fact about how the references
-were made: the Gemini prompt carries **no dimensions at all** on the common path, so
-every proportion in the reference set is Gemini's invention. Our renders use the
-catalogue's real `secondary_packaging.dimensions`. Where the two disagree, the
-question is which is authoritative:
-
-- If the passport data is the source of truth, the current renders are correct and
-  the reference set is simply wrong about shape for those templates.
-- If the reference set defines the desired art direction, then proportions are a
-  styling decision and should not be driven off the dimension strings for the
-  vertical family.
-
-Nothing downstream should be tuned until this is settled, because both "fix the
-framing" and "fix the dimensions" are plausible responses to the same measurement and
-they lead in opposite directions.
+**Still open, and recorded rather than hidden:** which model quantity the target should
+be matched against — full silhouette, visible faces or front face — differs by 13–18%
+and cannot be settled by measuring our own renders, because the top face has no edge a
+threshold can find. §11a has the evidence. The vertical family sits 36–77% from its
+references under every one of the three, so its direction is not in doubt.
 
 ## Known gaps
 

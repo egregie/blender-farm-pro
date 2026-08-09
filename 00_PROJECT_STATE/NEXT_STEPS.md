@@ -4,58 +4,67 @@
 > items to [CHANGE_LOG.md](CHANGE_LOG.md) as they're completed, and update
 > [CURRENT_STATE.md](CURRENT_STATE.md).
 
-**Ordering rule:** item 1 blocks item 2. Everything under Housekeeping is
-independent and can be done at any time, including in parallel.
+**Ordering rule:** item 1 is the one that finds unknown failures; run it before
+tuning anything it might move. Housekeeping is independent throughout.
 
-## Blocking decision
+## Next
 
-1. **Settle whether the passport dimensions or the reference renders define carton
-   proportions.** Measured on 2026-08-02, the vertical family and T3 render markedly
-   narrower and flatter than their references — `T_VERT_VIAL` fills 38% of frame
-   width against the reference's 67%. The cause is understood and is not a geometry
-   bug: the Gemini prompt carries no dimensions on the common path, so every
-   reference proportion is invented, while our renders use the catalogue's real
-   `secondary_packaging.dimensions`. See `CURRENT_STATE.md` §"The one open question".
+1. **Run the catalogue and look at the results.** No full pass has ever been made.
+   Budget ~5 h; measured 24-48 s per SKU on 2026-08-02. This is the step that finds
+   the layout failures the nine curated templates cannot show — every correction pass
+   in the driver exists because an earlier sweep found real breakage. The reshape
+   changed the proportions of all 391 cartons, so the label grid is now fitted to
+   faces it was not measured on.
 
-   Do not tune framing, dimensions or the reference band until this is answered —
-   "match the reference" and "trust the data" are opposite fixes for the same
-   measurement.
+2. **Settle which model quantity the art-direction target is matched against.**
+   Full silhouette, visible faces and front face differ by 13-18% and no measurement
+   of our own renders can choose between them — the top face has no edge a threshold
+   can find. `01_input_raster/reference_analysis.md` §10, §11 and §11a hold the
+   evidence. Not blocking: the vertical family is 36-77% out under all three, so its
+   direction is settled either way.
 
-## Once that is settled
+3. **Give the light rig a metering model that covers more than two shapes.** Exposure
+   has landscape and portrait buckets; a carton as flat as T3 needs its own and lands
+   about a level under the reference floor without it. Ratcheted in
+   `TestRenderedLuminance.KNOWN_UNDER_BAND` so it cannot slip further.
 
-2. **Run the catalogue and look at the results.** No full pass has ever been made;
-   18 of 391 PNG exist and only nine come from current code. Budget ~5 h; measured 24-48 s per SKU
-   on 2026-08-02, not the 67 s quoted earlier. This is the step that finds the layout failures the nine curated templates
-   cannot show — the existing correction passes in the driver all exist because
-   earlier sweeps found real breakage.
+4. **Close the remaining lid clipping.** 9.2% of the flat T3's lid still saturates,
+   and the portrait lids sit at 0.79-0.82 of their front face against a reference band
+   of 0.969-1.042. One rig cannot satisfy both shapes; a per-shape key elevation would,
+   at the cost of the "one studio" invariant.
+
+5. **Make `film_exposure()` read the picture, not the box.** It picks its shape from
+   `width_mm >= height_mm`, which since contract 1.3 is art-directed geometry:
+   `T_VERT_VIAL` reshapes to 172x170 and meters as landscape although it photographs
+   portrait. The driver cannot import `src.silhouette` to ask.
 
 ## Throughput, when it starts to hurt
 
-3. **Keep one Blender process alive for a batch.** About 20 s of each render is
+6. **Keep one Blender process alive for a batch.** About 20 s of each render is
    fixed startup, roughly 2 h wasted across a full pass. Worth doing before the
    catalogue is rendered repeatedly, not before it is rendered once.
 
-4. **Let Stage 3 consume Blender output.** `image_processor.source_dir` still points
+7. **Let Stage 3 consume Blender output.** `image_processor.source_dir` still points
    at the Gemini directory, so producing final WEBP from Blender renders needs a
    manual `--config`. Make the source follow the engine.
 
 ## Housekeeping
 
-5. **Give `08_ops/` a Blender chapter.** Its paths were remapped onto this fork's
+8. **Give `08_ops/` a Blender chapter.** Its paths were remapped onto this fork's
    layout on 2026-08-02, so the runbooks no longer send an operator to
    directories that do not exist — but they still describe a Gemini-only
    pipeline. `ACCEPTANCE_TEST.md` calls `src.rpa_orchestrator` directly, bypassing
    the facade and contradicting the architecture. (`DEPENDENCY_INVENTORY.md` now
    has rows for the Blender executable and Tesseract OCR — that part is done.)
 
-6. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
+9. **Rewrite `06_docs/experiments/BLENDER_RENDERER_ROADMAP.md`.** It still claims
    "Phase 0 complete, Phase 1 foundation in place" and describes Phases 2–4 as not
    started, when most of Phase 2 has shipped.
 
-7. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
+10. **Write ADR-007 for the Blender engine.** `00_governance/DECISIONS/` stops at
    ADR-006 and has nothing on why this fork exists.
 
-8. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
+11. **Put a floor under the small print.** Delivered by the sweep on 2026-08-02
    and now the clearest open defect in the renderer. The driver fits a long
    label row by shrinking it, with no lower bound, so a long ingredient on a
    narrow face sets below legibility rather than overflowing: 9 of the
