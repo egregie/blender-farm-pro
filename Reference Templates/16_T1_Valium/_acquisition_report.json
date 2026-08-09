@@ -8,21 +8,16 @@
   "rejected": [
     {
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/81/5mgrocheaus.jpg",
-      "reason": "download_blocked",
-      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
-      "candidate_status": "open -- not assessed"
+      "reason": "wrong_market",
+      "detail": "CORRECT PRODUCT: Valium Roche 5 mg diazepam, 50 tablets, two cartons, front face legible at 3264x1835. Rejected on market: 'AUST R 48566' is the Australian Register of Therapeutic Goods, and the owner's rule is European packaging. The French Valium Roche accepted into 21_T1_Valium_Brand is the same brand done to EU rules.",
+      "candidate_status": "closed -- seen and judged 2026-08-09"
     }
   ],
-  "blocked_hosts": [
-    {
-      "host": "upload.wikimedia.org",
-      "reason": "http_429"
-    }
-  ],
-  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "blocked_hosts": [],
+  "outcome": "0 accepted, 1 rejected (wrong_market)",
   "owner_review": {
-    "date": "2026-08-08",
-    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
-    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+    "date": "2026-08-09",
+    "finding": "The HTTP 429 is gone; the candidate was downloaded and opened.",
+    "action": "Rejected, file deleted."
   }
 }

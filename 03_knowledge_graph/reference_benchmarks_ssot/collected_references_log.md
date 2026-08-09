@@ -519,3 +519,54 @@ rather than changed.
 Also carried into the SSOT and not previously there: `packaging_market: in`,
 evidenced by `Sildenafil Citrate Tablets **IP**` — Indian Pharmacopoeia. Objects
 1 and 2 have no market determination at all; theirs was never made.
+
+---
+
+## 2026-08-09 — The Wikimedia block lifted; ten candidates seen and judged
+
+**Accepted 3, rejected 6, one file does not exist.**
+
+The HTTP 429 that stopped this work on 2026-08-08 is gone — nine of the ten
+recorded candidates answered HTTP 200 on a HEAD request. They were downloaded and
+opened, which is the step that had been pending since.
+
+### Accepted
+
+| Folder | File | Product on the pack | Size | Market evidence |
+|---|---|---|---|---|
+| `24_T1_Xanax_Pfizer` | `raw_xanax_pfizer_01.jpg` | `XANAX® SR 0,5 mg ALPRAZOLAMUM`, 30 tabletek | 3264×2448 | braille; Polish; Pfizer mark |
+| `23_T1_Lexotanil` | `raw_lexotanil_01.jpg` | `Lexomil® Roche 6 mg`, 30 comprimés quadrisécables | 1850×1051 | French; braille on the adjacent generic |
+| `21_T1_Valium_Brand` | `raw_valium_brand_01.jpg` | `Valium® Roche 5 mg` and `10 mg` | 1226×1601 | braille on all three; French |
+
+`24` is the best frame acquired for this project so far: a single carton flat-on,
+the largest and sharpest front face in the batch, and the Pfizer brand the folder
+is actually named for rather than a generic.
+
+`21` is worth more than its own folder. It shows the SAME brand at two strengths
+side by side — pink band at 5 mg, orange at 10 mg — beside the ratiopharm generic
+of the same molecule. That is direct evidence for the owner's dosage-colour rule,
+photographed rather than asserted.
+
+### Rejected, with what was actually on the picture
+
+| Folder | Reason | What it showed |
+|---|---|---|
+| `12_T1_Provigil` | wrong product | Seven French benzodiazepines — Vératran, Nordaz 7,5 and 15 mg, Normison, Séresta, Victan, Lysanxia. Modafinil is not a benzodiazepine. |
+| `18_T1_Inderal` | wrong product | ~15 identical `Lorazépam Mylan 2,5 mg` cartons. Inderal is propranolol. Confirms `fa90be9` by eye. |
+| `25_T1_Modafinil_Generic` | wrong product | Finnish psychiatric medicines — Zopinox, Peratsin, Rivatril, Oxamin, Somnor. No modafinil. Also 640×480. |
+| `17_T1_Klonopin` | blister only | A Rivotril blister foil alone, no carton in frame. |
+| `15_T1_Xanax` | below the floor | **Correct product** — `Xanor 1 mg alprazolam`, Nordic, front face legible — but 980×605 against the 1079 px floor. Not lowered. |
+| `16_T1_Valium` | wrong market | **Correct product** — `Valium Roche 5 mg`, 3264×1835, legible — but `AUST R 48566` is the Australian register. |
+| `05_T1_Tramadol` | HTTP 404 | The file does not exist and never did. The 2026-08-08 run recorded it as blocked, which hid that. |
+
+Two of those rejections are worth re-searching rather than closing: `15` fails
+only on pixel count and `16` only on market, and both are the right product with a
+readable face.
+
+### An error made and corrected inside this pass
+
+`24_T1_Xanax_Pfizer` was deleted in the first cleanup and then re-downloaded. The
+list of folders to keep was written from memory instead of from the judgements
+just made, and it omitted the best file in the batch. Recorded because the same
+slip in the other direction — keeping something that had been rejected — would
+not have announced itself.

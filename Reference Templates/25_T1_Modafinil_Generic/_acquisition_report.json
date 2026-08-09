@@ -8,22 +8,16 @@
   "rejected": [
     {
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Psyykenl%C3%A4%C3%A4kkeit%C3%A4.jpg",
-      "reason": "download_blocked",
-      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
-      "candidate_status": "open -- not assessed",
-      "caution": "The candidate filename is 'Psyykenlaakkeita' (Finnish, 'psychiatric medicines') -- a collection shot rather than a single pack. Content not verified -- the file was never downloaded."
+      "reason": "wrong_product",
+      "detail": "Finnish psychiatric medicines -- Zopinox 7,5 mg, Peratsin 4 mg, Rivatril 0,5 mg, Oxamin 15 mg, Somnor 10 mg -- and a bottle. No modafinil. Also 640x480, far under the 1079 px floor.",
+      "candidate_status": "closed -- seen and judged 2026-08-09"
     }
   ],
-  "blocked_hosts": [
-    {
-      "host": "upload.wikimedia.org",
-      "reason": "http_429"
-    }
-  ],
-  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "blocked_hosts": [],
+  "outcome": "0 accepted, 1 rejected (wrong_product)",
   "owner_review": {
-    "date": "2026-08-08",
-    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
-    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+    "date": "2026-08-09",
+    "finding": "The HTTP 429 is gone; the candidate was downloaded and opened.",
+    "action": "Rejected, file deleted."
   }
 }

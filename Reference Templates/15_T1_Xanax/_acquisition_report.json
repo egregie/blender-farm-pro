@@ -8,21 +8,16 @@
   "rejected": [
     {
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/%28Alprazolam%29_Xanor.jpg",
-      "reason": "download_blocked",
-      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
-      "candidate_status": "open -- not assessed"
+      "reason": "below_resolution_floor",
+      "detail": "CORRECT PRODUCT: Xanor 1 mg alprazolam, Nordic (Vnr 16 46 99), 20 tabl., front face legible. Rejected only on 980x605 against the benchmark floor of 1079 px on the long edge. Lowering the floor to admit it is forbidden. Worth re-finding at a larger size.",
+      "candidate_status": "closed -- seen and judged 2026-08-09"
     }
   ],
-  "blocked_hosts": [
-    {
-      "host": "upload.wikimedia.org",
-      "reason": "http_429"
-    }
-  ],
-  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "blocked_hosts": [],
+  "outcome": "0 accepted, 1 rejected (below_resolution_floor)",
   "owner_review": {
-    "date": "2026-08-08",
-    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
-    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+    "date": "2026-08-09",
+    "finding": "The HTTP 429 is gone; the candidate was downloaded and opened.",
+    "action": "Rejected, file deleted."
   }
 }

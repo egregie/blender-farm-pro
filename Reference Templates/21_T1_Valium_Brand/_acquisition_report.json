@@ -4,25 +4,47 @@
     "Valium Roche 10mg box",
     "Boites de Valium44.jpg"
   ],
-  "accepted": [],
-  "rejected": [
+  "accepted": [
     {
+      "file": "raw_valium_brand_01.jpg",
+      "sha256": "c3e338e06c2ff0c29b9751963374eef1aced770c53e8820889cab56c4fe5f44a",
+      "bytes": 372016,
+      "width": 1226,
+      "height": 1601,
+      "below_benchmark_floor": false,
+      "verbatim_strings": [
+        "Valium® Roche 5 mg",
+        "Valium® Roche 10 mg",
+        "Comprimé sécable",
+        "Diazépam",
+        "Voie orale",
+        "40 comprimés sécables",
+        "30 comprimés sécables",
+        "DIAZÉPAM ratiopharm®",
+        "40 COMPRIMÉS",
+        "TEVA"
+      ],
+      "brand_shown": "Valium Roche",
+      "dosage_shown": "5 mg / 10 mg",
+      "unit_count_shown": "40 / 30 comprimés sécables",
+      "packaging_market": "eu",
+      "market_evidence": "Braille embossed on all three cartons; French text ('Comprimé sécable', 'Voie orale', 'comprimés'); no NDC.",
+      "source_page_url": "",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Boites_de_Valium44.jpg",
-      "reason": "download_blocked",
-      "detail": "HTTP 429 from upload.wikimedia.org. Never downloaded, never viewed.",
-      "candidate_status": "open -- not assessed"
+      "source_tier": 4,
+      "optical_pass": {
+        "sha256_bytes_dimensions": "Pillow",
+        "visual_fields": "owner review, 2026-08-09, read off the downloaded file at full size"
+      },
+      "notes": "Three cartons in one frame, each front face large and fully legible, photographed near flat-on. White board, blue bar down the left edge, a full-width DOSAGE-COLOURED band across the middle -- pink at 5 mg, orange at 10 mg -- Roche hexagon lower right. The third box is the ratiopharm/Teva generic of the same molecule, cream board with a turquoise band. This single image is the clearest evidence in the whole set for the owner's dosage-colour rule: same brand, same layout, band colour keyed to strength."
     }
   ],
-  "blocked_hosts": [
-    {
-      "host": "upload.wikimedia.org",
-      "reason": "http_429"
-    }
-  ],
-  "outcome": "0 accepted, 0 assessed (1 candidate(s) blocked by HTTP 429, still open)",
+  "rejected": [],
+  "blocked_hosts": [],
+  "outcome": "1 accepted, 0 rejected",
   "owner_review": {
-    "date": "2026-08-08",
-    "finding": "The sole candidate for this folder failed to download: Wikimedia returns HTTP 429 to this address. The candidate was therefore never seen by anyone. This is a blocked download, not a quality judgement, and the image remains an open candidate.",
-    "action": "Rejection reclassified as a blocked download; candidate carried forward."
+    "date": "2026-08-09",
+    "finding": "The HTTP 429 that blocked this candidate on 2026-08-08 is gone. Downloaded, opened and judged by eye.",
+    "action": "Accepted."
   }
 }
