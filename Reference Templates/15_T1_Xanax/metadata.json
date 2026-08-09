@@ -1,0 +1,65 @@
+{
+  "sku_id": "15_T1_Xanax",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Xanax (Pfizer)",
+  "active_ingredient": "Alprazolam",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "XANAX®",
+    "dosage_display": "0,50 mg",
+    "unit_count_display": "30 comprimés sécables"
+  },
+  "palette": {
+    "primary": "#182848",
+    "accent": "#5B2D8E",
+    "background": "#F6F6F2"
+  },
+  "dosage_colour_map": {
+    "0,25 mg": "#C2185B",
+    "0,50 mg": "#5B2D8E"
+  },
+  "color_zones": [
+    {
+      "id": "ZONE_01",
+      "hex": "#E8D8B8",
+      "area_pct": 61.13,
+      "note": "not packaging - wall and desk behind the stack"
+    },
+    {
+      "id": "ZONE_02",
+      "hex": "#182848",
+      "area_pct": 13.34,
+      "note": "Pfizer navy - the left field of the three Xanax cartons"
+    },
+    {
+      "id": "ZONE_03",
+      "hex": "#A89888",
+      "area_pct": 16.62,
+      "note": "shading and edges"
+    },
+    {
+      "id": "ZONE_04",
+      "hex": "#4898A8",
+      "area_pct": 2.36,
+      "note": "the pale blue band on the Xanax face"
+    }
+  ],
+  "coordinate_space": "design zones are approximate; camera is not reconstructed",
+  "measurement_source": "scripts/reference_measure.py, 2026-08-10",
+  "reference_images": [
+    "raw_xanax_01.jpg",
+    "raw_xanax_02.jpg"
+  ],
+  "quality_gate": {
+    "design_passport_present": true,
+    "colour_system_measured": true,
+    "single_source": false,
+    "colour_shares_include_background": true,
+    "dosage_colour_pair_observed": true
+  },
+  "status": "complete",
+  "source_tier": 4,
+  "packaging_market": "eu",
+  "market_evidence": "Braille on every carton; French text (comprimés sécables, Voie orale); CIP codes; Italian on the second file; no NDC"
+}

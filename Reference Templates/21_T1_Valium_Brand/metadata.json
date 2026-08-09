@@ -1,0 +1,82 @@
+{
+  "sku_id": "21_T1_Valium_Brand",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Valium Roche",
+  "active_ingredient": "Diazepam",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Valium® Roche",
+    "dosage_display": "5 mg / 10 mg",
+    "unit_count_display": "40 / 30 comprimés sécables"
+  },
+  "palette": {
+    "primary": "#1B4E9B",
+    "accent": "#C868A8",
+    "background": "#F7F7F5"
+  },
+  "dosage_colour_map": {
+    "5 mg": "#C868A8",
+    "10 mg": "#D85818"
+  },
+  "color_zones": [
+    {
+      "id": "ZONE_01",
+      "hex": "#A89878",
+      "area_pct": 36.87,
+      "note": "not packaging - the wall behind the three cartons"
+    },
+    {
+      "id": "ZONE_02",
+      "hex": "#D8D8D8",
+      "area_pct": 21.07,
+      "note": "carton board"
+    },
+    {
+      "id": "ZONE_03",
+      "hex": "#389898",
+      "area_pct": 11.78,
+      "note": "the turquoise band of the ratiopharm generic"
+    },
+    {
+      "id": "ZONE_04",
+      "hex": "#585848",
+      "area_pct": 9.24,
+      "note": "shading and edges"
+    },
+    {
+      "id": "ZONE_05",
+      "hex": "#181818",
+      "area_pct": 6.54,
+      "note": "type"
+    },
+    {
+      "id": "ZONE_06",
+      "hex": "#D85818",
+      "area_pct": 5.46,
+      "note": "the 10 mg band - ORANGE"
+    },
+    {
+      "id": "ZONE_07",
+      "hex": "#C868A8",
+      "area_pct": 4.65,
+      "note": "the 5 mg band - PINK"
+    }
+  ],
+  "coordinate_space": "design zones are approximate; camera is not reconstructed",
+  "measurement_source": "scripts/reference_measure.py, 2026-08-10",
+  "reference_images": [
+    "raw_valium_brand_01.jpg"
+  ],
+  "quality_gate": {
+    "design_passport_present": true,
+    "colour_system_measured": true,
+    "single_source": true,
+    "colour_shares_include_background": true,
+    "dosage_colour_pair_measured": true
+  },
+  "status": "complete_single_source",
+  "source_tier": 4,
+  "packaging_market": "eu",
+  "market_evidence": "Braille on all three cartons; French text (Comprimé sécable, Voie orale); no NDC"
+}

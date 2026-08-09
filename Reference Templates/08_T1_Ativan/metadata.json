@@ -1,0 +1,60 @@
+{
+  "sku_id": "08_T1_Ativan",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Lorazepam Orion",
+  "active_ingredient": "Lorazepam",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Lorazepam Orion",
+    "dosage_display": "1 mg",
+    "unit_count_display": "30 tabletek"
+  },
+  "palette": {
+    "primary": "#083888",
+    "accent": "#0A7A4A",
+    "background": "#F2F2EC"
+  },
+  "color_zones": [
+    {
+      "id": "ZONE_01",
+      "hex": "#B8A898",
+      "area_pct": 47.8,
+      "note": "not packaging - table and background"
+    },
+    {
+      "id": "ZONE_02",
+      "hex": "#D8D8C8",
+      "area_pct": 20.3,
+      "note": "carton board"
+    },
+    {
+      "id": "ZONE_03",
+      "hex": "#888878",
+      "area_pct": 16.43,
+      "note": "mixed - blister foil below the carton, plus shading"
+    },
+    {
+      "id": "ZONE_04",
+      "hex": "#083888",
+      "area_pct": 5.64,
+      "note": "brand blue - top foil stripe and lower swoosh"
+    }
+  ],
+  "coordinate_space": "design zones are approximate; camera is not reconstructed",
+  "measurement_source": "scripts/reference_measure.py, 2026-08-10",
+  "reference_images": [
+    "raw_ativan_01.jpg"
+  ],
+  "quality_gate": {
+    "design_passport_present": true,
+    "colour_system_measured": true,
+    "single_source": true,
+    "colour_shares_include_background": true
+  },
+  "status": "complete_single_source",
+  "source_tier": 4,
+  "packaging_market": "eu",
+  "market_evidence": "Braille across the front face; Polish text (30 tabletek, tabletki, Lorazepamum); no NDC",
+  "brand_substitution": "Orion Pharma generic lorazepam, NOT the Ativan or Temesta brand"
+}

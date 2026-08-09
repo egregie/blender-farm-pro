@@ -1,0 +1,72 @@
+{
+  "sku_id": "23_T1_Lexotanil",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Lexomil Roche",
+  "active_ingredient": "Bromazépam",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Lexomil® Roche",
+    "dosage_display": "6 mg",
+    "unit_count_display": "30 comprimés quadrisécables"
+  },
+  "palette": {
+    "primary": "#98B838",
+    "accent": "#58A898",
+    "background": "#F2EFE4"
+  },
+  "color_zones": [
+    {
+      "id": "ZONE_01",
+      "hex": "#D8C8A8",
+      "area_pct": 41.43,
+      "note": "not packaging - the table and papers behind"
+    },
+    {
+      "id": "ZONE_02",
+      "hex": "#98B838",
+      "area_pct": 27.85,
+      "note": "the green board - the dominant colour of BOTH cartons"
+    },
+    {
+      "id": "ZONE_03",
+      "hex": "#988878",
+      "area_pct": 16.72,
+      "note": "shading and edges"
+    },
+    {
+      "id": "ZONE_04",
+      "hex": "#286898",
+      "area_pct": 3.07,
+      "note": "the blue dots and type of the generic"
+    },
+    {
+      "id": "ZONE_05",
+      "hex": "#182818",
+      "area_pct": 3.21,
+      "note": "type"
+    },
+    {
+      "id": "ZONE_06",
+      "hex": "#58A898",
+      "area_pct": 1.62,
+      "note": "the turquoise dosage band on the Lexomil carton"
+    }
+  ],
+  "coordinate_space": "design zones are approximate; camera is not reconstructed",
+  "measurement_source": "scripts/reference_measure.py, 2026-08-10",
+  "reference_images": [
+    "raw_lexotanil_01.jpg"
+  ],
+  "quality_gate": {
+    "design_passport_present": true,
+    "colour_system_measured": true,
+    "single_source": true,
+    "colour_shares_include_background": true
+  },
+  "status": "complete_single_source",
+  "source_tier": 4,
+  "packaging_market": "eu",
+  "market_evidence": "French text (Comprimé-Baguette, comprimé quadrisécable, Voie orale); braille on the adjacent generic; no NDC",
+  "brand_substitution": "Lexomil is the FRENCH BRAND of the same product the catalogue calls Lexotanil - a local name, not a substitution"
+}

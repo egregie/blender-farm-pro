@@ -664,3 +664,56 @@ Searched Palexia Grunenthal, Palexia retard, Tapentadol Packung, Palexia boite,
 tapentadol confezione. **Zero files above the floor, and none below it either.**
 The only Palexia carton on Commons is the Australian `AUST R` pack already
 rejected on market. There is no European Palexia photograph there to find.
+
+---
+
+## 2026-08-10 — Passports built for the eight acquired folders
+
+The owner released the gate. Eight `reverse_engineering_passport.md` and eight
+`metadata.json`, in the same eight-section shape as the three rebuilt benchmarks.
+All eleven non-empty folders now validate identically: sections A–H present, every
+image on disk listed in its metadata, 16–22 observation tags per passport.
+
+### What the set says when read together
+
+**White board plus one colour is the convention; where the colour goes is the
+brand.** Eight methylphenidate cartons from seven houses in one frame make that
+separable — the coloured area is a full-height field on Ritalin, a full-width band
+on Equasym, a horizontal rule on Medikinet, a left field on TAD, and almost absent
+on 1A Pharma. Every one keeps a white board and prints the molecule name in full at
+or above the brand's size.
+
+**The dosage-colour rule is now measured, not asserted.** Two Valium Roche cartons
+photographed together differ in one band and nothing else, and
+`reference_measure.py` separated both above its 1% floor: `#C868A8` at 5 mg,
+`#D85818` at 10 mg. The Xanax pair shows the same rule on a different product
+(magenta 0,25 mg, violet 0,50 mg) but both blocks fall under the quantiser floor,
+so there it is eye-read.
+
+**Two archetypes contradict the white-board convention and are worth keeping for
+it.** Lexomil's board IS the brand colour, with black type set straight onto
+green. Zopiclone Actavis puts its field down the left edge rather than along the
+bottom.
+
+### One measurement caveat that recurs and must travel with the numbers
+
+`reference_measure.py` masks by luma difference from the frame corner. On these
+photographs that has three different consequences and each passport says which one
+applies to it:
+
+- **backdrop counted** — most files; 37–77% of the measured area is wall, table or
+  studio paper;
+- **board and backdrop not separated** — Aspendos and the Ritalin group, where both
+  are near-white;
+- **the mask inverts** — `raw_ritalin_02`, where the carton fills the frame, so the
+  anchor corner is board and the shares describe what differs FROM the board.
+
+No passport presents a share as a carton area target without saying which case it
+is in.
+
+### Substitutions, all recorded in the passports rather than smoothed over
+
+`08` Orion generic for Ativan. `14` Actavis generic for Imovane, and 5 mg against
+a catalogue 7.5 mg. `25` Aspendos for a folder named after the molecule, which is
+not really a substitution. `30`'s second file is a Nordic generic, not Ritalin.
+`23` Lexomil is Lexotanil's French name — a local brand, not a substitute at all.
