@@ -489,3 +489,33 @@ passed for a related reason: three of its five tests key on `metadata.json` and 
 these folders has one.
 
 The check that found everything was opening the pictures.
+
+---
+
+## 2026-08-09 — Kamagra added to the SSOT as the third benchmark
+
+Phase 1 step 5 of the SAAT acquisition ТЗ, the one item of that phase left open.
+
+Added to `benchmark_passport_ssot.md` as Object 3 and to
+`benchmark_metadata_ssot.json` as `kamagra_carton_folder_31`. Viagra and Cialis
+are untouched, as the ТЗ requires.
+
+**It is described in eight sections, not the twelve Objects 1 and 2 carry, and
+`camera_reconstruction` and `bounding_boxes` are written as `null` with the
+reason attached.** Those two sections are precisely what the 2026-08-07 rebuild
+removed from the Cialis and Viagra *passports*, after finding their bounding
+boxes identical to three decimals across two different manufacturers' cartons —
+which cannot happen by measurement. Supplying plausible values for Kamagra would
+have put the same defect back, one layer up.
+
+**A finding, recorded rather than fixed:** Objects 1 and 2 still carry Sections A
+and B in this SSOT. Their numbers are not the ones the passport rebuild proved
+fabricated — the two entries' camera solutions and boxes differ from each other,
+so they were separately authored — but nothing establishes where they came from
+either, and the passports that used to agree with them no longer do. The ТЗ
+forbids editing the Viagra and Cialis descriptions, so this is left for the owner
+rather than changed.
+
+Also carried into the SSOT and not previously there: `packaging_market: in`,
+evidenced by `Sildenafil Citrate Tablets **IP**` — Indian Pharmacopoeia. Objects
+1 and 2 have no market determination at all; theirs was never made.

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schema_version": "2.0",
   "artifact_type": "reference_benchmark_ssot",
-  "generated_date": "2026-08-03",
+  "generated_date": "2026-08-09",
   "benchmarks": {
     "viagra_carton_folder_32": {
       "object_id": "OBJ_01_VIAGRA_CARTON",
@@ -12,7 +12,10 @@
       "dosage": "100 mg",
       "unit_count": "4 Film-coated Tablets",
       "reference_image": "raw_viagra_front.png",
-      "image_dimensions": [1080, 810],
+      "image_dimensions": [
+        1080,
+        810
+      ],
       "camera_reconstruction": {
         "pitch_deg": 14.0,
         "yaw_deg": -30.0,
@@ -23,14 +26,54 @@
         "camera_distance_m": 0.85
       },
       "bounding_boxes": {
-        "full_object": [0.104, 0.049, 0.782, 0.899],
-        "pfizer_logo": [0.15, 0.1, 0.18, 0.09],
-        "brand_title": [0.15, 0.24, 0.52, 0.2],
-        "active_ingredient": [0.15, 0.48, 0.38, 0.08],
-        "dosage": [0.15, 0.72, 0.2, 0.11],
-        "unit_count": [0.55, 0.72, 0.32, 0.08],
-        "accent_stripe": [0.104, 0.88, 0.782, 0.068],
-        "left_navy_panel": [0.104, 0.049, 0.16, 0.899]
+        "full_object": [
+          0.104,
+          0.049,
+          0.782,
+          0.899
+        ],
+        "pfizer_logo": [
+          0.15,
+          0.1,
+          0.18,
+          0.09
+        ],
+        "brand_title": [
+          0.15,
+          0.24,
+          0.52,
+          0.2
+        ],
+        "active_ingredient": [
+          0.15,
+          0.48,
+          0.38,
+          0.08
+        ],
+        "dosage": [
+          0.15,
+          0.72,
+          0.2,
+          0.11
+        ],
+        "unit_count": [
+          0.55,
+          0.72,
+          0.32,
+          0.08
+        ],
+        "accent_stripe": [
+          0.104,
+          0.88,
+          0.782,
+          0.068
+        ],
+        "left_navy_panel": [
+          0.104,
+          0.049,
+          0.16,
+          0.899
+        ]
       },
       "palette": {
         "primary": "#004B87",
@@ -84,7 +127,10 @@
       "dosage": "20 mg",
       "unit_count": "30 Pills",
       "reference_image": "raw_cialis_front.png",
-      "image_dimensions": [1079, 810],
+      "image_dimensions": [
+        1079,
+        810
+      ],
       "camera_reconstruction": {
         "pitch_deg": 12.5,
         "yaw_deg": -35.0,
@@ -95,14 +141,54 @@
         "camera_distance_m": 0.85
       },
       "bounding_boxes": {
-        "full_object": [0.065, 0.049, 0.93, 0.908],
-        "logo": [0.12, 0.1, 0.2, 0.1],
-        "brand_title": [0.12, 0.24, 0.55, 0.2],
-        "active_ingredient": [0.12, 0.48, 0.4, 0.08],
-        "dosage": [0.12, 0.74, 0.22, 0.12],
-        "unit_count": [0.62, 0.74, 0.32, 0.08],
-        "accent_stripe": [0.065, 0.9, 0.93, 0.057],
-        "dark_green_badge": [0.78, 0.08, 0.18, 0.16]
+        "full_object": [
+          0.065,
+          0.049,
+          0.93,
+          0.908
+        ],
+        "logo": [
+          0.12,
+          0.1,
+          0.2,
+          0.1
+        ],
+        "brand_title": [
+          0.12,
+          0.24,
+          0.55,
+          0.2
+        ],
+        "active_ingredient": [
+          0.12,
+          0.48,
+          0.4,
+          0.08
+        ],
+        "dosage": [
+          0.12,
+          0.74,
+          0.22,
+          0.12
+        ],
+        "unit_count": [
+          0.62,
+          0.74,
+          0.32,
+          0.08
+        ],
+        "accent_stripe": [
+          0.065,
+          0.9,
+          0.93,
+          0.057
+        ],
+        "dark_green_badge": [
+          0.78,
+          0.08,
+          0.18,
+          0.16
+        ]
       },
       "palette": {
         "primary": "#006A4E",
@@ -147,6 +233,60 @@
         "materials_defined": true
       },
       "status": "complete"
+    },
+    "kamagra_carton_folder_31": {
+      "object_id": "OBJ_03_KAMAGRA_CARTON",
+      "object_type": "carton_box",
+      "product_name": "Kamagra",
+      "active_ingredient": "Sildenafil Citrate",
+      "dosage": "100 mg",
+      "unit_count": "04",
+      "reference_image": "raw_Kamagra_front_01.png",
+      "image_dimensions": [
+        1536,
+        1024
+      ],
+      "camera_reconstruction": null,
+      "bounding_boxes": null,
+      "omitted_fields_reason": "camera_reconstruction and bounding_boxes are not recoverable from this single angled photograph and are recorded as null rather than estimated. The design is described instead, in the folder's own passport.",
+      "palette": {
+        "primary": "#084838",
+        "accent": "#D88878",
+        "background": "#E8D8C8"
+      },
+      "color_zones": [
+        {
+          "id": "ZONE_01",
+          "hex": "#E8D8C8",
+          "area_pct": 47.08
+        },
+        {
+          "id": "ZONE_02",
+          "hex": "#084838",
+          "area_pct": 38.08
+        },
+        {
+          "id": "ZONE_03",
+          "hex": "#088878",
+          "area_pct": 7.25
+        },
+        {
+          "id": "ZONE_04",
+          "hex": "#D88878",
+          "area_pct": 1.93
+        }
+      ],
+      "material_zones": null,
+      "quality_gate": {
+        "design_passport_present": true,
+        "colour_system_measured": true,
+        "single_source": true,
+        "colour_shares_include_loose_tablet": true
+      },
+      "status": "complete_single_source",
+      "packaging_market": "in",
+      "market_evidence": "\"Sildenafil Citrate Tablets IP\" — Indian Pharmacopoeia",
+      "measurement_source": "scripts/reference_measure.py, 2026-08-07"
     }
   }
 }

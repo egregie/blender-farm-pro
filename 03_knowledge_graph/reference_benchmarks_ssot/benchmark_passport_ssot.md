@@ -338,6 +338,85 @@ Layer 09 [Top]: Gloss Spot Varnish Coating on Text Blocks
 
 ---
 
+## 3. Object 3: Kamagra Carton (`raw_Kamagra_front_01.png`)
+
+> Added 2026-08-09. **This object is described in eight sections, not twelve, and
+> that is deliberate.** Objects 1 and 2 above carry Sections A (Camera
+> Reconstruction) and B (Bounding Boxes); the 2026-08-07 passport rebuild
+> established that neither can be recovered from a single photograph of a carton
+> at an angle, and removed exactly those numbers from the Cialis and Viagra
+> passports after finding their boxes identical to three decimals across two
+> different manufacturers' packages. Writing plausible ones for Kamagra would put
+> the defect back. They are recorded as `null` in
+> `benchmark_metadata_ssot.json` with the reason attached.
+>
+> The owner's criterion since then is the design, not the pixels: what a
+> reconstruction needs is the archetype, the colour system, the graphic signature
+> and the layer order. Those are what follow.
+>
+> **Source of record:** `Reference Templates/31_Kamagra_Template_Reference/reverse_engineering_passport.md`,
+> which holds the full eight sections. This entry is the SSOT summary of it.
+
+### Status
+
+`[Measured]` `single_source` — one photograph, 1536×1024. Everything not visible
+in that single frame is a constraint below rather than an inference. The second
+file the folder shipped with was 608×380, under the 1079 px floor the benchmark
+set itself defines, and was removed rather than lower the floor to admit it.
+
+### Design Archetype
+
+`[Observed]` A two-tone carton split horizontally by a wave: cream above, deep
+green below, the division carried by a band of five parallel wavy rules. Roughly
+the lower half of the front face is a solid colour field and the boundary is a
+curve, not a line. Content sits in both fields — type in the cream half, the
+dosage badge inside the green one. That is a different organising principle from
+a white carton with accents applied to it, and it is what distinguishes this
+benchmark from Objects 1 and 2.
+
+### Colour Zones
+
+`[Measured]` over the carton mask, with one caveat carried forward: the mask is a
+luma difference from the frame corner, not an alpha channel — this file has none
+— and it captured a loose tablet lying beside the carton. The `#58B8B8` entry is
+that tablet, not packaging, and the other shares are diluted by its area.
+
+| Role | HEX | Share |
+|---|---|---|
+| Substrate — warm cream, NOT white | `#E8D8C8` | 47.1% |
+| Brand dark — lower field | `#084838` | 38.1% |
+| Secondary green — the wavy rules | `#088878` | 7.3% |
+| Accent — dosage badge, peach | `#D88878` | 1.9% |
+| *(not packaging — a loose tablet)* | `#58B8B8` | 1.7% |
+| Neutral — shading and edges | `#787878` | 1.1% |
+
+Two colours dominate at nearly equal weight, 47% against 38%. A renderer
+targeting `#FFFFFF` for the substrate reads colder and loses the design.
+
+### Content and Typography
+
+`[Measured]` by OCR at `--psm 3`: the INN line `Sildenafil Citrate Tablets IP`
+sits **above** the brand `KAMAGRA-100`, which is unusual in this catalogue and
+worth carrying forward. The dosage appears twice — fused into the brand and again
+in the peach badge. `[Observed]` Three type sizes on the whole face; hierarchy is
+carried as much by the coloured blocks as by size.
+
+### Reconstruction Constraints
+
+- `[Unknown]` Everything except this one front view: no rear panel, no side panel
+  content beyond a red edge stripe, no flaps, no opened pack.
+- `[Unknown]` Font families.
+- `[Unknown]` Whether the carton carries braille — none visible, but this is a
+  rendered-looking studio image and embossing may simply not be shown.
+- `[Observed]` The image appears rendered or heavily retouched rather than
+  photographed: uniformly clean edges, flat cut-out backdrop. Treat surface-finish
+  inferences accordingly.
+- `[Measured]` `packaging_market: in` — `Sildenafil Citrate Tablets **IP**`,
+  Indian Pharmacopoeia. Objects 1 and 2 carry no market determination; theirs was
+  never made.
+
+---
+
 ## Downstream Pipeline Execution Directives
 
 1. **SAAT Search Agent:**
