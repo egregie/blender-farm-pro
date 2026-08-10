@@ -31,7 +31,9 @@ this branch.
 ## What actually works today
 
 **The Stage 1 → Stage 2 contract.** `schemas/render_manifest.schema.json` (version
-**1.2**) is the single authoritative description of what a renderer receives.
+**1.3**, which carries the art-directed scene geometry and the carton's real
+`passport_dimensions` as two separate blocks — build from the first, print only the
+second) is the single authoritative description of what a renderer receives.
 `src/render_manifest.py` is its only implementation — Stage 1 emits through it,
 `blender_renderer` loads through it, and both validate against the same artifact.
 All 391 SKU produce a schema-valid manifest and every one resolves its carton from
@@ -59,6 +61,16 @@ setting, kept separate from light energy.
 **Engine selection.** `main.py --render-only --render-engine blender|gemini` works
 end to end through the `src/render_stage.py` facade, with unit coverage for the
 dispatch and for the two architectural invariants behind it.
+
+**The pipeline is closed on both sides.** Stage 3 reads and writes wherever the
+*selected* engine works: `image_processor.source_dir`/`output_dir` accept the sentinel
+`auto`, resolved through `render_stage.raw_output_dir()`/`final_output_dir()` — config
+only, so Stage 3 still imports no engine. Any real path there overrides the sentinel and
+wins. Before this, `--full` under the blender engine rendered into one directory and
+converted another, reporting success over renders it had not produced; the two engines'
+finished WEBP are now segregated too (`blender.final_dir`), because both name their
+output after the SKU stem. `main.py`'s summary reports the handoff itself —
+`Stage 2 -> Stage 3: N produced -> M converted` — which is the number that was missing.
 
 ## Carton proportions: settled 2026-08-09
 
@@ -118,14 +130,14 @@ references under every one of the three, so its direction is not in doubt.
   a file count, not an inspection, and unrelated to the OCR/pixel/scene checks
   above.
 - **The full catalogue has never been rendered.** 18 PNG exist out of 391; the nine
-  above are the only ones produced by current code. At roughly 67 s per SKU that is a
-  ~7 h pass, and no such pass has been run.
-- **Stage 3 cannot consume Blender output without a manual override.**
-  `image_processor.source_dir` still points at the Gemini directory; feeding Blender
-  renders through to WEBP needs `--config`.
-- **One Blender process per SKU.** Roughly 20 s of every render is fixed startup
-  cost, about 2 h of pure overhead across the catalogue. A persistent instance
-  processing a batch was proposed and is still not built.
+  above are the only ones produced by current code. At 27.9 s per SKU (measured,
+  `R006_STARTUP_COST.md`) that is a ~3 h pass, and no such pass has been run.
+- **One Blender process per SKU, and that is the decision, not an omission.** Startup
+  is 2.6 s of a 27.9 s render; an actual three-SKU batch saved 1.84 s per SKU (6.7%),
+  ~12 minutes across the catalogue. **Batch mode is closed as "not doing."** The
+  earlier ~20 s / ~2 h figure quoted here was never measured and is wrong by ~8×.
+  More than half of every render is the denoiser (~14.9 s) — that, not the process
+  boundary, is where a faster catalogue pass would come from.
 - **`08_ops/` is mostly stale.** Six of its seven documents do not mention Blender
   at all, and `ACCEPTANCE_TEST.md` still calls `src.rpa_orchestrator` directly,
   bypassing the facade. `DEPENDENCY_INVENTORY.md` now has rows for the Blender

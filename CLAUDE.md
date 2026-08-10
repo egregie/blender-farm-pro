@@ -240,10 +240,17 @@ both are far past the ~40 dB point where differences stop being visible — Cycl
 denoiser, not the sample count, is doing the work. Stage 3's own LANCZOS resize and WEBP
 encode shift pixels *more* than the gap between 16 and 64 does, and the resulting WEBP sits
 at quality 95 / ~26 KB against a 500 KB cap, so nothing downstream is straining either.
-Cost was 67 s vs 167 s per SKU, i.e. ~7 h vs ~18 h for a full 391-SKU pass. Roughly 45 s of
-each render is fixed cost (startup, BVH build, denoiser) and Cycles' adaptive sampling
-already stops converged pixels early, so cutting samples further buys little. Re-measure
-after any change that adds glass, metal, or real global illumination to the scene.
+Cost is **28.2 s vs 57.6 s** per SKU, i.e. ~3 h vs ~6 h for a full 391-SKU pass. Cutting
+samples further buys little: **18.8 s of every render is fixed**, so even zero samples costs
+19 s. Re-measure after any change that adds glass, metal, or real global illumination to the
+scene.
+
+**Where a render's 28 s actually goes** (measured, `00_PROJECT_STATE/R006_STARTUP_COST.md`):
+the denoiser ~14.9 s, sampling ~9.7 s, Blender startup 2.6 s, scene build 0.3 s, and Cycles'
+device init plus BVH build plus PNG save ~1 s between them. **The denoiser is more than half
+of every render** — the one lever that would meaningfully speed up a catalogue pass is GPU
+denoising, not sample count, and not a persistent batch process. Batch mode was measured at
+1.84 s per SKU (6.7%) and deliberately **not built**.
 
 EEVEE is **not** an equivalent shortcut, despite costing ~7 s. Against the same reference
 it scores 28.1 dB with 28.6% of pixels off by more than two levels, and the difference map
