@@ -46,20 +46,112 @@ class TestPartialRunIsolation(unittest.TestCase):
             self.assertEqual(canonical_json.read_text(encoding="utf-8"),
                              '{"counts": {"total": 30}}',
                              "a --limit run overwrote the whole-group JSON")
-            self.assertTrue((state / "sweep_report.partial.md").exists())
-            self.assertTrue((state / "sweep_report.partial.json").exists())
+            # top30 is a curated group AND this is a limited run, so the name
+            # records both narrowings.
+            self.assertTrue((state / "sweep_report.top30.partial.md").exists())
+            self.assertTrue((state / "sweep_report.top30.partial.json").exists())
 
-    def test_whole_group_run_writes_the_canonical_report(self):
+    def test_a_narrower_group_leaves_the_canonical_report_untouched(self):
+        """The same failure as above, one level up: whole run, narrower group.
+
+        `sweep_report.md` was the 18 SKU of `families` while being named as the
+        sweep of record, and a `top30` run would have replaced it with a
+        different 30. Neither run is a lie about itself; the FILENAME is.
+        """
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            canonical = state / "sweep_report.md"
+            canonical.write_text("REAL 391-SKU BASELINE", encoding="utf-8")
+
+            with patch.object(catalogue_sweep, "STATE_DIR", state):
+                catalogue_sweep.write_reports(
+                    [_record()], "top30", "2026-01-01 00:00:00", limit=None)
+
+            self.assertEqual(canonical.read_text(encoding="utf-8"),
+                             "REAL 391-SKU BASELINE",
+                             "a curated group overwrote the catalogue baseline")
+            self.assertTrue((state / "sweep_report.top30.md").exists())
+            self.assertTrue((state / "sweep_report.top30.json").exists())
+
+    def test_the_whole_catalogue_writes_the_canonical_report(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             state = Path(tmp)
             with patch.object(catalogue_sweep, "STATE_DIR", state):
                 catalogue_sweep.write_reports(
-                    [_record()], "top30", "2026-01-01 00:00:00", limit=None)
+                    [_record()], catalogue_sweep.CATALOGUE,
+                    "2026-01-01 00:00:00", limit=None)
             self.assertTrue((state / "sweep_report.md").exists())
             self.assertIn("the whole group",
                           (state / "sweep_report.md").read_text(encoding="utf-8"))
             self.assertFalse((state / "sweep_report.partial.md").exists())
+            self.assertFalse((state / "sweep_report.catalogue.md").exists())
+
+    def test_a_partial_catalogue_run_is_still_partial(self):
+        """The two rules compose: narrow by group AND by limit."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            with patch.object(catalogue_sweep, "STATE_DIR", state):
+                catalogue_sweep.write_reports(
+                    [_record()], "families", "2026-01-01 00:00:00", limit=2)
+            self.assertTrue((state / "sweep_report.families.partial.md").exists())
+            self.assertFalse((state / "sweep_report.md").exists())
+            self.assertFalse((state / "sweep_report.families.md").exists())
+
+
+class TestCoverageCaveat(unittest.TestCase):
+    """The caveat has to describe THIS run, not a run someone had in mind once.
+
+    It used to name the same seven templates as unexercised whatever was
+    measured, so the committed `families` report listed all nine templates as
+    covered and then declared seven of them absent, two sentences apart.
+    """
+
+    def _caveat(self, records, group, limit=None):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            with patch.object(catalogue_sweep, "STATE_DIR", state):
+                catalogue_sweep.write_reports(
+                    records, group, "2026-01-01 00:00:00", limit=limit)
+            md = catalogue_sweep.report_paths(limit, group)[1]
+            text = (state / md.name).read_text(encoding="utf-8")
+        head = text.split("### Coverage caveat", 1)[1]
+        return head.split("##", 1)[0].strip()
+
+    def test_a_template_that_was_measured_is_not_called_absent(self):
+        covered = {r["template_id"] for r in
+                   [_record("1-min"), _record("2-min")]}
+        caveat = self._caveat([_record("1-min"), _record("2-min")], "top30")
+        for tid in covered:
+            self.assertNotIn(f"`{tid}`", caveat,
+                             f"{tid} was measured and the caveat calls it absent")
+
+    def test_every_template_present_is_not_reported_as_every_SKU(self):
+        """`families` covers all nine templates with 18 of 391 SKU.
+
+        The first version of the computed caveat called that "catalogue-wide",
+        which is the overstatement the caveat exists to prevent — one coverage
+        swapped for another.
+        """
+        records = [dict(_record(f"{i}-min"), template_id=t)
+                   for i, t in enumerate(catalogue_sweep.catalogue_templates(), 1)]
+        caveat = self._caveat(records, "families")
+        self.assertNotIn("not exercised here", caveat)
+        self.assertIn(f"{len(records)} of the catalogue's", caveat)
+        self.assertNotIn("this run is the catalogue", caveat)
+
+    def test_the_whole_catalogue_is_allowed_to_say_so(self):
+        templates = catalogue_sweep.catalogue_templates()
+        size = len(list(catalogue_sweep.MANIFEST_DIR.glob("*.json")))
+        records = [dict(_record(f"{i}-min"), template_id=templates[i % len(templates)])
+                   for i in range(size)]
+        caveat = self._caveat(records, catalogue_sweep.CATALOGUE)
+        self.assertIn(f"All {size} SKU", caveat)
+        self.assertIn("this run is the catalogue", caveat)
+        self.assertNotIn("not exercised here", caveat)
 
 
 if __name__ == "__main__":

@@ -6,13 +6,15 @@ references, and a sweep over many real SKU is the only thing that finds the
 failures those nine cannot show. Every correction pass currently in
 05_assets/blender/render_driver.py was added after a sweep found real breakage.
 
-    python scripts/catalogue_sweep.py --limit 5      # trial
-    python scripts/catalogue_sweep.py                # the group, resuming
-    python scripts/catalogue_sweep.py --force        # re-render the group
+    python scripts/catalogue_sweep.py --limit 5           # trial
+    python scripts/catalogue_sweep.py                     # the group, resuming
+    python scripts/catalogue_sweep.py --force             # re-render the group
+    python scripts/catalogue_sweep.py --group catalogue   # every SKU on disk
 
-Writes 00_PROJECT_STATE/sweep_report.json (one record per SKU) and
-00_PROJECT_STATE/sweep_report.md (human summary). Both are rewritten on every
-run, including after Ctrl+C, so a long run is never lost.
+Writes one record per SKU as JSON plus a human summary in 00_PROJECT_STATE/,
+rewritten on every run including after Ctrl+C, so a long run is never lost. The
+filenames are keyed by what the run actually covered: only a whole `catalogue`
+run may occupy the canonical sweep_report.* — see report_paths().
 """
 from __future__ import annotations
 
@@ -97,6 +99,30 @@ GROUPS = {
         ("415-min", "T_VERT_VIAL     +115%"),
     ],
 }
+
+# The whole catalogue, generated rather than curated. 391 hand-written rows
+# would be a second copy of the passport directory, kept in sync by hand; and
+# the label the curated groups carry is only stored as the record's
+# `requested_as` — record_for() reads product_name off the passport itself.
+CATALOGUE = "catalogue"
+
+
+def _stem_order(stem: str):
+    """The project's stem sort: numeric prefix first, `10-min` after `9-min`."""
+    head = stem.split("-")[0]
+    return (int(head) if head.isdigit() else 999999, stem)
+
+
+def group_members(name: str) -> list[tuple[str, str]]:
+    """The (stem, label) pairs a group covers."""
+    if name == CATALOGUE:
+        return [(f.stem, CATALOGUE) for f in
+                sorted(PASSPORT_DIR.glob("*.json"), key=lambda f: _stem_order(f.stem))]
+    return list(GROUPS[name])
+
+
+def group_names() -> list[str]:
+    return sorted([*GROUPS, CATALOGUE])
 
 # ── Thresholds a SKU is flagged against ──────────────────────────────────────
 BLANK_FRAC = 5.0          # object smaller than this share of frame -> nothing rendered
@@ -396,21 +422,47 @@ def spread_by_template(records: list[dict]) -> dict:
     return out
 
 
-def report_paths(limit) -> tuple[Path, Path]:
+def catalogue_templates() -> list[str]:
+    """Every template_id with at least one SKU, read off the manifests.
+
+    The set is data, not a constant: `T2` has zero SKU here and a future
+    catalogue could populate it or empty another. A report that hardcodes the
+    list will eventually describe a catalogue that no longer exists.
+    """
+    tids = set()
+    for f in MANIFEST_DIR.glob("*.json"):
+        try:
+            tids.add(json.loads(f.read_text(encoding="utf-8"))["template_id"])
+        except Exception:  # noqa: BLE001 — an unreadable manifest is the sweep's finding, not this helper's
+            continue
+    return sorted(tids)
+
+
+def report_paths(limit, group_name: str = CATALOGUE) -> tuple[Path, Path]:
     """Where this run's reports go.
 
-    A partial run writes to its own filenames. Previously every run overwrote
-    sweep_report.*, so a three-SKU `--limit` smoke check silently replaced a
-    full group's report and left the repository claiming the group was verified
-    when a tenth of it was — which is exactly what happened once already.
+    One rule: **only a whole-catalogue run may occupy `sweep_report.*`.** Every
+    narrower run — a smaller group, or `--limit` — writes to its own filenames.
+
+    The `--limit` half of that already existed, because a three-SKU smoke check
+    silently replaced a full group's report and left the repository claiming the
+    group was verified when a tenth of it was. The group half was missing, and
+    the same thing had quietly happened again: `sweep_report.md` was named as
+    though it were *the* sweep of record while covering the 18 SKU of `families`,
+    and a `top30` run would have overwritten it with a different 30.
     """
-    stem = "sweep_report" if limit is None else "sweep_report.partial"
+    parts = ["sweep_report"]
+    if group_name != CATALOGUE:
+        parts.append(group_name)
+    if limit is not None:
+        parts.append("partial")
+    stem = ".".join(parts)
     return STATE_DIR / f"{stem}.json", STATE_DIR / f"{stem}.md"
 
 
 def write_reports(records, group_name, started_at, interrupted=False, limit=None):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    json_path, md_path = report_paths(limit)
+    json_path, md_path = report_paths(limit, group_name)
     spread = spread_by_template(records)
     flagged = [(r, problems_for(r)) for r in records]
     flagged = [(r, p) for r, p in flagged if p]
@@ -458,14 +510,41 @@ def write_reports(records, group_name, started_at, interrupted=False, limit=None
     L.append(f"- Total render time: **{total_s / 60:.1f} min** "
              f"({total_s / max(1, payload['counts']['rendered']):.0f} s per SKU)")
     L.append("")
+    # Computed, not written down. The caveat used to name the same seven
+    # templates as unexercised whatever the run covered, so the committed
+    # `families` report listed all nine templates as covered and then declared
+    # seven of them absent — two sentences apart, contradicting each other. A
+    # caveat that is wrong about its own run is worse than none.
+    # Two different coverages, and conflating them is how a report overstates
+    # itself: `families` touches all nine templates with two SKU each, which is
+    # 18 of 391 and says nothing about the other 373.
+    populated = catalogue_templates()
+    catalogue_size = len(list(MANIFEST_DIR.glob("*.json")))
+    missing = [t for t in populated if t not in set(templates)]
+    unmeasured = max(0, catalogue_size - len(records))
     L.append("### Coverage caveat")
     L.append("")
-    L.append(f"This run covers **{', '.join(templates) or 'nothing'}** only. "
-             "The catalogue has nine populated templates; `T3`, `T_MULTIPACK`, "
-             "`T_BOTTLE_BOX`, `T_VERT_VIAL`, `T_VERT_DROPPER`, `T_VERT_INHALER` and "
-             "`T1_LARGE` are **not exercised here**. Draw no conclusion about them "
-             "from this report — their panels are narrower and their layouts tighter, "
-             "which is exactly where a sweep is most likely to find something.")
+    if not templates:
+        L.append("This run measured **nothing**. No conclusion of any kind follows.")
+    elif missing:
+        L.append(f"This run covers **{', '.join(templates)}** — {len(templates)} of "
+                 f"the catalogue's {len(populated)} populated templates, "
+                 f"{len(records)} of its {catalogue_size} SKU. "
+                 f"{', '.join('`' + t + '`' for t in missing)} **not exercised "
+                 "here**; draw no conclusion about them from this report. Their "
+                 "panels are narrower and their layouts tighter, which is exactly "
+                 "where a sweep is most likely to find something.")
+    elif unmeasured:
+        L.append(f"All {len(populated)} populated templates appear, but only "
+                 f"**{len(records)} of the catalogue's {catalogue_size} SKU** were "
+                 f"measured. A template that comes back clean here is not a "
+                 f"statement about the {unmeasured} SKU that were not rendered — "
+                 "the layout is fitted per SKU, and every defect this sweep has "
+                 "ever found was specific to one.")
+    else:
+        L.append(f"**All {catalogue_size} SKU across all {len(populated)} populated "
+                 f"templates.** Within the thresholds below, this run is the "
+                 "catalogue — the baseline other runs are read against.")
     L.append("")
 
     L.append("## Frame fill by template")
@@ -533,7 +612,7 @@ def write_reports(records, group_name, started_at, interrupted=False, limit=None
 
 # ── Orchestration ────────────────────────────────────────────────────────────
 def sweep(group_name: str, limit: int | None, force: bool) -> int:
-    group = GROUPS[group_name]
+    group = group_members(group_name)
     if limit is not None:
         group = group[:limit]
 
@@ -575,7 +654,7 @@ def sweep(group_name: str, limit: int | None, force: bool) -> int:
     write_reports(records, group_name, started_at, interrupted, limit)
     flagged = sum(1 for r in records if problems_for(r))
     print(f"[sweep] done: {len(records)} record(s), {flagged} flagged")
-    print(f"[sweep] {report_paths(limit)[1]}")
+    print(f"[sweep] {report_paths(limit, group_name)[1]}")
     return 1 if interrupted else 0
 
 
@@ -652,7 +731,10 @@ def legibility_scan(top_n: int) -> int:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--group", choices=sorted(GROUPS), default="top30")
+    p.add_argument("--group", choices=group_names(), default="top30",
+                   help="`catalogue` is every SKU on disk; the others are curated "
+                        "selections. Only a whole `catalogue` run writes the "
+                        "canonical sweep_report.* — see report_paths().")
     p.add_argument("--limit", type=int, default=None,
                    help="only the first N SKU of the group (trial runs)")
     p.add_argument("--force", action="store_true",
