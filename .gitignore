@@ -6,8 +6,12 @@ logs/
 verification_failures.log
 
 # Blender output is regenerable/deterministic (unlike the committed Gemini
-# reference renders in 01_input_raster/) — no need to version it.
+# reference renders in 01_input_raster/) — no need to version it. blender_renders_final
+# is Stage 3's WEBP for that engine (blender.final_dir): derived from the raw renders
+# above, so it inherits their reasoning. The Gemini side stays tracked because its raw
+# input never was.
 02_processing/blender_test_renders/
+02_processing/blender_renders_final/
 02_processing/render_failed/
 02_processing/failed_logs/
 
