@@ -101,6 +101,44 @@ class TestPartialRunIsolation(unittest.TestCase):
             self.assertFalse((state / "sweep_report.families.md").exists())
 
 
+class TestProvenance(unittest.TestCase):
+    """A PNG does not say which driver drew it, so the report has to.
+
+    The first catalogue run measured renders from five driver generations and
+    reported them as one baseline: eight SKU came back cropped and blown with a
+    front face at 138.9, all of them rendered nine days and several rig fixes
+    earlier. The measurements were right; the attribution was not.
+    """
+
+    def test_the_report_records_what_rendered_it(self):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            with patch.object(catalogue_sweep, "STATE_DIR", state):
+                catalogue_sweep.write_reports(
+                    [_record()], catalogue_sweep.CATALOGUE, "2026-01-01 00:00:00")
+            data = json.loads((state / "sweep_report.json").read_text(encoding="utf-8"))
+            md = (state / "sweep_report.md").read_text(encoding="utf-8")
+        fp = data["rendered_by"]
+        self.assertEqual(len(fp["driver_sha256"]), 64, "driver not content-hashed")
+        self.assertIsNotNone(fp["engine_type"])
+        self.assertIsNotNone(fp["samples"])
+        self.assertIn(fp["driver_sha256"][:12], md,
+                      "the human-readable report does not say what rendered it")
+
+    def test_a_stale_render_is_flagged_before_anything_is_concluded_from_it(self):
+        rec = dict(_record(), render_predates_driver=True)
+        problems = catalogue_sweep.problems_for(rec)
+        self.assertTrue(problems, "a stale render produced no problem at all")
+        self.assertIn("older than the driver", problems[0],
+                      "staleness must lead: the rows under it measure other code")
+
+    def test_a_current_render_is_not_flagged_as_stale(self):
+        problems = catalogue_sweep.problems_for(_record())
+        self.assertFalse([p for p in problems if "older than the driver" in p])
+
+
 class TestCoverageCaveat(unittest.TestCase):
     """The caveat has to describe THIS run, not a run someone had in mind once.
 
