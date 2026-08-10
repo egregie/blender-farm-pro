@@ -173,5 +173,67 @@ class TestBuildCmd(unittest.TestCase):
         self.assertEqual(cmd[1:], ["-m", "src.passport_generator"])
 
 
+class TestStageThreeFollowsTheEngine(unittest.TestCase):
+    """Stage 3 must read where the SELECTED engine wrote, and write somewhere else.
+
+    Until 2026-08-10 `image_processor.source_dir` was a constant naming the Gemini
+    directory. Under `render.engine: blender` the pipeline rendered packshots into
+    02_processing/blender_test_renders, Stage 3 converted
+    01_input_raster/gemini_renders_raw, and `main.py --full` reported success
+    having processed somebody else's renders.
+    """
+
+    def _cfg(self, engine):
+        from src.utils import load_config
+        cfg = load_config()
+        cfg["render"]["engine"] = engine
+        return cfg
+
+    def test_raw_dir_follows_the_engine(self):
+        cfg = self._cfg("blender")
+        self.assertEqual(render_stage.raw_output_dir(cfg, "blender"),
+                         cfg["blender"]["output_dir"])
+        self.assertEqual(render_stage.raw_output_dir(cfg, "gemini"),
+                         cfg["paths"]["renders_raw"])
+
+    def test_final_dir_follows_the_engine(self):
+        cfg = self._cfg("blender")
+        self.assertEqual(render_stage.final_output_dir(cfg, "gemini"),
+                         cfg["paths"]["renders_final"])
+        self.assertTrue(render_stage.final_output_dir(cfg, "blender"))
+
+    def test_the_two_engines_never_share_a_directory(self):
+        """Both name their files after the SKU stem, so one shared directory means
+        the second engine to run overwrites the first one's finished work."""
+        cfg = self._cfg("blender")
+        for fn in (render_stage.raw_output_dir, render_stage.final_output_dir):
+            with self.subTest(resolver=fn.__name__):
+                self.assertNotEqual(fn(cfg, "blender"), fn(cfg, "gemini"))
+
+    def test_an_explicit_path_overrides_the_engine(self):
+        """`source_dir` stays a live override rather than a key that quietly
+        stopped mattering -- the failure the red team flagged before this shipped."""
+        import importlib
+        import src.image_processor as ip
+        cfg = self._cfg("blender")
+        cfg["image_processor"] = dict(cfg["image_processor"], source_dir="07_input")
+        with mock.patch("src.utils.load_config", return_value=cfg):
+            reloaded = importlib.reload(ip)
+            self.assertTrue(reloaded.SOURCE_DIR.replace("\\", "/").endswith("07_input"))
+        importlib.reload(ip)          # restore real module state for other tests
+
+    def test_stage_three_imports_no_engine(self):
+        """BND-001: engine selection lives in the facade. Stage 3 must not learn
+        which engine ran by importing it -- that would break the boundary and drag
+        Selenium into the image pipeline besides."""
+        for name in ("src.rpa_orchestrator", "src.blender_renderer"):
+            sys.modules.pop(name, None)
+        import importlib
+        import src.image_processor as ip
+        importlib.reload(ip)
+        for name in ("src.rpa_orchestrator", "src.blender_renderer"):
+            self.assertNotIn(name, sys.modules, f"Stage 3 pulled in {name}")
+
+
 if __name__ == "__main__":
     unittest.main()

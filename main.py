@@ -172,7 +172,11 @@ def preflight(stages, cfg, log, render_engine="gemini") -> bool:
                             f"           The render stage needs a logged-in Gemini session in that profile.")
 
     if STAGE_PROCESS in stages:
-        rdir = get_path(cfg, "renders_raw")
+        # The directory the SELECTED engine writes to, not a constant. Checking
+        # paths.renders_raw here meant a blender run pre-flighted against Gemini's
+        # output and passed on somebody else's files.
+        from src.render_stage import raw_output_dir
+        rdir = resolve_path(raw_output_dir(cfg, render_engine))
         n = _count(rdir, "*.png")
         if n == 0 and STAGE_RENDER not in stages:
             log.error(f"No raw PNG renders in {rdir} — run the render stage first."); ok = False
@@ -239,16 +243,40 @@ def run_stage(stage, args, cfg, env, log) -> dict:
 
 # ── Reporting ─────────────────────────────────────────────────────────────────
 def artifact_counts(cfg) -> dict:
+    """Counts for the summary, reported PER STAGE HANDOFF rather than per directory.
+
+    A count of what a stage produced does not say whether the next stage took it.
+    Until 2026-08-10 the summary reported "Final WEBP" from the Gemini directory
+    whatever engine had just run, so a full pass under blender printed a healthy
+    number of artefacts none of which it had made.
+    """
+    from src.render_stage import final_output_dir, raw_output_dir
+
+    engine = cfg.get("render", {}).get("engine", "gemini")
+    raw_dir = resolve_path(raw_output_dir(cfg, engine))
+    final_dir = resolve_path(final_output_dir(cfg, engine))
+
     counts = {
-        "JSON passports": _count(get_path(cfg, "passports_json"), "*.json"),
-        "MD passports":   _count(get_path(cfg, "passports_md"), "*.md"),
-        "Raw PNG (gemini)": _count(get_path(cfg, "renders_raw"), "*.png"),
-        "Final WEBP":     _count(get_path(cfg, "renders_final"), "*.webp"),
+        "JSON passports":  _count(get_path(cfg, "passports_json"), "*.json"),
+        "MD passports":    _count(get_path(cfg, "passports_md"), "*.md"),
+        f"Raw PNG ({engine})":   _count(raw_dir, "*.png"),
+        f"Final WEBP ({engine})": _count(final_dir, "*.webp"),
     }
-    # EXPERIMENTAL: only show the Blender counter when that output dir has ever been used.
-    blender_dir = resolve_path(cfg["blender"]["output_dir"])
-    if blender_dir.exists():
-        counts["Raw PNG (blender)"] = _count(blender_dir, "*.png")
+    # The handoff Stage 2 -> Stage 3, which is the number that was missing: how
+    # many of the renders this engine produced came out the far end.
+    produced = counts[f"Raw PNG ({engine})"]
+    accepted = counts[f"Final WEBP ({engine})"]
+    counts["Stage 2 -> Stage 3"] = f"{produced} produced -> {accepted} converted"
+
+    # The other engine's directories, shown only when they hold something, so a
+    # mixed workspace stays visible instead of looking like this engine's output.
+    other = "gemini" if engine == "blender" else "blender"
+    other_raw = resolve_path(raw_output_dir(cfg, other))
+    if other_raw.exists() and _count(other_raw, "*.png"):
+        counts[f"Raw PNG ({other})"] = _count(other_raw, "*.png")
+    other_final = resolve_path(final_output_dir(cfg, other))
+    if other_final.exists() and _count(other_final, "*.webp"):
+        counts[f"Final WEBP ({other})"] = _count(other_final, "*.webp")
     return counts
 
 

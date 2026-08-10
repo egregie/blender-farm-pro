@@ -58,6 +58,7 @@ blender:
   scenes_dir:   "05_assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
   driver_script: "05_assets/blender/render_driver.py"
   output_dir:   "02_processing/blender_test_renders"  # Blender's own render attempts (distinct from the 01_input_raster/ reference material)
+  final_dir:    "02_processing/blender_renders_final"  # Stage 3 output for this engine, kept away from 01_input_raster/gemini_renders_final
   engine_type:  "CYCLES"                         # Blender engine identifier, e.g. CYCLES | BLENDER_EEVEE | BLENDER_WORKBENCH.
                                                  # Must be an identifier this Blender build accepts ("EEVEE" is not one);
                                                  # an unavailable engine now fails the render rather than silently substituting.
@@ -72,8 +73,18 @@ blender:
 
 # ── Stage 3: final image processor (webp_converter behaviour — canonical) ────
 image_processor:
-  source_dir:       "01_input_raster/gemini_renders_raw"
-  output_dir:       "01_input_raster/gemini_renders_final"
+  # "auto" = wherever the SELECTED Stage 2 engine writes (src/render_stage.py
+  # resolves it: blender.output_dir for blender, paths.renders_raw for gemini).
+  # A real path here overrides that and wins -- the key is a live override, not
+  # dead weight. It was a constant pointing at the Gemini directory until
+  # 2026-08-10, which meant `--full` under the blender engine converted nothing
+  # it had just rendered and still reported success.
+  source_dir:       "auto"
+  # "auto" mirrors source_dir on the output side: each engine keeps its own
+  # final directory. Both engines name their WEBP after the SKU stem, so a
+  # shared output dir means Blender silently overwrites Gemini's finished
+  # artefacts -- the same collision the raw directories were split to avoid.
+  output_dir:       "auto"
   # scripts/image_postprocessor.py's own failure copies (named after the SKU
   # stem, e.g. 1-min.png). Deliberately its own directory, NOT paths.renders_failed
   # (02_processing/render_failed) -- that one is Stage 2's RPA/Selenium error

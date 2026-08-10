@@ -18,12 +18,31 @@ from src.utils import load_config, resolve_path
 _CFG = load_config()
 _IMG = _CFG["image_processor"]
 
-SOURCE_DIR = str(resolve_path(_IMG["source_dir"]))   # Папка с оригинальными PNG
+# `source_dir: auto` means "wherever the SELECTED Stage 2 engine writes", resolved
+# through src.render_stage — the one module that knows an engine exists. Any real
+# path here overrides that and wins, so the key is a live override rather than a
+# value that silently stopped mattering.
+#
+# Before this, `source_dir` was a constant pointing at the Gemini directory. With
+# `render.engine: blender` the pipeline rendered packshots into
+# 02_processing/blender_test_renders, Stage 3 read 01_input_raster/gemini_renders_raw,
+# and `main.py --full` reported success having converted somebody else's renders.
+def _engine_aware(key: str, resolver_name: str) -> str:
+    """Resolve an image_processor path, honouring the `auto` sentinel."""
+    configured = str(_IMG[key]).strip()
+    if configured.lower() != "auto":
+        return str(resolve_path(configured))         # explicit path wins
+    from src import render_stage                     # config-only; imports no engine
+    return str(resolve_path(getattr(render_stage, resolver_name)(_CFG)))
+
+
+SOURCE_DIR = _engine_aware("source_dir", "raw_output_dir")
+
 _legacy_images = resolve_path("images")
 if _legacy_images.exists():                          # legacy override (как в оригинале)
     SOURCE_DIR = str(_legacy_images)
 
-OUTPUT_DIR = str(resolve_path(_IMG["output_dir"]))   # Целевая папка для готовых WebP
+OUTPUT_DIR = _engine_aware("output_dir", "final_output_dir")   # Целевая папка для готовых WebP
 TARGET_SIZE = tuple(_IMG["target_size"])             # (1600, 1600) по умолчанию
 MAX_FILE_SIZE_KB = _IMG["max_file_size_kb"]          # Жесткий лимит веса файла
 

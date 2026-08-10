@@ -32,10 +32,20 @@ from src.utils import load_config, resolve_path  # noqa: E402
 
 _CFG = load_config()
 # Configuration
-# image_processor.source_dir, not paths.renders_raw: the two happen to hold
-# the same value today, but they are read by different scripts for different
-# purposes and could silently diverge if only one were ever edited.
-DEFAULT_INPUT_DIR  = resolve_path(_CFG["image_processor"]["source_dir"])
+# image_processor.source_dir, not paths.renders_raw: the two are read by
+# different scripts for different purposes and could silently diverge if only
+# one were ever edited.
+#
+# Since 2026-08-10 that key may hold the sentinel "auto", meaning "wherever the
+# SELECTED Stage 2 engine writes". Every reader of the key has to understand the
+# sentinel or it becomes a trap: this script resolved it as a literal directory
+# name and pointed at <root>/auto, which tests/test_script_paths.py caught.
+_configured_input = str(_CFG["image_processor"]["source_dir"]).strip()
+if _configured_input.lower() == "auto":
+    from src.render_stage import raw_output_dir      # config-only; imports no engine
+    DEFAULT_INPUT_DIR = resolve_path(raw_output_dir(_CFG))
+else:
+    DEFAULT_INPUT_DIR = resolve_path(_configured_input)
 # NOT image_processor.output_dir -- that key is src/image_processor.py's
 # CANONICAL Stage 3 output, and git tracks 389 deliverables there. Both
 # scripts derive the same {stem}.webp filename from an input PNG, so sharing
