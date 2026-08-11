@@ -138,6 +138,24 @@ class TestProvenance(unittest.TestCase):
         problems = catalogue_sweep.problems_for(_record())
         self.assertFalse([p for p in problems if "older than the driver" in p])
 
+    def test_staleness_is_measured_against_the_driver_not_the_clock(self):
+        """A render made after the driver is kept; one made before is not."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            png = Path(tmp) / "x.png"
+            png.write_bytes(b"")
+            fp = dict(catalogue_sweep.driver_fingerprint())
+
+            fp["driver_mtime"] = png.stat().st_mtime + 1000
+            with patch.object(catalogue_sweep, "_FINGERPRINT", fp):
+                self.assertTrue(catalogue_sweep.is_stale(png),
+                                "a render older than the driver was kept")
+
+            fp["driver_mtime"] = png.stat().st_mtime - 1000
+            with patch.object(catalogue_sweep, "_FINGERPRINT", fp):
+                self.assertFalse(catalogue_sweep.is_stale(png),
+                                 "a current render was needlessly re-rendered")
+
 
 class TestCoverageCaveat(unittest.TestCase):
     """The caveat has to describe THIS run, not a run someone had in mind once.

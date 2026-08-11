@@ -351,8 +351,10 @@ def record_for(stem: str, label: str, rendered: bool, seconds, error: str) -> di
         # driver CANNOT have been drawn by it. The converse is not claimed --
         # a driver merely re-saved would mark fresh renders stale, which is a
         # warning to re-render, not a wrong measurement.
-        driver_mtime = (_FINGERPRINT or {}).get("driver_mtime")
-        if driver_mtime and png.stat().st_mtime < driver_mtime:
+        # Still recorded, though sweep() now re-renders rather than reporting it:
+        # record_for is also reached by a measure-only path, and a report that
+        # cannot say "this row is about older code" is the original defect.
+        if is_stale(png):
             rec["render_predates_driver"] = True
         try:
             rec["measurement"] = measure(png, manifest_path)
@@ -461,6 +463,18 @@ def driver_fingerprint() -> dict:
         "samples": _CFG["blender"].get("samples"),
         "resolution": _CFG["blender"].get("resolution"),
     }
+
+
+def is_stale(png: Path) -> bool:
+    """Was this PNG drawn by an older driver than the one on disk now?
+
+    One-directional, and that is what makes it safe to act on: a render older
+    than the driver CANNOT have come from it. The converse is not claimed — a
+    driver merely re-saved marks fresh renders stale, which costs a re-render
+    and never yields a wrong measurement.
+    """
+    driver_mtime = (_FINGERPRINT or driver_fingerprint()).get("driver_mtime")
+    return bool(driver_mtime) and png.stat().st_mtime < driver_mtime
 
 
 def catalogue_templates() -> list[str]:
@@ -690,13 +704,21 @@ def sweep(group_name: str, limit: int | None, force: bool) -> int:
     try:
         for i, (stem, label) in enumerate(group, 1):
             png = OUT_DIR / f"{stem}.png"
-            if png.exists() and not force:
+            # Resume asks whether this driver rendered the SKU, not merely whether
+            # a PNG exists. Existence was the old question, and it let a baseline
+            # be assembled out of five driver generations -- eight of the first
+            # twenty SKU came back flagged for defects fixed nine days earlier.
+            # Detecting that in the report was only half the answer: a sweep that
+            # KNOWS a render is stale should replace it, not describe it.
+            stale = png.exists() and is_stale(png)
+            if png.exists() and not force and not stale:
                 print(f"[{i}/{len(group)}] {stem} — already rendered, measuring only")
                 records.append(record_for(stem, label, True, None, ""))
                 continue
-            if force and png.exists():
+            if png.exists():
                 png.unlink()
-            print(f"[{i}/{len(group)}] {stem} — rendering...", flush=True)
+            why = "re-rendering (older than the driver)" if stale and not force else "rendering..."
+            print(f"[{i}/{len(group)}] {stem} — {why}", flush=True)
             ok, secs, err = render_one(stem)
             rec = record_for(stem, label, ok, secs, err)
             records.append(rec)
