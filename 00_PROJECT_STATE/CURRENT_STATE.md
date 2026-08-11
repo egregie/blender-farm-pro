@@ -62,6 +62,15 @@ setting, kept separate from light energy.
 end to end through the `src/render_stage.py` facade, with unit coverage for the
 dispatch and for the two architectural invariants behind it.
 
+**The whole catalogue renders, and there is a baseline.** All **391 SKU**, one
+driver (`sweep_report.md` names its sha256), 0 failures, 45.5 min for the 100 that
+needed rendering at 27 s each. Frame fill sits inside its template's median with
+**no outliers in any of the nine**; front-face brightness runs 231.9–240.9 with a
+median of 238.5; the scene check completed for all 391. **14 SKU flagged, every one
+of them the same known small-print defect** — no geometry failure, no cropping, no
+render error. The report is what later runs are read against, and only a
+whole-catalogue run is allowed to occupy that filename.
+
 **The pipeline is closed on both sides.** Stage 3 reads and writes wherever the
 *selected* engine works: `image_processor.source_dir`/`output_dir` accept the sentinel
 `auto`, resolved through `render_stage.raw_output_dir()`/`final_output_dir()` — config
@@ -129,9 +138,13 @@ references under every one of the three, so its direction is not in doubt.
   separately forces a failure when Stage 2 exits clean having written zero PNGs —
   a file count, not an inspection, and unrelated to the OCR/pixel/scene checks
   above.
-- **The full catalogue has never been rendered.** 18 PNG exist out of 391; the nine
-  above are the only ones produced by current code. At 27.9 s per SKU (measured,
-  `R006_STARTUP_COST.md`) that is a ~3 h pass, and no such pass has been run.
+- **The small print falls below its floor on 14 SKU** — the one class of defect the
+  2026-08-11 catalogue baseline found, and it is a known one (R-007). Seven
+  `T_BOTTLE_BOX` unit counts set at 3.50mm, five `T_MULTIPACK` ingredient rows at
+  3.24–3.93mm on 50–61 characters, `177-min` failing both rows at 2.86/3.23mm, and
+  `269-min`'s dosage at 3.80mm — against the 4.0mm the references hold small print
+  to. The driver fits a long row by shrinking it, so the failure it produces is
+  illegibility rather than overflow.
 - **One Blender process per SKU, and that is the decision, not an omission.** Startup
   is 2.6 s of a 27.9 s render; an actual three-SKU batch saved 1.84 s per SKU (6.7%),
   ~12 minutes across the catalogue. **Batch mode is closed as "not doing."** The

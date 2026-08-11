@@ -576,8 +576,18 @@ def write_reports(records, group_name, started_at, interrupted=False, limit=None
     L.append(f"- Rendered: **{payload['counts']['rendered']}** · "
              f"failed: **{payload['counts']['failed']}**")
     L.append(f"- Flagged against thresholds: **{len(flagged)}**")
-    L.append(f"- Total render time: **{total_s / 60:.1f} min** "
-             f"({total_s / max(1, payload['counts']['rendered']):.0f} s per SKU)")
+    # Divided by what was actually rendered THIS run, not by the group size. A
+    # resumed sweep measures existing PNG in well under a second and contributes
+    # no render time at all, so dividing by the group turned 100 renders at 27 s
+    # into "7 s per SKU" — a figure true of neither the renders nor the sweep.
+    timed = [r for r in records if r.get("render_seconds") is not None]
+    reused = len(records) - len(timed)
+    line = f"- Total render time: **{total_s / 60:.1f} min**"
+    if timed:
+        line += f" for the {len(timed)} rendered here ({total_s / len(timed):.0f} s each)"
+    if reused:
+        line += f"; {reused} measured from PNG this driver had already written"
+    L.append(line)
     L.append("")
     # Computed, not written down. The caveat used to name the same seven
     # templates as unexercised whatever the run covered, so the committed
