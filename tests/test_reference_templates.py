@@ -140,5 +140,50 @@ class TestNoDuplicateImages(unittest.TestCase):
                     seen[digest] = name
 
 
+class TestEveryPhotographedFolderIsInTheBarrier(unittest.TestCase):
+    """A folder with reference photography must name the SKU it documents.
+
+    The OCR barrier over the template sample
+    (tests/test_render_qa.py::TestOCRBarrierOverTheTemplateSample) is defined by
+    `TEMPLATE_SAMPLE` in scripts/make_ocr_fixtures.py -- a hand-resolved map,
+    because folder names do not identify a SKU on their own: `15_T1_Xanax` and
+    `24_T1_Xanax_Pfizer` are two catalogue entries whose names contain each
+    other. A hand-resolved map is exactly the kind that falls behind the folders
+    it describes, and nothing would say so: acquiring a reference for a twelfth
+    product and leaving it unmapped simply means the barrier keeps covering
+    eleven while the repository looks like it covers twelve.
+
+    This test was written after the map was first built with a folder in it that
+    holds no photograph at all.
+    """
+
+    def test_no_photographed_folder_is_missing_from_the_sample(self):
+        if not TEMPLATES_DIR.exists():
+            self.skipTest(f"{TEMPLATES_DIR.name}/ is not in this checkout")
+        from scripts.make_ocr_fixtures import TEMPLATE_SAMPLE
+
+        photographed = {d.name for d in _template_dirs() if _images_in(d)}
+        unmapped = sorted(photographed - set(TEMPLATE_SAMPLE))
+        self.assertFalse(
+            unmapped,
+            f"these folders hold reference photography but name no SKU: "
+            f"{unmapped}. Add them to TEMPLATE_SAMPLE and rebuild the fixtures, "
+            f"or the barrier silently keeps its old coverage.")
+
+    def test_the_sample_names_no_folder_without_a_photograph(self):
+        if not TEMPLATES_DIR.exists():
+            self.skipTest(f"{TEMPLATES_DIR.name}/ is not in this checkout")
+        from scripts.make_ocr_fixtures import TEMPLATE_SAMPLE
+
+        photographed = {d.name for d in _template_dirs() if _images_in(d)}
+        on_disk = {d.name for d in _template_dirs()}
+        phantom = sorted(set(TEMPLATE_SAMPLE) - photographed)
+        self.assertFalse(
+            phantom,
+            f"the sample names folders with no reference photograph: {phantom} "
+            f"({[p for p in phantom if p not in on_disk]} are not on disk at "
+            f"all). A reference folder with no image is a reference to nothing.")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -489,6 +489,111 @@ class TestOCRBarrier(unittest.TestCase):
             "wrong or the deskew step is not being applied")
 
 
+@unittest.skipUnless(_HAVE_TESSERACT,
+                     f"Tesseract unavailable: {render_qa._TESSERACT_ERROR}")
+class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
+    """The same barrier as above, over eleven SKU instead of one.
+
+    The audit's third finding: the product's headline claim -- that a text object
+    draws the string it is handed or nothing at all -- was proven on `1-min` and
+    nowhere else, while a 48-SKU sweep had already turned up two classes of
+    defect that fixture cannot show. One SKU is an example, not a guarantee.
+
+    The eleven are the reference-template sample: every folder under
+    `Reference Templates/` that holds actual reference photography. They are the
+    SKU the project has real packaging to be judged against, which is why they
+    are the group worth proving readable. Their fixtures are committed, so this
+    runs on a clean checkout with no renderer and no `Reference Templates/`
+    present -- an opt-in check is not a barrier.
+
+    What it does NOT cover: every one of the eleven is T1 or T1_SMALL. The
+    narrower faces -- T3, the vertical family, T_MULTIPACK -- have no reference
+    photography and are not represented here. This closes "one SKU" and does not
+    close "one template family".
+    """
+
+    # A ratchet, not a threshold. Tesseract reads `135-min`'s "1mg" as "lmg" --
+    # a lowercase L for the digit -- in every page-segmentation mode. The RENDER
+    # is correct: the scene test compares the built text object's body against
+    # the manifest byte-for-byte and passes. Folding glyph lookalikes was tried
+    # and rejected; scripts/render_qa.py records why it is unsafe.
+    #
+    # Listed so it cannot quietly grow, and asserted to still be failing so it
+    # cannot quietly go stale.
+    KNOWN_OCR_MISSES = {("135-min", "dosage_display")}
+
+    # The sample cannot silently shrink to the one fixture it replaced.
+    MIN_SAMPLE = 11
+
+    @classmethod
+    def setUpClass(cls):
+        from scripts.make_ocr_fixtures import sample_stems
+        cls.stems = sample_stems()
+        cls.cases = []
+        for stem in cls.stems:
+            webp = FIXTURE_DIR / f"{stem}.webp"
+            manifest = FIXTURE_DIR / f"{stem}.manifest.json"
+            view = FIXTURE_DIR / f"{stem}.view.json"
+            if not (webp.exists() and manifest.exists() and view.exists()):
+                continue
+            cls.cases.append((
+                stem, webp,
+                json.loads(manifest.read_text(encoding="utf-8")),
+                json.loads(view.read_text(encoding="utf-8")),
+            ))
+
+    def test_the_sample_is_present_and_has_not_shrunk(self):
+        self.assertGreaterEqual(
+            len(self.cases), self.MIN_SAMPLE,
+            f"only {len(self.cases)} of {len(self.stems)} fixtures found. "
+            f"Rebuild with `python scripts/make_ocr_fixtures.py`; a barrier that "
+            f"quietly covers fewer SKU reports the same green as one that covers "
+            f"them all.")
+
+    def test_every_label_field_in_the_sample_is_readable_off_the_render(self):
+        misses = set()
+        for stem, webp, manifest, view in self.cases:
+            res = render_qa.check_image(webp, manifest, view)
+            self.assertTrue(res["deskewed"],
+                            f"{stem}: the view sidecar was not used")
+            for field, found in res["fields"].items():
+                if not found:
+                    misses.add((stem, field))
+        new = misses - self.KNOWN_OCR_MISSES
+        self.assertFalse(
+            new,
+            f"label text that no longer reads off the render: {sorted(new)}")
+
+    def test_the_known_miss_list_is_not_stale(self):
+        """A ratchet that has silently been fixed is a ratchet nobody trusts."""
+        still_missing = set()
+        for stem, webp, manifest, view in self.cases:
+            if not any(s == stem for s, _ in self.KNOWN_OCR_MISSES):
+                continue
+            res = render_qa.check_image(webp, manifest, view)
+            still_missing |= {(stem, f) for f, ok in res["fields"].items() if not ok}
+        fixed = self.KNOWN_OCR_MISSES - still_missing
+        self.assertFalse(
+            fixed,
+            f"these now read and should be removed from KNOWN_OCR_MISSES: "
+            f"{sorted(fixed)}")
+
+    def test_the_brand_name_reads_on_every_SKU_in_the_sample(self):
+        """Singled out because it is the field the Gemini engine invented.
+
+        `reference_analysis.md` §7 caught that engine printing "Datels", a word
+        appearing nowhere in any manifest. Whatever else a packshot gets wrong,
+        the brand on the front face has to be the brand.
+        """
+        for stem, webp, manifest, view in self.cases:
+            with self.subTest(stem=stem):
+                res = render_qa.check_image(webp, manifest, view)
+                expected = manifest["label_content"]["brand_name_display"]
+                self.assertTrue(
+                    res["fields"]["brand_name_display"],
+                    f"{stem}: brand '{expected}' not readable; flags={res['flags']}")
+
+
 @unittest.skipUnless(os.environ.get("PHARMAGEN_SLOW_TESTS"),
                      "set PHARMAGEN_SLOW_TESTS=1 to re-render the fixture SKU")
 @unittest.skipUnless(_HAVE_TESSERACT,
@@ -518,6 +623,43 @@ class TestOCRAgainstAFreshRender(unittest.TestCase):
         view = render_qa.load_view(png)
         res = render_qa.check_image(png, manifest, view)
         self.assertGreaterEqual(res["found"], 3, f"flags={res['flags']}")
+
+    def test_the_template_sample_fixtures_still_match_a_fresh_render(self):
+        """Eleven committed fixtures drift eleven ways, not one.
+
+        Re-renders the whole sample and re-runs the barrier's own assertion
+        against the new pixels. A fixture set is only worth what it still
+        represents.
+        """
+        import subprocess
+        import sys
+        from scripts.make_ocr_fixtures import sample_stems
+
+        out_dir = Path(render_qa.DEFAULT_PROCESSED_DIR)
+        known = TestOCRBarrierOverTheTemplateSample.KNOWN_OCR_MISSES
+        misses = set()
+        for stem in sample_stems():
+            png = out_dir / f"{stem}.png"
+            for stale in (png, png.with_suffix(".view.json")):
+                if stale.exists():
+                    stale.unlink()
+            proc = subprocess.run(
+                [sys.executable, "-m", "src.blender_renderer", "--limit", "1",
+                 "--from", stem],
+                cwd=str(PROJECT_ROOT), capture_output=True, text=True, timeout=600)
+            self.assertEqual(proc.returncode, 0, f"{stem}: {proc.stderr[-1500:]}")
+            self.assertTrue(png.exists(), f"{stem}: the render produced no PNG")
+
+            manifest = json.loads(
+                (Path(render_qa.DEFAULT_MANIFESTS_DIR) / f"{stem}.json")
+                .read_text(encoding="utf-8"))
+            res = render_qa.check_image(png, manifest, render_qa.load_view(png))
+            misses |= {(stem, f) for f, ok in res["fields"].items() if not ok}
+
+        self.assertFalse(
+            misses - known,
+            f"a fresh render reads worse than the committed fixtures: "
+            f"{sorted(misses - known)}")
 
 
 if __name__ == '__main__':

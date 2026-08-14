@@ -263,6 +263,28 @@ def _normalize_alnum(s: str) -> str:
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
+# Glyph confusion is deliberately NOT folded here, though it costs one real
+# field: `135-min` prints "1mg" and Tesseract reads "lmg" -- a lowercase L for
+# the digit one, in every page-segmentation mode.
+#
+# Folding l/i -> 1 and o -> 0 on both sides was tried and measured. It fixes
+# nothing, because a dosage like "1mg" is not matched through this function at
+# all: `_field_present` routes a leading number down `_digit_bounded_search`,
+# against the raw OCR text, precisely so that '5' cannot match inside '500'.
+# Teaching THAT path the lookalikes is what would be needed, and it is unsafe:
+# with 'l' and 'o' admitted as digits, the "10" of "10 Pills" matches inside
+# "Lorazepam" -- a word in this very sample -- at a legitimate word boundary.
+#
+# So the miss is carried as a known one instead, where a reader can see it:
+# tests/test_render_qa.py::TestOCRBarrierOverTheTemplateSample. The barrier's
+# real subject survives either way -- it exists to catch INVENTED text, the
+# Gemini engine's "Datels", which is whole tokens away from anything in the
+# manifest. Glyph-level fidelity is guarded better elsewhere: the scene test
+# compares the built text object's `body` byte-for-byte against the manifest,
+# so a driver that truly drew a letter L for a 1 fails there, in a check no
+# rescan can fool.
+
+
 # The word/token split used on BOTH sides of a comparison: to cut a manifest
 # field into its significant tokens (below, in `_field_present`) and to cut
 # OCR text into the "words" `_alnum_word_index` anchors match boundaries to.
@@ -306,7 +328,14 @@ def _alnum_word_index(text: str):
     starts, ends = set(), set()
     pos = 0
     for word in re.split(_TOKEN_SPLIT_RE, text):
-        piece = re.sub(r"[^a-z0-9]", "", word.lower())
+        # Through _normalize_alnum, not a second copy of its regex. The
+        # docstring above says "the same way `_normalize_alnum` folds a token",
+        # and until now that was an assertion about two separate
+        # implementations. Adding a glyph-confusion table to one of them turned
+        # every field in the sample into a miss inside a single edit -- the
+        # needle folded and the haystack did not. One function, so the next
+        # change to the fold cannot desynchronise them.
+        piece = _normalize_alnum(word)
         if not piece:
             continue
         starts.add(pos)
@@ -645,6 +674,12 @@ def main():
         default=None,
         help="Limit number of images to check (default: all)",
     )
+    parser.add_argument(
+        "--stems",
+        default=None,
+        help="Comma-separated SKU stems to check instead of the whole directory "
+             "(e.g. '59-min,135-min'). Errors if any stem has no render.",
+    )
     args = parser.parse_args()
 
     if not _TESSERACT_AVAILABLE:
@@ -662,6 +697,20 @@ def main():
         print(f"[WARN] No PNG files found in {args.dir}")
         write_report([], args.report)
         return
+
+    # --stems narrows to a named set. --limit takes whatever sorts first, which
+    # is fine for a smoke check and useless for a sample chosen on purpose: the
+    # reference-template group is eleven specific SKU scattered from 59-min to
+    # 404-min. A missing stem is an error rather than a silent shortfall, or the
+    # report would claim the sample and cover part of it.
+    if args.stems:
+        wanted = [s.strip() for s in args.stems.split(",") if s.strip()]
+        by_stem = {p.stem: p for p in images}
+        missing = [s for s in wanted if s not in by_stem]
+        if missing:
+            print(f"[ERROR] no render for: {', '.join(missing)} (in {args.dir})")
+            return 2
+        images = [by_stem[s] for s in wanted]
 
     if args.limit:
         images = images[:args.limit]
