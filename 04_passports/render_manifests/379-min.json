@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.3",
+  "manifest_version": "1.4",
   "sku_id": "379-min.jpg",
   "template_id": "T_VERT_DROPPER",
   "is_bottle_override": false,

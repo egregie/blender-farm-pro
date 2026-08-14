@@ -450,11 +450,22 @@ class TestReshapeToArtDirection(unittest.TestCase):
             self.skipTest("passports are not in this checkout")
         from src.passport_generator import agent_1_router
 
+        from src.design_group import is_design_sku
+
         refused = []
+        skipped_for_design = []
         for f in sorted(PASSPORTS.glob("*.json")):
             passport = json.loads(f.read_text(encoding="utf-8"))
             template_id, _ = agent_1_router(passport)
             if template_id not in TARGET_SILHOUETTE_ASPECT:
+                continue
+            # A design-group carton is built to its REFERENCE's front face, not
+            # to the template's silhouette target, so re-solving it here asks the
+            # wrong question of it: three of the eleven are portrait against a
+            # landscape template and would read as refusals. Counted rather than
+            # skipped, so the exemption cannot quietly grow to cover a real one.
+            if is_design_sku(passport.get("sku_id", "")):
+                skipped_for_design.append(f.stem)
                 continue
             carton = resolve_carton(passport, template_id)
             dims = (carton["width_mm"], carton["height_mm"], carton["depth_mm"])
@@ -471,6 +482,13 @@ class TestReshapeToArtDirection(unittest.TestCase):
         self.assertLessEqual(
             len(refused), 2,
             f"{len(refused)} SKU refused reshaping, expected at most 2: {refused}")
+
+        from src.design_group import TEMPLATE_SAMPLE
+        self.assertEqual(
+            len(skipped_for_design), len(TEMPLATE_SAMPLE),
+            f"the art-direction path skipped {len(skipped_for_design)} SKU for "
+            f"the design group, which holds {len(TEMPLATE_SAMPLE)}: "
+            f"{sorted(skipped_for_design)}")
 
 
 class TestManifestsOnDisk(unittest.TestCase):
@@ -561,3 +579,99 @@ class TestManifestPaths(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDesignChannel(unittest.TestCase):
+    """Contract 1.4 — the measured design of a real carton reaches the renderer.
+
+    Eleven SKU have reference photography, a measured face and a fitted spec.
+    Before this the renderer could not see any of it: the manifest carried a
+    palette and four strings, and every one of those eleven palettes is a
+    category default rather than the carton's colour -- six of them share one
+    pair while the cartons are olive, teal, navy, purple, pink, cyan and magenta.
+    """
+
+    MANIFESTS = PROJECT_ROOT / "04_passports" / "render_manifests"
+
+    def _manifest(self, stem):
+        return json.loads((self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+
+    def test_every_sku_in_the_design_group_carries_its_design(self):
+        from src.design_group import TEMPLATE_SAMPLE
+        missing = []
+        for folder, stem in sorted(TEMPLATE_SAMPLE.items()):
+            path = self.MANIFESTS / f"{stem}.json"
+            if not path.exists():
+                missing.append(f"{stem} (no manifest)")
+                continue
+            if "design" not in self._manifest(stem):
+                missing.append(f"{stem} ({folder})")
+        self.assertFalse(
+            missing,
+            f"in the design group and rendering from the generic art direction: "
+            f"{missing}. That produces a plausible carton in the wrong colours "
+            f"and reports success, which is precisely what the group exists to "
+            f"stop.")
+
+    def test_the_built_face_matches_the_reference_it_is_copying(self):
+        """The carton's front face, not its silhouette.
+
+        These are different quantities and confusing them is a mistake this
+        project has already made once, in the other direction: the silhouette
+        target was compared against a whole-box model and read 12 points off.
+        A design spec's coordinates are normalised to the FRONT FACE, so that is
+        what has to match, or every outline in the spec lands somewhere else.
+        """
+        from src.design_group import TEMPLATE_SAMPLE
+        for stem in sorted(set(TEMPLATE_SAMPLE.values())):
+            m = self._manifest(stem)
+            with self.subTest(stem=stem):
+                carton, design = m["carton"], m["design"]
+                built = carton["height_mm"] / carton["width_mm"]
+                self.assertAlmostEqual(
+                    built, design["face_aspect"], places=3,
+                    msg=f"{stem}: built face {built:.4f} against a reference "
+                        f"measured at {design['face_aspect']:.4f}")
+                self.assertEqual(carton["source"], "design_spec")
+
+    def test_the_reference_proportion_does_not_inflate_the_carton(self):
+        """Lexotanil's face is 2.026 -- portrait, against a landscape passport.
+
+        Solving it by keeping the WIDTH would give a 110x223mm box: a carton
+        twice the size of the one the passport describes, to carry a proportion.
+        Keeping the long edge and assigning it by orientation gives 57x115, which
+        is the passport's own carton stood up.
+        """
+        m = self._manifest("308-min")
+        carton = m["carton"]
+        real = carton["passport_dimensions"]
+        longest_built = max(carton["width_mm"], carton["height_mm"])
+        longest_real = max(real["width_mm"], real["height_mm"])
+        self.assertAlmostEqual(longest_built, longest_real, places=3)
+        self.assertGreater(carton["height_mm"], carton["width_mm"],
+                           "a portrait reference produced a landscape carton")
+
+    def test_a_sku_outside_the_group_is_untouched(self):
+        m = self._manifest("1-min")
+        self.assertNotIn("design", m)
+        self.assertIn(m["carton"]["source"],
+                      ("art_direction", "art_direction_declined_orientation"))
+
+    def test_a_group_sku_whose_spec_is_missing_fails_loudly(self):
+        from unittest.mock import patch
+        from src import design_group
+        with patch.dict(design_group.FOLDER_BY_STEM,
+                        {"1-min": "99_NoSuchFolder"}, clear=False):
+            with self.assertRaises(design_group.MissingDesignSpec):
+                design_group.load_design("1-min")
+
+    def test_the_design_block_survives_validation(self):
+        from src.render_manifest import validate_manifest
+        validate_manifest(self._manifest("59-min"))
+
+    def test_a_manifest_from_the_previous_contract_is_rejected(self):
+        from src.render_manifest import validate_manifest
+        stale = self._manifest("59-min")
+        stale["manifest_version"] = "1.3"
+        with self.assertRaises(Exception):
+            validate_manifest(stale)

@@ -111,10 +111,22 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.3`.** Every bump so far added or repurposed *required* fields — deliberately not
+**Contract version is `1.4`.** Bumps up to 1.3 added or repurposed *required* fields — deliberately not
 additive-optional changes, so a manifest written before them fails validation loudly instead
 of quietly producing a packshot with something missing. `manifest_version` is pinned by
 `const` in the schema, so stale files on disk are rejected until Stage 1 regenerates them.
+
+- `1.4` — **`design`, the one optional block**, and the exception is deliberate: 380 SKU have
+  no reference photography to measure, so requiring it would fail the catalogue. Loudness moved
+  to where it can still be enforced — `src/design_group.py` raises `MissingDesignSpec` for a SKU
+  that IS in the group and has no spec, rather than letting it fall back to the generic art
+  direction and render a plausible carton in the wrong colours. A test asserts all eleven carry
+  it. Where the block is present `carton.source` reads `design_spec` and the carton is built to
+  the reference's **front-face** aspect — a different quantity from `TARGET_SILHOUETTE_ASPECT`,
+  which is the whole visible silhouette; the spec's `u,v` are normalised to the printed face,
+  so matching the wrong one puts every outline somewhere else. `reshape_to_design()` keeps the
+  long edge and assigns it by orientation, so Lexotanil's portrait 2.026 gives 57×115 rather
+  than inflating the carton to 110×223 to carry a proportion.
 
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the

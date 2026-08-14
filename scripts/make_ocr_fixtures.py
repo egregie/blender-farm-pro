@@ -30,30 +30,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.utils import load_config, resolve_path  # noqa: E402
 
-# The reference-template sample: the folders under `Reference Templates/` that
-# actually hold reference photography, paired with the catalogue SKU each one
-# documents.
-#
-# Resolved by hand from the curated `top30` group in scripts/catalogue_sweep.py,
-# not re-derived by string matching, because the folder names do not identify a
-# SKU on their own: `15_T1_Xanax` and `24_T1_Xanax_Pfizer` are two different
-# catalogue entries whose names contain each other, and a matcher keyed on
-# "Cialis" pulls back Strips, Oral Jelly and Black Generic before it reaches the
-# plain one. Folders with no photograph are deliberately absent — there is
-# nothing for them to be a reference OF.
-TEMPLATE_SAMPLE = {
-    "02_T1_SMALL_Cialis":        "59-min",
-    "08_T1_Ativan":              "135-min",
-    "14_T1_Imovane":             "155-min",
-    "15_T1_Xanax":               "156-min",
-    "21_T1_Valium_Brand":        "272-min",
-    "23_T1_Lexotanil":           "308-min",
-    "24_T1_Xanax_Pfizer":        "340-min",
-    "25_T1_Modafinil_Generic":   "344-min",
-    "30_T1_Ritalin":             "404-min",
-    "31_Kamagra_Template_Reference": "64-min",
-    "32_Viagra_Template_Reference":  "74-min",
-}
+# The sample lives in src/design_group.py, which the manifest builder also reads.
+# It was defined here first; keeping a second copy beside the one Stage 1 uses is
+# the duplicate-source-of-truth this project has already been bitten by twice.
+from src.design_group import TEMPLATE_SAMPLE  # noqa: E402,F401
 
 FIXTURE_DIR = PROJECT_ROOT / "tests" / "fixtures" / "ocr"
 WEBP_QUALITY = 92

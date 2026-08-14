@@ -1,12 +1,12 @@
 {
-  "manifest_version": "1.3",
+  "manifest_version": "1.4",
   "sku_id": "308-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",
   "carton": {
-    "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "width_mm": 56.77610466551469,
+    "height_mm": 115.0,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -14,13 +14,148 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 2.0255,
+    "substrate": "#8AB663",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#55A096",
+        "coverage_pct": 8.2,
+        "parts": [
+          {
+            "area_pct": 7.0,
+            "smoothness": 0.45,
+            "outline": [
+              [
+                0.0,
+                0.2998
+              ],
+              [
+                0.9991,
+                0.3317
+              ],
+              [
+                0.9991,
+                0.4013
+              ],
+              [
+                0.9891,
+                0.4057
+              ],
+              [
+                0.57,
+                0.395
+              ],
+              [
+                0.2555,
+                0.382
+              ],
+              [
+                0.1718,
+                0.3797
+              ],
+              [
+                0.1509,
+                0.382
+              ],
+              [
+                0.1327,
+                0.3788
+              ],
+              [
+                0.0,
+                0.3734
+              ],
+              [
+                0.0,
+                0.3003
+              ]
+            ]
+          },
+          {
+            "area_pct": 0.9,
+            "smoothness": 0.25,
+            "outline": [
+              [
+                0.0,
+                0.0153
+              ],
+              [
+                0.0291,
+                0.018
+              ],
+              [
+                0.0355,
+                0.0256
+              ],
+              [
+                0.0327,
+                0.0592
+              ],
+              [
+                0.0409,
+                0.1513
+              ],
+              [
+                0.0364,
+                0.1531
+              ],
+              [
+                0.0409,
+                0.1535
+              ],
+              [
+                0.0445,
+                0.2356
+              ],
+              [
+                0.0436,
+                0.2464
+              ],
+              [
+                0.0436,
+                0.2356
+              ],
+              [
+                0.0391,
+                0.2352
+              ],
+              [
+                0.0436,
+                0.2617
+              ],
+              [
+                0.0273,
+                0.2599
+              ],
+              [
+                0.0209,
+                0.2639
+              ],
+              [
+                0.0,
+                0.263
+              ],
+              [
+                0.0,
+                0.0157
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "source_image": "raw_lexotanil_01.jpg"
   },
   "palette": {
     "primary": "#003366",

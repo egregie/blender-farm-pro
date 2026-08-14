@@ -18,7 +18,7 @@
   "properties": {
     "manifest_version": {
       "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump. 1.1 added label_content.active_ingredient_display as REQUIRED, which is deliberately not an additive-optional change: a manifest written before it exists must fail validation and be regenerated rather than silently produce a packshot with a missing label row. 1.2 added carton.features and carton.material for the same reason - the side panel is drawn from them, and a stale manifest would render a panel missing its declared zones. 1.3 REPURPOSES carton.width_mm/height_mm/depth_mm: they are now art-directed scene geometry rather than the carton's real size, and the real size moved to carton.passport_dimensions. That is the one change a consumer must never miss - a 1.2 manifest read as 1.3 would print invented measurements on pharmaceutical packaging - so the version is pinned and a 1.2 file fails validation until Stage 1 regenerates it.",
-      "const": "1.3"
+      "const": "1.4"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into SSOT/SKU.csv. Never parse as a number.",
@@ -53,12 +53,22 @@
       "description": "The SECONDARY packaging - the printed cardboard box that is actually rendered. Deliberately NOT the primary package (the blister, bottle or syringe inside): the carton is the primary plus clearance, and for elongated primaries the axes are permuted, so the two are not interchangeable. Since 1.3 this object carries TWO sets of numbers and they are not interchangeable either. width_mm/height_mm/depth_mm are scene geometry, solved so the silhouette matches the template's curated reference; passport_dimensions are the carton's real measurements. Build the box from the first. Print only the second.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["width_mm", "height_mm", "depth_mm", "passport_dimensions", "source", "features", "material"],
+      "required": [
+        "width_mm",
+        "height_mm",
+        "depth_mm",
+        "passport_dimensions",
+        "source",
+        "features",
+        "material"
+      ],
       "properties": {
         "features": {
           "description": "Construction features the carton declares, copied from the passport's secondary_packaging.features. Real per-SKU data, not decoration: 370 of the 391 cartons declare [\"Braille\", \"DataMatrix_Zone\", \"Tamper_Evident_Seal\"] and 21 declare nothing at all. A consumer draws a zone only when the carton claims it, instead of assuming every carton is identical.",
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "material": {
           "description": "Board specification from the passport's secondary_packaging.material, e.g. \"GZ-Cardboard (Pharmaceutical Grade)\". Printed on the side panel. It is real text the project already holds, which is the point: the reference renders fill that area with invented regulatory prose, and this engine prints only what it was given.",
@@ -83,21 +93,45 @@
           "description": "The carton's REAL measurements, exactly as resolved from the passport and never reshaped. This is the only size a consumer may print. The project already refuses to print plausible LOT and EXP values because inventing data on pharmaceutical packaging is not acceptable; printing art-directed dimensions would be the same act in numbers. Present on every manifest since 1.3, including the SKU whose geometry was not reshaped, so a consumer never has to ask which set it is holding.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["width_mm", "height_mm", "depth_mm", "source"],
+          "required": [
+            "width_mm",
+            "height_mm",
+            "depth_mm",
+            "source"
+          ],
           "properties": {
-            "width_mm": { "type": "number", "exclusiveMinimum": 0 },
-            "height_mm": { "type": "number", "exclusiveMinimum": 0 },
-            "depth_mm": { "type": "number", "exclusiveMinimum": 0 },
+            "width_mm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "height_mm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "depth_mm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
             "source": {
               "description": "Where the real measurements came from, so a consumer or a post-render check can tell measured data from a guess. passport_secondary: parsed straight from the passport's secondary_packaging.dimensions string, the most faithful path and the one taken by every SKU in the current catalogue. derived_from_primary: computed by resolve_secondary(get_primary_package(...)) when that string is missing or unparseable. template_ratio: no dimensional data at all, so the template's documented aspect ratio was applied to a nominal 100mm long edge.",
-              "enum": ["passport_secondary", "derived_from_primary", "template_ratio"]
+              "enum": [
+                "passport_secondary",
+                "derived_from_primary",
+                "template_ratio"
+              ]
             }
           }
         },
         "source": {
           "description": "Provenance of the SCENE geometry, which since 1.3 is a different question from where the real measurements came from - that is passport_dimensions.source. art_direction: solved so the silhouette matches the template's measured reference proportion; the normal case. art_direction_declined_orientation: the target would have turned the picture over, so the passport's own shape was kept - two upright vials in the catalogue routed to a landscape template and hit this. passport_secondary / derived_from_primary / template_ratio: the template has no measured target at all, so the geometry is simply the real size. Recorded rather than inferred, because 'why is this one not reshaped' must be readable from the data.",
-          "enum": ["art_direction", "art_direction_declined_orientation",
-                   "passport_secondary", "derived_from_primary", "template_ratio"]
+          "enum": [
+            "art_direction",
+            "art_direction_declined_orientation",
+            "passport_secondary",
+            "derived_from_primary",
+            "template_ratio",
+            "design_spec"
+          ]
         }
       }
     },
@@ -105,19 +139,33 @@
       "description": "Brand colours. Note the surface-colour mandate: the carton body renders WHITE regardless of primary, and the brand colour appears only as the bottom accent stripe and the top-right badge. A consumer that paints the whole box in primary is not following the reference set.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["primary", "accent", "background"],
+      "required": [
+        "primary",
+        "accent",
+        "background"
+      ],
       "properties": {
-        "primary": { "$ref": "#/$defs/hexColour" },
-        "accent": { "$ref": "#/$defs/hexColour" },
-        "background": { "$ref": "#/$defs/hexColour" }
+        "primary": {
+          "$ref": "#/$defs/hexColour"
+        },
+        "accent": {
+          "$ref": "#/$defs/hexColour"
+        },
+        "background": {
+          "$ref": "#/$defs/hexColour"
+        }
       }
     },
     "label_content": {
       "description": "Exact strings to render on the front face. A 3D renderer must reproduce these verbatim - the advantage over prompt-driven generation is precisely that the text cannot be hallucinated.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["brand_name_display", "active_ingredient_display",
-                   "dosage_display", "unit_count_display"],
+      "required": [
+        "brand_name_display",
+        "active_ingredient_display",
+        "dosage_display",
+        "unit_count_display"
+      ],
       "properties": {
         "brand_name_display": {
           "description": "Product name, top of the label grid. May wrap to two lines.",
@@ -134,6 +182,88 @@
         "unit_count_display": {
           "description": "Quantity string such as \"30 Pills\", set regular at bottom-right.",
           "type": "string"
+        }
+      }
+    },
+    "design": {
+      "type": "object",
+      "description": "Contract 1.4. The measured design of a real carton, present ONLY for the eleven SKU with reference photography under Reference Templates/. Optional across the catalogue because 380 SKU have no reference to measure; NOT optional for those eleven, which src/design_group.py raises MissingDesignSpec for rather than letting them fall back to the generic art direction and render a plausible carton in the wrong colours. Coordinates are u across, v down, both 0..1 of the FRONT FACE -- not of the picture, and not of the silhouette.",
+      "required": [
+        "spec_version",
+        "face_aspect",
+        "substrate",
+        "fields"
+      ],
+      "properties": {
+        "spec_version": {
+          "type": "string"
+        },
+        "face_aspect": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "height/width of the reference's FRONT FACE. The carton is built to this, which is why carton.source reads design_spec: the reference IS the target, and the per-template silhouette constant was fitted to AI renders the photographs disagree with."
+        },
+        "substrate": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "source_image": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "role",
+              "fill",
+              "parts"
+            ],
+            "properties": {
+              "role": {
+                "type": "string"
+              },
+              "fill": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "coverage_pct": {
+                "type": "number"
+              },
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "outline"
+                  ],
+                  "properties": {
+                    "area_pct": {
+                      "type": "number"
+                    },
+                    "smoothness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "share of vertices turning less than 25 degrees: 0 is a rectangle, high is an arc"
+                    },
+                    "outline": {
+                      "type": "array",
+                      "minItems": 3,
+                      "items": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

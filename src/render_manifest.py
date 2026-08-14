@@ -40,7 +40,9 @@ import json
 import functools
 from pathlib import Path
 
-MANIFEST_VERSION = "1.3"
+from src.design_group import load_design, reshape_to_design
+
+MANIFEST_VERSION = "1.4"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -135,6 +137,26 @@ def orient_for_template(extents: tuple[float, float, float], template_id: str) -
     height, *rest = sorted(extents, reverse=True)
     width, depth = max(rest), min(rest)
     return width, height, depth
+
+
+def _design_block(sku_id: str) -> dict | None:
+    """The `design` block a manifest carries, or None outside the design group.
+
+    Trimmed to what the driver needs: it runs inside Blender's own interpreter
+    and can import nothing from this project, so whatever is not in the manifest
+    does not exist as far as the renderer is concerned. Verification figures and
+    provenance stay in the folder's design_spec.json, where a human reads them.
+    """
+    spec = load_design(sku_id)
+    if spec is None:
+        return None
+    return {
+        "spec_version": str(spec.get("spec_version", "")),
+        "face_aspect": float(spec["face_aspect"]),
+        "substrate": str(spec["substrate"]),
+        "fields": spec.get("fields") or [],
+        "source_image": str(spec.get("source_image", "")),
+    }
 
 
 def reshape_to_art_direction(
@@ -305,13 +327,23 @@ def resolve_carton(passport: dict, template_id: str) -> dict:
     real = (passport_dims["width_mm"], passport_dims["height_mm"],
             passport_dims["depth_mm"])
 
-    geometry, reshaped = reshape_to_art_direction(real, template_id)
-    if reshaped:
-        source = "art_direction"
-    elif template_id in TARGET_SILHOUETTE_ASPECT:
-        source = "art_direction_declined_orientation"
+    # A design spec wins over the template's proportion, because it IS the
+    # target: those eleven SKU are rendered against real photography, and the
+    # per-template constant was fitted to nine AI reference renders that the
+    # photographs disagree with. Note the two solve different quantities --
+    # front face here, whole silhouette there; see design_group.reshape_to_design.
+    design = load_design(passport.get("sku_id", ""))
+    if design is not None:
+        geometry = reshape_to_design(real, float(design["face_aspect"]))
+        source = "design_spec"
     else:
-        source = passport_dims["source"]
+        geometry, reshaped = reshape_to_art_direction(real, template_id)
+        if reshaped:
+            source = "art_direction"
+        elif template_id in TARGET_SILHOUETTE_ASPECT:
+            source = "art_direction_declined_orientation"
+        else:
+            source = passport_dims["source"]
 
     return {"width_mm": geometry[0], "height_mm": geometry[1],
             "depth_mm": geometry[2], "passport_dimensions": passport_dims,
@@ -339,6 +371,7 @@ def build_manifest(passport: dict) -> dict:
         "is_bottle_override": bool(is_bottle_override),
         "packaging_geometry": str(passport.get("packaging_geometry") or "BOX"),
         "carton": resolve_carton(passport, template_id),
+        **({"design": design} if (design := _design_block(passport.get("sku_id", ""))) else {}),
         "palette": {
             "primary": palette.get("primary"),
             "accent": palette.get("accent"),
