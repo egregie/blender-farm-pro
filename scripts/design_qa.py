@@ -1,0 +1,224 @@
+"""D-6 — how far a rendered carton is from the packaging it copies.
+
+    python scripts/design_qa.py                 # measure every design SKU
+    python scripts/design_qa.py --sku 59-min --preview
+
+Rectifies our own render with the corners the driver publishes, classifies it
+into the design spec's own colours, and compares. Two distances are reported and
+kept apart, because they fail for different reasons and one can hide the other:
+
+  spec vs reference   how much of the real carton the spec captured   (D-2)
+  render vs spec      how faithfully the renderer built that spec     (D-4)
+
+A high second number with a low first is a renderer building a bad spec
+perfectly. The composite -- render against the rectified photograph -- is
+reported too, but the two components are what a fix acts on.
+
+Classification is by NEAREST SPEC COLOUR on the illumination-flattened frame,
+not by re-clustering. Two independent k-means runs give two partitions with no
+guaranteed correspondence, so the clusters would have to be matched up before
+anything could be compared, and that matching is exactly where a wrong answer
+would hide.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.deskew import flatten_face  # noqa: E402
+from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR, load_design  # noqa: E402
+from src.utils import load_config, resolve_path  # noqa: E402
+from scripts.fit_design_spec import rasterise  # noqa: E402
+from scripts.measure_reference_face import _flatten_illumination  # noqa: E402
+
+_CFG = load_config()
+_BL = _CFG["blender"]
+RENDER_DIR = resolve_path(_BL["output_dir"])
+MANIFEST_DIR = resolve_path(_CFG["paths"]["passports_manifests"])
+PREVIEW_DIR = PROJECT_ROOT / "02_processing" / "reference_measurement"
+
+OUT_WIDTH = 1100
+DARK_V = 0.30      # type: ours prints it, the spec does not carry it
+
+# Two spec colours closer than this cannot be told apart by a nearest-colour
+# classifier once a render and a photograph have each added their own noise, so
+# the agreement figure stops measuring fidelity and starts measuring which side
+# of a coin flip each pixel landed. Modafinil's substrate #A09C9D and highlight
+# #A9A5A7 are four levels apart and scored 19.4% against a render that looks
+# nearly identical to its spec. A number that cannot discriminate has to say so
+# rather than be read as a failure.
+SEPARABLE_MIN = 0.08
+
+
+def _hex_rgb(h: str) -> np.ndarray:
+    h = h.lstrip("#")
+    return np.array([int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)])
+
+
+def _classify(img: Image.Image, palette: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Nearest-colour index per pixel, plus a mask of pixels worth scoring.
+
+    Dark pixels are dropped: our render prints the label and the reference
+    carries type the spec deliberately does not represent. Scoring them would
+    measure the type grid, which is a different piece of work, and would move
+    this number every time a string changed length.
+    """
+    a = _flatten_illumination(np.asarray(img.convert("RGB")).astype(float) / 255.0)
+    d = ((a[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1)
+    return d.argmin(-1), a.max(-1) >= DARK_V
+
+
+def _agreement(a_idx, b_idx, mask, n) -> dict:
+    match = float((a_idx == b_idx)[mask].mean()) if mask.any() else 0.0
+    iou = {}
+    for k in range(n):
+        x, y = (a_idx == k) & mask, (b_idx == k) & mask
+        union = (x | y).sum()
+        iou[k] = round(float((x & y).sum() / union), 3) if union else None
+    return {"agreement": round(match, 4), "iou": iou}
+
+
+def _colour_error(ours: np.ndarray, spec_idx: np.ndarray, palette: np.ndarray,
+                  mask: np.ndarray) -> dict:
+    """Did the renderer paint the right colour where the spec said to?
+
+    Survives a palette a classifier cannot separate, which six of the eleven
+    have. The regions come from the SPEC, which is known exactly, so nothing has
+    to be inferred from our pixels: they are only sampled. Two fills four levels
+    apart make "which region is this pixel in" unanswerable while leaving "is
+    this region the colour it should be" perfectly well posed.
+    """
+    out = {}
+    for k in range(len(palette)):
+        sel = (spec_idx == k) & mask
+        if sel.sum() < 50:
+            out[k] = None
+            continue
+        out[k] = round(float(np.linalg.norm(ours[sel].mean(0) - palette[k])), 4)
+    return out
+
+
+def render_fresh(stem: str) -> Path:
+    """Render this SKU now. The comparison is worthless against a stale PNG.
+
+    Same reasoning as the sweep's provenance check, applied at its strictest: a
+    design render is being compared with the design it was supposed to build, so
+    "which driver drew it" is not a detail.
+    """
+    out = RENDER_DIR / f"{stem}.png"
+    for stale in (out, out.with_suffix(".view.json")):
+        if stale.exists():
+            stale.unlink()
+    proc = subprocess.run(
+        [str(_BL["executable"]), "--background", "--factory-startup",
+         "--python", str(resolve_path(_BL["driver_script"])), "--",
+         "--job", str(MANIFEST_DIR / f"{stem}.json"), "--out", str(out),
+         "--engine-type", _BL.get("engine_type", "CYCLES"),
+         "--samples", str(_BL.get("samples", 16)),
+         "--res-x", str(_BL.get("resolution", [2048, 2048])[0]),
+         "--res-y", str(_BL.get("resolution", [2048, 2048])[1])],
+        capture_output=True, text=True, timeout=900)
+    if not out.exists():
+        raise SystemExit(f"{stem}: no render produced\n{proc.stderr[-1500:]}")
+    return out
+
+
+def measure(stem: str, preview: bool = False) -> dict:
+    spec = load_design(stem)
+    folder = TEMPLATES_DIR / FOLDER_BY_STEM[stem]
+
+    palette = np.stack([_hex_rgb(spec["substrate"])]
+                       + [_hex_rgb(f["fill"]) for f in spec["fields"]])
+    gaps = [float(np.linalg.norm(palette[i] - palette[j]))
+            for i in range(len(palette)) for j in range(i + 1, len(palette))]
+    closest = min(gaps) if gaps else 1.0
+    aspect = float(spec["face_aspect"])
+    size = (OUT_WIDTH, max(1, round(OUT_WIDTH * aspect)))
+
+    # The spec, drawn at the comparison size. This is the target both sides are
+    # measured against, in its own colours.
+    target = rasterise(spec, *size)
+    t_idx, _ = _classify(target, palette)
+
+    png = render_fresh(stem)
+    view = json.loads(png.with_suffix(".view.json").read_text(encoding="utf-8"))
+    ours = flatten_face(png, view["front_face_px"], out_width=OUT_WIDTH, aspect=aspect)
+    o_idx, o_mask = _classify(ours, palette)
+    ours_flat = _flatten_illumination(
+        np.asarray(ours.convert("RGB")).astype(float) / 255.0)
+    colour_err = _colour_error(ours_flat, t_idx, palette, o_mask)
+
+    ref_path = PREVIEW_DIR / f"{folder.name}.flat.png"
+    ref_idx = ref_mask = None
+    if ref_path.exists():
+        ref = Image.open(ref_path).resize(size, Image.LANCZOS)
+        ref_idx, ref_mask = _classify(ref, palette)
+
+    result = {
+        "sku": stem,
+        "folder": folder.name,
+        "palette_closest_pair": round(closest, 4),
+        "separable": closest >= SEPARABLE_MIN,
+        "render_vs_spec": _agreement(o_idx, t_idx, o_mask, len(palette)),
+        "colour_error_by_region": colour_err,
+        "colour_error_worst": (max([v for v in colour_err.values() if v is not None],
+                                   default=None)),
+        "spec_vs_reference": (spec.get("verification") or {}).get("pixel_agreement"),
+    }
+    if ref_idx is not None:
+        both = o_mask & ref_mask
+        result["render_vs_reference"] = _agreement(o_idx, ref_idx, both, len(palette))
+
+    if preview:
+        PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
+        strip = Image.new("RGB", (size[0], size[1] * 3 + 24), (255, 255, 255))
+        strip.paste(Image.open(ref_path).resize(size) if ref_path.exists() else target, (0, 0))
+        strip.paste(target, (0, size[1] + 12))
+        strip.paste(ours, (0, 2 * size[1] + 24))
+        strip.save(PREVIEW_DIR / f"{folder.name}.qa.png")
+    return result
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--sku", help="one SKU stem; default is every design SKU")
+    p.add_argument("--preview", action="store_true",
+                   help="write reference / spec / render as one strip")
+    args = p.parse_args()
+
+    stems = [args.sku] if args.sku else sorted(
+        FOLDER_BY_STEM, key=lambda s: int(s.split("-")[0]))
+
+    rows = []
+    print(f"{'SKU':9s} {'folder':32s} {'spec~ref':>9s} {'render~spec':>12s} "
+          f"{'render~ref':>11s} {'worst dC':>9s}")
+    for stem in stems:
+        r = measure(stem, args.preview)
+        rows.append(r)
+        sr = r["spec_vs_reference"]
+        flag = "" if r["separable"] else "  (palette not separable)"
+        print(f"{stem:9s} {r['folder']:32s} "
+              f"{(100 * sr if sr else 0):8.1f}% "
+              f"{100 * r['render_vs_spec']['agreement']:11.1f}% "
+              f"{100 * r.get('render_vs_reference', {}).get('agreement', 0):10.1f}% "
+              f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f}{flag}")
+
+    out = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"
+    out.write_text(json.dumps({"rows": rows}, indent=2), encoding="utf-8")
+    print(f"\n{out}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

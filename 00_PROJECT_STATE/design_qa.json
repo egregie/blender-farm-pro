@@ -1,0 +1,329 @@
+{
+  "rows": [
+    {
+      "sku": "59-min",
+      "folder": "02_T1_SMALL_Cialis",
+      "palette_closest_pair": 0.1057,
+      "separable": true,
+      "render_vs_spec": {
+        "agreement": 0.8957,
+        "iou": {
+          "0": 0.854,
+          "1": 0.962,
+          "2": 0.445
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.1994,
+        "1": 0.1392,
+        "2": 0.0861
+      },
+      "colour_error_worst": 0.1994,
+      "spec_vs_reference": 0.8868,
+      "render_vs_reference": {
+        "agreement": 0.7946,
+        "iou": {
+          "0": 0.708,
+          "1": 0.807,
+          "2": 0.301
+        }
+      }
+    },
+    {
+      "sku": "64-min",
+      "folder": "31_Kamagra_Template_Reference",
+      "palette_closest_pair": 0.1221,
+      "separable": true,
+      "render_vs_spec": {
+        "agreement": 0.9267,
+        "iou": {
+          "0": 0.884,
+          "1": 0.0,
+          "2": 0.842
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.1887,
+        "1": 0.4973,
+        "2": 0.4224
+      },
+      "colour_error_worst": 0.4973,
+      "spec_vs_reference": 0.8853,
+      "render_vs_reference": {
+        "agreement": 0.5203,
+        "iou": {
+          "0": 0.25,
+          "1": 0.0,
+          "2": 0.434
+        }
+      }
+    },
+    {
+      "sku": "74-min",
+      "folder": "32_Viagra_Template_Reference",
+      "palette_closest_pair": 0.0364,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.8478,
+        "iou": {
+          "0": 0.845,
+          "1": 0.802,
+          "2": 0.0
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.2002,
+        "1": 0.0471,
+        "2": 0.1866
+      },
+      "colour_error_worst": 0.2002,
+      "spec_vs_reference": 0.9122,
+      "render_vs_reference": {
+        "agreement": 0.7004,
+        "iou": {
+          "0": 0.694,
+          "1": 0.261,
+          "2": 0.0
+        }
+      }
+    },
+    {
+      "sku": "135-min",
+      "folder": "08_T1_Ativan",
+      "palette_closest_pair": 0.2647,
+      "separable": true,
+      "render_vs_spec": {
+        "agreement": 0.9742,
+        "iou": {
+          "0": 0.975,
+          "1": 0.942,
+          "2": 0.488
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.0889,
+        "1": 0.1282,
+        "2": 0.0441
+      },
+      "colour_error_worst": 0.1282,
+      "spec_vs_reference": 0.9194,
+      "render_vs_reference": {
+        "agreement": 0.8859,
+        "iou": {
+          "0": 0.88,
+          "1": 0.664,
+          "2": 0.263
+        }
+      }
+    },
+    {
+      "sku": "155-min",
+      "folder": "14_T1_Imovane",
+      "palette_closest_pair": 0.0865,
+      "separable": true,
+      "render_vs_spec": {
+        "agreement": 0.9167,
+        "iou": {
+          "0": 0.893,
+          "1": 0.93,
+          "2": 0.572
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.1303,
+        "1": 0.0746,
+        "2": 0.0697
+      },
+      "colour_error_worst": 0.1303,
+      "spec_vs_reference": 0.8985,
+      "render_vs_reference": {
+        "agreement": 0.8541,
+        "iou": {
+          "0": 0.826,
+          "1": 0.786,
+          "2": 0.388
+        }
+      }
+    },
+    {
+      "sku": "156-min",
+      "folder": "15_T1_Xanax",
+      "palette_closest_pair": 0.0166,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.7485,
+        "iou": {
+          "0": 0.736,
+          "1": 0.013,
+          "2": 0.192
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.173,
+        "1": 0.6179,
+        "2": 0.0732
+      },
+      "colour_error_worst": 0.6179,
+      "spec_vs_reference": 0.8874,
+      "render_vs_reference": {
+        "agreement": 0.5798,
+        "iou": {
+          "0": 0.566,
+          "1": 0.039,
+          "2": 0.121
+        }
+      }
+    },
+    {
+      "sku": "272-min",
+      "folder": "21_T1_Valium_Brand",
+      "palette_closest_pair": 0.0196,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.752,
+        "iou": {
+          "0": 0.725,
+          "1": 0.818,
+          "2": 0.083,
+          "3": 0.013
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.1179,
+        "1": 0.0778,
+        "2": 0.1124,
+        "3": 0.5506
+      },
+      "colour_error_worst": 0.5506,
+      "spec_vs_reference": 0.8722,
+      "render_vs_reference": {
+        "agreement": 0.6368,
+        "iou": {
+          "0": 0.591,
+          "1": 0.707,
+          "2": 0.052,
+          "3": 0.015
+        }
+      }
+    },
+    {
+      "sku": "308-min",
+      "folder": "23_T1_Lexotanil",
+      "palette_closest_pair": 0.3011,
+      "separable": true,
+      "render_vs_spec": {
+        "agreement": 0.9958,
+        "iou": {
+          "0": 0.995,
+          "1": 0.955
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.0938,
+        "1": 0.0517
+      },
+      "colour_error_worst": 0.0938,
+      "spec_vs_reference": 0.8628,
+      "render_vs_reference": {
+        "agreement": 0.9701,
+        "iou": {
+          "0": 0.967,
+          "1": 0.749
+        }
+      }
+    },
+    {
+      "sku": "340-min",
+      "folder": "24_T1_Xanax_Pfizer",
+      "palette_closest_pair": 0.0136,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.7771,
+        "iou": {
+          "0": 0.199,
+          "1": 0.733,
+          "2": 0.765,
+          "3": 0.449
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.1163,
+        "1": 0.078,
+        "2": 0.1809,
+        "3": 0.1619
+      },
+      "colour_error_worst": 0.1809,
+      "spec_vs_reference": 0.9294,
+      "render_vs_reference": {
+        "agreement": 0.6961,
+        "iou": {
+          "0": 0.17,
+          "1": 0.587,
+          "2": 0.681,
+          "3": 0.15
+        }
+      }
+    },
+    {
+      "sku": "344-min",
+      "folder": "25_T1_Modafinil_Generic",
+      "palette_closest_pair": 0.0372,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.194,
+        "iou": {
+          "0": 0.069,
+          "1": 0.167,
+          "2": 0.025,
+          "3": 0.448
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.0633,
+        "1": 0.0609,
+        "2": 0.0852,
+        "3": 0.1177
+      },
+      "colour_error_worst": 0.1177,
+      "spec_vs_reference": 0.851,
+      "render_vs_reference": {
+        "agreement": 0.2435,
+        "iou": {
+          "0": 0.055,
+          "1": 0.255,
+          "2": 0.019,
+          "3": 0.188
+        }
+      }
+    },
+    {
+      "sku": "404-min",
+      "folder": "30_T1_Ritalin",
+      "palette_closest_pair": 0.0254,
+      "separable": false,
+      "render_vs_spec": {
+        "agreement": 0.8755,
+        "iou": {
+          "0": 0.876,
+          "1": 0.006,
+          "2": 0.048
+        }
+      },
+      "colour_error_by_region": {
+        "0": 0.0532,
+        "1": 0.1064,
+        "2": 0.4059
+      },
+      "colour_error_worst": 0.4059,
+      "spec_vs_reference": 0.7941,
+      "render_vs_reference": {
+        "agreement": 0.6958,
+        "iou": {
+          "0": 0.696,
+          "1": 0.003,
+          "2": 0.006
+        }
+      }
+    }
+  ]
+}
