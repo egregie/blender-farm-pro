@@ -56,5 +56,56 @@
   "source_tier": 4,
   "packaging_market": "eu",
   "market_evidence": "Braille across the front face; Polish text (30 tabletek, tabletki, Lorazepamum); no NDC",
-  "brand_substitution": "Orion Pharma generic lorazepam, NOT the Ativan or Temesta brand"
+  "brand_substitution": "Orion Pharma generic lorazepam, NOT the Ativan or Temesta brand",
+  "front_face_px": [
+    [
+      203,
+      86
+    ],
+    [
+      898,
+      76
+    ],
+    [
+      898,
+      372
+    ],
+    [
+      203,
+      385
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_ativan_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "fair",
+    "corner_note": "bottom edge clips the ORION mark"
+  },
+  "design_measurement": {
+    "source_image": "raw_ativan_01.jpg",
+    "rectified_px": [
+      1100,
+      471
+    ],
+    "reference_aspect": 0.4282,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 11.6,
+        "hex": "#09377E"
+      },
+      "substrate": {
+        "pct": 77.0,
+        "hex": "#C2C2B6"
+      },
+      "highlight": {
+        "pct": 5.8,
+        "hex": "#8E9DA0"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

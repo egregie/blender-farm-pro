@@ -12,6 +12,11 @@ verification_failures.log
 # input never was.
 02_processing/blender_test_renders/
 02_processing/blender_renders_final/
+# D-1 previews: the rectified reference faces and their segmentation, rebuilt by
+# `scripts/measure_reference_face.py --all --preview`. The MEASUREMENTS are
+# committed, inside each folder's metadata.json; these are how a human checks
+# them, not the record itself.
+02_processing/reference_measurement/
 02_processing/render_failed/
 02_processing/failed_logs/
 

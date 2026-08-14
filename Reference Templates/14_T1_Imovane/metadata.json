@@ -56,5 +56,59 @@
   "source_tier": 4,
   "packaging_market": "eu",
   "market_evidence": "Braille full width; Nordic article number Vnr 45 48 68; tabletter; red driving-impairment triangle",
-  "brand_substitution": "Actavis generic zopiclone, NOT the Imovane brand; 5 mg where the catalogue lists 7.5 mg"
+  "brand_substitution": "Actavis generic zopiclone, NOT the Imovane brand; 5 mg where the catalogue lists 7.5 mg",
+  "front_face_px": [
+    [
+      172,
+      319
+    ],
+    [
+      1104,
+      306
+    ],
+    [
+      1104,
+      628
+    ],
+    [
+      169,
+      643
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_imovane_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "clean"
+  },
+  "design_measurement": {
+    "source_image": "raw_imovane_01.jpg",
+    "rectified_px": [
+      1100,
+      381
+    ],
+    "reference_aspect": 0.3464,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 22.6,
+        "hex": "#683E6C"
+      },
+      "substrate": {
+        "pct": 58.3,
+        "hex": "#AFAEA7"
+      },
+      "highlight": {
+        "pct": 14.4,
+        "hex": "#BCBCB2"
+      },
+      "type": {
+        "pct": 4.7,
+        "hex": "#161E1D"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

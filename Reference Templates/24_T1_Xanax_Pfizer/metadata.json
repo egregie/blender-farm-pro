@@ -55,5 +55,59 @@
   "status": "complete_single_source",
   "source_tier": 4,
   "packaging_market": "eu",
-  "market_evidence": "Braille across the front face; Polish text (Tabletki o przedłużonym uwalnianiu, 30 tabletek); Pfizer mark; no NDC"
+  "market_evidence": "Braille across the front face; Polish text (Tabletki o przedłużonym uwalnianiu, 30 tabletek); Pfizer mark; no NDC",
+  "front_face_px": [
+    [
+      2077,
+      690
+    ],
+    [
+      3234,
+      672
+    ],
+    [
+      3234,
+      1345
+    ],
+    [
+      2077,
+      1362
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_xanax_pfizer_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "clean"
+  },
+  "design_measurement": {
+    "source_image": "raw_xanax_pfizer_01.jpg",
+    "rectified_px": [
+      1100,
+      639
+    ],
+    "reference_aspect": 0.5809,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 4.5,
+        "hex": "#E53BBA"
+      },
+      "substrate": {
+        "pct": 52.7,
+        "hex": "#FAF7F5"
+      },
+      "highlight": {
+        "pct": 34.9,
+        "hex": "#F8F5F3"
+      },
+      "type": {
+        "pct": 7.9,
+        "hex": "#48323D"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

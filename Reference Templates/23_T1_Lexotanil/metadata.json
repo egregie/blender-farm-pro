@@ -68,5 +68,59 @@
   "source_tier": 4,
   "packaging_market": "eu",
   "market_evidence": "French text (Comprimé-Baguette, comprimé quadrisécable, Voie orale); braille on the adjacent generic; no NDC",
-  "brand_substitution": "Lexomil is the FRENCH BRAND of the same product the catalogue calls Lexotanil - a local name, not a substitution"
+  "brand_substitution": "Lexomil is the FRENCH BRAND of the same product the catalogue calls Lexotanil - a local name, not a substitution",
+  "front_face_px": [
+    [
+      490,
+      160
+    ],
+    [
+      900,
+      148
+    ],
+    [
+      900,
+      985
+    ],
+    [
+      487,
+      990
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_lexotanil_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "thin sliver of the neighbouring carton along the top and left"
+  },
+  "design_measurement": {
+    "source_image": "raw_lexotanil_01.jpg",
+    "rectified_px": [
+      1100,
+      2228
+    ],
+    "reference_aspect": 2.0255,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 8.2,
+        "hex": "#55A096"
+      },
+      "substrate": {
+        "pct": 78.5,
+        "hex": "#8AB663"
+      },
+      "highlight": {
+        "pct": 7.3,
+        "hex": "#5A7444"
+      },
+      "type": {
+        "pct": 6.0,
+        "hex": "#1C3113"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

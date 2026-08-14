@@ -61,5 +61,56 @@
   "status": "complete",
   "source_tier": 4,
   "packaging_market": "eu",
-  "market_evidence": "Braille on every carton; French text (comprimés sécables, Voie orale); CIP codes; Italian on the second file; no NDC"
+  "market_evidence": "Braille on every carton; French text (comprimés sécables, Voie orale); CIP codes; Italian on the second file; no NDC",
+  "front_face_px": [
+    [
+      1240,
+      550
+    ],
+    [
+      1690,
+      538
+    ],
+    [
+      1690,
+      820
+    ],
+    [
+      1240,
+      830
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_xanax_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "fair",
+    "corner_note": "the face is only ~450x280 px in the source photograph, which limits what layout can be traced from it"
+  },
+  "design_measurement": {
+    "source_image": "raw_xanax_01.jpg",
+    "rectified_px": [
+      1100,
+      687
+    ],
+    "reference_aspect": 0.6245,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 16.2,
+        "hex": "#2C1F2A"
+      },
+      "substrate": {
+        "pct": 40.2,
+        "hex": "#E8DBB2"
+      },
+      "highlight": {
+        "pct": 39.3,
+        "hex": "#E9DCB6"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

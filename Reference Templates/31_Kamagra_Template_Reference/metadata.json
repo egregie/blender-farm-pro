@@ -51,5 +51,56 @@
   "status": "complete_single_source",
   "source_tier": null,
   "packaging_market": "in",
-  "market_evidence": "\"Sildenafil Citrate Tablets IP\" — Indian Pharmacopoeia"
+  "market_evidence": "\"Sildenafil Citrate Tablets IP\" — Indian Pharmacopoeia",
+  "front_face_px": [
+    [
+      405,
+      105
+    ],
+    [
+      994,
+      87
+    ],
+    [
+      994,
+      897
+    ],
+    [
+      405,
+      953
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_Kamagra_front_01.png",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "narrow black sliver of background at the right"
+  },
+  "design_measurement": {
+    "source_image": "raw_Kamagra_front_01.png",
+    "rectified_px": [
+      1100,
+      1544
+    ],
+    "reference_aspect": 1.4036,
+    "catalogue_aspect": 0.4545,
+    "fields": {
+      "brand": {
+        "pct": 20.3,
+        "hex": "#002F26"
+      },
+      "substrate": {
+        "pct": 34.0,
+        "hex": "#00463B"
+      },
+      "highlight": {
+        "pct": 14.6,
+        "hex": "#E0D5C9"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

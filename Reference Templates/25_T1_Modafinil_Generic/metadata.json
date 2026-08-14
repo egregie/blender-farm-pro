@@ -56,5 +56,59 @@
   "status": "complete_single_source",
   "source_tier": 4,
   "packaging_market": "eu",
-  "market_evidence": "Romanian text (comprimate); European generic; no NDC and no IP designation"
+  "market_evidence": "Romanian text (comprimate); European generic; no NDC and no IP designation",
+  "front_face_px": [
+    [
+      80,
+      352
+    ],
+    [
+      1015,
+      208
+    ],
+    [
+      1013,
+      498
+    ],
+    [
+      82,
+      648
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_modafinil_generic_01.jpg",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "approximate",
+    "corner_note": "steep camera angle; four passes still leave a residual slope and clipping at the bottom and right. Re-shoot or re-corner before tracing layout from it"
+  },
+  "design_measurement": {
+    "source_image": "raw_modafinil_generic_01.jpg",
+    "rectified_px": [
+      1100,
+      341
+    ],
+    "reference_aspect": 0.31,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 16.5,
+        "hex": "#9C9796"
+      },
+      "substrate": {
+        "pct": 39.7,
+        "hex": "#A09C9D"
+      },
+      "highlight": {
+        "pct": 33.5,
+        "hex": "#A9A5A7"
+      },
+      "type": {
+        "pct": 10.3,
+        "hex": "#43384B"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

@@ -85,5 +85,56 @@
   "measurement_source": "scripts/reference_measure.py, 2026-08-07",
   "source_tier": null,
   "packaging_market": "eu",
-  "market_evidence": "braille on the front face; \"film-coated tablets\"; pack of 4"
+  "market_evidence": "braille on the front face; \"film-coated tablets\"; pack of 4",
+  "front_face_px": [
+    [
+      402,
+      126
+    ],
+    [
+      962,
+      74
+    ],
+    [
+      962,
+      676
+    ],
+    [
+      410,
+      758
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "raw_viagra_front.png",
+    "order": "TL, TR, BR, BL — the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "clean after one correction"
+  },
+  "design_measurement": {
+    "source_image": "raw_viagra_front.png",
+    "rectified_px": [
+      1100,
+      1212
+    ],
+    "reference_aspect": 1.1018,
+    "catalogue_aspect": 0.4545,
+    "fields": {
+      "brand": {
+        "pct": 9.7,
+        "hex": "#34376D"
+      },
+      "substrate": {
+        "pct": 76.3,
+        "hex": "#DDDEDB"
+      },
+      "highlight": {
+        "pct": 11.0,
+        "hex": "#E2E3E1"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
 }

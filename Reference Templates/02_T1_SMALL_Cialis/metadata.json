@@ -86,6 +86,34 @@
     },
     "olive_rgb": "#465813",
     "cream_rgb": "#D9CDB4",
-    "note": "shares are of the RECTIFIED front face only, unlike color_zones above which count the whole photograph including background"
+    "note": "shares are of the RECTIFIED front face only, unlike color_zones above which count the whole photograph including background",
+    "corner_quality": "good",
+    "corner_note": "clean; the whole face and nothing else"
+  },
+  "design_measurement": {
+    "source_image": "raw_cialis_front.png",
+    "rectified_px": [
+      1100,
+      692
+    ],
+    "reference_aspect": 0.6291,
+    "catalogue_aspect": 0.4545,
+    "fields": {
+      "brand": {
+        "pct": 29.7,
+        "hex": "#3F5A0A"
+      },
+      "substrate": {
+        "pct": 38.6,
+        "hex": "#DDD1B9"
+      },
+      "highlight": {
+        "pct": 24.2,
+        "hex": "#DCDBD2"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
   }
 }
