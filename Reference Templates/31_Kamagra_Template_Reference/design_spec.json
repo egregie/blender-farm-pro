@@ -2049,5 +2049,26 @@
       "highlight": 0.708
     },
     "vertices": 490
-  }
+  },
+  "type_rows": {
+    "brand_name_display": {
+      "u0": 0.0982,
+      "u1": 0.8773,
+      "v0": 0.2319,
+      "v1": 0.2999,
+      "cap_frac": 0.068,
+      "align": "CENTER",
+      "read_as": "KAMAGRA-100"
+    },
+    "active_ingredient_display": {
+      "u0": 0.0918,
+      "u1": 0.8095,
+      "v0": 0.1399,
+      "v1": 0.2024,
+      "cap_frac": 0.0625,
+      "align": "CENTER",
+      "read_as": "Sildenafil Citrate Tablets"
+    }
+  },
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }

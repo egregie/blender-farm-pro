@@ -70,6 +70,26 @@
         ]
       }
     ],
+    "type_rows": {
+      "active_ingredient_display": {
+        "u0": 0.1145,
+        "u1": 0.6318,
+        "v0": 0.3318,
+        "v1": 0.4061,
+        "cap_frac": 0.0742,
+        "align": "LEFT",
+        "read_as": "methylphenidathydrochlorid"
+      },
+      "unit_count_display": {
+        "u0": 0.2027,
+        "u1": 0.3568,
+        "v0": 0.4776,
+        "v1": 0.5528,
+        "cap_frac": 0.0751,
+        "align": "LEFT",
+        "read_as": "tableitter"
+      }
+    },
     "source_image": "raw_ritalin_02.jpg"
   },
   "palette": {

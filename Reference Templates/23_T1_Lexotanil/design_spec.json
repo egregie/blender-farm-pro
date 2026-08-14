@@ -147,5 +147,35 @@
       "brand": 0.896
     },
     "vertices": 27
-  }
+  },
+  "type_rows": {
+    "brand_name_display": {
+      "u0": 0.08,
+      "u1": 0.8764,
+      "v0": 0.0938,
+      "v1": 0.1667,
+      "cap_frac": 0.0729,
+      "align": "CENTER",
+      "read_as": "Lexomil* Roche"
+    },
+    "active_ingredient_display": {
+      "u0": 0.0886,
+      "u1": 0.5827,
+      "v0": 0.235,
+      "v1": 0.2893,
+      "cap_frac": 0.0543,
+      "align": "LEFT",
+      "read_as": "Bromazépam"
+    },
+    "unit_count_display": {
+      "u0": 0.1064,
+      "u1": 0.8786,
+      "v0": 0.5417,
+      "v1": 0.6129,
+      "cap_frac": 0.0711,
+      "align": "CENTER",
+      "read_as": "1 comprimé uadrisécable"
+    }
+  },
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }

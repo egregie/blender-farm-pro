@@ -68,5 +68,17 @@
       "type": 0.242
     },
     "vertices": 9
-  }
+  },
+  "type_rows": {
+    "unit_count_display": {
+      "u0": 0.8364,
+      "u1": 0.9995,
+      "v0": 0.2185,
+      "v1": 0.327,
+      "cap_frac": 0.1085,
+      "align": "RIGHT",
+      "read_as": "30 comprima"
+    }
+  },
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }

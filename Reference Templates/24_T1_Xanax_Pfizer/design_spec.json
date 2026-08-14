@@ -127,5 +127,35 @@
       "type": 0.358
     },
     "vertices": 20
-  }
+  },
+  "type_rows": {
+    "brand_name_display": {
+      "u0": 0.1368,
+      "u1": 0.7882,
+      "v0": 0.2074,
+      "v1": 0.3443,
+      "cap_frac": 0.1369,
+      "align": "CENTER",
+      "read_as": "XANAX’ SR"
+    },
+    "active_ingredient_display": {
+      "u0": 0.1368,
+      "u1": 0.7877,
+      "v0": 0.3764,
+      "v1": 0.4914,
+      "cap_frac": 0.115,
+      "align": "CENTER",
+      "read_as": "0,5 mg ALPRAZOLAMUM"
+    },
+    "unit_count_display": {
+      "u0": 0.1368,
+      "u1": 0.2982,
+      "v0": 0.8685,
+      "v1": 0.9124,
+      "cap_frac": 0.0438,
+      "align": "LEFT",
+      "read_as": "30 tabletek"
+    }
+  },
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }

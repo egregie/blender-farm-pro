@@ -784,6 +784,17 @@
         ]
       }
     ],
+    "type_rows": {
+      "brand_name_display": {
+        "u0": 0.0845,
+        "u1": 0.5959,
+        "v0": 0.4321,
+        "v1": 0.5616,
+        "cap_frac": 0.1295,
+        "align": "LEFT",
+        "read_as": "Lorazepam Orion"
+      }
+    },
     "source_image": "raw_ativan_01.jpg"
   },
   "palette": {

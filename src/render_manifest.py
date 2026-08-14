@@ -155,6 +155,11 @@ def _design_block(sku_id: str) -> dict | None:
         "face_aspect": float(spec["face_aspect"]),
         "substrate": str(spec["substrate"]),
         "fields": spec.get("fields") or [],
+        # Per-role type geometry, where the reference could be read. Partial by
+        # nature: only rows identified against the reference's OWN strings are
+        # measured, so a role that is absent here is one the renderer keeps on
+        # the generic grid rather than one it may place freely.
+        "type_rows": spec.get("type_rows") or {},
         "source_image": str(spec.get("source_image", "")),
     }
 

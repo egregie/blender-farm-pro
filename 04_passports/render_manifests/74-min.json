@@ -62,6 +62,26 @@
         ]
       }
     ],
+    "type_rows": {
+      "active_ingredient_display": {
+        "u0": 0.5436,
+        "u1": 0.7336,
+        "v0": 0.3292,
+        "v1": 0.3841,
+        "cap_frac": 0.0549,
+        "align": "RIGHT",
+        "read_as": "sildenafil"
+      },
+      "unit_count_display": {
+        "u0": 0.0623,
+        "u1": 0.73,
+        "v0": 0.224,
+        "v1": 0.3036,
+        "cap_frac": 0.0796,
+        "align": "LEFT",
+        "read_as": "50 mg film-coated tablets"
+      }
+    },
     "source_image": "raw_viagra_front.png"
   },
   "palette": {

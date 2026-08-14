@@ -962,5 +962,7 @@
       "highlight": 0.766
     },
     "vertices": 220
-  }
+  },
+  "type_rows": {},
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }

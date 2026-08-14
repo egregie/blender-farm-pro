@@ -436,6 +436,26 @@
         ]
       }
     ],
+    "type_rows": {
+      "active_ingredient_display": {
+        "u0": 0.2836,
+        "u1": 0.415,
+        "v0": 0.5722,
+        "v1": 0.6614,
+        "cap_frac": 0.0892,
+        "align": "LEFT",
+        "read_as": "zopiclon."
+      },
+      "unit_count_display": {
+        "u0": 0.785,
+        "u1": 0.9777,
+        "v0": 0.8596,
+        "v1": 0.9488,
+        "cap_frac": 0.0892,
+        "align": "RIGHT",
+        "read_as": "10 tabletter"
+      }
+    },
     "source_image": "raw_imovane_01.jpg"
   },
   "palette": {

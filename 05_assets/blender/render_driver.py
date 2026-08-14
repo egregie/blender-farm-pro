@@ -126,6 +126,11 @@ MATTE_ROUGHNESS = 0.7
 # runs to about four fifths of its width.
 DOSAGE_BLOCK_CAP_FRAC = 0.5
 DOSAGE_BLOCK_FILL_FRAC = 0.82
+# A block narrower than this cannot hold a dosage legibly, whatever its area.
+# Valium's largest filled rectangle is the navy bar down its edge, and reversing
+# "5mg" into it set the string at a few millimetres against the carton's side --
+# the reference puts that dosage in the pink band across the face instead.
+DOSAGE_BLOCK_MIN_WIDTH_FRAC = 0.10
 
 # The top-right brand badge (reference_analysis.md §5, second of the two places
 # brand colour is allowed to appear). Measured across the nine references: the
@@ -471,9 +476,31 @@ def _fit_width(t, max_width):
     return t
 
 
+def _place_measured_row(name, body, font, row, ink, face_w, face_h, left_x,
+                        top_z, y):
+    """One label row, set where the real carton sets it.
+
+    Contract 1.4's `type_rows` carries a box per role in face coordinates,
+    measured off the reference photograph. Partial by nature: only rows the
+    reference could be READ for are measured, so a role with no entry falls
+    through to the generic grid below rather than being placed by guesswork.
+
+    The string is the manifest's. The measurement supplies position, size and
+    alignment only -- the reference and the catalogue carry different products on
+    four of the eleven, and printing the reference's own words would put another
+    manufacturer's name on our carton.
+    """
+    x = {"LEFT": left_x + row["u0"] * face_w,
+         "RIGHT": left_x + row["u1"] * face_w,
+         "CENTER": left_x + 0.5 * (row["u0"] + row["u1"]) * face_w}[row["align"]]
+    t = _add_text(name, body, font, row["cap_frac"] * face_h, ink,
+                  x, top_z - row["v0"] * face_h, y, align=row["align"])
+    return _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w))
+
+
 def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
                 half_thick, unit_scale, badge_left_x=None, stripe_top_z=None,
-                dosage_block=None):
+                dosage_block=None, type_rows=None):
     """The printed front panel: brand, ingredient, dosage and unit count.
 
     Every string is rendered as real text geometry carrying the manifest's bytes
@@ -513,8 +540,14 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         """Absolute size, but never enough to crowd a shallow face."""
         return min(cap_m * unit_scale, SMALL_PRINT_MAX_FRAC * face_h)
 
+    measured = type_rows or {}
+
     brand = (label_content.get("brand_name_display") or "").strip()
-    if brand:
+    if brand and "brand_name_display" in measured:
+        rows.append(_place_measured_row(
+            "label_brand", brand, bold, measured["brand_name_display"], ink,
+            face_w, face_h, left_x, top_z, y))
+    elif brand:
         t = _add_text("label_brand", brand, bold, BRAND_LINE_FRAC * face_h, ink,
                       left, v_to_z(BRAND_TOP_FRAC), y)
         # Run to the badge if there is one, otherwise to the normal right margin.
@@ -533,7 +566,12 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         rows.append(t)
 
     ingredient = (label_content.get("active_ingredient_display") or "").strip()
-    if ingredient:
+    if ingredient and "active_ingredient_display" in measured:
+        rows.append(_place_measured_row(
+            "label_ingredient", ingredient, regular,
+            measured["active_ingredient_display"], ink,
+            face_w, face_h, left_x, top_z, y))
+    elif ingredient:
         t = _add_text("label_ingredient", ingredient, regular,
                       small_print_cap(INGREDIENT_CAP_M), ink,
                       left, v_to_z(INGREDIENT_TOP_FRAC), y)
@@ -547,7 +585,15 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
 
     bottom_row = []
     dosage = (label_content.get("dosage_display") or "").strip()
-    if dosage and dosage_block is not None:
+    if dosage and "dosage_display" in measured:
+        # A measured row outranks the block. Both describe where the dosage goes
+        # and the measurement is of THIS carton, where the block is inferred from
+        # shape.
+        rows.append(_place_measured_row(
+            "label_dosage", dosage, bold, measured["dosage_display"], ink,
+            face_w, face_h, left_x, top_z, y))
+    elif dosage and dosage_block is not None and (
+            dosage_block["x1"] - dosage_block["x0"]) >= DOSAGE_BLOCK_MIN_WIDTH_FRAC * face_w:
         # Reversed out of the measured colour block, which is where the real
         # carton puts it. Leaving it on the grid below would print the dosage
         # twice over: once in black at the foot of the face, and once as an empty
@@ -568,7 +614,11 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         bottom_row.append(_fit_width(t, half_row))
 
     count = (label_content.get("unit_count_display") or "").strip()
-    if count:
+    if count and "unit_count_display" in measured:
+        rows.append(_place_measured_row(
+            "label_unit_count", count, regular, measured["unit_count_display"],
+            ink, face_w, face_h, left_x, top_z, y))
+    elif count:
         t = _add_text("label_unit_count", count, regular,
                       small_print_cap(BOTTOM_ROW_CAP_M), ink,
                       right, v_to_z(BOTTOM_ROW_TOP_FRAC), y, align="RIGHT")
@@ -962,7 +1012,7 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
 
     build_label(box, label_content, face_w, face_h, right_x - face_w,
                 front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z,
-                dosage_block)
+                dosage_block, (design or {}).get("type_rows"))
 
     if manifest:
         build_side_panel(box, manifest, depth, face_h, min(xs), front_y,

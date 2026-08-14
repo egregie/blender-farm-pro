@@ -2058,6 +2058,26 @@
         ]
       }
     ],
+    "type_rows": {
+      "brand_name_display": {
+        "u0": 0.0982,
+        "u1": 0.8773,
+        "v0": 0.2319,
+        "v1": 0.2999,
+        "cap_frac": 0.068,
+        "align": "CENTER",
+        "read_as": "KAMAGRA-100"
+      },
+      "active_ingredient_display": {
+        "u0": 0.0918,
+        "u1": 0.8095,
+        "v0": 0.1399,
+        "v1": 0.2024,
+        "cap_frac": 0.0625,
+        "align": "CENTER",
+        "read_as": "Sildenafil Citrate Tablets"
+      }
+    },
     "source_image": "raw_Kamagra_front_01.png"
   },
   "palette": {

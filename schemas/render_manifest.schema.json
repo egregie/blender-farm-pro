@@ -264,6 +264,49 @@
               }
             }
           }
+        },
+        "type_rows": {
+          "type": "object",
+          "description": "Where the reference sets each label row, in face coordinates. GEOMETRY ONLY -- `read_as` records the reference's own words, which identified the row and are never printed; the renderer draws the manifest's strings. Roles absent here keep the generic grid.",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "u0",
+              "u1",
+              "v0",
+              "v1",
+              "cap_frac",
+              "align"
+            ],
+            "properties": {
+              "u0": {
+                "type": "number"
+              },
+              "u1": {
+                "type": "number"
+              },
+              "v0": {
+                "type": "number"
+              },
+              "v1": {
+                "type": "number"
+              },
+              "cap_frac": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "align": {
+                "enum": [
+                  "LEFT",
+                  "CENTER",
+                  "RIGHT"
+                ]
+              },
+              "read_as": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

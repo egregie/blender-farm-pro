@@ -776,5 +776,17 @@
       "secondary_1": 0.364
     },
     "vertices": 175
-  }
+  },
+  "type_rows": {
+    "brand_name_display": {
+      "u0": 0.0845,
+      "u1": 0.5959,
+      "v0": 0.4321,
+      "v1": 0.5616,
+      "cap_frac": 0.1295,
+      "align": "LEFT",
+      "read_as": "Lorazepam Orion"
+    }
+  },
+  "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
 }
