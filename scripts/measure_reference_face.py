@@ -143,7 +143,20 @@ def _catalogue_aspect(folder: Path) -> float | None:
         return None
 
 
-def measure(folder: Path, preview_dir: Path | None = None) -> dict:
+def segment(folder: Path):
+    """Rectify a reference face and partition it into named fields.
+
+    Split out of `measure` so the D-2 spec fitter works from exactly the same
+    partition the D-1 measurement reported. Two implementations of "the same"
+    segmentation is the shape of defect this project has already been bitten by
+    twice -- once in render_qa's two copies of one fold, once in the sweep's two
+    ideas of what a report covers.
+
+    Returns (flat, labels, named) where `flat` is the rectified RGB image,
+    `labels` is one k-means label per pixel, and `named` maps
+    substrate/brand/highlight/type to a group dict (or None where that role did
+    not separate).
+    """
     meta_path = folder / "metadata.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
 
@@ -215,6 +228,23 @@ def measure(folder: Path, preview_dir: Path | None = None) -> dict:
     brand = max(rest, key=lambda g: g["sat"]) if rest else substrate
     rest = [g for g in rest if g is not brand]
     highlight = max(rest, key=lambda g: g["val"]) if rest else None
+
+    named = {"substrate": substrate, "brand": brand,
+             "highlight": highlight, "type": type_group}
+    for role, g in named.items():
+        if g is not None:
+            g["role"] = role
+    return flat, labels, named, meta, source
+
+
+def measure(folder: Path, preview_dir: Path | None = None) -> dict:
+    flat, labels, named, meta, source = segment(folder)
+    meta_path = folder / "metadata.json"
+    a = _flatten_illumination(np.asarray(flat).astype(float) / 255.0)
+    px = a.reshape(-1, 3)
+    total = px.shape[0]
+    substrate, brand = named["substrate"], named["brand"]
+    highlight, type_group = named["highlight"], named["type"]
 
     result = {
         "source_image": source,

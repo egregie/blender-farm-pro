@@ -1,0 +1,147 @@
+{
+  "spec_version": "0.1",
+  "sku": "23_T1_Lexotanil",
+  "source_image": "raw_lexotanil_01.jpg",
+  "face_aspect": 2.0255,
+  "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
+  "substrate": "#8AB663",
+  "fields": [
+    {
+      "role": "brand",
+      "fill": "#55A096",
+      "coverage_pct": 8.2,
+      "parts": [
+        {
+          "area_pct": 7.0,
+          "smoothness": 0.45,
+          "outline": [
+            [
+              0.0,
+              0.2998
+            ],
+            [
+              0.9991,
+              0.3317
+            ],
+            [
+              0.9991,
+              0.4013
+            ],
+            [
+              0.9891,
+              0.4057
+            ],
+            [
+              0.57,
+              0.395
+            ],
+            [
+              0.2555,
+              0.382
+            ],
+            [
+              0.1718,
+              0.3797
+            ],
+            [
+              0.1509,
+              0.382
+            ],
+            [
+              0.1327,
+              0.3788
+            ],
+            [
+              0.0,
+              0.3734
+            ],
+            [
+              0.0,
+              0.3003
+            ]
+          ]
+        },
+        {
+          "area_pct": 0.9,
+          "smoothness": 0.25,
+          "outline": [
+            [
+              0.0,
+              0.0153
+            ],
+            [
+              0.0291,
+              0.018
+            ],
+            [
+              0.0355,
+              0.0256
+            ],
+            [
+              0.0327,
+              0.0592
+            ],
+            [
+              0.0409,
+              0.1513
+            ],
+            [
+              0.0364,
+              0.1531
+            ],
+            [
+              0.0409,
+              0.1535
+            ],
+            [
+              0.0445,
+              0.2356
+            ],
+            [
+              0.0436,
+              0.2464
+            ],
+            [
+              0.0436,
+              0.2356
+            ],
+            [
+              0.0391,
+              0.2352
+            ],
+            [
+              0.0436,
+              0.2617
+            ],
+            [
+              0.0273,
+              0.2599
+            ],
+            [
+              0.0209,
+              0.2639
+            ],
+            [
+              0.0,
+              0.263
+            ],
+            [
+              0.0,
+              0.0157
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "glyph_components_dropped": 0,
+  "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
+  "verification": {
+    "pixel_agreement": 0.8628,
+    "excluded_as_glyphs_pct": 0.0,
+    "iou_by_field": {
+      "brand": 0.896
+    },
+    "vertices": 27
+  }
+}
