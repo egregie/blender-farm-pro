@@ -293,7 +293,31 @@ stripe from the brand badge.
 
 Blender output is judged against the curated reference renders in `01_input_raster/reference/`,
 analysed in [`01_input_raster/reference_analysis.md`](01_input_raster/reference_analysis.md).
-Hard constraints derived from that analysis:
+
+**Two of these constraints are now conditional, and which is which matters.** The eleven SKU
+in `src/design_group.py` are judged against *real packaging photography* instead — see
+[`00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md`](00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md). For
+them the measured design governs:
+
+| constraint | 380 SKU | the design group |
+|---|---|---|
+| white body, brand colour in exactly two places | holds | **superseded** — the carton's own board and fields |
+| matte, roughness 0.7 | holds | holds |
+| near-shadowless high-key, no contact shadow | holds | holds |
+| no depth of field | holds | holds |
+
+Surface colour is superseded because it is a *design* rule fitted to nine AI renders, and two
+of the eleven real cartons have a coloured board (Kamagra teal, Lexotanil lime) — it fails
+inside the sample, not at its edge. Finish and lighting are **not** superseded: the design
+spec carries no print finish, and the owner's brief was composition and colour. The
+references are glossy and our renders are matte; that is a known, deliberate difference
+rather than an oversight.
+
+The scene tests say which path they cover, and `TestCartonSurfaceColour` asserts its own
+fixture is not a design SKU — pointed at one, it would fail the renderer for obeying the
+contract.
+
+Hard constraints derived from the AI-reference analysis, i.e. the generic path:
 
 - **White carton body always**, regardless of `palette.primary`. Brand colour appears in
   exactly two places, and the two take *different* palette entries — swapping them is the

@@ -88,7 +88,13 @@ KEY_W, FILL_W = 25.0, 8.0
 # side-panel test below could not tell which one the driver printed, and that is
 # the single thing contract 1.3 exists to keep straight.
 JOB = {
-    "manifest_version": "1.3",
+    "manifest_version": "1.4",
+    # NOT a SKU in the design group, and the guard below keeps it that way. The
+    # classes in this file assert the GENERIC art direction -- white board, brand
+    # colour in exactly two places -- which contract 1.4 makes conditional: the
+    # eleven SKU with measured reference photography follow their own carton
+    # instead. Pointed at one of those, these tests would assert the wrong rule
+    # and fail for the right behaviour.
     "sku_id": "test-carton",
     "template_id": "T1",
     "is_bottle_override": False,
@@ -313,11 +319,34 @@ class TestCartonGeometry(unittest.TestCase):
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
 class TestCartonSurfaceColour(unittest.TestCase):
-    """The SURFACE COLOUR MANDATE: white body, brand colour only in the stripe."""
+    """The SURFACE COLOUR MANDATE, on the generic art-direction path.
+
+    White body, brand colour only in the stripe and the badge. Derived from the
+    nine curated renders in 01_input_raster/reference/ and true of the 380 SKU
+    that have no reference photograph of their own.
+
+    It is NOT true of the eleven that do. Two of those cartons have a coloured
+    board -- Kamagra's teal, Lexotanil's lime -- and their brand colour appears
+    wherever the real design puts it. That is not an exception being tolerated;
+    it is what "1:1 with the reference" means, and TestDesignFieldsReachTheScene
+    asserts the other side of it.
+    """
 
     @classmethod
     def setUpClass(cls):
         cls.scene = build_scene(JOB)
+
+    def test_the_fixture_is_on_the_generic_path(self):
+        """Without this the class can be pointed at a design SKU and go quiet.
+
+        Every assertion below would then be checking a rule that SKU is
+        deliberately exempt from -- and it would fail, blaming the renderer for
+        following the contract.
+        """
+        from src.design_group import is_design_sku
+        self.assertFalse(is_design_sku(JOB["sku_id"]))
+        self.assertNotIn("design", JOB)
+        self.assertEqual(self.scene["design_fields"], [])
 
     def test_carton_body_is_white_not_the_brand_primary(self):
         body = self.scene["carton"]["base_color"]
@@ -377,13 +406,18 @@ class TestCartonIsMatte(unittest.TestCase):
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
 class TestBrandBadge(unittest.TestCase):
-    """The second of the two places brand colour is allowed to appear.
+    """The second of the two places brand colour is allowed to appear -- on the
+    generic art-direction path, which is the 380 SKU without a measured design.
 
     reference_analysis.md 5: a coloured square in the TOP-RIGHT corner of the
     front face. Measured across all nine references it is filled with
     palette.PRIMARY - the lighter tone - while the bottom stripe takes the darker
     palette.accent. Getting those two the wrong way round is the likely failure
     here, so it has its own assertion.
+
+    A design-group carton has neither stripe nor badge: those two ARE the generic
+    art direction, and drawing them over a measured carton puts two designs on
+    one face. TestDesignFieldsReachTheScene asserts their absence there.
     """
 
     @classmethod
@@ -502,7 +536,12 @@ class TestBrandBadge(unittest.TestCase):
 @unittest.skipUnless(Path(BLENDER_EXE).exists(),
                      f"Blender not installed at {BLENDER_EXE}")
 class TestBadgeIsOptional(unittest.TestCase):
-    """A palette without primary must lose the badge, not crash the render."""
+    """A palette without primary must lose the badge, not crash the render.
+
+    There are now two ways to have no badge and they must not be confused: a
+    palette that carries no primary, and a carton whose real design was measured.
+    This covers the first; the second is TestDesignFieldsReachTheScene.
+    """
 
     def test_no_primary_means_no_badge(self):
         job = dict(JOB, palette={"accent": "#6B2D5C", "background": "#FFFFFF"})
@@ -1278,3 +1317,49 @@ class TestDesignFieldsReachTheScene(unittest.TestCase):
         self.assertEqual(
             [l["align_x"] for l in self.plain["label"] if l["name"] == "label_dosage"],
             ["LEFT"])
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestTheTwoPathsAreExclusive(unittest.TestCase):
+    """D-5: which constraints a carton is held to depends on which path it took.
+
+    Surface colour is superseded for a measured design and nothing else is. The
+    danger is not that a rule is wrong -- it is that a carton ends up half on
+    each path: a measured design under a generic badge, or a design SKU quietly
+    rendered white because its spec failed to load.
+    """
+
+    DESIGN_SKU = "59-min"
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.job = json.loads(
+            (manifests / f"{cls.DESIGN_SKU}.json").read_text(encoding="utf-8"))
+        cls.scene = build_scene(cls.job)
+
+    def test_a_carton_is_never_half_on_each_path(self):
+        has_design = bool(self.scene["design_fields"])
+        has_generic = self.scene["stripe"] is not None or self.scene["badge"] is not None
+        self.assertNotEqual(
+            has_design, has_generic,
+            "the carton carries both a measured design and the generic stripe or "
+            "badge, which is two art directions on one face")
+
+    def test_finish_is_not_superseded_by_a_design(self):
+        """Matte survives the design path. The references are glossy and we are
+        not; that is a recorded difference, not a rule quietly dropped."""
+        self.assertAlmostEqual(self.scene["carton"]["roughness"], 0.7, places=3)
+        for field in self.scene["design_fields"]:
+            with self.subTest(field=field["name"]):
+                self.assertAlmostEqual(field["roughness"], 0.7, places=3)
+
+    def test_lighting_is_not_superseded_by_a_design(self):
+        """One studio for all 391, design group included: the rig scales with the
+        carton and is not a per-SKU choice."""
+        lighting = self.scene["lighting"]
+        self.assertIsNotNone(lighting["key_light"])
+        self.assertIsNotNone(lighting["fill_light"])
+        self.assertGreater(lighting["key_light"]["energy"],
+                           lighting["fill_light"]["energy"])
