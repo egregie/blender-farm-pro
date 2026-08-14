@@ -4,7 +4,7 @@
   "source_image": "raw_modafinil_generic_01.jpg",
   "face_aspect": 0.31,
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
-  "substrate": "#A09C9D",
+  "substrate": "#A39F9F",
   "fields": [
     {
       "role": "type",
@@ -58,12 +58,12 @@
     }
   ],
   "glyph_components_dropped": 0,
-  "flat_fields_dropped": 2,
+  "flat_fields_dropped": 0,
   "ink_components_dropped": 2,
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.875,
-    "excluded_as_glyphs_pct": 52.49,
+    "pixel_agreement": 0.9389,
+    "excluded_as_glyphs_pct": 2.51,
     "iou_by_field": {
       "type": 0.242
     },

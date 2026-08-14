@@ -54,6 +54,13 @@ TEMPLATES_DIR = PROJECT_ROOT / "Reference Templates"
 OUT_WIDTH = 1100
 DARK_V = 0.35          # a cluster darker than this MAY be type
 TYPE_MAX_SHARE = 0.15  # ...but only while it stays this small a share of the face
+# Two clusters closer than this in RGB are one printed surface that the
+# clustering split under a lighting gradient, not two design elements. Kamagra's
+# board came back as #D9D6CB over 31.1% of the face and #D3CCC1 over 14.6%; the
+# real carton has one cream. The same figure bounds what a measurement can tell
+# apart afterwards, so it is imported by scripts/fit_design_spec.py rather than
+# written down twice.
+SAME_SURFACE_MAX = 0.08
 KMEANS_ITERS = 40
 KMEANS_SEED_STEPS = 3  # deterministic seeding: quantiles of luminance
 
@@ -207,9 +214,44 @@ def segment(folder: Path):
         # needs the illumination-corrected image; the ink's actual colour is a
         # property of the photograph, and a median resists the shaded tail that
         # would drag a mean toward black.
-        groups.append({"n": int(m.sum()), "mean": mean,
+        groups.append({"n": int(m.sum()), "mean": mean, "labels": [j],
                        "colour": np.median(raw_px[m], axis=0),
                        "sat": float(ms[0]), "val": float(mv[0])})
+
+    # Merge before naming. Roles are handed out one per cluster, so two clusters
+    # of one surface consume two roles and push a real field off the end -- which
+    # is what happened: Kamagra's four clusters were teal, dark teal, cream and
+    # cream, and the SECOND cream, 31.1% of the face, got no role at all and
+    # never reached the spec. The carton then rendered two thirds teal against a
+    # photograph that is under half.
+    merged = True
+    while merged and len(groups) > 1:
+        merged = False
+        for i in range(len(groups)):
+            for j2 in range(i + 1, len(groups)):
+                a, b = groups[i], groups[j2]
+                if float(np.linalg.norm(a["colour"] - b["colour"])) >= SAME_SURFACE_MAX:
+                    continue
+                big, small = (a, b) if a["n"] >= b["n"] else (b, a)
+                big["labels"] = big["labels"] + small["labels"]
+                keep = np.isin(labels, big["labels"])
+                big["n"] = int(keep.sum())
+                big["mean"] = px[keep].mean(0)
+                big["colour"] = np.median(raw_px[keep], axis=0)
+                ms2, mv2 = _hsv(big["mean"][None, :])
+                big["sat"], big["val"] = float(ms2[0]), float(mv2[0])
+                groups.remove(small)
+                merged = True
+                break
+            if merged:
+                break
+
+    # One label per surviving group, so every later consumer -- the role map, the
+    # spec fitter's masks -- sees the merge rather than the raw partition.
+    for g in groups:
+        for lab in g["labels"][1:]:
+            labels[labels == lab] = g["labels"][0]
+        g["label"] = g["labels"][0]
 
     total = px.shape[0]
     # Type is the darkest cluster, but ONLY while it stays small. Printed type
@@ -225,12 +267,22 @@ def segment(folder: Path):
     # is, where "least saturated" is not: Lexotanil's board is lime.
     substrate = max(fields, key=lambda g: g["n"])
     rest = [g for g in fields if g is not substrate]
-    brand = max(rest, key=lambda g: g["sat"]) if rest else substrate
-    rest = [g for g in rest if g is not brand]
+    # None, never the substrate. The old fallback aliased brand to substrate when
+    # nothing was left, which was harmless while every face produced at least
+    # three clusters and became a hole the moment merging could leave two:
+    # Modafinil's whole board was then handed to the fitter as a colour FIELD, it
+    # traced the face, dropped 92% of it as glyphs, and scored 24.2%.
+    brand = max(rest, key=lambda g: g["sat"]) if rest else None
+    rest = [g for g in rest if g is not brand and g is not None]
     highlight = max(rest, key=lambda g: g["val"]) if rest else None
 
     named = {"substrate": substrate, "brand": brand,
              "highlight": highlight, "type": type_group}
+    # Nothing measured is allowed to go unnamed. Any cluster still without a role
+    # after merging is a real surface the face carries, and dropping it silently
+    # is how a third of a carton went missing.
+    for n, extra in enumerate(g for g in groups if g not in named.values()):
+        named[f"secondary_{n + 1}"] = extra
     for role, g in named.items():
         if g is not None:
             g["role"] = role

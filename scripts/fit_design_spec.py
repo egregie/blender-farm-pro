@@ -304,20 +304,15 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     lab = labels.reshape(h, w)
 
     substrate = named["substrate"]
-    substrate_label = None
-    order = []
-    for role in ("substrate", "brand", "highlight", "type"):
-        g = named.get(role)
-        if g is None:
-            continue
-        # recover which k-means label this group is, by matching its pixel count
-        for j in range(4):
-            if int((lab == j).sum()) == g["n"]:
-                if role == "substrate":
-                    substrate_label = j
-                else:
-                    order.append((role, j, g))
-                break
+    substrate_label = substrate.get("label")
+    # Each group carries its own label. Recovering it by matching pixel counts --
+    # what this did before -- breaks the moment segment() merges two clusters of
+    # one surface: the merged-away label matches nothing, and a count that
+    # happens to coincide matches the WRONG group. Modafinil went to 24.2% on
+    # exactly that, with a spec that was otherwise correct.
+    order = [(role, named[role]["label"], named[role])
+             for role in sorted(named)
+             if role != "substrate" and named.get(role) is not None]
 
     fields = []
     # The labels of the fields ACTUALLY emitted, in the same order. verify() used
@@ -353,7 +348,14 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             # face, like Valium's navy edge bar, or a filled block. It does not
             # get the "large enough" escape the other roles have, because ink is
             # exactly what accumulates area without being design.
-            if role == "type" and part_kind(pts) != "block" and not _runs_off_face(pts, w, h):
+            # `type` and `secondary_*` are held to the same stricter test. A
+            # leftover surface that floats inside the face, touching no edge and
+            # not printed as a block, is far more likely a photographic artefact
+            # than design -- Cialis's leftover is the Lilly hologram, which the
+            # owner excluded outright, and it entered through the "large enough"
+            # escape at 7.5% of the face. Naming every cluster (which the Kamagra
+            # fix requires) must not become a way of drawing every cluster.
+            if (role == "type" or role.startswith("secondary"))                     and part_kind(pts) != "block" and not _runs_off_face(pts, w, h):
                 dropped_ink += 1
                 dropped_mask |= part
                 continue

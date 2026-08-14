@@ -22,25 +22,61 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-14 after the fitter fix below.*
+*Re-measured 2026-08-14 after the fitter fixes below.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC |
 |---|---|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.1% | **99.8%** | **97.5%** | **0.058** |
+| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** |
 | `308-min` | Lexotanil | **99.1%** | 99.6% | 97.0% | 0.094 |
-| `74-min` | Viagra | 94.4% | 99.5% | 93.2% | 0.195 |
-| `156-min` | Xanax | 94.8% | 99.4% | 95.1% | 0.122 |
-| `344-min` | Modafinil | 87.5% | 99.1% | 93.5% | 0.126 |
-| `272-min` | Valium | 87.4% | 98.4% | 93.7% | 0.132 |
-| `340-min` | Xanax SR | 92.2% | 97.3% | 93.5% | 0.162 |
-| `135-min` | Ativan | 91.9% | 97.4% | 88.6% | 0.126 |
-| `64-min` | Kamagra | 88.5% | 92.7% | **52.0%** | 0.422 |
+| `74-min` | Viagra | 95.0% | 99.5% | 93.2% | 0.195 |
+| `344-min` | Modafinil | 93.9% | 99.1% | 93.4% | 0.127 |
+| `156-min` | Xanax | 93.3% | 98.8% | 91.9% | 0.124 |
+| `272-min` | Valium | 91.1% | 98.4% | 93.7% | 0.132 |
+| `64-min` | Kamagra | 90.5% | 98.3% | 93.1% | 0.405 |
+| `340-min` | Xanax SR | 95.0% | 97.3% | 93.5% | 0.161 |
+| `135-min` | Ativan | 89.6% | 96.7% | 90.1% | 0.125 |
 | `155-min` | Imovane | 93.7% | 91.7% | 85.4% | 0.130 |
-| `59-min` | Cialis | 88.7% | 89.6% | 79.5% | 0.199 |
+| `59-min` | Cialis | 88.2% | 89.6% | 79.5% | 0.199 |
 
-Ten of eleven now build their spec to better than 89%, and seven to better than
-97%. `64-min` is the one row left where the three figures cannot all be true at
-once.
+Every row now builds its spec to better than 89% and lands within 20 points of
+its photograph; nine of eleven are inside 10. The two at the bottom, Cialis and
+Imovane, carry the most complex curved fields in the sample and are where the
+next work is.
+
+## `64-min` explained: a third of a carton with no name
+
+Kamagra was the row whose three figures could not all be true — 88.5% spec,
+92.7% render, **52.0%** composite. The cause was upstream of all three.
+
+Its face clustered into four: teal `#03453A` at 34.0%, dark teal `#0C2D24` at
+20.3%, cream `#D9D6CB` at **31.1%**, and cream `#D3CCC1` at 14.6%. Roles are
+handed out one per cluster — substrate, brand, highlight, type — so the two
+creams consumed two roles between them and **the larger one got no role at all**.
+It never reached the spec. The carton then rendered two thirds teal against a
+photograph that is under half, and the spec agreed with the photograph on 53.9%
+of pixels while its own D-2 figure read 88.5%, because that comparison is by
+region against the same segmentation and cannot see a surface the segmentation
+never named.
+
+Three defects, each uncovered by fixing the one before it:
+
+1. **Clusters of one surface were never merged.** Two creams 0.03 apart are one
+   printed board split by a lighting gradient. Merging them first — at the same
+   threshold a field must clear to be visible at all — makes Kamagra's substrate
+   the cream at 45.6%, against the photograph's 44.7%.
+2. **A leftover cluster was dropped silently.** After merging, anything still
+   unnamed is a real surface, so it is now named `secondary_N`. Nothing measured
+   goes unnamed.
+3. **A role could alias the substrate.** `brand` fell back to the substrate when
+   no cluster was left, which was harmless while every face produced three
+   clusters and became a hole the moment merging could leave two: Modafinil's
+   whole board was handed to the fitter as a colour field, which traced the face,
+   dropped 92% of it as glyphs and scored 24.2%.
+
+And naming every cluster must not become drawing every cluster: Cialis's leftover
+is the **Lilly hologram**, which the owner excluded outright, and it entered
+through the "large enough" escape at 7.5% of the face. Leftovers are now held to
+the same strict test as ink — run off the face, or be a printed block.
 
 ## What the first baseline was actually measuring
 

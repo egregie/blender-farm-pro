@@ -952,13 +952,13 @@
   ],
   "glyph_components_dropped": 2,
   "flat_fields_dropped": 0,
-  "ink_components_dropped": 0,
+  "ink_components_dropped": 1,
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.8868,
-    "excluded_as_glyphs_pct": 1.69,
+    "pixel_agreement": 0.8819,
+    "excluded_as_glyphs_pct": 6.11,
     "iou_by_field": {
-      "brand": 0.815,
+      "brand": 0.816,
       "highlight": 0.766
     },
     "vertices": 220
