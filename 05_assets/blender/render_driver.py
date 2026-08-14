@@ -121,6 +121,11 @@ STRIPE_MAX_FRAC = 0.06
 # leaving the stripe semi-gloss would put a sheen on it the references lack.
 # The background plane is deliberately rougher still and keeps its own 0.9.
 MATTE_ROUGHNESS = 0.7
+# Cap height and width the dosage takes inside its colour block. Measured off
+# the Cialis reference: "10 mg" sets to roughly half the block's height and
+# runs to about four fifths of its width.
+DOSAGE_BLOCK_CAP_FRAC = 0.5
+DOSAGE_BLOCK_FILL_FRAC = 0.82
 
 # The top-right brand badge (reference_analysis.md §5, second of the two places
 # brand colour is allowed to appear). Measured across the nine references: the
@@ -359,6 +364,20 @@ def _balanced_two_lines(text: str) -> str:
     return "\n".join(best)
 
 
+def _reverse_ink(fill_hex: str):
+    """Ink that reads against *fill_hex*: white on a dark block, near-black on a light one.
+
+    Chosen from the block's own measured colour rather than fixed, because the
+    sample carries both -- Cialis and Ativan reverse white out of a dark green,
+    Kamagra sets dark type on a salmon block.
+    """
+    r, g, b, _ = hex_to_rgba(fill_hex or "#000000")
+    luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return make_material(f"reversed_{('dark' if luma < 0.5 else 'light')}",
+                         "#FFFFFF" if luma < 0.5 else LABEL_INK,
+                         roughness=MATTE_ROUGHNESS)
+
+
 def _add_text(name, body, font, cap_h, ink_mat, x, z, y, align="LEFT"):
     """One row of the label, standing on the front face.
 
@@ -453,7 +472,8 @@ def _fit_width(t, max_width):
 
 
 def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
-                half_thick, unit_scale, badge_left_x=None, stripe_top_z=None):
+                half_thick, unit_scale, badge_left_x=None, stripe_top_z=None,
+                dosage_block=None):
     """The printed front panel: brand, ingredient, dosage and unit count.
 
     Every string is rendered as real text geometry carrying the manifest's bytes
@@ -527,7 +547,22 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
 
     bottom_row = []
     dosage = (label_content.get("dosage_display") or "").strip()
-    if dosage:
+    if dosage and dosage_block is not None:
+        # Reversed out of the measured colour block, which is where the real
+        # carton puts it. Leaving it on the grid below would print the dosage
+        # twice over: once in black at the foot of the face, and once as an empty
+        # rectangle where the reference reads "10 mg".
+        bw = dosage_block["x1"] - dosage_block["x0"]
+        bh = dosage_block["z1"] - dosage_block["z0"]
+        t = _add_text("label_dosage", dosage, bold,
+                      bh * DOSAGE_BLOCK_CAP_FRAC,
+                      _reverse_ink(dosage_block["fill"]),
+                      0.5 * (dosage_block["x0"] + dosage_block["x1"]),
+                      dosage_block["z1"] - 0.5 * (bh - bh * DOSAGE_BLOCK_CAP_FRAC),
+                      y, align="CENTER")
+        _fit_width(t, bw * DOSAGE_BLOCK_FILL_FRAC)
+        rows.append(t)
+    elif dosage:
         t = _add_text("label_dosage", dosage, bold, small_print_cap(BOTTOM_ROW_CAP_M),
                       ink, left, v_to_z(BOTTOM_ROW_TOP_FRAC), y)
         bottom_row.append(_fit_width(t, half_row))
@@ -707,6 +742,82 @@ def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
     return built
 
 
+def build_design_fields(box, design: dict, face_w, face_h, left_x, front_y,
+                        top_z, half_thick):
+    """Draw a measured design onto the front face.
+
+    Contract 1.4 carries the fields of a REAL carton for the eleven SKU with
+    reference photography: an outline per part in face-normalised coordinates,
+    u across and v DOWN, both 0..1 of the printed face.
+
+    Filled 2D curves rather than meshes, because the outlines are deeply concave
+    -- the Cialis white swoosh is a crescent -- and an n-gon face through those
+    vertices renders as a torn fan. A curve with fill_mode BOTH is tessellated
+    properly whatever the outline does, and carries the arcs the sources actually
+    have without a triangulation step of our own.
+
+    Extruded by the same half-thickness as the stripe it replaces, so printed
+    fields read as ink on board rather than as tiles floating above it, and
+    cannot z-fight with the face.
+    """
+    built, blocks = [], []
+    for f_i, field in enumerate(design.get("fields") or []):
+        fill = field.get("fill")
+        if not fill:
+            continue
+        mat = make_material(f"design_{field.get('role', f_i)}_mat", fill,
+                            roughness=MATTE_ROUGHNESS)
+        for p_i, part in enumerate(field.get("parts") or []):
+            outline = part.get("outline") or []
+            if len(outline) < 3:
+                continue
+            name = f"design_{field.get('role', f_i)}_{p_i}"
+            curve = bpy.data.curves.new(name, type="CURVE")
+            curve.dimensions = "2D"
+            curve.fill_mode = "BOTH"
+            curve.extrude = half_thick
+            spline = curve.splines.new("POLY")
+            spline.points.add(len(outline) - 1)
+            for i, uv in enumerate(outline):
+                u, v = float(uv[0]), float(uv[1])
+                # A 2D curve lives in its object's local XY. Rotating +90 degrees
+                # about X below maps local (x, y) to world (x, z), which is the
+                # front face's own plane -- so the point is written straight in
+                # face coordinates and never converted twice.
+                spline.points[i].co = (left_x + u * face_w,
+                                       top_z - v * face_h, 0.0, 1.0)
+            spline.use_cyclic_u = True
+
+            obj = bpy.data.objects.new(name, curve)
+            bpy.context.scene.collection.objects.link(obj)
+            obj.rotation_euler = (math.radians(90.0), 0.0, 0.0)
+            obj.location = (0.0, front_y, 0.0)
+            obj.data.materials.append(mat)
+            obj.parent = box
+            obj.matrix_parent_inverse = box.matrix_world.inverted()
+            built.append(obj)
+
+            # A `block` is a place to put type: four of the eleven references
+            # reverse the dosage out of one. The spec names it -- the driver does
+            # not re-derive it from the outline, which would be a second copy of
+            # a rule that already lives in scripts/fit_design_spec.py.
+            if part.get("kind") == "block":
+                us = [float(pt[0]) for pt in outline]
+                vs = [float(pt[1]) for pt in outline]
+                blocks.append({
+                    "fill": fill,
+                    "x0": left_x + min(us) * face_w, "x1": left_x + max(us) * face_w,
+                    "z0": top_z - max(vs) * face_h, "z1": top_z - min(vs) * face_h,
+                })
+    print(f"[render_driver] design: {len(built)} field part(s) from "
+          f"{len(design.get('fields') or [])} field(s), "
+          f"{len(blocks)} colour block(s)")
+    # The largest block is the dosage's. Where a carton has more than one filled
+    # rectangle the dosage is on the biggest of them in every reference measured.
+    blocks.sort(key=lambda b: (b["x1"] - b["x0"]) * (b["z1"] - b["z0"]), reverse=True)
+    return built, blocks
+
+
 def build_box(dims_m, palette: dict, label_content: dict = None,
               manifest: dict = None):
     """The printed carton — i.e. the SECONDARY packaging, which is what a
@@ -735,7 +846,14 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
     box.scale = (w, d, h)
     bpy.ops.object.transform_apply(scale=True)
 
-    body_mat = make_material("carton_body", "#FFFFFF", roughness=MATTE_ROUGHNESS)
+    # The board is white for every SKU EXCEPT the eleven built from a measured
+    # design, where it is whatever the real carton's board is. Two of those
+    # eleven have a coloured board -- Kamagra's teal, Lexotanil's lime -- so
+    # "white always" is not a rule those cartons follow, and it fails inside the
+    # sample rather than at its edge.
+    design = (manifest or {}).get("design")
+    body_hex = (design or {}).get("substrate") or "#FFFFFF"
+    body_mat = make_material("carton_body", body_hex, roughness=MATTE_ROUGHNESS)
     box.data.materials.append(body_mat)
 
     # Measure the mesh that was actually built instead of assuming it spans
@@ -761,8 +879,12 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
     # Shared by the stripe and the badge, hence hoisted out of either branch.
     half_thick = depth * 0.002
 
+    # The stripe and badge ARE the generic art direction: one accent band and one
+    # primary badge, fitted to nine AI reference renders. Where a real carton has
+    # been measured they are not decoration to add on top, they are a different
+    # design being drawn over the right one.
     stripe_top_z = None
-    accent_hex = palette.get("accent")
+    accent_hex = None if design else palette.get("accent")
     if accent_hex:
         # Target 4mm, held inside the measured 3-6% band.
         stripe_m = min(max(STRIPE_TARGET_M, h * STRIPE_MIN_FRAC), h * STRIPE_MAX_FRAC)
@@ -797,7 +919,7 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
     # (207,157,155), T3's #E2583E reads (214,89,65)), and reference_analysis.md
     # §5 does not say which of the two it is.
     badge_left_x = None
-    primary_hex = palette.get("primary")
+    primary_hex = None if design else palette.get("primary")
     if primary_hex:
         # Sized off the SHORTER front-face edge. Measured against the references
         # that holds to 21-37%, where sizing from face height alone spreads
@@ -831,8 +953,16 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
         badge.parent = box
         badge.matrix_parent_inverse = box.matrix_world.inverted()
 
+    dosage_block = None
+    if design:
+        _, blocks = build_design_fields(box, design, face_w, face_h,
+                                        right_x - face_w, front_y, top_z,
+                                        half_thick)
+        dosage_block = blocks[0] if blocks else None
+
     build_label(box, label_content, face_w, face_h, right_x - face_w,
-                front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z)
+                front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z,
+                dosage_block)
 
     if manifest:
         build_side_panel(box, manifest, depth, face_h, min(xs), front_y,
@@ -1177,10 +1307,16 @@ def _bounds_in_frame(obj, reference):
     "on the front face, at the bottom" is a plain interval comparison.
     """
     to_ref = reference.matrix_world.inverted() @ obj.matrix_world
-    if obj.type == "FONT":
-        # A text object has no vertices until the depsgraph builds glyphs for
-        # it, so measure its evaluated bounding box instead. Same frame, same
-        # meaning; only the source of the points differs.
+    if obj.type in ("FONT", "CURVE"):
+        # Neither has vertices until the depsgraph builds them -- glyphs for a
+        # text object, a tessellated fill for a curve -- so measure the evaluated
+        # bounding box instead. Same frame, same meaning; only the source of the
+        # points differs.
+        #
+        # CURVE was added with the contract-1.4 design fields, which are filled
+        # 2D curves. Before that this branch tried `obj.data.vertices` on them
+        # and raised, and Blender exits 0 after an uncaught exception: the dump
+        # was simply never written while the run reported success.
         from mathutils import Vector
         dg = bpy.context.evaluated_depsgraph_get()
         pts = [to_ref @ Vector(c) for c in obj.evaluated_get(dg).bound_box]
@@ -1344,6 +1480,21 @@ def dump_scene(path: str):
                     "base_color": _base_color(obj),
                     "roughness": _roughness(obj),
                 }
+        # The design fields, so the contract-1.4 path is measurable without
+        # rendering. A test can then assert that the eleven build their measured
+        # design and that the other 380 build none -- which the pixels alone
+        # cannot separate from a lucky palette.
+        out["design_fields"] = [
+            {
+                "name": o.name,
+                "bounds_in_carton_frame": _bounds_in_frame(o, box),
+                "base_color": _base_color(o),
+                "roughness": _roughness(o),
+            }
+            for o in sorted((x for x in bpy.data.objects
+                             if x.name.startswith("design_")),
+                            key=lambda x: x.name)
+        ]
         # Every label row, with the exact string it will draw. `body` is what
         # makes the engine's headline claim checkable: a test can compare it byte
         # for byte against the manifest and prove nothing was dropped, truncated

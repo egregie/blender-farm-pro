@@ -33,6 +33,7 @@
         "coverage_pct": 16.5,
         "parts": [
           {
+            "kind": "field",
             "area_pct": 13.1,
             "smoothness": 0.07,
             "outline": [
@@ -450,6 +451,7 @@
         "coverage_pct": 33.5,
         "parts": [
           {
+            "kind": "field",
             "area_pct": 26.7,
             "smoothness": 0.0,
             "outline": [
@@ -1284,6 +1286,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 3.6,
             "smoothness": 0.17,
             "outline": [
@@ -1321,6 +1324,7 @@
         "coverage_pct": 10.3,
         "parts": [
           {
+            "kind": "block",
             "area_pct": 2.0,
             "smoothness": 0.33,
             "outline": [

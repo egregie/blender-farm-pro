@@ -33,6 +33,7 @@
         "coverage_pct": 20.3,
         "parts": [
           {
+            "kind": "field",
             "area_pct": 5.3,
             "smoothness": 0.12,
             "outline": [
@@ -335,6 +336,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 4.9,
             "smoothness": 0.05,
             "outline": [
@@ -809,6 +811,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 1.8,
             "smoothness": 0.1,
             "outline": [
@@ -855,6 +858,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 1.0,
             "smoothness": 0.67,
             "outline": [
@@ -945,6 +949,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 0.9,
             "smoothness": 0.48,
             "outline": [
@@ -1051,6 +1056,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 0.9,
             "smoothness": 0.43,
             "outline": [
@@ -1149,6 +1155,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 0.9,
             "smoothness": 0.48,
             "outline": [
@@ -1262,6 +1269,7 @@
         "coverage_pct": 14.6,
         "parts": [
           {
+            "kind": "field",
             "area_pct": 10.8,
             "smoothness": 0.13,
             "outline": [
@@ -1972,6 +1980,7 @@
             ]
           },
           {
+            "kind": "block",
             "area_pct": 2.2,
             "smoothness": 0.33,
             "outline": [
@@ -2014,6 +2023,7 @@
             ]
           },
           {
+            "kind": "field",
             "area_pct": 1.0,
             "smoothness": 0.04,
             "outline": [

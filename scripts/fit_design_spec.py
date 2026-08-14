@@ -233,6 +233,26 @@ def is_design_field(outline, w, h) -> bool:
     return bool(bbox > 0 and area / bbox >= 0.85)
 
 
+def part_kind(outline) -> str:
+    """`block` for a printed colour block, `field` for everything else.
+
+    Named in the spec rather than re-derived by the renderer. The driver runs
+    inside Blender and reads only the manifest, so a shape it has to classify
+    for itself is a second implementation of a rule that already exists here --
+    and this project has twice paid for two copies of "the same" logic.
+
+    The distinction earns its keep: four of the eleven references reverse the
+    dosage out of a filled block (Cialis, Ativan, Imovane, Lexotanil). A block is
+    a place to put type; a field is not.
+    """
+    xs = [p[0] for p in outline]
+    ys = [p[1] for p in outline]
+    bbox = (max(xs) - min(xs)) * (max(ys) - min(ys))
+    if bbox <= 0 or len(outline) > 12:
+        return "field"
+    return "block" if _area(outline) / bbox >= 0.85 else "field"
+
+
 def _smoothness(points) -> float:
     """Share of vertices that turn by less than SMOOTH_TURN_DEG.
 
@@ -294,6 +314,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 dropped_mask |= part
                 continue
             parts.append({
+                "kind": part_kind(pts),
                 "area_pct": round(100 * part.sum() / (w * h), 1),
                 "smoothness": round(_smoothness(pts), 2),
                 "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in pts],

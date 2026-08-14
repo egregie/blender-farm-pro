@@ -1212,3 +1212,69 @@ class TestRenderedLuminance(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestDesignFieldsReachTheScene(unittest.TestCase):
+    """Contract 1.4: the measured design of a real carton is what gets built.
+
+    Measured off the scene rather than the pixels, because pixels cannot
+    separate "built the reference's olive" from "happened to be given a green
+    palette". The dump names every object.
+    """
+
+    DESIGN_SKU = "59-min"      # Cialis: cream board, two olive fields, a block
+    PLAIN_SKU = "1-min"        # the generic art direction, unchanged
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.design_job = json.loads(
+            (manifests / f"{cls.DESIGN_SKU}.json").read_text(encoding="utf-8"))
+        cls.plain_job = json.loads(
+            (manifests / f"{cls.PLAIN_SKU}.json").read_text(encoding="utf-8"))
+        cls.design = build_scene(cls.design_job)
+        cls.plain = build_scene(cls.plain_job)
+
+    def test_a_measured_design_is_built_as_geometry(self):
+        parts = sum(len(f["parts"]) for f in self.design_job["design"]["fields"])
+        self.assertEqual(
+            len(self.design["design_fields"]), parts,
+            "the scene does not hold one object per outline in the manifest")
+
+    def test_the_generic_art_direction_is_not_drawn_over_it(self):
+        """The stripe and badge are a DIFFERENT design, not decoration.
+
+        One accent band and one primary badge, fitted to nine AI reference
+        renders. Drawing them on a carton whose real design has been measured
+        puts two art directions on one face.
+        """
+        self.assertIsNone(self.design["stripe"])
+        self.assertIsNone(self.design["badge"])
+
+    def test_the_board_is_the_reference_s_board_not_white(self):
+        r, g, b, _ = self.design["carton"]["base_color"]
+        self.assertFalse(
+            r == g == b == 1.0,
+            "a design carton was built on white board; two of the eleven "
+            "references have a coloured board, so white is not a rule they follow")
+
+    def test_the_dosage_is_reversed_out_of_its_block(self):
+        rows = [l for l in self.design["label"] if l["name"] == "label_dosage"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(
+            rows[0]["align_x"], "CENTER",
+            "the dosage is not centred, so it is still on the generic grid "
+            "rather than inside the block the reference reverses it out of")
+        self.assertEqual(rows[0]["body"],
+                         self.design_job["label_content"]["dosage_display"],
+                         "the dosage string changed on its way to the block")
+
+    def test_a_sku_outside_the_group_is_untouched(self):
+        self.assertEqual(self.plain["design_fields"], [])
+        self.assertIsNotNone(self.plain["stripe"])
+        self.assertIsNotNone(self.plain["badge"])
+        self.assertEqual(
+            [l["align_x"] for l in self.plain["label"] if l["name"] == "label_dosage"],
+            ["LEFT"])
