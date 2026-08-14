@@ -78,6 +78,47 @@ is the **Lilly hologram**, which the owner excluded outright, and it entered
 through the "large enough" escape at 7.5% of the face. Leftovers are now held to
 the same strict test as ink — run off the face, or be a printed block.
 
+## `59-min` and `155-min`: the driver is not what is costing them
+
+The two lowest composites. Investigated by measuring **deep inside** each spec
+region — eroded by 9px, away from boundaries and from our own printed type —
+which is where a build defect would show and a classification limit would not.
+
+| | spec separation | render, sampled at the boundary | render, sampled in the core |
+|---|---:|---:|---:|
+| `59-min` Cialis, substrate vs highlight | 0.1057 | 0.0899 | **0.1055** |
+| `155-min` Imovane, substrate vs highlight | 0.0865 | 0.0215 | 0.0614 |
+
+**Cialis is built correctly.** Its two creams — `#DDD1B9` board against a
+`#DCDBD2` swoosh — come out of the renderer separated by 0.1055 against the
+spec's 0.1057, and its olive fields score IoU 0.962. What costs it is that those
+two colours are 0.106 apart: a nearest-colour classifier confuses them wherever
+lighting has not been perfectly divided out, and our render additionally prints
+label text the spec does not carry. Neither is a reason to change the driver.
+
+**Imovane compresses its pair to 71%** — 0.0614 against 0.0865 — and that one is
+real, if small. Its palette is the tightest in the sample, 0.086 against a
+separability floor of 0.08, so part of the loss is the same classifier limit and
+part is not. Open, with a number attached.
+
+### An exposure correction was tried and rejected
+
+A design spec carries PRINT colours; a render is a picture of that print at some
+exposure, and every render in the group sits about 1.13× below its spec. Fitting
+one per-channel gain on the largest region — what a photographer does with a grey
+card — is the principled correction, and it was implemented, measured in both
+sRGB and linear space, and **reverted**:
+
+| | before | after |
+|---|---:|---:|
+| `59-min` render~spec | 89.6% | 86.8% |
+| `64-min` render~spec | 98.3% | **91.0%** |
+| `155-min` render~ref | 85.4% | 83.1% |
+
+It moves Cialis's field IoU from 0.365 to 0.681 and takes Kamagra down fourteen
+points. Helping one carton by hurting two is tuning, not fixing, and the reverted
+attempt is recorded here so the next person does not spend the afternoon on it.
+
 ## What the first baseline was actually measuring
 
 The first run put `156-min`, `272-min` and `404-min` at the bottom on colour
