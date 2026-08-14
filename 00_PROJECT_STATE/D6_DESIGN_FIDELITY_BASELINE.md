@@ -22,19 +22,62 @@ instrument.
 
 ## The baseline
 
+*Re-measured 2026-08-14 after the fitter fix below.*
+
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC |
 |---|---|---:|---:|---:|---:|
-| `308-min` | Lexotanil | 86.3% | **99.6%** | **97.0%** | **0.094** |
-| `135-min` | Ativan | 91.9% | 97.4% | 88.6% | 0.128 |
-| `64-min` | Kamagra | 88.5% | 92.7% | 52.0% | 0.497 |
-| `155-min` | Imovane | 89.8% | 91.7% | 85.4% | 0.130 |
+| `404-min` | Ritalin | 95.1% | **99.8%** | **97.5%** | **0.058** |
+| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.0% | 0.094 |
+| `74-min` | Viagra | 94.4% | 99.5% | 93.2% | 0.195 |
+| `156-min` | Xanax | 94.8% | 99.4% | 95.1% | 0.122 |
+| `344-min` | Modafinil | 87.5% | 99.1% | 93.5% | 0.126 |
+| `272-min` | Valium | 87.4% | 98.4% | 93.7% | 0.132 |
+| `340-min` | Xanax SR | 92.2% | 97.3% | 93.5% | 0.162 |
+| `135-min` | Ativan | 91.9% | 97.4% | 88.6% | 0.126 |
+| `64-min` | Kamagra | 88.5% | 92.7% | **52.0%** | 0.422 |
+| `155-min` | Imovane | 93.7% | 91.7% | 85.4% | 0.130 |
 | `59-min` | Cialis | 88.7% | 89.6% | 79.5% | 0.199 |
-| `404-min` | Ritalin | 79.4% | 87.5% | 69.6% | 0.406 |
-| `74-min` | Viagra | 91.2% | 84.8% | 70.0% | 0.200 |
-| `340-min` | Xanax SR | 92.9% | 77.7% | 69.6% | 0.181 |
-| `272-min` | Valium | 87.2% | 75.2% | 63.7% | 0.551 |
-| `156-min` | Xanax | 88.7% | 74.9% | 58.0% | 0.618 |
-| `344-min` | Modafinil | 85.1% | 19.4% | 24.3% | 0.118 |
+
+Ten of eleven now build their spec to better than 89%, and seven to better than
+97%. `64-min` is the one row left where the three figures cannot all be true at
+once.
+
+## What the first baseline was actually measuring
+
+The first run put `156-min`, `272-min` and `404-min` at the bottom on colour
+error and blamed the fitter. Half of that was right.
+
+**The fitter was emitting fields that are not design.** Two defects, both found
+by looking at the specs rather than the pictures:
+
+- *A field indistinguishable from the board it sits on.* Xanax's "highlight"
+  `#E9DCB6` is two levels from its substrate `#E8DBB2`; Valium's and Ritalin's
+  the same. All three covered around a third of the face. They are the
+  clustering splitting one printed surface in two under a lighting gradient, and
+  they are why six of the eleven palettes came back inseparable.
+- *The type cluster emitted as a colour field.* Printed ink is drawn from the
+  manifest's strings. A part of that cluster now earns a place only by running
+  off the face — like Valium's navy edge bar, which is genuinely design — or by
+  being a filled block. It does not get the "large enough" escape the other
+  roles have, because accumulating area without being design is exactly what ink
+  does.
+
+Fixing those took **inseparable palettes from six of eleven to none**, and the
+vertex counts with them: Viagra 167 → 5, Ritalin 187 → 7, Xanax 254 → 29. Spec
+agreement rose on eight rows and fell on one, by 0.7 points.
+
+**But the colour error barely moved** — 0.618 → 0.600, 0.551 → 0.548, 0.406 →
+0.410 — which is how the other half was found. Those three specs' surviving
+fields are DARK, and the metric's dark cut, there to keep printed type out of
+the score, was cutting dark FIELDS with it. Inside Xanax's near-black brand it
+sampled only the lit fringe. Whether a pixel is scored now depends on what the
+SPEC expects there rather than on how bright the pixel happens to be, and the
+three read 0.122, 0.132 and 0.058.
+
+Worth stating plainly: **the fitter fix is what moved the agreement figures, and
+the metric fix is what moved the colour errors.** Had only the second been done,
+the specs would still be carrying invisible fields and inked-in type while every
+number looked healthy.
 
 ## The metric had to be told where it cannot see
 
@@ -57,14 +100,9 @@ spec's own polygons, and never asks a classifier anything.
 
 ## What the instrument points at
 
-- **`156-min` 0.618, `272-min` 0.551, `404-min` 0.406** — the largest colour
-  errors, and all three are cartons whose "brand field" D-2 already reported as
-  mostly TYPE rather than a colour field (brand IoU 0.459, 0.786, none). The
-  spec asks for a field where the real carton has words; the renderer leaves
-  substrate there. The fix is in the fitter, not the driver.
 - **`64-min` Kamagra: 92.7% against its spec, 52.0% against the photograph.**
   Those two cannot both be right alongside a spec that scores 88.5%. Unexplained,
-  and the most interesting row in the table.
+  survived both fixes unchanged, and now the only row of its kind.
 - **`308-min` Lexotanil at 99.6% / 97.0%** is what the pipeline does when the
   design is flat fields and straight edges. It is the ceiling the curved cartons
   are being measured against.

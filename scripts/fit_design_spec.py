@@ -46,6 +46,20 @@ from scripts.measure_reference_face import (  # noqa: E402
 # They are not: the renderer draws type from the manifest's strings, and a spec
 # carrying letter outlines would print the reference's words instead.
 MIN_REGION_FRAC = 0.008
+# A field has to be visibly different from the board it is printed on. Below this
+# distance in RGB it is not a design element -- it is the clustering splitting one
+# printed surface into two under a lighting gradient. Measured: Xanax's
+# "highlight" #E9DCB6 sits TWO levels from its substrate #E8DBB2, Valium's
+# #C9C8C4 two from #C9C5C0, Ritalin's #82837D two from #817F78. All three were
+# emitted as fields covering a third of the face, and they are why six of the
+# eleven palettes came back inseparable in D-6: a spec that names two colours a
+# classifier cannot tell apart makes every later measurement of it meaningless.
+#
+# Set to the same figure D-6 needs to tell two colours apart
+# (scripts/design_qa.SEPARABLE_MIN). The two readings agree: a field this close
+# to its board is invisible to a viewer AND unmeasurable afterwards, and emitting
+# one produces a spec whose own fidelity cannot be checked.
+MIN_FILL_CONTRAST = 0.08
 LARGE_FIELD_FRAC = 0.03     # past this share of the face, shape stops mattering
 SIMPLIFY_TOLERANCE = 0.004  # Douglas-Peucker, in face widths
 SMOOTH_TURN_DEG = 25.0      # a vertex turning less than this reads as a curve
@@ -194,6 +208,19 @@ def _area(points) -> float:
     return float(abs(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1))) / 2)
 
 
+def _runs_off_face(outline, w, h) -> bool:
+    """Does this outline reach the edge of the printed face?
+
+    A colour field that enters from an edge is structural whatever its shape.
+    Nothing printed as type does that.
+    """
+    xs = [p[0] for p in outline]
+    ys = [p[1] for p in outline]
+    margin = 0.01 * max(w, h)
+    return (min(xs) <= margin or min(ys) <= margin
+            or max(xs) >= w - 1 - margin or max(ys) >= h - 1 - margin)
+
+
 def is_design_field(outline, w, h) -> bool:
     """Is this component a colour field, or a letter that landed in one?
 
@@ -210,12 +237,10 @@ def is_design_field(outline, w, h) -> bool:
     every carton built from it -- the exact failure the text-as-geometry rule
     exists to prevent, arriving through the back door.
     """
+    if _runs_off_face(outline, w, h):
+        return True
     xs = [p[0] for p in outline]
     ys = [p[1] for p in outline]
-    margin = 0.01 * max(w, h)
-    if (min(xs) <= margin or min(ys) <= margin
-            or max(xs) >= w - 1 - margin or max(ys) >= h - 1 - margin):
-        return True
     area = _area(outline)
     # Size alone is not the test, but past a point it settles the question: no
     # glyph covers a twentieth of a face, and the Cialis white swoosh -- a deeply
@@ -295,13 +320,26 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 break
 
     fields = []
+    # The labels of the fields ACTUALLY emitted, in the same order. verify() used
+    # to index its ground truth by `order`, which lists every role considered --
+    # so the moment a role was dropped the two indexings slid apart and each
+    # field was scored against its neighbour's pixels. It showed up as IoU 0.0 on
+    # roles that were plainly present.
+    emitted = []
     dropped = 0
+    dropped_flat = 0
+    dropped_ink = 0
     dropped_mask = np.zeros((h, w), bool)
+    substrate_rgb = np.asarray(substrate["colour"], dtype=float)
     tol = SIMPLIFY_TOLERANCE * w
     min_region = int(MIN_REGION_FRAC * w * h)
     for role, j, g in order:
         mask = lab == j
         if mask.sum() < min_region:
+            continue
+        if float(np.linalg.norm(np.asarray(g["colour"], float) - substrate_rgb)) < MIN_FILL_CONTRAST:
+            dropped_flat += 1
+            dropped_mask |= mask
             continue
         parts = []
         for part in components(mask, min_region):
@@ -309,6 +347,16 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             if len(outline) < 8:
                 continue
             pts = simplify(outline, tol)
+            # The `type` cluster is printed INK by default -- the renderer draws
+            # every string from the manifest -- so a part of it earns a place in
+            # the spec only by being unmistakably structural: running off the
+            # face, like Valium's navy edge bar, or a filled block. It does not
+            # get the "large enough" escape the other roles have, because ink is
+            # exactly what accumulates area without being design.
+            if role == "type" and part_kind(pts) != "block" and not _runs_off_face(pts, w, h):
+                dropped_ink += 1
+                dropped_mask |= part
+                continue
             if not is_design_field(pts, w, h):
                 dropped += 1
                 dropped_mask |= part
@@ -321,6 +369,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             })
         if not parts:
             continue
+        emitted.append((role, j, g))
         fields.append({
             "role": role,
             "fill": _hex(g["colour"]),
@@ -337,12 +386,14 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
         "substrate": _hex(substrate["colour"]),
         "fields": fields,
         "glyph_components_dropped": dropped,
+        "flat_fields_dropped": dropped_flat,
+        "ink_components_dropped": dropped_ink,
         "excluded": ("manufacturer logos and holographic elements are not "
                      "represented: the owner's decision, so the substrate shows "
                      "through where they sit on the reference"),
     }
 
-    agreement = verify(spec, lab, substrate_label, order, w, h, preview_dir, folder,
+    agreement = verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
                        dropped_mask)
     spec["verification"] = agreement
     (folder / "design_spec.json").write_text(
@@ -362,7 +413,7 @@ def rasterise(spec: dict, w: int, h: int) -> Image.Image:
     return img
 
 
-def verify(spec, lab, substrate_label, order, w, h, preview_dir, folder,
+def verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
            dropped_mask=None) -> dict:
     """Agreement between the spec's own rasterisation and the segmentation.
 
@@ -381,7 +432,7 @@ def verify(spec, lab, substrate_label, order, w, h, preview_dir, folder,
     spec_idx = np.asarray(idx)
 
     truth = np.full((h, w), 255, dtype=int)
-    for n, (role, j, _g) in enumerate(order):
+    for n, (role, j, _g) in enumerate(emitted):
         truth[lab == j] = n
 
     # Glyph pixels are excluded from the score. The spec deliberately does not

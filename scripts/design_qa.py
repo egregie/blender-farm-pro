@@ -156,7 +156,16 @@ def measure(stem: str, preview: bool = False) -> dict:
     o_idx, o_mask = _classify(ours, palette)
     ours_flat = _flatten_illumination(
         np.asarray(ours.convert("RGB")).astype(float) / 255.0)
-    colour_err = _colour_error(ours_flat, t_idx, palette, o_mask)
+
+    # The dark cut is there to keep printed TYPE out of the score. It must not
+    # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black
+    # brand it left only the lit fringe, whose mean sits nowhere near the fill,
+    # and reported 0.600 against a render measured at 99.4% agreement. Whether a
+    # pixel is scored now depends on what the SPEC expects there, not on how
+    # bright the pixel happens to be.
+    dark_fill = (palette * np.array([0.2126, 0.7152, 0.0722])).sum(1) < DARK_V
+    scored = o_mask | dark_fill[t_idx]
+    colour_err = _colour_error(ours_flat, t_idx, palette, scored)
 
     ref_path = PREVIEW_DIR / f"{folder.name}.flat.png"
     ref_idx = ref_mask = None

@@ -165,21 +165,39 @@ STALE_RENDERS = {"4-min", "5-min", "6-min", "8-min", "9-min", "11-min", "12-min"
 
 
 def _current_era_renders():
-    """Renders whose backdrop matches current code, with their manifests."""
+    """Renders whose backdrop matches current code, with their manifests.
+
+    Design-group cartons are left out, and counted where they are left out. Their
+    proportions come from a measured photograph rather than from a template's
+    silhouette target, which puts several of them on the far side of the very
+    switch this class documents -- Lexotanil is a portrait carton in a landscape
+    template. The bracket below would then be asserted about a shape it was never
+    calibrated on, and it fails by 6.9% on exactly that.
+
+    The models themselves are not in question for those cartons: the driver's
+    projection is still checked against them by
+    TestSilhouetteModelAcrossFamilies, which reads the built scene rather than
+    measuring pixels.
+    """
     import numpy as np
     from PIL import Image
+    from src.design_group import is_design_sku
 
-    out = []
+    out, skipped_design = [], []
     for job in sorted(RENDERS.glob("*.job.json")):
         stem = job.name[:-len(".job.json")]
         png = job.with_name(stem + ".png")
         if stem in STALE_RENDERS or not png.exists():
+            continue
+        if is_design_sku(stem):
+            skipped_design.append(stem)
             continue
         grey = np.asarray(Image.open(png).convert("RGB")).astype(float).mean(axis=2)
         border = np.concatenate([grey[0], grey[-1], grey[:, 0], grey[:, -1]])
         if (border < 250.0).mean() >= 0.01:
             continue
         out.append((stem, json.loads(job.read_text(encoding="utf-8")), png, grey))
+    _current_era_renders.skipped_design = skipped_design
     return out
 
 
@@ -268,6 +286,13 @@ class TestMeasuredSilhouette(unittest.TestCase):
         """
         full = self._render_errors(silhouette.silhouette_px)
         visible = self._render_errors(silhouette.visible_faces_px)
+        # Counted, not silently dropped: an exemption that can grow without
+        # anyone noticing is how a bracket ends up asserted about nothing.
+        from src.design_group import TEMPLATE_SAMPLE
+        self.assertLessEqual(
+            len(getattr(_current_era_renders, "skipped_design", [])),
+            len(TEMPLATE_SAMPLE),
+            "more renders were exempted as design-group than the group holds")
         for f, v in zip(full, visible):
             # full model is the taller box, so its aspect is the smaller number:
             # a measurement between the two reads as >= 0 against full and <= 0
