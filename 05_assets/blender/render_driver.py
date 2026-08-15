@@ -441,8 +441,8 @@ def _required_lift(t, floor_z):
     return max(floor_z - lowest, 0.0)
 
 
-def _lift_row(texts, floor_z):
-    """Raise a whole row by one amount so it clears `floor_z`.
+def _lift_row(texts, floor_z, spans=(), gap=0.0):
+    """Raise a whole row by one amount so it clears `floor_z` and any measurement.
 
     The bottom row is positioned from the top of the face while its size is an
     absolute millimetre value, so on a short face the two assumptions collide:
@@ -450,16 +450,122 @@ def _lift_row(texts, floor_z):
     through the accent stripe. Anchoring against the obstacle beats guessing a v
     that happens to clear it for every carton in the catalogue.
 
+    A measured row is the other obstacle, and it is the one that cannot be
+    guessed at: on `340-min` the reference sets the unit count at v 0.869-0.912
+    in the bottom-LEFT corner, which is where the grid hangs the dosage, and
+    "0.5mg" and "30 Pills" were printed through one another. Here the grid row
+    rises rather than drops — at the foot of the face there is nowhere below to
+    go — which is why this is not the same call as `_clear_below`.
+
     Crucially the lift is shared. Measuring each string separately moves "40mg",
     which has a descender, further than "10 Pills", which has none — and the two
     stop sharing a baseline, which is exactly what a reader notices.
     """
-    if floor_z is None or not texts:
+    if not texts:
         return texts
-    lift = max(_required_lift(t, floor_z) for t in texts)
+    lift = 0.0
     for t in texts:
-        t.location.z += lift
+        floor = floor_z
+        lo, hi = _z_span(t)
+        x_lo, x_hi = _x_span(t)
+        for o_lo, o_hi, o_x_lo, o_x_hi in spans:
+            # Both axes, and the row must actually RUN INTO the measurement:
+            # clearing every measured row that merely shares some column threw
+            # Kamagra's whole bottom row to the top of the carton, above an
+            # ingredient row it sat 0.6 of the face below and never touched.
+            if x_hi <= o_x_lo or x_lo >= o_x_hi:
+                continue
+            if hi <= o_lo or lo >= o_hi:
+                continue
+            floor = o_hi + gap if floor is None else max(floor, o_hi + gap)
+        if floor is not None:
+            lift = max(lift, _required_lift(t, floor))
+    if lift:
+        for t in texts:
+            t.location.z += lift
     return texts
+
+
+def _z_span(t):
+    """The row's built extent up the face: (lowest, highest) in world Z."""
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    zs = [(t.matrix_world @ Vector(c)).z for c in t.evaluated_get(dg).bound_box]
+    return min(zs), max(zs)
+
+
+def _x_span(t):
+    """The row's built extent across the face: (left, right) in world X."""
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    xs = [(t.matrix_world @ Vector(c)).x for c in t.evaluated_get(dg).bound_box]
+    return min(xs), max(xs)
+
+
+def _align_ink_top(t, top_z):
+    """Put the row's INK where the measurement says the row starts.
+
+    `align_y="TOP"` pins the top of the font's LINE box, which stands above the
+    tallest glyph by the font's own ascent-above-cap. The reference box is an
+    INK box — Tesseract returns the glyphs' own extent — so the two anchors are
+    different quantities and the difference is a systematic drop. Measured off
+    the built geometry rather than the pixels, eight rows on three cartons: every
+    one landed BELOW its own v0, by 0.109 to 0.231 of its cap height.
+
+    Corrected by measuring, not by a constant, for the same reason the type
+    sizes are set as cap height: the gap depends on which glyphs the string
+    happens to carry, so a number fitted on one row is wrong on the next.
+
+    What this does NOT fix: `cap_frac` is the reference's ink-box height, and it
+    is used as our cap height. Where the two strings carry different ascenders
+    and descenders the sizes still differ — measured, 0.55 to 1.34 of the
+    reference's box height. That is a question about what D-2b measured, not
+    about where the driver puts it.
+    """
+    _, highest = _z_span(t)
+    t.location.z += top_z - highest
+    return t
+
+
+def _clear_below(t, spans, gap, floor_z=None):
+    """Lower a grid row until it clears every measured row it runs into.
+
+    A measured row lands where the reference puts it, which is anywhere; a grid
+    row lands where the grid puts it, which is fixed. `135-min` is where the two
+    met: its reference sets the brand at v 0.432-0.562 and the grid sets the
+    ingredient at v 0.46, so "Ativan" printed straight through "Lorazepam" and
+    the face carried neither legibly — the OCR barrier read nothing at all off
+    it, upright or reversed.
+
+    The existing guard covers only the opposite pairing, a grid brand above the
+    measured rows. This is the other half of it.
+
+    The obstacles are the MEASURED boxes rather than the built objects, so the
+    answer does not depend on which rows happen to have been built yet: a grid
+    row placed second must clear a measured row placed fourth just the same.
+
+    Both axes are tested, and the second one is not caution. On `135-min` the
+    measured dosage block sits at the right of the same band the brand occupies
+    at the left; they share their whole height and touch nowhere. Dropping a row
+    for an obstacle it never meets is a wrong layout too, just a quieter one.
+    """
+    lo, hi = _z_span(t)
+    x_lo, x_hi = _x_span(t)
+    drop = 0.0
+    for o_lo, o_hi, o_x_lo, o_x_hi in spans:
+        if x_hi <= o_x_lo or x_lo >= o_x_hi:
+            continue
+        if hi > o_lo - gap and lo < o_hi:
+            drop = max(drop, hi - (o_lo - gap))
+    if drop <= 0:
+        return t
+    t.location.z -= drop
+    if floor_z is not None and lo - drop < floor_z:
+        sys.stderr.write(
+            f"[render_driver] {t.name}: cleared a measured row by dropping "
+            f"{drop:.4f}, which puts it below the face. The measurement and the "
+            f"grid cannot both be satisfied on this carton.\n")
+    return t
 
 
 def _fit_width(t, max_width):
@@ -493,9 +599,14 @@ def _place_measured_row(name, body, font, row, ink, face_w, face_h, left_x,
     x = {"LEFT": left_x + row["u0"] * face_w,
          "RIGHT": left_x + row["u1"] * face_w,
          "CENTER": left_x + 0.5 * (row["u0"] + row["u1"]) * face_w}[row["align"]]
+    row_top_z = top_z - row["v0"] * face_h
     t = _add_text(name, body, font, row["cap_frac"] * face_h, ink,
-                  x, top_z - row["v0"] * face_h, y, align=row["align"])
-    return _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w))
+                  x, row_top_z, y, align=row["align"])
+    # Width first, then the vertical anchor: fitting the width scales the glyphs
+    # about the origin, which moves the ink top. Aligning before that would be
+    # aligning a row that is about to change size.
+    _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w))
+    return _align_ink_top(t, row_top_z)
 
 
 def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
@@ -553,6 +664,12 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     # here to stop.
     measured_top_z = max(
         (top_z - r["v0"] * face_h for r in measured.values()), default=None)
+    # Where every measured row stands, so a row still on the grid can be kept
+    # out of it. Taken from the measurement rather than from the built objects
+    # for the reason _clear_below records.
+    measured_spans = [(top_z - r["v1"] * face_h, top_z - r["v0"] * face_h,
+                       left_x + r["u0"] * face_w, left_x + r["u1"] * face_w)
+                      for r in measured.values()]
 
     brand = (label_content.get("brand_name_display") or "").strip()
     if brand and "brand_name_display" in measured:
@@ -590,7 +707,10 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         t = _add_text("label_ingredient", ingredient, regular,
                       small_print_cap(INGREDIENT_CAP_M), ink,
                       left, v_to_z(INGREDIENT_TOP_FRAC), y)
-        rows.append(_fit_width(t, right - left))
+        _fit_width(t, right - left)
+        rows.append(_clear_below(t, measured_spans,
+                                 BRAND_INGREDIENT_GAP_FRAC * face_h,
+                                 top_z - face_h))
 
     half_row = max((right - left - BOTTOM_ROW_GUTTER_M * unit_scale) / 2.0,
                    0.1 * face_w)
@@ -639,7 +759,8 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
                       right, v_to_z(BOTTOM_ROW_TOP_FRAC), y, align="RIGHT")
         bottom_row.append(_fit_width(t, half_row))
 
-    rows.extend(_lift_row(bottom_row, floor_z))
+    rows.extend(_lift_row(bottom_row, floor_z, measured_spans,
+                          BRAND_INGREDIENT_GAP_FRAC * face_h))
 
     for t in rows:
         t.parent = box

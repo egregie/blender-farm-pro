@@ -256,7 +256,17 @@ spec's own polygons, and never asks a classifier anything.
 
 ## Not measured here
 
-Type. Every figure above excludes dark pixels, because our render prints the
-label from the manifest and the spec carries no type rows. The brand size and
-position, the ingredient row and the missing form line are D-2 measurements that
-were never taken — visible in every `.qa.png` strip, absent from every number.
+Type — and that is now a division of labour rather than a gap.
+
+Every figure above excludes dark pixels. It has to: the spec carries fields, our
+render prints the label from the manifest, and scoring the glyphs would move this
+number every time a string changed length. So nothing in this document says
+anything about where the type sits, and reading these figures as if it did is the
+mistake they invite.
+
+The type rows themselves were measured in D-2b and reach the renderer through
+contract 1.4 — 21 rows across the eleven, from three on Xanax down to none on
+Cialis. **What compares them against the photograph is `scripts/type_qa.py`, and
+its figures live in [`D7_TYPE_FIDELITY.md`](D7_TYPE_FIDELITY.md).** It found two
+build defects on its first run that every number above was blind to, including a
+carton printing two rows through one another.

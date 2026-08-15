@@ -385,6 +385,35 @@ failure the nine curated templates did not show:
 Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
 the sweep is what finds the ones we don't.
 
+**Where a design spec carries a measured row, that row overrides the grid — and it is
+anchored on its INK, not on the font's line box.** `align_y="TOP"` pins the top of the
+line box, which stands above the tallest glyph by the font's ascent-above-cap, while
+contract 1.4's `type_rows` box is what Tesseract read off the photograph, i.e. the glyphs'
+own extent. Anchoring one to the other dropped every measured row on every design carton
+below its own `v0`, by 0.109–0.231 of its cap height. `_align_ink_top()` measures the built
+row and translates it, in keeping with the law above: fit by measuring, never by trusting
+the nominal size.
+
+Two consequences worth holding on to:
+
+- **A measured row lands anywhere, so a row still on the grid can be printed through it.**
+  The reference decides where a measured row goes; the grid is fixed. On `135-min` the
+  reference sets the brand at v 0.432–0.562 and the grid sets the ingredient at 0.46, so
+  "Ativan" printed straight through "Lorazepam" and the OCR barrier read *nothing* off that
+  face in either polarity. `_clear_below()` lowers the grid row; at the foot of the face
+  there is nowhere below to go, so the bottom row instead gains a floor on `_lift_row()` and
+  **rises** — `340-min` sets its unit count in the bottom-left corner the grid hangs the
+  dosage in. Both guards test **both axes, and require an actual intersection**: the first
+  version of the `_lift_row` floor cleared every measurement sharing a column and threw
+  Kamagra's whole bottom row from v 0.81 to v 0.07, over the top of the carton.
+- **`cap_frac` is the reference's ink-box height being used as our cap height**, and where
+  the two strings carry different ascenders and descenders the sizes still differ — measured,
+  0.55–1.34 of the reference's box. That is a question about what D-2b measured, not about
+  where the driver puts it. Open; see `00_PROJECT_STATE/D7_TYPE_FIDELITY.md`.
+
+`scripts/type_qa.py` is the instrument for all of this — the type axis D-6 explicitly does
+not cover, since every figure there excludes dark pixels.
+
 ### The side panel prints only what it was given
 
 The visible side panel is the carton's local **−X** face: the camera looks along +Y and the

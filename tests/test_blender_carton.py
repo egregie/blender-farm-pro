@@ -1363,3 +1363,111 @@ class TestTheTwoPathsAreExclusive(unittest.TestCase):
         self.assertIsNotNone(lighting["fill_light"])
         self.assertGreater(lighting["key_light"]["energy"],
                            lighting["fill_light"]["energy"])
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
+    """D-7: the type axis, asserted off the scene rather than off the pixels.
+
+    D-6 measures colour and fields and says plainly that it does not measure
+    type: every figure there excludes dark pixels. These are the checks that
+    axis needs, and both of them found a real defect when first run.
+
+    Taken from the scene because it is exact and cheap. `scripts/type_qa.py`
+    reads the same two quantities back out of a render with OCR, which is the
+    only instrument the photographs can be measured with, and the two agreed to
+    within 0.001 of face height on the rows they both saw.
+    """
+
+    ROLE_BY_NAME = {"label_brand": "brand_name_display",
+                    "label_ingredient": "active_ingredient_display",
+                    "label_dosage": "dosage_display",
+                    "label_unit_count": "unit_count_display"}
+    # Three measured rows each, then the two collision cases: 135-min where a
+    # grid row met a measured one mid-face, 340-min where it met one in the
+    # bottom corner and had to rise rather than drop.
+    SKU = ("156-min", "308-min", "135-min", "340-min")
+    V_TOL = 0.002        # placement is a translation, so it is exact by build
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.jobs, cls.scenes = {}, {}
+        for stem in cls.SKU:
+            cls.jobs[stem] = json.loads(
+                (manifests / f"{stem}.json").read_text(encoding="utf-8"))
+            cls.scenes[stem] = build_scene(cls.jobs[stem])
+
+    @staticmethod
+    def _face(scene):
+        bounds = scene["carton"]["self_bounds"]
+        return {"top_z": bounds["max"][2],
+                "height": bounds["max"][2] - bounds["min"][2],
+                "left_x": bounds["min"][0],
+                "width": bounds["max"][0] - bounds["min"][0]}
+
+    def _rows_in_face(self, stem):
+        """Every built label row as (name, v0, v1, u0, u1) on the front face."""
+        face = self._face(self.scenes[stem])
+        out = {}
+        for row in self.scenes[stem]["label"]:
+            box = row["bounds_in_carton_frame"]
+            out[row["name"]] = (
+                (face["top_z"] - box["max"][2]) / face["height"],
+                (face["top_z"] - box["min"][2]) / face["height"],
+                (box["min"][0] - face["left_x"]) / face["width"],
+                (box["max"][0] - face["left_x"]) / face["width"])
+        return out
+
+    def test_a_measured_row_s_ink_starts_at_its_measured_v0(self):
+        """The anchor is the glyphs, not the font's line box.
+
+        `align_y="TOP"` pins the top of the LINE box, which stands above the
+        tallest glyph by the font's ascent-above-cap, while the measurement is
+        an ink box -- Tesseract returns the glyphs' own extent. Before the
+        driver measured its built row and translated it, every measured row on
+        every design carton sat BELOW its own v0, by 0.109 to 0.231 of its cap
+        height: 0.038 of the face on Xanax's brand.
+        """
+        checked = 0
+        for stem in self.SKU:
+            measured = self.jobs[stem]["design"]["type_rows"]
+            rows = self._rows_in_face(stem)
+            for name, role in self.ROLE_BY_NAME.items():
+                if role not in measured or name not in rows:
+                    continue
+                checked += 1
+                with self.subTest(sku=stem, role=role):
+                    self.assertAlmostEqual(
+                        rows[name][0], measured[role]["v0"], delta=self.V_TOL,
+                        msg=f"{stem} {role}: built ink top {rows[name][0]:.4f} "
+                            f"against a measured {measured[role]['v0']:.4f}")
+        self.assertGreaterEqual(
+            checked, 7, "the fixtures stopped carrying measured rows, so this "
+                        "test is passing without asserting anything")
+
+    def test_no_row_is_printed_through_another(self):
+        """A measured row lands where the reference puts it, which is anywhere.
+
+        A role the reference could not be read for stays on the generic grid,
+        and the two know nothing about each other. `135-min` is where they met:
+        its reference sets the brand at v 0.432-0.562 and the grid sets the
+        ingredient at 0.46, so "Ativan" printed straight through "Lorazepam" --
+        and the OCR barrier read NOTHING off that face, in either polarity.
+        """
+        for stem in self.SKU:
+            rows = self._rows_in_face(stem)
+            names = sorted(rows)
+            for i, a in enumerate(names):
+                for b in names[i + 1:]:
+                    av0, av1, au0, au1 = rows[a]
+                    bv0, bv1, bu0, bu1 = rows[b]
+                    overlaps = (av0 < bv1 and bv0 < av1
+                                and au0 < bu1 and bu0 < au1)
+                    with self.subTest(sku=stem, rows=f"{a}/{b}"):
+                        self.assertFalse(
+                            overlaps,
+                            f"{stem}: {a} at v{av0:.3f}-{av1:.3f} u{au0:.3f}-"
+                            f"{au1:.3f} overlaps {b} at v{bv0:.3f}-{bv1:.3f} "
+                            f"u{bu0:.3f}-{bu1:.3f}")

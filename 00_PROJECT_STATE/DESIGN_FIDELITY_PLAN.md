@@ -114,6 +114,15 @@ the driver already emits, and difference it against the rectified reference in
 the same four classes. That closes the loop the nine AI references never could:
 a measurable distance from a real carton.
 
+**D-7 · The type axis.** D-6 measures colour and fields and excludes dark pixels
+outright, so the whole of point 4 above — typographic hierarchy — sits outside
+every figure it reports. `scripts/type_qa.py` reads our own rows back off the
+render with the same instrument D-2b used on the photographs, and compares only
+what survives the two cartons carrying **different words**: where a row starts
+down the face, where it sits across it at its alignment anchor, and how big it
+is. Width and box overlap are not comparable and are not reported.
+See [`D7_TYPE_FIDELITY.md`](D7_TYPE_FIDELITY.md).
+
 ## Out of scope by the owner's decision
 
 Manufacturer logos and holographic elements. For Cialis that means the Lilly

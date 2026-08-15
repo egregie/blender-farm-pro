@@ -106,6 +106,19 @@ def _lines(words, w, h):
             "u0": round(x0 / w, 4), "u1": round(x1 / w, 4),
             "v0": round(y0 / h, 4), "v1": round(y1 / h, 4),
             "cap_frac": round((y1 - y0) / h, 4),
+            # The words kept alongside the row they were grouped into. A row is
+            # the right unit for identifying a label and the wrong one for
+            # measuring where a single string sits: the bottom row of a pack
+            # carries the dosage at one end and the unit count at the other, on
+            # one baseline and touching nowhere, and its box is the whole face
+            # wide. `type_qa` narrows a row back to the words that spell the
+            # string it is asking about. Nothing in the spec this module writes
+            # is built from these.
+            "words": [
+                {"text": t,
+                 "u0": round(b[0] / w, 4), "u1": round((b[0] + b[2]) / w, 4),
+                 "v0": round(b[1] / h, 4), "v1": round((b[1] + b[3]) / h, 4)}
+                for b, t, _ in sorted(row["words"], key=lambda t: t[0][0])],
         })
     return sorted(out, key=lambda r: r["v0"])
 
