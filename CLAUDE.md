@@ -339,6 +339,23 @@ exactly that, against ±1.1 now. And note the narrow blur (a sixth of the face) 
 candidate at all — it follows the design, the defect recorded against Kamagra's colour
 error.
 
+**ΔC reports the picture's response as well as the paint, because it was reporting it
+INSTEAD.** The two worst colour errors in the design group are both a substrate, and both
+substrates render at exactly **0.87× their spec on all three channels** — a neutral scale
+is an exposure, not a colour. The darks go the other way: Kamagra's `#00463B` has a red
+channel of zero on the spec and 0.128 in our render, because a lit surface does not return
+black. `_response()` fits gain and lift per channel across the regions and reports what is
+left: Kamagra's worst region goes **0.189 → 0.024**. Both figures stand — ΔC keeps a
+systematic exposure error visible, which the residual hides, and the residual answers what
+ΔC was being read as. An earlier attempt put a grey-card gain *in front of* ΔC and erased
+its answer; naming the response does not.
+
+**Fitting it needs three regions and four cartons do not have them.** Two points determine
+a line exactly, so Viagra, Lexotanil, Modafinil and Ritalin report a dash rather than a
+residual of zero they did not earn — Viagra matters, since it holds the group's largest ΔC
+at 0.191 with the same 0.87 neutral scale on its substrate. At three regions the fit has
+one degree of freedom and the residual is correspondingly optimistic.
+
 **OCR needs the face flattened first.** The carton is rotated 27.5-35 degrees
 about Z, and Tesseract reads a skewed face very badly — measured, "Atomoxetine
 Generic" comes back as "Germetine" and one render returns an empty string, in

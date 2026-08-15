@@ -27,19 +27,22 @@ instrument.
 these figures because moving the label changes which pixels are excluded — see
 the two notes below.*
 
-| SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
-|---|---|---:|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.9%** | **97.6%** | **0.060** | ±0.0 |
-| `308-min` | Lexotanil | **99.1%** | 99.8% | 97.2% | 0.093 | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 95.0% | 0.149 | ±0.0 |
-| `344-min` | Modafinil | 93.9% | 99.5% | 94.0% | 0.065 | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.128 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 96.9% | 94.8% | 0.189 | ±0.0 |
-| `74-min` | Viagra | 95.0% | 99.7% | 93.4% | 0.191 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.8% | 92.3% | 0.112 | ±0.0 |
-| `135-min` | Ativan | 89.6% | 97.3% | 90.4% | 0.153 | ±0.0 |
-| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | ±0.1 |
-| `59-min` | Cialis | 88.2% | 98.1% | 80.3% | 0.170 | ±1.1 |
+| SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | residual | swing |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `404-min` | Ritalin | 95.7% | **99.9%** | **97.6%** | **0.060** | — | ±0.0 |
+| `308-min` | Lexotanil | **99.1%** | 99.8% | 97.2% | 0.093 | — | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.6% | 95.0% | 0.149 | **0.014** | ±0.0 |
+| `344-min` | Modafinil | 93.9% | 99.5% | 94.0% | 0.065 | — | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.128 | 0.025 | ±0.0 |
+| `64-min` | Kamagra | 90.5% | 96.9% | 94.8% | 0.189 | 0.024 | ±0.0 |
+| `74-min` | Viagra | 95.0% | 99.7% | 93.4% | 0.191 | — | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.8% | 92.3% | 0.112 | 0.045 | ±0.0 |
+| `135-min` | Ativan | 89.6% | 97.3% | 90.4% | 0.153 | 0.050 | ±0.0 |
+| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | 0.013 | ±0.1 |
+| `59-min` | Cialis | 88.2% | 98.1% | 80.3% | 0.170 | 0.056 | ±1.1 |
+
+`residual` is ΔC once the picture's own exposure and black level are taken out —
+see below. A dash is a carton with too few regions to fit them.
 
 *Re-measured after the classifier was anchored and its illumination model chosen
 on evidence — the two sections below. Every row improved or held, every carton now
@@ -163,6 +166,60 @@ of 0.1057 and scores IoU 0.962 on the olive fields it actually draws; Imovane's
 two greys come out 0.061 apart against a spec of 0.086 and a photograph of 0.073.
 
 Nothing in the driver was changed for either.
+
+## ΔC was reporting the exposure, not the paint
+
+`64-min` Kamagra carried the worst colour error in the group at 0.189, with
+`74-min` Viagra beside it at 0.191. Both are the SUBSTRATE, and both substrates
+render at **exactly 0.87 times their spec on all three channels**:
+
+| | spec | rendered | ratio |
+|---|---|---|---|
+| Kamagra `#E3DACD` | 0.890 0.855 0.804 | 0.775 0.745 0.701 | 0.87 0.87 0.87 |
+| Viagra `#DEDEDB` | 0.871 0.871 0.859 | 0.760 0.760 0.750 | 0.87 0.87 0.87 |
+
+A neutral scale is an exposure, not a colour. And the dark regions go the other
+way: Kamagra's `#00463B` has a red channel of **zero** on the spec and 0.128 in
+our render, because a lit surface in a studio does not return black.
+
+Neither is the renderer painting the wrong colour and neither is a defect —
+they are what a picture of paint does. But ΔC claims to ask *whether this region
+is the colour it should be*, and on the two worst rows in the group it was
+answering a different question.
+
+`_response()` fits the picture's own gain and black level per channel across the
+regions, and reports what is left:
+
+| | worst ΔC | worst residual |
+|---|---:|---:|
+| `64-min` Kamagra | 0.189 | **0.024** |
+| `340-min` Xanax SR | 0.149 | 0.014 |
+| `155-min` Imovane | 0.093 | 0.013 |
+| `272-min` Valium | 0.128 | 0.025 |
+| `156-min` Xanax | 0.112 | 0.045 |
+| `135-min` Ativan | 0.153 | 0.050 |
+| `59-min` Cialis | 0.170 | 0.056 |
+
+The fitted gains run 1.13–1.39 with lifts of −0.04 to −0.19: our renders are
+darker and lower in contrast than the paint, consistently, across every carton
+that can be fitted.
+
+**Both figures are reported and neither replaces the other.** ΔC keeps its
+meaning — a systematic exposure error is still visible in it, and would be
+invisible in the residual. The residual answers what ΔC was being read as. That
+distinction is the same one an earlier attempt got wrong by applying a grey-card
+gain *in front of* ΔC and erasing its answer; here nothing is erased, the
+response is simply named.
+
+**Four cartons cannot be fitted and say so.** Two regions determine a line
+exactly, so Viagra, Lexotanil, Modafinil and Ritalin report a dash rather than a
+residual of zero they did not earn. Viagra is the one that matters: it holds the
+group's largest ΔC at 0.191 and its substrate shows the same 0.87 neutral scale,
+so the figure is almost certainly the same exposure — but this instrument cannot
+prove it on two regions, and does not claim to.
+
+At three regions the fit has one degree of freedom, so those residuals are
+optimistic. Ativan, with four, is the only one with two.
 
 ## `64-min`'s colour error: the comparison was dividing by its own subject
 

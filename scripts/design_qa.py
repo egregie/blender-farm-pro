@@ -184,6 +184,59 @@ def _agreement(a_idx, b_idx, mask, n) -> dict:
     return {"agreement": round(match, 4), "iou": iou}
 
 
+# A render is a photograph of paint, and a photograph has an exposure and a black
+# level. Fitting both needs more regions than parameters: two points determine a
+# line exactly, so a two-region carton would report a residual of zero and mean
+# nothing by it.
+MIN_RESPONSE_REGIONS = 3
+
+
+def _response(ours: np.ndarray, spec_idx: np.ndarray, palette: np.ndarray,
+              mask: np.ndarray):
+    """The picture's own response: what gain and black level map paint to pixels.
+
+    Measured because ColourError was reporting it as colour error. The two worst
+    figures in the group are both a SUBSTRATE, and both render at exactly 0.87
+    times their spec on all three channels -- a neutral scale, which is an
+    exposure and not a colour. The dark regions go the other way: Kamagra's
+    `#00463B` has a red channel of zero on the spec and 0.128 in our render,
+    because a lit surface in a studio does not return black.
+
+    Neither is the renderer painting the wrong colour, and neither is a defect:
+    they are what a picture of paint does. Reported separately so the figure
+    beside them can be read as what it claims to be. Removing them takes
+    Kamagra's worst region from 0.189 to 0.024.
+
+    Per channel, least squares over the region means. At three regions this has
+    one degree of freedom, so the residual is correspondingly optimistic; at two
+    it has none and is not attempted.
+    """
+    obs, want = [], []
+    for k in range(len(palette)):
+        sel = (spec_idx == k) & mask
+        if sel.sum() < 50:
+            continue
+        obs.append(ours[sel].mean(0))
+        want.append(palette[k])
+    if len(obs) < MIN_RESPONSE_REGIONS:
+        return None, {}
+    obs, want = np.array(obs), np.array(want)
+    gain, lift = np.zeros(3), np.zeros(3)
+    for ch in range(3):
+        A = np.stack([obs[:, ch], np.ones(len(obs))], 1)
+        gain[ch], lift[ch] = np.linalg.lstsq(A, want[:, ch], rcond=None)[0]
+    residual, n = {}, 0
+    for k in range(len(palette)):
+        sel = (spec_idx == k) & mask
+        if sel.sum() < 50:
+            residual[k] = None
+            continue
+        residual[k] = round(float(np.linalg.norm(obs[n] * gain + lift - want[n])), 4)
+        n += 1
+    return {"gain": [round(float(g), 3) for g in gain],
+            "lift": [round(float(v), 3) for v in lift]}, residual
+
+
 def _colour_error(ours: np.ndarray, spec_idx: np.ndarray, palette: np.ndarray,
                   mask: np.ndarray) -> dict:
     """Did the renderer paint the right colour where the spec said to?
@@ -290,6 +343,7 @@ def measure(stem: str, preview: bool = False) -> dict:
     dark_fill = (palette * np.array([0.2126, 0.7152, 0.0722])).sum(1) < DARK_V
     scored = o_mask | dark_fill[t_idx]
     colour_err = _colour_error(ours_flat, t_idx, palette, scored)
+    response, colour_residual = _response(ours_flat, t_idx, palette, scored)
 
     ref_path = PREVIEW_DIR / f"{folder.name}.flat.png"
     ref_idx = ref_mask = None
@@ -312,6 +366,12 @@ def measure(stem: str, preview: bool = False) -> dict:
         "colour_error_by_region": colour_err,
         "colour_error_worst": (max([v for v in colour_err.values() if v is not None],
                                    default=None)),
+        # What is left once the picture's own exposure and black level are taken
+        # out -- see _response. None where there are too few regions to fit them.
+        "response": response,
+        "colour_residual_by_region": colour_residual,
+        "colour_residual_worst": (max([v for v in colour_residual.values() if v is not None],
+                                      default=None)),
         "spec_vs_reference": (spec.get("verification") or {}).get("pixel_agreement"),
     }
     if ref_idx is not None:
@@ -341,17 +401,22 @@ def main() -> int:
 
     rows = []
     print(f"{'SKU':9s} {'folder':32s} {'spec~ref':>9s} {'render~spec':>12s} "
-          f"{'render~ref':>11s} {'worst dC':>9s} {'swing':>6s}")
+          f"{'render~ref':>11s} {'worst dC':>9s} {'residual':>8s} {'swing':>6s}")
     for stem in stems:
         r = measure(stem, args.preview)
         rows.append(r)
         sr = r["spec_vs_reference"]
         flag = "" if r["separable"] else "  (palette not separable)"
+        # A dash, not a zero: too few regions to fit the picture's response is
+        # not the same as nothing left after fitting it.
+        resid = r["colour_residual_worst"]
+        resid_txt = "--" if resid is None else f"{resid:.3f}"
         print(f"{stem:9s} {r['folder']:32s} "
               f"{(100 * sr if sr else 0):8.1f}% "
               f"{100 * r['render_vs_spec']['agreement']:11.1f}% "
               f"{100 * r.get('render_vs_reference', {}).get('agreement', 0):10.1f}% "
               f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f} "
+              f"{resid_txt:>8s} "
               f"+-{100 * r['agreement_spread']:4.1f}{flag}")
 
     out = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"
