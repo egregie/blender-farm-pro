@@ -22,22 +22,49 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-15, after the type rows reached the driver and after the
-comparison stopped dividing by its own subject (below).*
+*Re-measured 2026-08-15, with the lighting gradient fitted on the substrate and
+the agreement figure carrying its own measured uncertainty.*
 
-| SKU | folder | spec~ref | render~spec | render~ref | worst ΔC |
-|---|---|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | 0.066 |
-| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.093 |
-| `74-min` | Viagra | 95.0% | 99.7% | 93.2% | 0.191 |
-| `344-min` | Modafinil | 93.9% | 99.4% | 93.9% | **0.065** |
-| `272-min` | Valium | 91.1% | 98.8% | 93.8% | 0.110 |
-| `156-min` | Xanax | 93.3% | 98.6% | 92.4% | 0.116 |
-| `340-min` | Xanax SR | 95.0% | 97.5% | 94.0% | 0.151 |
-| `135-min` | Ativan | 89.6% | 97.2% | 90.2% | 0.126 |
-| `64-min` | Kamagra | 90.5% | 97.0% | 93.1% | 0.247 |
-| `155-min` | Imovane | 93.7% | 88.6% | 83.5% | 0.087 |
-| `59-min` | Cialis | 88.2% | 78.5% | 74.0% | 0.150 |
+| SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
+|---|---|---:|---:|---:|---:|---:|
+| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** | ±0.0 |
+| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.093 | ±0.0 |
+| `74-min` | Viagra | 95.0% | 99.7% | 93.2% | 0.191 | ±0.0 |
+| `344-min` | Modafinil | 93.9% | 99.4% | 93.9% | 0.065 | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.8% | 93.8% | 0.123 | ±0.0 |
+| `156-min` | Xanax | 93.3% | 98.6% | 92.4% | 0.117 | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.5% | 94.0% | 0.147 | ±0.1 |
+| `64-min` | Kamagra | 90.5% | 97.0% | 93.1% | 0.195 | ±0.4 |
+| `135-min` | Ativan | 89.6% | 96.6% | 89.7% | 0.125 | ±0.5 |
+| `155-min` | Imovane | 93.7% | 84.2% | 79.8% | 0.109 | **±7.0** |
+| `59-min` | Cialis | 88.2% | 82.2% | 72.8% | 0.152 | **±3.9** |
+
+**`swing` is the agreement figure's own uncertainty**, measured rather than
+assumed: the same classification run under a second illumination model, on
+identical pixels. Nine of eleven do not move at all. The two that do are the two
+at the bottom of the table.
+
+## `59-min` and `155-min`: the metric cannot resolve them, and now says so
+
+Both were investigated for a build defect and neither has one. Measured deep
+inside their regions, Cialis separates its two creams by 0.1055 against a spec
+of 0.1057 and scores IoU 0.962 on the olive fields it actually draws.
+
+What they have in common is the tightest palettes in the sample — **0.106 and
+0.086** between substrate and highlight, against colour fills a nearest-colour
+classifier has to tell apart under residual noise. Three illumination models on
+identical pixels give Cialis 86.0% / 78.5% / 82.2% and Imovane 91.2% / 88.6% /
+84.3%, while Modafinil returns 99.4% three times and Ritalin 99.8%.
+
+A figure that moves 7 points on a measurement choice is not measuring the render.
+So the swing is now reported beside it, and for these two the honest reading is
+**82 ± 4 and 84 ± 7**, with a colour error — the stable figure, and the one that
+asks whether the renderer painted what it was told to — of 0.152 and 0.109,
+mid-table.
+
+Nothing in the driver was changed for either. The remaining work on them is a
+better instrument, not a better carton: separating two colours a tenth apart
+under render noise needs more than nearest-neighbour on a flattened frame.
 
 ## `64-min`'s colour error: the comparison was dividing by its own subject
 

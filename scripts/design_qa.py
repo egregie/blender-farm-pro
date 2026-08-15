@@ -73,6 +73,41 @@ def _hex_rgb(h: str) -> np.ndarray:
     return np.array([int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)])
 
 
+def flatten_on_substrate(rgb: np.ndarray, substrate_core: np.ndarray) -> np.ndarray:
+    """Divide out the lighting gradient, estimated ONLY where the board is one colour.
+
+    A blur of the whole face cannot separate shading from design. At a narrow
+    radius it follows the artwork -- Kamagra's cream measured 0.48 from the fill
+    it was painted -- and at a wide one it stops removing the gradient that a
+    near-degenerate palette needs removed. Fitting a plane over the SUBSTRATE
+    region, which the spec draws and is therefore known exactly, lets no design
+    structure into the estimate at all; and a lighting gradient across a flat
+    card is very nearly a plane.
+
+    Measured against both blurs, worst colour error: Kamagra 0.482 / 0.252 /
+    **0.187**, Imovane 0.133 / 0.091 / **0.060**, and the two cartons with wide
+    palettes unchanged at 0.060.
+    """
+    h, w = rgb.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    lum = rgb.max(-1)
+    sel = substrate_core & (lum > 0.05)
+    if sel.sum() < 500:
+        return _flatten_illumination(rgb, FLATTEN_RADIUS_DIV)
+    A = np.stack([xx[sel], yy[sel], np.ones(int(sel.sum()))], 1).astype(float)
+    coef, *_ = np.linalg.lstsq(A, lum[sel], rcond=None)
+    est = np.maximum(coef[0] * xx + coef[1] * yy + coef[2], 1e-3)
+    return np.clip(rgb / est[..., None] * float(est.mean()), 0.0, 1.0)
+
+
+def _substrate_core(spec_idx: np.ndarray) -> np.ndarray:
+    """The substrate, eroded clear of its own boundaries."""
+    from PIL import ImageFilter
+    return np.asarray(
+        Image.fromarray(((spec_idx == 0) * 255).astype("uint8"))
+        .filter(ImageFilter.MinFilter(19))) > 0
+
+
 def _classify(img: Image.Image, palette: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Nearest-colour index per pixel, plus a mask of pixels worth scoring.
 
@@ -162,9 +197,19 @@ def measure(stem: str, preview: bool = False) -> dict:
     png = render_fresh(stem)
     view = json.loads(png.with_suffix(".view.json").read_text(encoding="utf-8"))
     ours = flatten_face(png, view["front_face_px"], out_width=OUT_WIDTH, aspect=aspect)
-    o_idx, o_mask = _classify(ours, palette)
-    ours_flat = _flatten_illumination(
-        np.asarray(ours.convert("RGB")).astype(float) / 255.0, FLATTEN_RADIUS_DIV)
+    ours_raw = np.asarray(ours.convert("RGB")).astype(float) / 255.0
+    core = _substrate_core(t_idx)
+    ours_flat = flatten_on_substrate(ours_raw, core)
+    o_idx = ((ours_flat[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1).argmin(-1)
+    o_mask = ours_flat.max(-1) >= DARK_V
+
+    # The same classification under the OTHER illumination model. Where the two
+    # disagree, the agreement figure is not measuring the render: it is measuring
+    # whether a classifier can separate two colours the palette places a hair
+    # apart. Measured on identical pixels, Cialis swings 8 points and Imovane 7
+    # between models, while the two cartons with wide palettes do not move at all.
+    alt = _flatten_illumination(ours_raw, 6.0)
+    alt_idx = ((alt[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1).argmin(-1)
 
     # The dark cut is there to keep printed TYPE out of the score. It must not
     # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black
@@ -188,6 +233,10 @@ def measure(stem: str, preview: bool = False) -> dict:
         "palette_closest_pair": round(closest, 4),
         "separable": closest >= SEPARABLE_MIN,
         "render_vs_spec": _agreement(o_idx, t_idx, o_mask, len(palette)),
+        # The figure's own uncertainty, measured rather than assumed.
+        "agreement_spread": round(abs(
+            _agreement(o_idx, t_idx, o_mask, len(palette))["agreement"]
+            - _agreement(alt_idx, t_idx, o_mask, len(palette))["agreement"]), 4),
         "colour_error_by_region": colour_err,
         "colour_error_worst": (max([v for v in colour_err.values() if v is not None],
                                    default=None)),
@@ -220,7 +269,7 @@ def main() -> int:
 
     rows = []
     print(f"{'SKU':9s} {'folder':32s} {'spec~ref':>9s} {'render~spec':>12s} "
-          f"{'render~ref':>11s} {'worst dC':>9s}")
+          f"{'render~ref':>11s} {'worst dC':>9s} {'swing':>6s}")
     for stem in stems:
         r = measure(stem, args.preview)
         rows.append(r)
@@ -230,7 +279,8 @@ def main() -> int:
               f"{(100 * sr if sr else 0):8.1f}% "
               f"{100 * r['render_vs_spec']['agreement']:11.1f}% "
               f"{100 * r.get('render_vs_reference', {}).get('agreement', 0):10.1f}% "
-              f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f}{flag}")
+              f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f} "
+              f"+-{100 * r['agreement_spread']:4.1f}{flag}")
 
     out = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"
     out.write_text(json.dumps({"rows": rows}, indent=2), encoding="utf-8")
