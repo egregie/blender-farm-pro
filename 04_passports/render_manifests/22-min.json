@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "22-min.jpg",
   "template_id": "T_BOTTLE_BOX",
   "is_bottle_override": false,

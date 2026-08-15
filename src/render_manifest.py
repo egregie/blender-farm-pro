@@ -42,7 +42,7 @@ from pathlib import Path
 
 from src.design_group import load_design, reshape_to_design
 
-MANIFEST_VERSION = "1.4"
+MANIFEST_VERSION = "1.5"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 

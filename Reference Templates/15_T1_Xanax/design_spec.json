@@ -154,7 +154,8 @@
       "u1": 0.5764,
       "v0": 0.4636,
       "v1": 0.6186,
-      "cap_frac": 0.155,
+      "cap_frac": 0.1499,
+      "cap_top_v": 0.4657,
       "align": "LEFT",
       "read_as": "ALPRAZOLAM"
     }

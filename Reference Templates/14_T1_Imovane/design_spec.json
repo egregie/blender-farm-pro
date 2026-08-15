@@ -434,7 +434,8 @@
       "u1": 0.415,
       "v0": 0.5722,
       "v1": 0.6614,
-      "cap_frac": 0.0892,
+      "cap_frac": 0.0671,
+      "cap_top_v": 0.575,
       "align": "LEFT",
       "read_as": "zopiclon."
     },
@@ -443,7 +444,8 @@
       "u1": 0.9777,
       "v0": 0.8596,
       "v1": 0.9488,
-      "cap_frac": 0.0892,
+      "cap_frac": 0.084,
+      "cap_top_v": 0.8631,
       "align": "RIGHT",
       "read_as": "10 tabletter"
     }

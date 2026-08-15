@@ -22,34 +22,36 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-15, after the D-7 type work, the Xanax fitter fix and the
-`assign_roles` threshold. `340-min` gains 0.6 points against its photograph — its
-dosage moved to a measured box; everything else moves by a tenth or less.*
+*Re-measured 2026-08-15, after the D-7 type work, the Xanax fitter fix, the
+`assign_roles` threshold and contract 1.5's cap heights. Type work keeps moving
+these figures because moving the label changes which pixels are excluded — see
+the two notes below.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
 |---|---|---:|---:|---:|---:|---:|
 | `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** | ±0.0 |
 | `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.093 | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.7% | 94.6% | 0.147 | ±0.1 |
-| `344-min` | Modafinil | 93.9% | 99.4% | 93.9% | 0.065 | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.7% | 93.9% | 0.123 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 97.1% | 93.3% | 0.189 | ±0.4 |
+| `340-min` | Xanax SR | 95.0% | 97.7% | 94.7% | 0.147 | ±0.1 |
+| `344-min` | Modafinil | 93.9% | 99.4% | 94.0% | 0.065 | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.8% | 93.9% | 0.123 | ±0.0 |
+| `64-min` | Kamagra | 90.5% | 97.1% | 93.4% | 0.189 | ±0.4 |
 | `74-min` | Viagra | 95.0% | 99.7% | 93.3% | 0.191 | ±0.0 |
 | `156-min` | Xanax | 93.2% | 98.8% | 92.0% | 0.111 | ±0.0 |
-| `135-min` | Ativan | 89.6% | 94.3% | 87.8% | 0.125 | ±2.6 |
-| `155-min` | Imovane | 93.7% | 84.2% | 79.9% | 0.111 | **±7.0** |
+| `135-min` | Ativan | 89.6% | 96.5% | 90.0% | 0.125 | ±0.4 |
+| `155-min` | Imovane | 93.7% | 84.3% | 79.9% | 0.111 | **±7.0** |
 | `59-min` | Cialis | 88.2% | 82.2% | 72.8% | 0.152 | **±3.9** |
 
 **Two rows moved, and neither is a carton getting worse.**
 
-`135-min` Ativan: 96.6% → 94.3% against its spec. Its spec did not change; its
-DRIVER did. D-7 stopped its brand printing through its ingredient row, which
-moved the ingredient from v 0.49 to v 0.57 — and every figure in this table
-excludes dark pixels, so moving the type changes which pixels are scored. The
-carton it measures lower on is the one that went from illegible to legible: the
-OCR reader returned nothing at all from the old face, in either polarity. The
-swing rose with it, ±0.5 → ±2.6, which is the honest reading — this row is now
-less certain, not worse.
+`135-min` Ativan went 96.6% → 94.3% → **96.5%** against its spec across two
+changes, and both movements are the type moving rather than the colour. D-7 first
+stopped its brand printing through its ingredient row, which moved the ingredient
+from v 0.49 to v 0.57; every figure in this table excludes dark pixels, so moving
+the type changes which pixels are scored. Contract 1.5 then took its brand off an
+ink-box cap height — "Lorazepam Orion" descends, so that row had been set 33%
+oversized — and the figure came back up past where it started, with the swing
+falling ±2.6 → ±0.4. The carton it dipped on is the one that went from illegible
+to legible.
 
 That movement should have been reported with D-7 and was not: the type axis was
 re-run and the colour axis was not. It is separable after the fact only because

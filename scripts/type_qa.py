@@ -17,7 +17,7 @@ the text-as-geometry rule exists to prevent. So a row's WIDTH is not evidence of
 anything — a longer word makes a longer box — and neither is box IoU, which is
 mostly width. What survives the difference in strings:
 
-  dv_top      where the row starts down the face
+  dv_cap_top  where the row's CAPITALS start down the face
   du_anchor   where the row sits across it, read at the end alignment pins
   cap_ratio   how big the type is, ours over the reference's
 
@@ -47,7 +47,7 @@ from src.utils import load_config, resolve_path  # noqa: E402
 from scripts.catalogue_sweep import is_stale  # noqa: E402
 from scripts.design_qa import OUT_WIDTH, render_fresh  # noqa: E402
 from scripts.measure_type_rows import (  # noqa: E402
-    _lines, _similar, _words, assign_roles, usable)
+    _lines, _similar, _words, assign_roles, ink_profile, usable)
 
 _CFG = load_config()
 MANIFEST_DIR = resolve_path(_CFG["paths"]["passports_manifests"])
@@ -153,13 +153,22 @@ def compare(spec_rows: dict, ours: dict, printed: dict) -> dict:
             per_role[role] = None
             continue
         align = ref["align"]
-        dv = got["v0"] - ref["v0"]
+        # Cap line against cap line, and cap height against cap height. What the
+        # reader returns on either side is an INK box, whose top and height both
+        # depend on the glyphs the string happens to carry -- and the two cartons
+        # carry different words. Since contract 1.5 the reference's figures are
+        # already converted; ours go through the same profile. Differencing the
+        # ink boxes instead would report a descender as a size error and an
+        # ascender as a placement one.
+        ink_h, above_cap = ink_profile(role, printed.get(role) or "")
+        our_cap = got["cap_frac"] / ink_h
+        dv = (got["v0"] + above_cap * our_cap) - ref["cap_top_v"]
         du = _anchor(got, align) - _anchor(ref, align)
         read = _similar(got["text"], printed.get(role) or "")
         per_role[role] = {
-            "dv_top": round(dv, 4),
+            "dv_cap_top": round(dv, 4),
             "du_anchor": round(du, 4),
-            "cap_ratio": round(got["cap_frac"] / max(1e-6, ref["cap_frac"]), 3),
+            "cap_ratio": round(our_cap / max(1e-6, ref["cap_frac"]), 3),
             "align": align,
             "read_as": got["text"],
             "read_score": round(read, 3),
@@ -175,9 +184,9 @@ def compare(spec_rows: dict, ours: dict, printed: dict) -> dict:
         "not_located": sorted(r for r, v in per_role.items() if v is None),
         "unreadable": sorted(r for r, v in per_role.items()
                              if v is not None and not v["scored"]),
-        "worst_dv_top": round(max(dvs), 4) if dvs else None,
+        "worst_dv_cap": round(max(dvs), 4) if dvs else None,
         "worst_du_anchor": round(max(dus), 4) if dus else None,
-        "mean_dv_top": round(sum(dvs) / len(dvs), 4) if dvs else None,
+        "mean_dv_cap": round(sum(dvs) / len(dvs), 4) if dvs else None,
         "by_role": per_role,
     }
 
@@ -253,8 +262,8 @@ def main() -> int:
         nan = float("nan")
         print(f"{stem:9s} {r['folder']:32s} "
               f"{r['rows_scored']:3d}/{r['rows_in_reference']:<3d} "
-              f"{(r['worst_dv_top'] if r['worst_dv_top'] is not None else nan):9.4f} "
-              f"{(r['mean_dv_top'] if r['mean_dv_top'] is not None else nan):8.4f} "
+              f"{(r['worst_dv_cap'] if r['worst_dv_cap'] is not None else nan):9.4f} "
+              f"{(r['mean_dv_cap'] if r['mean_dv_cap'] is not None else nan):8.4f} "
               f"{(r['worst_du_anchor'] if r['worst_du_anchor'] is not None else nan):9.4f}"
               f"  {', '.join(why)}")
 

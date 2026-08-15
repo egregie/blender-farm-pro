@@ -169,6 +169,44 @@ def _similar(a: str, b: str) -> float:
     return len(A & B) / max(1, len(A), len(B))
 
 
+FONT_DIR = PROJECT_ROOT / "05_assets" / "blender" / "fonts"
+# Which face the driver sets each role in. Restated rather than imported: the
+# driver only imports under Blender's own interpreter.
+BOLD_ROLES = {"brand_name_display", "dosage_display"}
+_PROFILE_CACHE: dict[tuple, tuple] = {}
+
+
+def ink_profile(role: str, text: str) -> tuple[float, float]:
+    """A string's ink box in CAP heights: (height, how far its top sits above cap).
+
+    An OCR box is the extent of the GLYPHS -- ascenders above the cap line,
+    descenders below the baseline -- and how much of it is cap height depends
+    entirely on which letters the string happens to carry. Measured over the
+    twenty reference rows this sample measures, that ratio runs **1.034 to
+    1.384**: "ALPRAZOLAM" is all caps and its ink IS its cap height, while
+    "Lorazepam Orion" descends and its box is a third taller.
+
+    A PROXY, and worth naming as one. The reference's own typeface is unknown
+    and unknowable from a photograph, so the profile is taken in the face this
+    project actually prints in. What it is really measuring is which CATEGORIES
+    of glyph the string contains -- has-cap, has-ascender, has-descender -- and
+    those move together across sans-serif faces even where the exact ratios do
+    not.
+    """
+    from PIL import ImageFont
+    key = (role in BOLD_ROLES, text)
+    if key not in _PROFILE_CACHE:
+        path = FONT_DIR / ("DejaVuSans-Bold.ttf" if key[0] else "DejaVuSans.ttf")
+        font = ImageFont.truetype(str(path), 200)
+        cap = font.getbbox("H")
+        cap_h = cap[3] - cap[1]
+        box = font.getbbox(text)
+        height = box[3] - box[1]
+        _PROFILE_CACHE[key] = ((height / cap_h, (cap[1] - box[1]) / cap_h)
+                               if height > 0 and cap_h > 0 else (1.0, 0.0))
+    return _PROFILE_CACHE[key]
+
+
 def _word_key(word: dict) -> tuple:
     return (word["u0"], word["u1"], word["v0"], word["v1"])
 
@@ -313,9 +351,20 @@ def measure(folder: Path, preview: bool = False) -> dict:
     for role in roles:
         r = boxes[role]
         centre = 0.5 * (r["u0"] + r["u1"])
+        # The box is ink; the renderer needs CAP HEIGHT, and the two differ by
+        # whatever glyphs this string happens to carry. Converting here rather
+        # than in the driver keeps the field honest to its name and keeps the
+        # font proxy in one place -- the driver would otherwise have to take
+        # metrics for a string it never prints.
+        ink_h, above_cap = ink_profile(role, r["text"])
+        cap_frac = round(r["cap_frac"] / ink_h, 4)
         out[role] = {
             "u0": r["u0"], "u1": r["u1"], "v0": r["v0"], "v1": r["v1"],
-            "cap_frac": r["cap_frac"],
+            "cap_frac": cap_frac,
+            # Where the reference's CAPITALS start, which is what a row is set
+            # against. `v0` stays the ink top: it is what the collision guards
+            # treat as the row's occupied area, and it is what was measured.
+            "cap_top_v": round(r["v0"] + above_cap * cap_frac, 4),
             "align": "LEFT" if centre < 0.45 else ("RIGHT" if centre > 0.62 else "CENTER"),
             "read_as": r["text"],
         }

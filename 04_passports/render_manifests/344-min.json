@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "344-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -84,7 +84,8 @@
         "u1": 0.9995,
         "v0": 0.2185,
         "v1": 0.327,
-        "cap_frac": 0.1085,
+        "cap_frac": 0.0817,
+        "cap_top_v": 0.2219,
         "align": "RIGHT",
         "read_as": "30 comprima"
       }

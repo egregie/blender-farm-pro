@@ -154,7 +154,8 @@
       "u1": 0.8764,
       "v0": 0.0938,
       "v1": 0.1667,
-      "cap_frac": 0.0729,
+      "cap_frac": 0.0687,
+      "cap_top_v": 0.0966,
       "align": "CENTER",
       "read_as": "Lexomil* Roche"
     },
@@ -163,7 +164,8 @@
       "u1": 0.5827,
       "v0": 0.235,
       "v1": 0.2893,
-      "cap_frac": 0.0543,
+      "cap_frac": 0.0392,
+      "cap_top_v": 0.2388,
       "align": "LEFT",
       "read_as": "Bromazépam"
     },
@@ -172,7 +174,8 @@
       "u1": 0.8786,
       "v0": 0.5417,
       "v1": 0.6129,
-      "cap_frac": 0.0712,
+      "cap_frac": 0.0515,
+      "cap_top_v": 0.5466,
       "align": "CENTER",
       "read_as": "1 comprimé uadrisécable"
     }

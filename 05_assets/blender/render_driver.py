@@ -331,6 +331,7 @@ def _text_dimensions(obj):
 
 
 _CAP_RATIO_CACHE = {}
+_CAP_DROP_CACHE = {}
 
 
 def _cap_ratio(font) -> float:
@@ -502,28 +503,37 @@ def _x_span(t):
     return min(xs), max(xs)
 
 
-def _align_ink_top(t, top_z):
-    """Put the row's INK where the measurement says the row starts.
+def _cap_drop(font) -> float:
+    """How far below the align_y="TOP" origin a capital's top sits, per unit size.
 
     `align_y="TOP"` pins the top of the font's LINE box, which stands above the
-    tallest glyph by the font's own ascent-above-cap. The reference box is an
-    INK box — Tesseract returns the glyphs' own extent — so the two anchors are
-    different quantities and the difference is a systematic drop. Measured off
-    the built geometry rather than the pixels, eight rows on three cartons: every
-    one landed BELOW its own v0, by 0.109 to 0.231 of its cap height.
+    tallest glyph by the font's own ascent-above-cap. Anchoring a measured row
+    by that origin put every one of them BELOW its own target: measured off the
+    built geometry, eight rows on three cartons, 0.109 to 0.231 of a cap height,
+    none above.
 
-    Corrected by measuring, not by a constant, for the same reason the type
-    sizes are set as cap height: the gap depends on which glyphs the string
-    happens to carry, so a number fitted on one row is wrong on the next.
-
-    What this does NOT fix: `cap_frac` is the reference's ink-box height, and it
-    is used as our cap height. Where the two strings carry different ascenders
-    and descenders the sizes still differ — measured, 0.55 to 1.34 of the
-    reference's box height. That is a question about what D-2b measured, not
-    about where the driver puts it.
+    Unlike a row's INK, a row's cap line does not depend on the string — it is a
+    position in the font's line box — so this is one measurement per face rather
+    than one per row, and it stays exact after `_fit_width` rescales the object.
     """
-    _, highest = _z_span(t)
-    t.location.z += top_z - highest
+    key = font.name
+    if key not in _CAP_DROP_CACHE:
+        bpy.ops.object.text_add(location=(0.0, 0.0, 0.0))
+        probe = bpy.context.active_object
+        probe.data.body = "H"
+        probe.data.font = font
+        probe.data.size = 1.0
+        probe.data.align_y = "TOP"
+        dg = bpy.context.evaluated_depsgraph_get()
+        top = max(c[1] for c in probe.evaluated_get(dg).bound_box)
+        _CAP_DROP_CACHE[key] = -top
+        bpy.data.objects.remove(probe, do_unlink=True)
+    return _CAP_DROP_CACHE[key]
+
+
+def _align_cap_top(t, cap_top_z):
+    """Set the row so its CAPITALS start where the reference's do."""
+    t.location.z = cap_top_z + _cap_drop(t.data.font) * t.data.size
     return t
 
 
@@ -599,14 +609,20 @@ def _place_measured_row(name, body, font, row, ink, face_w, face_h, left_x,
     x = {"LEFT": left_x + row["u0"] * face_w,
          "RIGHT": left_x + row["u1"] * face_w,
          "CENTER": left_x + 0.5 * (row["u0"] + row["u1"]) * face_w}[row["align"]]
-    row_top_z = top_z - row["v0"] * face_h
+    if "cap_top_v" not in row:
+        raise SystemExit(
+            f"[render_driver] {name}: the design's type_rows carry no "
+            f"'cap_top_v', which contract 1.5 marks required. An older manifest "
+            f"would set this row against its INK box instead of its cap line and "
+            f"come out up to 38% oversized. Regenerate via Stage 1.")
+    cap_top_z = top_z - row["cap_top_v"] * face_h
     t = _add_text(name, body, font, row["cap_frac"] * face_h, ink,
-                  x, row_top_z, y, align=row["align"])
+                  x, cap_top_z, y, align=row["align"])
     # Width first, then the vertical anchor: fitting the width scales the glyphs
-    # about the origin, which moves the ink top. Aligning before that would be
-    # aligning a row that is about to change size.
+    # about the origin, which moves the cap line with it. Aligning before that
+    # would be aligning a row that is about to change size.
     _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w))
-    return _align_ink_top(t, row_top_z)
+    return _align_cap_top(t, cap_top_z)
 
 
 def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
@@ -1706,6 +1722,18 @@ def dump_scene(path: str):
                 "align_x": t.data.align_x,
                 "font": t.data.font.name if t.data.font else None,
                 "bounds_in_carton_frame": _bounds_in_frame(t, box),
+                # Where this row's CAPITALS start, which is what a measured row
+                # is set against and what the INK bounds above cannot give: a
+                # row's ink top sits above its cap line by whatever ascender the
+                # string happens to carry, and every row carries a different one.
+                "cap_top_z": (t.location.z - _cap_drop(t.data.font) * t.data.size
+                              if t.data.font else None),
+                # The cap height actually built, after any width fit. `size` is
+                # not this and the two are not related by a documented constant
+                # -- see _cap_ratio -- so a consumer that converts one to the
+                # other has to re-measure the font to do it.
+                "cap_h": (_cap_ratio(t.data.font) * t.data.size
+                          if t.data.font else None),
             }
             # Front-panel rows only. The side panel's text is reported
             # separately, under "side_panel".

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "135-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -790,7 +790,8 @@
         "u1": 0.5959,
         "v0": 0.4321,
         "v1": 0.5616,
-        "cap_frac": 0.1295,
+        "cap_frac": 0.0975,
+        "cap_top_v": 0.4361,
         "align": "LEFT",
         "read_as": "Lorazepam Orion"
       }

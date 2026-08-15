@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "404-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -76,7 +76,8 @@
         "u1": 0.6318,
         "v0": 0.3318,
         "v1": 0.4061,
-        "cap_frac": 0.0743,
+        "cap_frac": 0.0559,
+        "cap_top_v": 0.3341,
         "align": "LEFT",
         "read_as": "methylphenidathydrochlorid"
       }

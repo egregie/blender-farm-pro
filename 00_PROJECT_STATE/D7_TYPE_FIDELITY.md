@@ -24,9 +24,15 @@ difference in strings:
 
 | | |
 |---|---|
-| `dv_top` | where the row starts down the face |
+| `dv_cap_top` | where the row's CAPITALS start down the face |
 | `du_anchor` | where it sits across the face, read at the alignment pin: left edge for LEFT, right for RIGHT, centre for CENTER |
-| `cap_ratio` | how big the type is, ours over the reference's |
+| `cap_ratio` | how big the type is, cap height over cap height |
+
+Both vertical figures are read at the **cap line**, not at the ink. An OCR box is
+the extent of the glyphs, so its top and its height both move with whatever
+ascenders and descenders the string carries — and the two cartons carry different
+words. Differencing the ink boxes reports a descender as a size error and an
+ascender as a placement one.
 
 Both sides are read with the **same instrument** — Tesseract word boxes on a
 rectified face, the reader D-2b used on the photographs — so the reader's own
@@ -43,9 +49,10 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 | | at baseline | now |
 |---|---:|---:|
 | rows scored | 18/21 | **20/20** |
-| worst `dv_top` | 0.0274 | **0.0014** |
-| mean \|`dv_top`\| | 0.0180 | **0.0005** |
+| worst vertical error | 0.0274 | **0.0014** |
+| mean vertical error | 0.0180 | **0.0004** |
 | worst `du_anchor` | 0.0091 | 0.0073 |
+| `cap_ratio` above 1 | to **1.384** | to 1.03 |
 
 *The denominator moved too: `MATCH_MIN` dropped three reference boxes that
 covered under 60% of their own string, and word-level claiming added two. See the
@@ -57,15 +64,15 @@ vertical axis and the two collisions.
 | SKU | folder | scored | worst dv | worst du |
 |---|---|---:|---:|---:|
 | `64-min` | Kamagra | 2/2 | 0.0000 | 0.0073 |
-| `74-min` | Viagra | 3/3 | 0.0000 | 0.0072 |
-| `135-min` | Ativan | 1/1 | 0.0000 | 0.0000 |
-| `155-min` | Imovane | 2/2 | 0.0013 | 0.0014 |
-| `156-min` | Xanax | 1/1 | 0.0007 | 0.0010 |
-| `272-min` | Valium | 2/2 | 0.0011 | 0.0040 |
-| `308-min` | Lexotanil | 3/3 | 0.0003 | 0.0069 |
+| `74-min` | Viagra | 3/3 | 0.0002 | 0.0072 |
+| `135-min` | Ativan | 1/1 | 0.0001 | 0.0000 |
+| `155-min` | Imovane | 2/2 | 0.0009 | 0.0014 |
+| `156-min` | Xanax | 1/1 | 0.0006 | 0.0010 |
+| `272-min` | Valium | 2/2 | 0.0006 | 0.0040 |
+| `308-min` | Lexotanil | 3/3 | 0.0002 | 0.0069 |
 | `340-min` | Xanax Pfizer | 4/4 | 0.0008 | 0.0032 |
-| `344-min` | Modafinil | 1/1 | 0.0014 | 0.0013 |
-| `404-min` | Ritalin | 1/1 | 0.0000 | 0.0050 |
+| `344-min` | Modafinil | 1/1 | 0.0014 | 0.0009 |
+| `404-min` | Ritalin | 1/1 | 0.0000 | 0.0037 |
 | `59-min` | Cialis | 0/0 | — | — |
 
 **`59-min` is not a pass.** Its reference measured no rows at all, so there is
@@ -91,13 +98,14 @@ systematic drop, and it was one:
 | `404-min` | ingredient | 0.3318 | 0.3489 | 0.231 |
 | `404-min` | unit count | 0.4776 | 0.4925 | 0.199 |
 
-Eight rows on three cartons, every one below, none above. `_align_ink_top()`
-measures the built row and translates it, which lands all eight on 0.0000 — the
-correction is exact in one pass because it is a translation, not a scale.
-
-Corrected by measuring rather than by a constant, for the reason the type sizes
-are already set as cap height: the gap depends on which glyphs the string
-happens to carry, and the eight rows above spread over 0.109–0.231.
+Eight rows on three cartons, every one below, none above. The first fix measured
+the built row's ink top and translated it onto `v0`, which landed all eight on
+0.0000. That was right about the direction and wrong about the anchor: an ink top
+is a different quantity on every string, so it made our row's ink line up with a
+row of different words. **The anchor is the cap line** — see the contract-1.5
+section — and `_cap_drop()` gives it without a bounds read at all, because a
+capital's top sits a fixed distance below the `align_y="TOP"` origin for a given
+font whatever the string.
 
 ## Defect 2: a grid row printed through a measured one, twice
 
@@ -300,19 +308,93 @@ not know the difference. Making it know would mean measuring the true ink extent
 per row, and the instrument for that currently catches design fields as well as
 type: on Xanax it returns the purple edge bar along with the wordmark.
 
+## `cap_frac` was an ink height wearing a cap height's name
+
+*Added 2026-08-15. Contract **1.5**.*
+
+`_place_measured_row` set our cap height to the reference's `cap_frac`, which was
+the height of the OCR **ink box** — the extent of the glyphs, ascenders above the
+cap line and descenders below the baseline. How much of that box is cap height
+depends entirely on which letters the reference's own string happens to carry.
+Measured in the vendored face over the twenty rows this sample has:
+
+| | ink/cap |
+|---|---:|
+| `ALPRAZOLAM`, `XANAX’ SR`, `KAMAGRA-100` — caps only | 1.034 |
+| `30 tabletek`, `Sildenafil Citrate` — ascenders, no descender | 1.062 |
+| `50 mg`, `0,5 mg` | 1.308 |
+| `Lorazepam Orion`, `Diazepam`, `30 comprima` — descenders | 1.329 |
+| `Bromazépam`, `1 comprimé uadrisécable` — accent and descender | 1.384 |
+
+**1.034 to 1.384, mean 1.180.** Every measured row was that much oversized, and
+the size of the error was a property of another manufacturer's wording rather
+than of anything about our carton — Kamagra's brand was 3% out and Lexotanil's
+ingredient 38%, for no reason connected to either pack.
+
+### Fixed at the measuring end, and the field renamed to what it holds
+
+`measure_type_rows` now converts before it writes: `cap_frac` is a **cap height**
+and a new `cap_top_v` records where the reference's capitals start. `v0` stays
+the ink top, because that is what was measured and what the collision guards
+treat as the row's occupied area.
+
+Doing it there rather than in the driver keeps the field honest to its name and
+keeps the font proxy in one place. It is a **proxy** and is labelled as one: the
+reference's typeface cannot be recovered from a photograph, so the glyph profile
+is taken in the face this project prints in. What it really measures is which
+*categories* of glyph the string contains — has-cap, has-ascender, has-descender
+— and those move together across sans-serif faces even where exact ratios do not.
+
+The driver anchors the **cap line** to match: `_cap_drop()` measures how far below
+the `align_y="TOP"` origin a capital's top sits, per unit `size`. Unlike an ink
+measurement that is string-independent and survives `_fit_width` rescaling the
+object, so the alignment is one arithmetic step rather than a second bounds read.
+
+**This is a repurposing, not an addition, and the contract treats it as one.** A
+1.4 row is not a 1.5 row with a field missing — it is the same number meaning
+something else, and reading it as a cap height silently oversizes the row. `1.5`
+therefore requires `cap_top_v` and `read_as`, and a 1.4 manifest is rejected.
+
+### What the numbers say
+
+`cap_ratio` is now cap height over cap height. Applying that metric to the old
+build gives back the ink/cap figures above — 1.034 to 1.384. Applying it now:
+
+| | |
+|---|---|
+| rows at exactly 1.00–1.01 | **10 of 20** |
+| highest | **1.03** |
+| the rest | 0.56–0.95, all below 1 |
+
+Everything above 1 is gone; what remains is entirely below, and it is a different
+constraint. **Our typeface is not the reference's**, so a row set at the
+reference's cap height can be wider than the box it was measured in and
+`_fit_width` shrinks it. That trade is deliberate — a row that overflows its
+measured box lands on a design field — and a test now forbids the other
+direction, a row built *larger* than its measurement.
+
+The colour axis moved with it. `135-min` Ativan, whose reference brand string
+descends and was therefore 33% oversized, reads **94.3% → 96.5%** against its
+spec and 87.8% → 90.0% against its photograph, with its swing falling 2.6 → 0.4.
+Four other rows gain a tenth of a point and none regresses.
+
+### The instrument now crosses two independent implementations
+
+The vertical figure is measured at the cap line on both sides, and the two sides
+compute that line in different code: PIL/FreeType metrics in `ink_profile`, a
+probe object in Blender for `_cap_drop`. They agree to **0.0014 of face height**
+across twenty rows. A disagreement between them would show up here as a
+placement error, which is a stronger check than either alone.
+
 ## Open, with a number attached
 
-**`cap_frac` is the reference's ink-box height being used as our cap height.**
-Where the two strings carry different ascenders and descenders those are not the
-same quantity, and the sizes come out 0.54–1.34 of the reference's box, with only
-10 of 20 rows inside ±10%. The extremes are exactly the strings that differ most:
-`156-min`'s dosage reads "0.5mg" against a reference "0,50" — digits only, no
-descender — and comes out 0.56.
-
-Fixing it means converting each reference box into a cap height using the
-reference's own string, which D-2b already records as `read_as`. The risk is that
-`read_as` is an OCR reading and sometimes a garbled one ("NAX", "dala fil"), so
-the glyph profile it implies can be wrong. Not attempted here.
+**Our typeface is wider than the references', and `_fit_width` pays for it.**
+Ten of twenty rows keep the reference's cap height exactly; the other ten are
+shrunk 0.56–0.95 to fit the box they were measured in. Nothing is oversized any
+more, so this is now the whole of the size story — and it is a property of
+DejaVu against an unknown print face, not of the measurement. A condensed
+vendored face would close most of it; that changes every one of the 391 cartons
+and is not a design-group decision.
 
 **Cialis has no measured rows**, and the reference-side reader is what would have
 to improve to give it any.

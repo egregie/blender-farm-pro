@@ -672,7 +672,18 @@ class TestDesignChannel(unittest.TestCase):
     def test_a_manifest_from_the_previous_contract_is_rejected(self):
         from src.render_manifest import validate_manifest
         stale = self._manifest("59-min")
-        stale["manifest_version"] = "1.3"
+        stale["manifest_version"] = "1.4"
+        with self.assertRaises(Exception):
+            validate_manifest(stale)
+
+    def test_a_type_row_without_a_cap_line_is_rejected(self):
+        """1.5's whole point: `cap_frac` changed meaning, so a 1.4 row is not a
+        1.5 row with a field missing -- it is the same number meaning something
+        else, and reading it as a cap height oversizes the row by up to 38%."""
+        from src.render_manifest import validate_manifest
+        stale = self._manifest("340-min")
+        for row in stale["design"]["type_rows"].values():
+            row.pop("cap_top_v", None)
         with self.assertRaises(Exception):
             validate_manifest(stale)
 

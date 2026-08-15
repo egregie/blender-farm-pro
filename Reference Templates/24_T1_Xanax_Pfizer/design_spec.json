@@ -134,7 +134,8 @@
       "u1": 0.7882,
       "v0": 0.2074,
       "v1": 0.3443,
-      "cap_frac": 0.1369,
+      "cap_frac": 0.1324,
+      "cap_top_v": 0.2092,
       "align": "CENTER",
       "read_as": "XANAX’ SR"
     },
@@ -143,7 +144,8 @@
       "u1": 0.7877,
       "v0": 0.4108,
       "v1": 0.4812,
-      "cap_frac": 0.0704,
+      "cap_frac": 0.0681,
+      "cap_top_v": 0.4117,
       "align": "CENTER",
       "read_as": "ALPRAZOLAMUM"
     },
@@ -152,7 +154,8 @@
       "u1": 0.3623,
       "v0": 0.3764,
       "v1": 0.4914,
-      "cap_frac": 0.115,
+      "cap_frac": 0.0879,
+      "cap_top_v": 0.3776,
       "align": "LEFT",
       "read_as": "0,5 mg"
     },
@@ -161,7 +164,8 @@
       "u1": 0.2982,
       "v0": 0.8685,
       "v1": 0.9124,
-      "cap_frac": 0.0439,
+      "cap_frac": 0.0414,
+      "cap_top_v": 0.8702,
       "align": "LEFT",
       "read_as": "30 tabletek"
     }

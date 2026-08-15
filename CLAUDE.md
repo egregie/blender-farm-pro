@@ -111,10 +111,23 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.4`.** Bumps up to 1.3 added or repurposed *required* fields — deliberately not
-additive-optional changes, so a manifest written before them fails validation loudly instead
-of quietly producing a packshot with something missing. `manifest_version` is pinned by
-`const` in the schema, so stale files on disk are rejected until Stage 1 regenerates them.
+**Contract version is `1.5`.** Bumps up to 1.3 and again at 1.5 added or repurposed
+*required* fields — deliberately not additive-optional changes, so a manifest written before
+them fails validation loudly instead of quietly producing a packshot with something missing.
+`manifest_version` is pinned by `const` in the schema, so stale files on disk are rejected
+until Stage 1 regenerates them.
+
+- `1.5` — **`design.type_rows.cap_frac` repurposed from an ink height to a CAP height**, with
+  `cap_top_v` and `read_as` added beside it as required. An OCR box is the extent of the
+  *glyphs*, so how much of it is cap height depends on which letters the reference's own
+  string happens to carry — measured over the twenty rows this sample has, **1.034 to 1.384,
+  mean 1.180**. Using it as a cap height set every row that much oversized, and the error was
+  a property of another manufacturer's wording rather than of anything about our carton.
+  `read_as` is what makes the conversion possible and is therefore required now rather than
+  optional. This is a repurposing, not an addition: a 1.4 row is not a 1.5 row missing a
+  field, it is the same number meaning something else, so it must fail rather than be read.
+  The proxy is stated where it is taken (`ink_profile`): the reference's typeface is unknown,
+  so the glyph profile is measured in the face this project prints in.
 
 - `1.4` — **`design`, the one optional block**, and the exception is deliberate: 380 SKU have
   no reference photography to measure, so requiring it would fail the catalogue. Loudness moved
@@ -402,14 +415,25 @@ failure the nine curated templates did not show:
 Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
 the sweep is what finds the ones we don't.
 
-**Where a design spec carries a measured row, that row overrides the grid — and it is
-anchored on its INK, not on the font's line box.** `align_y="TOP"` pins the top of the
-line box, which stands above the tallest glyph by the font's ascent-above-cap, while
-contract 1.4's `type_rows` box is what Tesseract read off the photograph, i.e. the glyphs'
-own extent. Anchoring one to the other dropped every measured row on every design carton
-below its own `v0`, by 0.109–0.231 of its cap height. `_align_ink_top()` measures the built
-row and translates it, in keeping with the law above: fit by measuring, never by trusting
-the nominal size.
+**Where a design spec carries a measured row, that row overrides the grid — and it is set
+against its CAP LINE at both ends.** Two quantities were confused there at once, and both
+depend on glyphs the reference's string happens to carry rather than on anything about our
+carton:
+
+- `align_y="TOP"` pins the top of the font's *line box*, which stands above the tallest
+  glyph by the font's ascent-above-cap. Anchoring a measured row by it dropped every one
+  below its target — 0.109–0.231 of a cap height, eight rows, none above. `_cap_drop()`
+  measures where a capital's top sits below that origin, per unit `size`, so `_align_cap_top`
+  is exact and — unlike an ink measurement — string-independent and stable across
+  `_fit_width`.
+- `cap_frac` was the *ink* box height used as a cap height, over-sizing every row by
+  1.034–1.384. Fixed at the measuring end in contract 1.5, so the field means its name.
+
+**Cap height may still be lost to `_fit_width`, and only in that direction.** Our typeface is
+not the reference's, so a row set at the reference's cap height can be wider than the box it
+was measured in: measured, three of eight rows keep 1.00 and the rest come out 0.67–0.95.
+That is a deliberate trade — a row that overflows its measured box lands on a design field.
+A row built *larger* than its measurement has no such excuse and a test forbids it.
 
 Two consequences worth holding on to:
 

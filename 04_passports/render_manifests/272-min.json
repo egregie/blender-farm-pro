@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "272-min.jpg",
   "template_id": "T1",
   "is_bottle_override": false,
@@ -158,7 +158,8 @@
         "u1": 0.4977,
         "v0": 0.0949,
         "v1": 0.2162,
-        "cap_frac": 0.1213,
+        "cap_frac": 0.1143,
+        "cap_top_v": 0.0996,
         "align": "LEFT",
         "read_as": "Valium® Roche"
       },
@@ -167,7 +168,8 @@
         "u1": 0.2723,
         "v0": 0.3987,
         "v1": 0.5169,
-        "cap_frac": 0.1182,
+        "cap_frac": 0.089,
+        "cap_top_v": 0.4024,
         "align": "LEFT",
         "read_as": "Diazepam"
       }

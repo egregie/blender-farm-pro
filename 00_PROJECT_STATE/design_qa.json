@@ -36,23 +36,23 @@
       "palette_closest_pair": 0.1221,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9709,
+        "agreement": 0.9711,
         "iou": {
           "0": 0.985,
-          "1": 0.179,
+          "1": 0.18,
           "2": 0.0
         }
       },
-      "agreement_spread": 0.0038,
+      "agreement_spread": 0.0037,
       "colour_error_by_region": {
-        "0": 0.1894,
+        "0": 0.1889,
         "1": 0.1224,
         "2": 0.1552
       },
-      "colour_error_worst": 0.1894,
+      "colour_error_worst": 0.1889,
       "spec_vs_reference": 0.9047,
       "render_vs_reference": {
-        "agreement": 0.9333,
+        "agreement": 0.9336,
         "iou": {
           "0": 0.933,
           "1": 0.053,
@@ -66,21 +66,21 @@
       "palette_closest_pair": 1.0293,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9966,
+        "agreement": 0.9965,
         "iou": {
-          "0": 0.997,
-          "1": 0.879
+          "0": 0.996,
+          "1": 0.877
         }
       },
       "agreement_spread": 0.0001,
       "colour_error_by_region": {
-        "0": 0.1909,
-        "1": 0.047
+        "0": 0.1908,
+        "1": 0.0471
       },
-      "colour_error_worst": 0.1909,
+      "colour_error_worst": 0.1908,
       "spec_vs_reference": 0.9499,
       "render_vs_reference": {
-        "agreement": 0.9332,
+        "agreement": 0.9333,
         "iou": {
           "0": 0.931,
           "1": 0.28
@@ -93,29 +93,29 @@
       "palette_closest_pair": 0.2647,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9428,
+        "agreement": 0.9651,
         "iou": {
-          "0": 0.941,
+          "0": 0.968,
           "1": 0.928,
-          "2": 0.325,
-          "3": 0.761
+          "2": 0.477,
+          "3": 0.765
         }
       },
-      "agreement_spread": 0.0256,
+      "agreement_spread": 0.0042,
       "colour_error_by_region": {
         "0": 0.0885,
-        "1": 0.1251,
-        "2": 0.0617,
-        "3": 0.0262
+        "1": 0.1253,
+        "2": 0.0604,
+        "3": 0.0268
       },
-      "colour_error_worst": 0.1251,
+      "colour_error_worst": 0.1253,
       "spec_vs_reference": 0.8965,
       "render_vs_reference": {
-        "agreement": 0.8778,
+        "agreement": 0.8998,
         "iou": {
-          "0": 0.894,
-          "1": 0.747,
-          "2": 0.22,
+          "0": 0.921,
+          "1": 0.748,
+          "2": 0.28,
           "3": 0.361
         }
       }
@@ -126,26 +126,26 @@
       "palette_closest_pair": 0.0865,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.8422,
+        "agreement": 0.8426,
         "iou": {
           "0": 0.809,
-          "1": 0.948,
+          "1": 0.949,
           "2": 0.002
         }
       },
-      "agreement_spread": 0.0701,
+      "agreement_spread": 0.0699,
       "colour_error_by_region": {
-        "0": 0.0642,
-        "1": 0.0426,
-        "2": 0.1114
+        "0": 0.0649,
+        "1": 0.0417,
+        "2": 0.111
       },
-      "colour_error_worst": 0.1114,
+      "colour_error_worst": 0.111,
       "spec_vs_reference": 0.9368,
       "render_vs_reference": {
-        "agreement": 0.7991,
+        "agreement": 0.7994,
         "iou": {
           "0": 0.756,
-          "1": 0.806,
+          "1": 0.807,
           "2": 0.001
         }
       }
@@ -156,27 +156,27 @@
       "palette_closest_pair": 0.5219,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9878,
+        "agreement": 0.9877,
         "iou": {
           "0": 0.989,
-          "1": 0.072,
-          "2": 0.476
+          "1": 0.073,
+          "2": 0.473
         }
       },
-      "agreement_spread": 0.0003,
+      "agreement_spread": 0.0004,
       "colour_error_by_region": {
-        "0": 0.1109,
+        "0": 0.111,
         "1": 0.0751,
-        "2": 0.0854
+        "2": 0.0855
       },
-      "colour_error_worst": 0.1109,
+      "colour_error_worst": 0.111,
       "spec_vs_reference": 0.9324,
       "render_vs_reference": {
         "agreement": 0.9205,
         "iou": {
           "0": 0.921,
-          "1": 0.01,
-          "2": 0.178
+          "1": 0.009,
+          "2": 0.179
         }
       }
     },
@@ -186,27 +186,27 @@
       "palette_closest_pair": 0.3846,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9873,
+        "agreement": 0.9876,
         "iou": {
-          "0": 0.985,
-          "1": 0.939,
-          "2": 0.095
+          "0": 0.986,
+          "1": 0.94,
+          "2": 0.096
         }
       },
       "agreement_spread": 0.0001,
       "colour_error_by_region": {
-        "0": 0.0957,
+        "0": 0.0955,
         "1": 0.0622,
         "2": 0.1234
       },
       "colour_error_worst": 0.1234,
       "spec_vs_reference": 0.9106,
       "render_vs_reference": {
-        "agreement": 0.9392,
+        "agreement": 0.9393,
         "iou": {
           "0": 0.93,
-          "1": 0.778,
-          "2": 0.019
+          "1": 0.779,
+          "2": 0.018
         }
       }
     },
@@ -216,24 +216,24 @@
       "palette_closest_pair": 0.3011,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9963,
+        "agreement": 0.9964,
         "iou": {
           "0": 0.996,
-          "1": 0.96
+          "1": 0.961
         }
       },
       "agreement_spread": 0.0001,
       "colour_error_by_region": {
-        "0": 0.0934,
-        "1": 0.0659
+        "0": 0.0931,
+        "1": 0.0654
       },
-      "colour_error_worst": 0.0934,
+      "colour_error_worst": 0.0931,
       "spec_vs_reference": 0.9908,
       "render_vs_reference": {
-        "agreement": 0.9713,
+        "agreement": 0.9714,
         "iou": {
-          "0": 0.968,
-          "1": 0.756
+          "0": 0.969,
+          "1": 0.755
         }
       }
     },
@@ -243,27 +243,27 @@
       "palette_closest_pair": 0.7718,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9768,
+        "agreement": 0.977,
         "iou": {
           "0": 0.977,
-          "1": 0.736,
-          "2": 0.196
+          "1": 0.739,
+          "2": 0.198
         }
       },
-      "agreement_spread": 0.001,
+      "agreement_spread": 0.0011,
       "colour_error_by_region": {
         "0": 0.1471,
-        "1": 0.0783,
+        "1": 0.0782,
         "2": 0.0749
       },
       "colour_error_worst": 0.1471,
       "spec_vs_reference": 0.9495,
       "render_vs_reference": {
-        "agreement": 0.9464,
+        "agreement": 0.9467,
         "iou": {
           "0": 0.946,
-          "1": 0.637,
-          "2": 0.05
+          "1": 0.641,
+          "2": 0.051
         }
       }
     },
@@ -273,24 +273,24 @@
       "palette_closest_pair": 0.643,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9942,
+        "agreement": 0.9944,
         "iou": {
           "0": 0.994,
-          "1": 0.765
+          "1": 0.772
         }
       },
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.0646,
-        "1": 0.0387
+        "0": 0.0645,
+        "1": 0.0397
       },
-      "colour_error_worst": 0.0646,
+      "colour_error_worst": 0.0645,
       "spec_vs_reference": 0.9389,
       "render_vs_reference": {
-        "agreement": 0.9394,
+        "agreement": 0.9397,
         "iou": {
           "0": 0.938,
-          "1": 0.247
+          "1": 0.248
         }
       }
     },
@@ -300,21 +300,21 @@
       "palette_closest_pair": 0.5603,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9977,
+        "agreement": 0.9978,
         "iou": {
           "0": 0.998,
-          "1": 0.049
+          "1": 0.054
         }
       },
-      "agreement_spread": 0.0002,
+      "agreement_spread": 0.0003,
       "colour_error_by_region": {
-        "0": 0.0589,
-        "1": 0.0587
+        "0": 0.0588,
+        "1": 0.0594
       },
-      "colour_error_worst": 0.0589,
+      "colour_error_worst": 0.0594,
       "spec_vs_reference": 0.9566,
       "render_vs_reference": {
-        "agreement": 0.9751,
+        "agreement": 0.9748,
         "iou": {
           "0": 0.975,
           "1": 0.008

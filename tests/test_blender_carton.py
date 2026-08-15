@@ -1420,32 +1420,69 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                 (box["max"][0] - face["left_x"]) / face["width"])
         return out
 
-    def test_a_measured_row_s_ink_starts_at_its_measured_v0(self):
-        """The anchor is the glyphs, not the font's line box.
+    def _cap_tops_in_face(self, stem):
+        face = self._face(self.scenes[stem])
+        return {row["name"]: (face["top_z"] - row["cap_top_z"]) / face["height"]
+                for row in self.scenes[stem]["label"]
+                if row.get("cap_top_z") is not None}
+
+    def test_a_measured_row_s_capitals_start_where_the_reference_s_do(self):
+        """A row is set against its CAP LINE, not against its ink.
+
+        Two quantities were being confused at once, and both depend on glyphs
+        the string happens to carry rather than on anything about the carton:
 
         `align_y="TOP"` pins the top of the LINE box, which stands above the
-        tallest glyph by the font's ascent-above-cap, while the measurement is
-        an ink box -- Tesseract returns the glyphs' own extent. Before the
-        driver measured its built row and translated it, every measured row on
-        every design carton sat BELOW its own v0, by 0.109 to 0.231 of its cap
-        height: 0.038 of the face on Xanax's brand.
+        tallest glyph by the font's ascent-above-cap. Anchoring a measured row
+        by it put every one BELOW its target -- eight rows on three cartons,
+        0.109 to 0.231 of a cap height, none above.
+
+        And the target itself was an INK box being used as a cap height, which
+        over-sizes a row by whatever the reference string descends: measured
+        across the twenty reference rows, 1.034 to 1.384, mean 1.180. Contract
+        1.5 carries `cap_top_v` and a converted `cap_frac` so both sides mean
+        the same thing.
         """
         checked = 0
         for stem in self.SKU:
             measured = self.jobs[stem]["design"]["type_rows"]
-            rows = self._rows_in_face(stem)
+            caps = self._cap_tops_in_face(stem)
             for name, role in self.ROLE_BY_NAME.items():
-                if role not in measured or name not in rows:
+                if role not in measured or name not in caps:
                     continue
                 checked += 1
                 with self.subTest(sku=stem, role=role):
                     self.assertAlmostEqual(
-                        rows[name][0], measured[role]["v0"], delta=self.V_TOL,
-                        msg=f"{stem} {role}: built ink top {rows[name][0]:.4f} "
-                            f"against a measured {measured[role]['v0']:.4f}")
+                        caps[name], measured[role]["cap_top_v"], delta=self.V_TOL,
+                        msg=f"{stem} {role}: built cap line {caps[name]:.4f} "
+                            f"against a measured {measured[role]['cap_top_v']:.4f}")
         self.assertGreaterEqual(
             checked, 7, "the fixtures stopped carrying measured rows, so this "
                         "test is passing without asserting anything")
+
+    def test_a_measured_row_is_never_set_LARGER_than_the_reference(self):
+        """Cap height may be lost to the width fit; it may not be gained.
+
+        Our typeface is not the reference's, so a row set at the reference's cap
+        height can be wider than the box it was measured in and `_fit_width`
+        shrinks it -- three of eight rows come out at 1.00 and the rest at 0.67
+        to 0.95. That direction is a trade the driver makes deliberately. The
+        other direction has no such excuse: a row LARGER than its measurement is
+        the ink-box-as-cap-height bug returning, and that one read up to 1.38.
+        """
+        for stem in self.SKU:
+            measured = self.jobs[stem]["design"]["type_rows"]
+            face = self._face(self.scenes[stem])
+            for row in self.scenes[stem]["label"]:
+                role = self.ROLE_BY_NAME.get(row["name"])
+                if role not in measured or row.get("cap_h") is None:
+                    continue
+                built = row["cap_h"] / face["height"]
+                with self.subTest(sku=stem, role=role):
+                    self.assertLessEqual(
+                        built, measured[role]["cap_frac"] + self.V_TOL,
+                        f"{stem} {role}: built cap {built:.4f} against a "
+                        f"measured {measured[role]['cap_frac']:.4f}")
 
     def test_no_row_is_printed_through_another(self):
         """A measured row lands where the reference puts it, which is anywhere.

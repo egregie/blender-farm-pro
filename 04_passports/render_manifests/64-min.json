@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.4",
+  "manifest_version": "1.5",
   "sku_id": "64-min.jpg",
   "template_id": "T1_SMALL",
   "is_bottle_override": false,
@@ -2064,7 +2064,8 @@
         "u1": 0.8773,
         "v0": 0.2319,
         "v1": 0.2999,
-        "cap_frac": 0.068,
+        "cap_frac": 0.0657,
+        "cap_top_v": 0.2328,
         "align": "CENTER",
         "read_as": "KAMAGRA-100"
       },
@@ -2073,7 +2074,8 @@
         "u1": 0.5791,
         "v0": 0.1399,
         "v1": 0.1998,
-        "cap_frac": 0.0599,
+        "cap_frac": 0.0564,
+        "cap_top_v": 0.1422,
         "align": "LEFT",
         "read_as": "Sildenafil Citrate"
       }
