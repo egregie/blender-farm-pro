@@ -22,26 +22,43 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-14 after the fitter fixes below.*
+*Re-measured 2026-08-15, after the fitter fixes and after the measured type rows
+reached the driver.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC |
 |---|---|---:|---:|---:|---:|
 | `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** |
-| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.0% | 0.094 |
-| `74-min` | Viagra | 95.0% | 99.5% | 93.2% | 0.195 |
-| `344-min` | Modafinil | 93.9% | 99.1% | 93.4% | 0.127 |
-| `156-min` | Xanax | 93.3% | 98.8% | 91.9% | 0.124 |
-| `272-min` | Valium | 91.1% | 98.4% | 93.7% | 0.132 |
-| `64-min` | Kamagra | 90.5% | 98.3% | 93.1% | 0.405 |
-| `340-min` | Xanax SR | 95.0% | 97.3% | 93.5% | 0.161 |
-| `135-min` | Ativan | 89.6% | 96.7% | 90.1% | 0.125 |
-| `155-min` | Imovane | 93.7% | 91.7% | 85.4% | 0.130 |
+| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.094 |
+| `74-min` | Viagra | 95.0% | 99.6% | 93.2% | 0.196 |
+| `344-min` | Modafinil | 93.9% | 99.2% | 93.5% | 0.067 |
+| `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.138 |
+| `156-min` | Xanax | 93.3% | 98.6% | 92.2% | 0.124 |
+| `64-min` | Kamagra | 90.5% | 98.2% | 93.2% | 0.413 |
+| `340-min` | Xanax SR | 95.0% | 97.5% | 94.1% | 0.161 |
+| `135-min` | Ativan | 89.6% | 97.1% | 90.5% | 0.125 |
+| `155-min` | Imovane | 93.7% | 92.3% | 86.1% | 0.129 |
 | `59-min` | Cialis | 88.2% | 89.6% | 79.5% | 0.199 |
 
-Every row now builds its spec to better than 89% and lands within 20 points of
-its photograph; nine of eleven are inside 10. The two at the bottom, Cialis and
-Imovane, carry the most complex curved fields in the sample and are where the
-next work is.
+Nine of eleven build their spec above 97%; every row is within 21 points of its
+photograph and nine are inside 10.
+
+### What the measured type rows moved, and why so little
+
+Almost nothing, and that is the expected answer rather than a disappointment.
+Every figure here **excludes dark pixels**, because the spec carries fields and
+not type, so moving a label cannot move the score directly. It moves it only by
+changing which pixels get excluded — a label sitting on the wrong field stops
+contaminating that field's colour.
+
+Measured: eight rows improved, two held, none regressed beyond noise. The
+largest is `344-min`'s colour error, 0.127 → **0.067**, where the label had been
+sitting across the boundary the metric samples. `272-min` gained 0.5 points
+against its photograph and `340-min` 0.6. `59-min` is unchanged to the decimal,
+which is correct — it matched no rows and keeps the generic grid entirely.
+
+So the type work is **not** visible in these numbers by construction, and
+judging it needs the `.qa.png` strips instead. What the numbers do confirm is
+that it broke nothing.
 
 ## `64-min` explained: a third of a carton with no name
 
