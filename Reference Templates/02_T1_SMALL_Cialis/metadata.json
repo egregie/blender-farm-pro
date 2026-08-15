@@ -100,16 +100,16 @@
     "catalogue_aspect": 0.4545,
     "fields": {
       "brand": {
-        "pct": 29.7,
-        "hex": "#3F5A0A"
+        "pct": 30.2,
+        "hex": "#405A0A"
       },
       "substrate": {
-        "pct": 38.6,
-        "hex": "#DDD1B9"
+        "pct": 40.8,
+        "hex": "#DCD1B8"
       },
       "highlight": {
-        "pct": 24.2,
-        "hex": "#DCDBD2"
+        "pct": 21.3,
+        "hex": "#DDDCD4"
       },
       "type": null
     },

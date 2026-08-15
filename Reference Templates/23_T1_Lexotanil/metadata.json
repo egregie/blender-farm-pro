@@ -108,16 +108,16 @@
         "hex": "#55A096"
       },
       "substrate": {
-        "pct": 78.5,
+        "pct": 77.9,
         "hex": "#8AB663"
       },
       "highlight": {
-        "pct": 7.3,
-        "hex": "#5A7444"
+        "pct": 7.6,
+        "hex": "#5C7747"
       },
       "type": {
-        "pct": 6.0,
-        "hex": "#1C3113"
+        "pct": 6.2,
+        "hex": "#1D3214"
       }
     },
     "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",

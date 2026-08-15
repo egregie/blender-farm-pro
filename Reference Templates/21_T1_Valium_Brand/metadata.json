@@ -114,20 +114,17 @@
     "catalogue_aspect": 0.4783,
     "fields": {
       "brand": {
-        "pct": 17.1,
+        "pct": 17.3,
         "hex": "#C16AA0"
       },
       "substrate": {
-        "pct": 46.1,
-        "hex": "#C9C5C0"
+        "pct": 75.5,
+        "hex": "#C9C6C1"
       },
-      "highlight": {
-        "pct": 29.9,
-        "hex": "#C9C8C4"
-      },
+      "highlight": null,
       "type": {
-        "pct": 6.9,
-        "hex": "#1D2C30"
+        "pct": 7.3,
+        "hex": "#1F2D35"
       }
     },
     "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",

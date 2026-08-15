@@ -49,6 +49,14 @@ PREVIEW_DIR = PROJECT_ROOT / "02_processing" / "reference_measurement"
 
 OUT_WIDTH = 1100
 DARK_V = 0.30      # type: ours prints it, the spec does not carry it
+# The gradient estimate this comparison uses, as a divisor of the face's long
+# edge. Wider than the segmentation's, and deliberately: clustering only asks
+# which pixels resemble each other, while this asks how a rendered field compares
+# with the colour the driver was told to paint. A narrow estimate follows the
+# design itself, so on a carton that is half dark it divides the light half by a
+# low local value AND a low global mean -- Kamagra's cream board measured 0.413
+# from its own fill on a render that was correct.
+FLATTEN_RADIUS_DIV = 2.0
 
 # Two spec colours closer than this cannot be told apart by a nearest-colour
 # classifier once a render and a photograph have each added their own noise, so
@@ -73,7 +81,8 @@ def _classify(img: Image.Image, palette: np.ndarray) -> tuple[np.ndarray, np.nda
     measure the type grid, which is a different piece of work, and would move
     this number every time a string changed length.
     """
-    a = _flatten_illumination(np.asarray(img.convert("RGB")).astype(float) / 255.0)
+    a = _flatten_illumination(np.asarray(img.convert("RGB")).astype(float) / 255.0,
+                              FLATTEN_RADIUS_DIV)
     d = ((a[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1)
     return d.argmin(-1), a.max(-1) >= DARK_V
 
@@ -155,7 +164,7 @@ def measure(stem: str, preview: bool = False) -> dict:
     ours = flatten_face(png, view["front_face_px"], out_width=OUT_WIDTH, aspect=aspect)
     o_idx, o_mask = _classify(ours, palette)
     ours_flat = _flatten_illumination(
-        np.asarray(ours.convert("RGB")).astype(float) / 255.0)
+        np.asarray(ours.convert("RGB")).astype(float) / 255.0, FLATTEN_RADIUS_DIV)
 
     # The dark cut is there to keep printed TYPE out of the score. It must not
     # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black

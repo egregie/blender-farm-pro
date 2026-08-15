@@ -72,7 +72,7 @@ def _hsv(rgb: np.ndarray):
     return s, v
 
 
-def _flatten_illumination(rgb: np.ndarray) -> np.ndarray:
+def _flatten_illumination(rgb: np.ndarray, radius_div: float = 6.0) -> np.ndarray:
     """Divide out the photograph's lighting gradient before anything is classified.
 
     These are product photographs, not scans: on the Cialis carton the left of
@@ -82,14 +82,35 @@ def _flatten_illumination(rgb: np.ndarray) -> np.ndarray:
     true figure is 5.0%, and collapsed substrate and highlight into one cluster.
 
     Shading multiplies; so dividing by a heavily blurred luminance removes it and
-    leaves the printed fields. The blur radius is a large fraction of the face so
-    that the design's own bands -- which are the signal -- are not themselves
-    flattened away.
+    leaves the printed fields.
+
+    THE RADIUS IS A CALLER'S CHOICE, and the two callers need different answers.
+
+    A sixth of the face follows the design's own large-scale structure. For
+    CLUSTERING that is harmless -- k-means only asks which pixels resemble each
+    other, never how they compare with a nominal colour -- and it helps, because
+    the residual gradient is what separates two near-identical creams.
+
+    For comparing a render against the colour the driver was told to paint, it is
+    a defect. The result is divided by a local estimate AND multiplied by a global
+    mean, both of which drop when a design is half dark: Kamagra's teal covers
+    half its carton, so its cream board measured 0.413 away from the colour it was
+    painted -- the largest error in the group, on a render that was correct.
+    Measured across the sample, the ratio of rendered substrate to nominal tracked
+    how dark the whole face is (Kamagra 0.673, Cialis 0.850, Ritalin 0.930,
+    Modafinil 0.948), which is the signature of a correction eating signal rather
+    than shading. At half the face the estimate is nearly a plane, which is what a
+    lighting gradient actually is, and Kamagra reads 0.829.
+
+    Widening it HERE was tried and reverted: it changes the partition, and through
+    it every spec -- Viagra picked up its holographic patch as a design field and
+    Imovane a grey one, costing them 20 and 8 points against their photographs.
+    scripts/design_qa.py passes the wide radius for its own comparison instead.
     """
     from PIL import ImageFilter
 
     lum = rgb.max(-1)
-    radius = max(rgb.shape[0], rgb.shape[1]) / 6.0
+    radius = max(rgb.shape[0], rgb.shape[1]) / radius_div
     blurred = np.asarray(
         Image.fromarray((lum * 255).astype("uint8"))
         .filter(ImageFilter.GaussianBlur(radius=radius)),

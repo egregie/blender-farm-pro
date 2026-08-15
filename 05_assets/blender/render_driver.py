@@ -541,6 +541,18 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         return min(cap_m * unit_scale, SMALL_PRINT_MAX_FRAC * face_h)
 
     measured = type_rows or {}
+    # A row placed by measurement and a row placed by the grid know nothing about
+    # each other, and on Viagra they collided: the measured unit count sits at
+    # v0.224 while the grid sets the brand from v0.10 at a cap that reaches past
+    # it, so "Viagra" and "30 Pills" were printed over one another. Any grid row
+    # above the topmost measurement now shrinks to clear it, which is what
+    # _fit_above already does for the wrapped-brand case.
+    # max, not min: the HIGHEST measured row is the first thing a grid row above
+    # it can run into. Taking the lowest let the Viagra brand grow straight
+    # through the unit count sitting above it, which is the collision this is
+    # here to stop.
+    measured_top_z = max(
+        (top_z - r["v0"] * face_h for r in measured.values()), default=None)
 
     brand = (label_content.get("brand_name_display") or "").strip()
     if brand and "brand_name_display" in measured:
@@ -562,7 +574,10 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
             t.data.space_line = (BRAND_LINE_PITCH * BRAND_LINE_FRAC * face_h) / t.data.size
         _fit_width(t, allowed)
         # Only ever shrinks, so a one-line name that already fits is untouched.
-        _fit_above(t, v_to_z(INGREDIENT_TOP_FRAC - BRAND_INGREDIENT_GAP_FRAC))
+        floor = v_to_z(INGREDIENT_TOP_FRAC - BRAND_INGREDIENT_GAP_FRAC)
+        if measured_top_z is not None:
+            floor = max(floor, measured_top_z + BRAND_INGREDIENT_GAP_FRAC * face_h)
+        _fit_above(t, floor)
         rows.append(t)
 
     ingredient = (label_content.get("active_ingredient_display") or "").strip()

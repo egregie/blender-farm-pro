@@ -125,12 +125,12 @@
         "hex": "#34376D"
       },
       "substrate": {
-        "pct": 76.3,
-        "hex": "#DDDEDB"
+        "pct": 87.4,
+        "hex": "#DEDEDB"
       },
       "highlight": {
-        "pct": 11.0,
-        "hex": "#E2E3E1"
+        "pct": 2.9,
+        "hex": "#96A8BB"
       },
       "type": null
     },
