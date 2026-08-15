@@ -501,6 +501,16 @@ does not, and `measure_type_rows` guards each:
   half, with room for a misread"; the next score in the sample is 0.74, so the evidence
   fixes the floor rather than the value.
 
+**A row reversed out of a filled shape is boxed as the SHAPE.** Tesseract binarises per
+region, so a colour block with type inside it is one blob and the word box comes back as the
+block: on our Cialis render "20mg" was returned at the block's own outline to four decimal
+places, reading as a row 38% oversized on a carton the scene dump says is built exactly
+right. `ink_within()` measures the glyphs instead, and needs both of its details — it fires
+only where the box IS the shape, and it measures inside the shape's **eroded polygon**,
+because a sliver of board along the box's edge is as far from the fill as white glyphs are.
+Whatever it corrects must also be written back into the row's `words`: everything
+downstream rebuilds a row from those, so the first version was silently undone.
+
 `scripts/type_qa.py` is the instrument for all of this — the type axis D-6 explicitly does
 not cover, since every figure there excludes dark pixels.
 

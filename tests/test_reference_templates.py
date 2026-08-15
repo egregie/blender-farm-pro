@@ -187,3 +187,69 @@ class TestEveryPhotographedFolderIsInTheBarrier(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestARowBoxedAsItsBlock(unittest.TestCase):
+    """`ink_within` recovers the glyphs when the reader returns the shape.
+
+    Tesseract binarises per region, so a colour block with type reversed out of
+    it is one blob and the word box comes back as the BLOCK. On our own Cialis
+    render "20mg" was returned at exactly the block's outline, v 0.2948-0.4292
+    against glyphs at 0.3165-0.4133, which read back as a row 38% oversized and
+    0.02 high -- the worst type figures in the group, on a carton the scene dump
+    says is built exactly right.
+
+    Synthetic rather than fixture-driven: the property is about a filled shape
+    with lighter marks inside it, and stating it in twenty lines of pixels is
+    clearer than pointing at a render.
+    """
+
+    def _face(self):
+        from PIL import Image, ImageDraw
+        img = Image.new("RGB", (200, 100), "#E0DCD0")
+        d = ImageDraw.Draw(img)
+        d.rectangle([40, 20, 159, 79], fill="#204020")      # the block
+        d.rectangle([60, 35, 139, 64], fill="#FFFFFF")      # the reversed type
+        return img
+
+    def _block_outline(self):
+        return [[40 / 200, 20 / 100], [160 / 200, 20 / 100],
+                [160 / 200, 80 / 100], [40 / 200, 80 / 100]]
+
+    def test_a_box_around_the_block_is_pulled_back_to_the_glyphs(self):
+        from scripts.measure_type_rows import ink_within
+        row = {"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
+               "v0": 20 / 100, "v1": 80 / 100, "cap_frac": 0.6,
+               "words": [{"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
+                          "v0": 20 / 100, "v1": 80 / 100}]}
+        got = ink_within(self._face(), row, [("#204020", self._block_outline())])
+        self.assertAlmostEqual(got["u0"], 0.300, delta=0.02)
+        self.assertAlmostEqual(got["u1"], 0.700, delta=0.02)
+        self.assertAlmostEqual(got["v0"], 0.350, delta=0.02)
+        self.assertAlmostEqual(got["v1"], 0.650, delta=0.02)
+
+    def test_the_words_come_back_with_it(self):
+        """Everything downstream rebuilds a row from its words.
+
+        `_unclaimed` does it before scoring and `narrow_to_string` inside it, so
+        leaving the reader's word boxes in place quietly restores the block's own
+        rectangle and the correction never reaches the figures. It did exactly
+        that on the first attempt.
+        """
+        from scripts.measure_type_rows import ink_within
+        row = {"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
+               "v0": 20 / 100, "v1": 80 / 100, "cap_frac": 0.6,
+               "words": [{"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
+                          "v0": 20 / 100, "v1": 80 / 100}]}
+        got = ink_within(self._face(), row, [("#204020", self._block_outline())])
+        self.assertEqual(len(got["words"]), 1)
+        for key in ("u0", "u1", "v0", "v1"):
+            self.assertEqual(got["words"][0][key], got[key])
+
+    def test_a_row_that_is_not_a_block_is_untouched(self):
+        from scripts.measure_type_rows import ink_within
+        row = {"text": "Tadalafil", "u0": 0.30, "u1": 0.70,
+               "v0": 0.35, "v1": 0.65, "cap_frac": 0.30, "words": []}
+        self.assertEqual(
+            ink_within(self._face(), row, [("#204020", self._block_outline())]),
+            row, "a row whose box is not the shape must be returned unchanged")

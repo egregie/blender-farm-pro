@@ -12,9 +12,9 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0206,
-      "worst_du_anchor": 0.0109,
-      "mean_dv_cap": 0.0106,
+      "worst_dv_cap": 0.0007,
+      "worst_du_anchor": 0.0032,
+      "mean_dv_cap": 0.0007,
       "by_role": {
         "active_ingredient_display": {
           "dv_cap_top": 0.0006,
@@ -26,9 +26,9 @@
           "scored": true
         },
         "dosage_display": {
-          "dv_cap_top": -0.0206,
-          "du_anchor": 0.0109,
-          "cap_ratio": 1.379,
+          "dv_cap_top": 0.0007,
+          "du_anchor": -0.0032,
+          "cap_ratio": 0.993,
           "align": "RIGHT",
           "read_as": "20mg",
           "read_score": 1.0,

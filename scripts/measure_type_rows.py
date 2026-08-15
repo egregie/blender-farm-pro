@@ -50,6 +50,10 @@ PSM_MODE = 11               # sparse text. Re-tested against 3, 4, 6 and 12 on
                             # useful variation is.
 # Two readings of one word overlap at least this much of the smaller box.
 DUPLICATE_OVERLAP = 0.6
+# Past this, a word's box is not around the word -- it is around the filled
+# shape the word is reversed out of. See ink_within.
+BOXED_SHAPE_IOU = 0.9
+BOUNDARY_ERODE_PX = 3
 MIN_ROW_CHARS = 2           # a row of one glyph is OCR noise, never a label
 MIN_BRAND_CHARS = 3
 MAX_ROW_FRAC = 0.35         # taller than this is two rows merged, not one
@@ -283,6 +287,80 @@ def ink_profile(role: str, text: str) -> tuple[float, float]:
     return _PROFILE_CACHE[key]
 
 
+def _box_iou(a: dict, b: tuple) -> float:
+    x0 = max(a["u0"], b[0]); x1 = min(a["u1"], b[1])
+    y0 = max(a["v0"], b[2]); y1 = min(a["v1"], b[3])
+    if x1 <= x0 or y1 <= y0:
+        return 0.0
+    inter = (x1 - x0) * (y1 - y0)
+    union = ((a["u1"] - a["u0"]) * (a["v1"] - a["v0"])
+             + (b[1] - b[0]) * (b[3] - b[2]) - inter)
+    return inter / union if union > 0 else 0.0
+
+
+def ink_within(face, row: dict, parts) -> dict:
+    """A row's real ink box where the reader boxed a filled SHAPE instead.
+
+    Tesseract binarises per region, and a colour block with type reversed out of
+    it is one blob: the word box comes back as the BLOCK. Measured on our own
+    Cialis render, "20mg" was returned at exactly the block's outline --
+    v 0.2948-0.4292 against glyphs at 0.3165-0.4133 -- which reads back as a row
+    38% oversized and 0.02 high, the worst figures in the group on a carton the
+    scene dump says is built exactly right.
+
+    Two things keep this from being a licence to shrink any box. It fires only
+    where the box IS the shape, and it measures inside the shape's own polygon
+    ERODED clear of its boundary: simply taking the ink inside the returned box
+    recovers nothing, because a sliver of board along the box's edge is as far
+    from the fill as the white glyphs are and spans the full height.
+
+    `parts` is [(fill_hex, outline)] in face coordinates. Passed by both readers.
+    It does not fire on the photographs -- a printed block's edge is soft enough
+    that Tesseract boxes the glyphs there, which is why the reference's own
+    Cialis dosage was measured at 0.3158-0.4133 all along.
+    """
+    if not parts:
+        return row
+    import numpy as np
+    from PIL import ImageDraw
+
+    for fill, outline in parts:
+        us = [float(q[0]) for q in outline]
+        vs = [float(q[1]) for q in outline]
+        if _box_iou(row, (min(us), max(us), min(vs), max(vs))) < BOXED_SHAPE_IOU:
+            continue
+        w, h = face.size
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).polygon([(u * w, v * h) for u, v in outline], fill=255)
+        for _ in range(BOUNDARY_ERODE_PX):
+            mask = mask.filter(ImageFilter.MinFilter(3))
+        inside = np.asarray(mask) > 0
+        if inside.sum() < 100:
+            continue
+        hx = (fill or "#000000").lstrip("#")
+        rgb = np.array([int(hx[i:i + 2], 16) / 255.0 for i in (0, 2, 4)])
+        arr = np.asarray(face.convert("RGB")).astype(float) / 255.0
+        dist = np.linalg.norm(arr - rgb, axis=-1)
+        ink = inside & (dist > 0.5 * dist[inside].max())
+        ys, xs = np.nonzero(ink)
+        if not len(ys):
+            continue
+        box = {"u0": round(float(xs.min()) / w, 4),
+               "u1": round(float(xs.max() + 1) / w, 4),
+               "v0": round(float(ys.min()) / h, 4),
+               "v1": round(float(ys.max() + 1) / h, 4)}
+        # The WORDS have to come with it. Everything downstream rebuilds a row
+        # from them -- `_unclaimed` before scoring, `narrow_to_string` inside it
+        # -- so leaving the reader's word boxes in place quietly restores the
+        # block's own rectangle and the correction never reaches the figures.
+        # Inside a filled shape there is one label and no per-word extent worth
+        # keeping, so it becomes one word carrying the row's text.
+        return {**row, **box,
+                "cap_frac": round(box["v1"] - box["v0"], 4),
+                "words": [{"text": row["text"], **box}]}
+    return row
+
+
 def _word_key(word: dict) -> tuple:
     return (word["u0"], word["u1"], word["v0"], word["v1"])
 
@@ -432,7 +510,18 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
 def measure(folder: Path, preview: bool = False) -> dict:
     flat, _labels, _named, _meta, _src = segment(folder)
     w, h = flat.size
-    rows = [r for r in _lines(_words(flat), w, h) if usable(r)]
+    # The fitted fields, so a row the reader boxed as a filled SHAPE can be
+    # measured on its glyphs instead. `fit_design_spec` runs before this and
+    # writes them into the same file. It does not fire on any of the eleven
+    # photographs -- a printed block's edge is soft enough that Tesseract boxes
+    # the glyphs -- and it is passed anyway so both readers run the same code.
+    spec_path = folder / "design_spec.json"
+    fitted = json.loads(spec_path.read_text(encoding="utf-8")) if spec_path.exists() else {}
+    parts = [(f.get("fill"), p["outline"])
+             for f in (fitted.get("fields") or []) for p in (f.get("parts") or [])
+             if len(p.get("outline") or []) >= 3]
+    rows = [ink_within(flat, r, parts)
+            for r in _lines(_words(flat), w, h) if usable(r)]
     lc = (_meta.get("label_content") or {})
     expected = {
         "brand_name_display": lc.get("brand_name_display"),

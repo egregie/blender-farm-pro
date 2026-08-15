@@ -50,10 +50,10 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 |---|---:|---:|
 | reference rows measured | 21 | **25** |
 | of those, scored in our renders | 18 | **25 — all of them** |
-| worst vertical error | 0.0274 | 0.0206 → **0.0026** off Cialis's reversed row |
-| mean vertical error | 0.0180 | **0.0009** |
-| worst `du_anchor` | 0.0091 | 0.0109 → **0.0086** off the same row |
-| `cap_ratio` above 1 | to **1.384** | to 1.005 |
+| worst vertical error | 0.0274 | **0.0026** |
+| mean vertical error | 0.0180 | **0.0008** |
+| worst `du_anchor` | 0.0091 | **0.0086** |
+| `cap_ratio` above 1 | to **1.384** | to 1.03 |
 
 *The denominator moved too: `MATCH_MIN` dropped three reference boxes that
 covered under 60% of their own string, and word-level claiming added two. See the
@@ -64,7 +64,7 @@ vertical axis and the two collisions.
 
 | SKU | folder | scored | worst dv | worst du |
 |---|---|---:|---:|---:|
-| `59-min` | Cialis | 2/2 | 0.0206* | 0.0109* |
+| `59-min` | Cialis | 2/2 | 0.0007 | 0.0032 |
 | `64-min` | Kamagra | 3/3 | 0.0001 | 0.0073 |
 | `74-min` | Viagra | 4/4 | 0.0004 | 0.0072 |
 | `135-min` | Ativan | 1/1 | 0.0011 | 0.0000 |
@@ -76,15 +76,9 @@ vertical axis and the two collisions.
 | `344-min` | Modafinil | 2/2 | 0.0026 | 0.0005 |
 | `404-min` | Ritalin | 1/1 | 0.0009 | 0.0037 |
 
-\* **Cialis's dosage is a reading artefact, not a build error**, and the scene
-says so exactly: its cap line lands on 0.3168 against a measured 0.3168 and its
-cap height on 1.00. That row is reversed white out of a dark olive block, and the
-reader's inverted pass returns a box inflated by the block's own edge — which
-reads back as a row 38% oversized and 0.02 high. A reversed row is the one shape
-this instrument measures worse than the driver builds it.
-
-Every other row is located and scored. `64-min`'s dosage was the last hold-out
-and it was not a reading problem — see its section below.
+Every row is located and scored, and no row is more than 0.0026 of the face from
+its cap line. `59-min`'s dosage used to be the group's worst by an order of
+magnitude and was a reading artefact throughout — see its section below.
 
 **`59-min` used to be the blank row here** — no reference rows at all, so nothing
 to compare and a figure that read as neither pass nor fail. It now carries two;
@@ -591,6 +585,52 @@ All of this is asserted from the dump, which carries `base_color` per row for th
 purpose — geometry alone cannot see a row painted the wrong colour — and the test
 compares the ink against the surface it computes for itself rather than against a
 list of expected colours.
+
+## `59-min`'s dosage: the group's worst figures, on a row built exactly right
+
+*Added 2026-08-15.*
+
+Cialis came out of the reading work with `dv 0.0206`, `du 0.0109` and a
+`cap_ratio` of **1.379** — the only row above 1.03 and an order of magnitude
+worse than anything else. The scene said otherwise, exactly: its cap line lands
+on 0.3168 against a measured 0.3168 and its cap height on 1.00.
+
+The reader's box explains it in one line. It came back as
+**v 0.2948–0.4292, u 0.6191–0.7923**, which is the design's colour block to four
+decimal places. Tesseract binarises per region, so a filled block with type
+reversed out of it is one blob: the word box is the BLOCK, not the glyphs. Every
+figure computed from it is then a measurement of a rectangle we drew rather than
+of the type inside it.
+
+`ink_within()` measures the glyphs instead, and two details make it work rather
+than merely shrink boxes:
+
+- It fires only where the box **is** the shape, at an IoU of 0.9.
+- It measures inside the shape's **own polygon, eroded** clear of its boundary.
+  Taking the ink inside the returned box recovers nothing: a sliver of board
+  along the box's edge is as far from the olive as the white glyphs are, and it
+  spans the full height, so the "ink" bounding box comes back as the box.
+
+It recovered v 0.3165–0.4133 against glyphs predicted at 0.3158–0.4131 from the
+scene — within 0.0007.
+
+**And then it did not reach the figures**, because everything downstream rebuilds
+a row from its WORDS: `_unclaimed` before scoring, `narrow_to_string` inside it.
+The reader's word boxes were still the block's, so the correction was silently
+undone. The corrected row now carries a matching word — inside a filled shape
+there is one label and no per-word extent worth keeping.
+
+| `59-min` dosage | before | after |
+|---|---:|---:|
+| `dv_cap_top` | 0.0206 | **0.0007** |
+| `du_anchor` | 0.0109 | −0.0032 |
+| `cap_ratio` | 1.379 | **0.993** |
+
+It runs on both readers and **does not fire on any of the eleven photographs** —
+a printed block's edge is soft enough that Tesseract boxes the glyphs there,
+which is why the reference's own Cialis dosage was measured at 0.3158–0.4133 all
+along. The eleven specs came back byte-identical, so nothing downstream of the
+contract moved.
 
 ## Open, with a number attached
 

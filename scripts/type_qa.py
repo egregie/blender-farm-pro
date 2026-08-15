@@ -47,7 +47,7 @@ from src.utils import load_config, resolve_path  # noqa: E402
 from scripts.catalogue_sweep import is_stale  # noqa: E402
 from scripts.design_qa import OUT_WIDTH, render_fresh  # noqa: E402
 from scripts.measure_type_rows import (  # noqa: E402
-    _lines, _similar, _words, assign_roles, ink_profile, usable)
+    _lines, _similar, _words, assign_roles, ink_profile, ink_within, usable)
 
 _CFG = load_config()
 MANIFEST_DIR = resolve_path(_CFG["paths"]["passports_manifests"])
@@ -116,7 +116,7 @@ def read_rows(face: Image.Image) -> list[dict]:
     return sorted(merged, key=lambda r: r["v0"])
 
 
-def locate(face: Image.Image, printed: dict) -> dict:
+def locate(face: Image.Image, printed: dict, design_parts=None) -> dict:
     """Our own rows, by role.
 
     Identified against the strings the manifest told the driver to print, which
@@ -126,7 +126,7 @@ def locate(face: Image.Image, printed: dict) -> dict:
     are dropped rather than assigned by size, for the reason D-2b records — a
     box in the wrong place is worse than no box.
     """
-    rows = read_rows(face)
+    rows = [ink_within(face, r, design_parts or ()) for r in read_rows(face)]
     _roles, matched, boxes = assign_roles(rows, printed)
     return {role: boxes[role] for role in matched}
 
@@ -211,7 +211,10 @@ def measure(stem: str, preview: bool = False, reuse: bool = False) -> dict:
     manifest = json.loads((MANIFEST_DIR / f"{stem}.json").read_text(encoding="utf-8"))
     printed = {r: (manifest.get("label_content") or {}).get(r) for r in ROLES}
 
-    ours = locate(face, printed)
+    parts = [(f.get("fill"), p["outline"])
+             for f in (spec.get("fields") or []) for p in (f.get("parts") or [])
+             if len(p.get("outline") or []) >= 3]
+    ours = locate(face, printed, parts)
     result = {"sku": stem, "folder": FOLDER_BY_STEM[stem],
               "rows_on_grid": sorted(r for r in ROLES if r not in spec_rows),
               **compare(spec_rows, ours, printed)}
