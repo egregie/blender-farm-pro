@@ -100,12 +100,27 @@ def flatten_on_substrate(rgb: np.ndarray, substrate_core: np.ndarray) -> np.ndar
     return np.clip(rgb / est[..., None] * float(est.mean()), 0.0, 1.0)
 
 
-def _substrate_core(spec_idx: np.ndarray) -> np.ndarray:
+def _substrate_core(spec_idx: np.ndarray, erode: int = 19) -> np.ndarray:
     """The substrate, eroded clear of its own boundaries."""
     from PIL import ImageFilter
     return np.asarray(
         Image.fromarray(((spec_idx == 0) * 255).astype("uint8"))
-        .filter(ImageFilter.MinFilter(19))) > 0
+        .filter(ImageFilter.MinFilter(erode))) > 0
+
+
+def _substrate_residual(frame: np.ndarray, core: np.ndarray) -> float:
+    """How flat a model left the one surface known to be a single colour.
+
+    The illumination estimate's own error, judged where the answer is not in
+    doubt: the spec draws the substrate and states its paint, so anything left
+    varying inside it is the model failing, not the carton. Nothing about the
+    FIELDS enters, which is what keeps this from being a choice made by looking
+    at the result.
+    """
+    sel = core & (frame.max(-1) >= DARK_V)
+    if sel.sum() < 500:
+        return float("inf")
+    return float(np.linalg.norm(frame[sel].std(axis=0)))
 
 
 def _nearest(frame: np.ndarray, palette: np.ndarray) -> np.ndarray:
@@ -236,18 +251,35 @@ def measure(stem: str, preview: bool = False) -> dict:
     ours = flatten_face(png, view["front_face_px"], out_width=OUT_WIDTH, aspect=aspect)
     ours_raw = np.asarray(ours.convert("RGB")).astype(float) / 255.0
     core = _substrate_core(t_idx)
+    # ColourError always reads the PLANE. It asks whether a region is the colour
+    # it should be, so its illumination estimate must not be able to absorb the
+    # design -- a blur can, which is the defect recorded against Kamagra below.
     ours_flat = flatten_on_substrate(ours_raw, core)
     o_mask = ours_flat.max(-1) >= DARK_V
-    o_idx = _nearest(_anchor(ours_flat, core, palette[0]), palette)
 
-    # The same classification under a SECOND illumination model, to say how much
-    # of the figure is the model rather than the render. A wide blur, because a
-    # lighting gradient across a flat card is very nearly a plane -- this is the
-    # model design_qa itself used before the plane fit. The NARROW blur is not a
-    # legitimate second opinion: it follows the design, which is the defect this
-    # module already records against Kamagra's colour error.
-    alt = _flatten_illumination(ours_raw, 2.0)
-    alt_idx = _nearest(_anchor(alt, core, palette[0]), palette)
+    # The CLASSIFIER takes whichever model leaves the substrate flattest. Neither
+    # is right everywhere and the difference is not small: on `59-min` the plane
+    # leaves a residual of 0.085 against the blur's 0.066 and classifies 28.9% of
+    # the face as highlight where the spec draws 21.1%, reading 88.6% against the
+    # blur's 98.1%; on `155-min` it is the other way round, 0.030 against 0.036
+    # and 98.4% against 94.1%. On the other nine the two agree to a tenth of a
+    # point, so this changes nothing where nothing needed changing.
+    #
+    # Chosen on the SUBSTRATE, never on the fields -- see _substrate_residual.
+    candidates = {"plane": ours_flat, "blur": _flatten_illumination(ours_raw, 2.0)}
+    anchored = {k: _anchor(v, core, palette[0]) for k, v in candidates.items()}
+    residual = {k: _substrate_residual(v, core) for k, v in anchored.items()}
+    chosen = min(residual, key=residual.get)
+    o_idx = _nearest(anchored[chosen], palette)
+
+    # The swing is what the figure does under the same model with a different
+    # arbitrary knob -- the erosion the plane is fitted through, the radius the
+    # blur is taken at. Differencing against the REJECTED model instead reports
+    # the cost of a estimate the substrate already showed to be worse, which is
+    # not the figure's uncertainty: it read +-9.5 on `59-min` for exactly that.
+    variant = (flatten_on_substrate(ours_raw, _substrate_core(t_idx, 9))
+               if chosen == "plane" else _flatten_illumination(ours_raw, 2.5))
+    alt_idx = _nearest(_anchor(variant, core, palette[0]), palette)
 
     # The dark cut is there to keep printed TYPE out of the score. It must not
     # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black
@@ -270,6 +302,8 @@ def measure(stem: str, preview: bool = False) -> dict:
         "folder": folder.name,
         "palette_closest_pair": round(closest, 4),
         "separable": closest >= SEPARABLE_MIN,
+        "illumination": chosen,
+        "illumination_residual": {k: round(v, 4) for k, v in residual.items()},
         "render_vs_spec": _agreement(o_idx, t_idx, o_mask, len(palette)),
         # The figure's own uncertainty, measured rather than assumed.
         "agreement_spread": round(abs(

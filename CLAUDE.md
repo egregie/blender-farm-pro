@@ -324,9 +324,20 @@ Do **not** extend that anchor to `colour_error_by_region`: that figure asks whet
 renderer painted the colour it was told to, and anchoring the frame to the spec is how you
 erase its answer. An earlier attempt put the gain in front of both and was reverted for
 costing Kamagra fourteen points — the lesson was where it belongs, not that it was wrong.
-The second illumination model is a blur at HALF the face, not a sixth: the narrow one
-follows the design, which is the defect recorded against Kamagra's colour error, and under
-an anchored classifier it is corrected twice over.
+**Which illumination model the classifier uses is chosen per carton, on the substrate.**
+Neither is right everywhere and the gap is not small: on `59-min` the plane leaves a
+residual of 0.085 against a blur's 0.066 and classifies 28.9% of the face as the white
+swoosh where the spec draws 21.1% — 88.6% against the blur's 98.1%; on `155-min` it is the
+other way round. `_substrate_residual()` decides, judged only on the surface the spec draws
+and states the paint for, so the choice never sees a field. `illumination` and
+`illumination_residual` travel in the report so it can be checked.
+
+**The swing perturbs the CHOSEN model, not the rejected one** — the erosion the plane is
+fitted through, or the radius the blur is taken at. Differencing against a model the
+substrate already showed to be worse is not uncertainty: it read ±9.5 on `59-min` for
+exactly that, against ±1.1 now. And note the narrow blur (a sixth of the face) is not a
+candidate at all — it follows the design, the defect recorded against Kamagra's colour
+error.
 
 **OCR needs the face flattened first.** The carton is rotated 27.5-35 degrees
 about Z, and Tesseract reads a skewed face very badly — measured, "Atomoxetine

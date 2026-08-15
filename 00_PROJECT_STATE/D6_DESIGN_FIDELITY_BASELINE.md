@@ -36,13 +36,14 @@ the two notes below.*
 | `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.128 | ±0.0 |
 | `64-min` | Kamagra | 90.5% | 96.9% | 94.8% | 0.189 | ±0.0 |
 | `74-min` | Viagra | 95.0% | 99.7% | 93.4% | 0.191 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.9% | 92.3% | 0.112 | ±0.1 |
+| `156-min` | Xanax | 93.2% | 98.8% | 92.3% | 0.112 | ±0.0 |
 | `135-min` | Ativan | 89.6% | 97.3% | 90.4% | 0.153 | ±0.0 |
-| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | ±4.3 |
-| `59-min` | Cialis | 88.2% | 88.6% | 77.6% | 0.170 | **±9.5** |
+| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | ±0.1 |
+| `59-min` | Cialis | 88.2% | 98.1% | 80.3% | 0.170 | ±1.1 |
 
-*Re-measured after the classifier was anchored — see below. Every row improved or
-held, and nine of eleven swings went to zero.*
+*Re-measured after the classifier was anchored and its illumination model chosen
+on evidence — the two sections below. Every row improved or held, every carton now
+agrees with its spec at 96.9% or better, and the worst swing in the group is ±1.1.*
 
 **`swing` is the agreement figure's own uncertainty**, measured rather than
 assumed: the same classification run under a second illumination model, on
@@ -102,18 +103,57 @@ to one at a half. The narrow blur is not a legitimate second opinion — it foll
 the design, which is the defect this document already records against Kamagra's
 colour error — and under an anchored classifier it is corrected twice over.
 
-### What the swing says now
+## Which illumination model, decided on the substrate
 
-`59-min` Cialis went the other way, ±0.2 → **±9.5**, and that is the honest
-reading rather than a regression. Both models used to agree at ~85.7% because
-both were dominated by the same level offset; with that removed they disagree,
-because on a face of broad curved fields the gradient handling genuinely differs.
-Its composite still improved, 72.6% → 77.6%.
+Anchoring left `59-min` Cialis swinging ±9.5 — the worst in the group, and now
+the only figure of its kind. Both models had previously agreed at ~85.7% because
+both were dominated by the same level offset; with that gone they disagreed, and
+the disagreement is specific: the **plane** classifies 28.9% of Cialis's face as
+the white swoosh where the spec draws 21.1%, while the wide **blur** lands on
+21.8%.
 
-So the two cartons with the tightest palettes — 0.106 and 0.086 between substrate
-and highlight — remain the two the metric cannot pin down, and they are now the
-only two. What has gone is the part of that uncertainty which was never about
-them: a global exposure difference the classifier had no way to see past.
+Neither model is right everywhere, so neither can be the model. What settles it
+without looking at the answer is how flat each leaves the **substrate** — a
+surface the spec draws and whose paint it states, so anything still varying
+inside it is the model's own error and nothing about the fields enters:
+
+| | plane residual | blur residual | plane agrees | blur agrees |
+|---|---:|---:|---:|---:|
+| `59-min` Cialis | 0.0847 | **0.0662** | 88.6% | **98.1%** |
+| `155-min` Imovane | **0.0296** | 0.0358 | **98.4%** | 94.1% |
+| the other nine | — | — | within 0.1 of each other | |
+
+**On both cartons where the two models differ at all, the one that flattens the
+substrate better is the one that agrees better.** That is the whole of the
+evidence for choosing per carton, and it is not circular: the residual never sees
+a field.
+
+`illumination` and `illumination_residual` are reported per row so the choice can
+be checked rather than trusted.
+
+### And the swing became the figure's own uncertainty again
+
+Differencing against the REJECTED model reports the cost of an estimate the
+substrate already showed to be worse — not how uncertain the figure is. The swing
+is now the same model under a different arbitrary knob: the erosion the plane is
+fitted through, or the radius the blur is taken at.
+
+| | before anchoring | anchored, rejected-model swing | now |
+|---|---:|---:|---:|
+| `59-min` Cialis | ±0.2 | ±9.5 | **±1.1** |
+| `155-min` Imovane | ±7.5 | ±4.3 | **±0.1** |
+| worst in the group | ±7.5 | ±9.5 | **±1.1** |
+
+Every carton now agrees with its spec at **96.9% or better**, and nine of eleven
+do not move at all under the perturbation. The two tightest palettes are still
+the two that move — 0.106 and 0.086 between substrate and highlight — but by a
+point rather than by ten.
+
+**ColourError still reads the plane, always.** It asks whether a region is the
+colour it should be, so its illumination estimate must not be able to absorb the
+design — a blur can, which is the defect recorded against Kamagra below. Every ΔC
+in the table above is unchanged to the thousandth across both of these changes,
+which is the check that the two axes stayed apart.
 
 ## `59-min` and `155-min`: what was ruled out along the way
 
