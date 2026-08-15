@@ -41,105 +41,6 @@
               0.1674
             ]
           ]
-        },
-        {
-          "kind": "field",
-          "area_pct": 3.4,
-          "smoothness": 0.09,
-          "outline": [
-            [
-              0.1427,
-              0.0291
-            ],
-            [
-              0.1882,
-              0.0364
-            ],
-            [
-              0.2045,
-              0.0815
-            ],
-            [
-              0.2227,
-              0.0437
-            ],
-            [
-              0.2682,
-              0.0524
-            ],
-            [
-              0.2236,
-              0.1368
-            ],
-            [
-              0.2636,
-              0.2504
-            ],
-            [
-              0.2691,
-              0.2475
-            ],
-            [
-              0.3218,
-              0.064
-            ],
-            [
-              0.3718,
-              0.0684
-            ],
-            [
-              0.4036,
-              0.2664
-            ],
-            [
-              0.4036,
-              0.2737
-            ],
-            [
-              0.3645,
-              0.2678
-            ],
-            [
-              0.3573,
-              0.2431
-            ],
-            [
-              0.3245,
-              0.2373
-            ],
-            [
-              0.3136,
-              0.2387
-            ],
-            [
-              0.3073,
-              0.2591
-            ],
-            [
-              0.2155,
-              0.2445
-            ],
-            [
-              0.1973,
-              0.1907
-            ],
-            [
-              0.1727,
-              0.2373
-            ],
-            [
-              0.1245,
-              0.2285
-            ],
-            [
-              0.1764,
-              0.1325
-            ],
-            [
-              0.1427,
-              0.0306
-            ]
-          ]
         }
       ]
     },
@@ -234,18 +135,18 @@
       ]
     }
   ],
-  "glyph_components_dropped": 3,
+  "glyph_components_dropped": 4,
   "flat_fields_dropped": 0,
   "ink_components_dropped": 0,
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.933,
-    "excluded_as_glyphs_pct": 5.02,
+    "pixel_agreement": 0.9324,
+    "excluded_as_glyphs_pct": 8.38,
     "iou_by_field": {
-      "brand": 0.739,
+      "brand": 0.654,
       "highlight": 0.188
     },
-    "vertices": 48
+    "vertices": 25
   },
   "type_rows": {
     "brand_name_display": {

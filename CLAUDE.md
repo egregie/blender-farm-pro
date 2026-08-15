@@ -128,6 +128,23 @@ of quietly producing a packshot with something missing. `manifest_version` is pi
   long edge and assigns it by orientation, so Lexotanil's portrait 2.026 gives 57×115 rather
   than inflating the carton to 110×223 to carry a proportion.
 
+  **Two scripts write `design_spec.json` and neither may erase the other.**
+  `scripts/fit_design_spec.py` owns `fields`, `scripts/measure_type_rows.py` owns
+  `type_rows`, and the fitter runs first. It used to rewrite the file wholesale, so
+  re-running it deleted every measured row and all eleven manifests came back with
+  `"type_rows": {}` — every design carton silently back on the generic grid, nothing
+  raised. The fitter now carries the block forward and a test compares each manifest's
+  `type_rows` against its spec's.
+
+  **A component enters the spec by running off the face, reading as a block, or filling
+  its own bounding box with hairlines removed — never by being large.** The size escape
+  was removed because it could not be repaired by size: Xanax's traced "XA" covers 3.4%
+  of its face and Xanax Pfizer's genuine magenta panel 3.2%. They separate on box fill,
+  0.49 against 0.96, and the panel needs the despeckle because a ONE-PIXEL thread down
+  the carton edge stretches its bounding box and halves the ratio. Keep the block test in
+  the middle: the four references that reverse the dosage out of a filled block leave
+  letter-shaped holes, so Cialis's block fills 0.70 by pixels against 0.95 by outline.
+
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the
   ingredient at its **top level**, as `active_ingredient`.

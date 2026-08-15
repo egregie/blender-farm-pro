@@ -675,3 +675,70 @@ class TestDesignChannel(unittest.TestCase):
         stale["manifest_version"] = "1.3"
         with self.assertRaises(Exception):
             validate_manifest(stale)
+
+    def test_the_manifest_carries_the_type_rows_the_spec_measured(self):
+        """Two scripts write one file, and one of them used to erase the other.
+
+        `fit_design_spec` owns the fields, `measure_type_rows` owns `type_rows`,
+        and both write `design_spec.json`. The fitter rewrote it wholesale, so
+        re-running it deleted every measured row -- all eleven manifests came
+        back with `"type_rows": {}` and every design carton silently returned to
+        the generic grid. Nothing failed; it was found by diffing manifests.
+        """
+        import json as _json
+        from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
+        for folder, stem in sorted(TEMPLATE_SAMPLE.items()):
+            spec = _json.loads(
+                (TEMPLATES_DIR / folder / "design_spec.json").read_text(encoding="utf-8"))
+            with self.subTest(stem=stem):
+                self.assertEqual(
+                    self._manifest(stem)["design"].get("type_rows", {}),
+                    spec.get("type_rows", {}),
+                    f"{stem}: the manifest and the spec disagree about where "
+                    f"this carton sets its type, so one of them was written "
+                    f"over the other")
+
+    # Parts that are neither off the face nor a block, i.e. admitted on the
+    # strength of filling their own bounding box. Exactly one exists, measured
+    # at 0.96: Xanax Pfizer's magenta panel, a clean rectangle carrying a
+    # one-pixel thread down the carton's edge that halves its polygon's fill.
+    BOX_FILL_EXEMPT = {("24_T1_Xanax_Pfizer", "brand", 3.2)}
+
+    def test_no_spec_field_is_the_reference_s_own_lettering(self):
+        """A spec carrying letter outlines prints the REFERENCE's words.
+
+        Xanax shipped that way: "XANAX" clustered with the purple edge bar, its
+        "XA" survived as one component covering 3.4% of the face, and the
+        renderer built it as geometry beside our own brand -- the D-7 reader
+        came back with "XAXa" off a carton printing "Xanax".
+
+        Restated here rather than imported. A test that asks the fitter's own
+        predicate whether the fitter was right cannot answer the question.
+        """
+        import json as _json
+        from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
+        loose = set()
+        for folder in sorted(TEMPLATE_SAMPLE):
+            spec = _json.loads(
+                (TEMPLATES_DIR / folder / "design_spec.json").read_text(encoding="utf-8"))
+            aspect = float(spec["face_aspect"])
+            # The fitter's margin is 0.01 of the face's LONGER side in pixels;
+            # these coordinates are normalised per axis, so it is not the same
+            # number on both.
+            margin_u = 0.01 * max(1.0, aspect)
+            margin_v = margin_u / aspect
+            for field in spec["fields"]:
+                for part in field["parts"]:
+                    us = [p[0] for p in part["outline"]]
+                    vs = [p[1] for p in part["outline"]]
+                    off = (min(us) <= margin_u or max(us) >= 1 - margin_u
+                           or min(vs) <= margin_v or max(vs) >= 1 - margin_v)
+                    if off or part["kind"] == "block":
+                        continue
+                    loose.add((folder, field["role"], part["area_pct"]))
+        self.assertEqual(
+            loose, self.BOX_FILL_EXEMPT,
+            "a spec field floats inside the face and is not a printed block, "
+            "which is what a traced wordmark looks like. Every exemption is "
+            "listed with the box-fill that earned it; a new one has to be "
+            "measured, not assumed.")

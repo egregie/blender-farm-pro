@@ -151,23 +151,80 @@ needs and the one place it admits it cannot see:
   exactly right. The fitter had left the reference's **own traced wordmark** in
   the spec as a colour field, the driver duly built it, and the reader merged
   that shape with our type into one row. Once the anchor fix moved our brand
-  clear of it the row reads "Xanax" and scores 3/3 — **but the traced wordmark is
-  still on the carton**, printing a nonsense glyph pair beside the brand. That is
-  a D-2 fitter defect, recorded here with its number and not fixed in this pass:
-  re-fitting moves every D-6 figure and the last two rounds show how touchy that
-  is.
+  clear of it the row reads "Xanax" and scores 3/3. **The wordmark itself was a
+  D-2 fitter defect and is now fixed** — see below.
 
   The `.type.png` overlays show the same signature elsewhere, unmeasured and
   noted only as an observation: `135-min`'s colour block has a notch traced out
   of its left edge that eats into the "1" of "1mg", and the silver strip along
-  its top edge is a sawtooth rather than a band. Whatever is done about the
-  Xanax wordmark should be judged against these too.
+  its top edge is a sawtooth rather than a band.
 - **`155-min`** read "Bmg 30 Pills" as one row. That one is not a defect at all:
   the dosage sits at the left of the bottom band and the unit count at the right,
   one baseline, no overlap — the layout `_lift_row`'s own doctrine asks for — and
   the reader groups by vertical centre. Rows are the right unit for *identifying*
   a label and the wrong one for *measuring* one, so `_narrow_to()` trims a row
   back to the words that spell the string being asked about. Imovane scores 2/2.
+
+## The traced wordmark, and why a size threshold could not have fixed it
+
+*Added 2026-08-15, after this document first recorded the defect.*
+
+Xanax's face is one heavy black "XANAX". The clustering put it in the same
+colour group as the purple bar down the carton's right edge, and it broke into
+five components: the bar, then "XA", "N", "A", "X". Three were dropped as
+glyphs. **"XA" survived, at 3.4% of the face.**
+
+It survived through the fitter's "large enough" escape — past 3% of the face,
+shape stopped mattering. And that escape could not be repaired by choosing a
+better size, because the only other component in the whole group that depended
+on it is **smaller**: Xanax Pfizer's magenta panel, at 3.2%. Any threshold
+admitting the panel admits the letters.
+
+**What the panel actually is.** A clean 138 × 160 pixel rectangle with a
+**one-pixel thread** running a fifth of the face down the carton's right edge —
+an artefact of rectifying a photograph. The thread carries about 1% of the
+component's pixels and stretches its bounding box by half, so the panel filled
+0.51 of its box and failed every rectangle test in the module. Remove the thread
+with a one-pixel opening and it fills **0.96**. "XA" fills **0.49**.
+
+So the escape is gone and a component earns its place three ways: it runs off the
+face, it reads as a block, or its pixels fill its own box once hairlines are
+removed. The middle one is not redundant — the four references that reverse the
+dosage out of a filled block leave letter-shaped holes in it, and Cialis's block
+fills 0.70 of its box by pixels against 0.95 by outline.
+
+**Blast radius: one component in eleven specs.** Every other part is unchanged,
+byte for byte, and Xanax's own spec agreement moves 93.3% → 93.2%.
+
+`part_kind` was deliberately left alone. Making the panel a *block* would have
+been the tidier-looking fix and would have been wrong: the driver reverses the
+dosage out of `blocks[0]`, so Xanax Pfizer would have started printing "0.5mg"
+inside a magenta square its reference prints nothing in.
+
+### A second defect, found by diffing rather than by anything failing
+
+`fit_design_spec` owns the fields and `measure_type_rows` owns `type_rows`, and
+both write `design_spec.json`. The fitter rewrote the file **wholesale**, so
+re-running it deleted every measured row: all eleven manifests came back with
+`"type_rows": {}` and every design carton silently returned to the generic grid.
+Nothing raised, nothing failed, and the D-7 figures would have looked *better*
+for it — with no rows measured there is nothing to score against.
+
+The fitter now carries the block forward, and a test compares each manifest's
+`type_rows` against its spec's so the two cannot part company again.
+
+## Still visible on `156-min`, and not fixed here
+
+With the wordmark gone, what the measurement actually captured is plain: our
+"Xanax" sits at u 0.41–0.82, the right-hand **half** of a reference wordmark that
+runs from u 0.12. D-2b read that row as `"NAX"` — the box is the part of the
+wordmark OCR could read, not the wordmark.
+
+`assign_roles` admits a row at a similarity of 0.5 and "NAX" against "XANAX"
+scores exactly 0.5, so this row entered at the bar. Raising the bar would drop it
+back to the generic grid, which starts at the left margin and would sit closer
+across — while losing the measured cap height. That is a trade to measure, not to
+guess, and it is not attempted here.
 
 ## Open, with a number attached
 

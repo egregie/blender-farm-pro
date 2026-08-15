@@ -60,7 +60,18 @@ MIN_REGION_FRAC = 0.008
 # to its board is invisible to a viewer AND unmeasurable afterwards, and emitting
 # one produces a spec whose own fidelity cannot be checked.
 MIN_FILL_CONTRAST = 0.08
-LARGE_FIELD_FRAC = 0.03     # past this share of the face, shape stops mattering
+# How much of its own bounding box a component must fill to be admitted as a
+# printed shape when it neither runs off the face nor reads as a block. Measured
+# on the component's PIXELS with hairline filaments removed, not on its traced
+# polygon: the polygon encloses holes, which is right for a block with type
+# reversed out of it and wrong here.
+#
+# This replaced a "large enough" escape, and it had to: the escape could not be
+# repaired by choosing a better size, because the thing it was letting through
+# is BIGGER than the thing it was there for. Xanax's traced "XA" covers 3.4% of
+# its face and Xanax Pfizer's magenta panel 3.2%. They separate on this ratio at
+# 0.49 against 0.96.
+BOX_FILL_MIN = 0.85
 SIMPLIFY_TOLERANCE = 0.004  # Douglas-Peucker, in face widths
 SMOOTH_TURN_DEG = 25.0      # a vertex turning less than this reads as a curve
 
@@ -221,41 +232,69 @@ def _runs_off_face(outline, w, h) -> bool:
             or max(xs) >= w - 1 - margin or max(ys) >= h - 1 - margin)
 
 
-def is_design_field(outline, w, h) -> bool:
+def _despeckle(mask: np.ndarray) -> np.ndarray:
+    """The component with one-pixel filaments removed: erode 1px, dilate 1px.
+
+    A morphological opening. A printed shape loses and regains its outline; a
+    thread one pixel wide does not come back, because there was nothing left of
+    it to dilate.
+    """
+    from PIL import ImageFilter
+    img = Image.fromarray((mask * 255).astype("uint8"))
+    return np.asarray(img.filter(ImageFilter.MinFilter(3))
+                         .filter(ImageFilter.MaxFilter(3))) > 0
+
+
+def fills_its_box(mask: np.ndarray) -> float:
+    """Share of its own bounding box the component's pixels occupy.
+
+    Taken after `_despeckle`, and that is the whole point of the function.
+    Xanax Pfizer's magenta panel is a clean 138x160 pixel rectangle with a
+    ONE-PIXEL thread running a fifth of the face down the carton's right edge --
+    an artefact of rectifying a photograph, not something printed. The thread
+    carries 1% of the component's pixels and stretches its bounding box by half,
+    taking this ratio from 0.96 to 0.51 and dropping a plain colour panel below
+    every rectangle test in this module.
+    """
+    m = _despeckle(mask)
+    if not m.any():
+        return 0.0
+    ys, xs = np.nonzero(m)
+    box = (ys.max() - ys.min() + 1) * (xs.max() - xs.min() + 1)
+    return float(m.sum()) / box if box else 0.0
+
+
+def is_design_field(outline, w, h, mask=None) -> bool:
     """Is this component a colour field, or a letter that landed in one?
 
     Area alone cannot tell them apart -- Cialis's "C" and "a" are larger than its
-    dosage block. Two properties can:
+    dosage block, and the case that settles it is Xanax, whose traced "XA" is
+    LARGER than Xanax Pfizer's magenta panel: 3.4% of its face against 3.2%. Any
+    threshold admitting the panel admits the letters. A component earns its place
+    three ways instead:
 
-    A colour field either RUNS OFF THE FACE (the olive bands enter from the
-    edges), or is LARGE, or is a RECTANGLE (the dosage block). A glyph is none of
-    those: it floats inside the face, covers about a hundredth of it, and fills
-    little of its own bounding box.
+    - it RUNS OFF THE FACE. The olive bands enter from the edges; nothing printed
+      as type does that.
+    - it reads as a BLOCK. `part_kind`'s polygon test, which encloses holes, and
+      must: the four references that reverse the dosage out of a filled block
+      leave letter-shaped holes in it, and Cialis's block fills only 0.70 of its
+      box by pixels while its outline fills 0.95.
+    - its PIXELS fill its own box, hairlines removed. This is what carries a
+      plain colour panel that is not quite a rectangle, and it is what "XA" fails
+      at 0.49.
 
     This matters more than tidiness. Type is drawn from the manifest's strings,
-    and a spec carrying letter outlines would print the REFERENCE's words on
-    every carton built from it -- the exact failure the text-as-geometry rule
-    exists to prevent, arriving through the back door.
+    and a spec carrying letter outlines prints the REFERENCE's words on every
+    carton built from it -- the exact failure the text-as-geometry rule exists to
+    prevent, arriving through the back door. Xanax shipped that way: the reader
+    that measures our own type came back with "XAXa" off a carton printing
+    "Xanax", because the wordmark was standing beside it as geometry.
     """
     if _runs_off_face(outline, w, h):
         return True
-    xs = [p[0] for p in outline]
-    ys = [p[1] for p in outline]
-    area = _area(outline)
-    # Size alone is not the test, but past a point it settles the question: no
-    # glyph covers a twentieth of a face, and the Cialis white swoosh -- a deeply
-    # concave crescent that stops just short of the edge -- covers a quarter of
-    # one. Requiring convexity of it dropped it and took the agreement from 88.6%
-    # to 73.5%.
-    if area >= LARGE_FIELD_FRAC * w * h:
+    if part_kind(outline) == "block":
         return True
-    # Rectangularity, not convexity. The tracer follows an outer boundary and
-    # ignores holes, so a round letter comes back looking convex -- "a" scored
-    # 0.85 solidity and survived. How much of its BOUNDING BOX a shape fills
-    # separates them cleanly: a printed colour block is a rectangle (0.95+), a
-    # letter is not (~0.6).
-    bbox = (max(xs) - min(xs)) * (max(ys) - min(ys))
-    return bool(bbox > 0 and area / bbox >= 0.85)
+    return mask is not None and fills_its_box(mask) >= BOX_FILL_MIN
 
 
 def part_kind(outline) -> str:
@@ -359,7 +398,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 dropped_ink += 1
                 dropped_mask |= part
                 continue
-            if not is_design_field(pts, w, h):
+            if not is_design_field(pts, w, h, part):
                 dropped += 1
                 dropped_mask |= part
                 continue
@@ -398,7 +437,24 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     agreement = verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
                        dropped_mask)
     spec["verification"] = agreement
-    (folder / "design_spec.json").write_text(
+
+    # This module owns the FIELDS. `measure_type_rows` owns `type_rows`, writes
+    # into the same file, and runs after -- so rewriting the file wholesale
+    # silently deleted its work, and the eleven manifests came back carrying
+    # `"type_rows": {}` the next time Stage 1 ran. Found by diffing the
+    # manifests rather than by anything failing, which is the wrong way to find
+    # it. Carried forward rather than re-measured: the rows are measured off the
+    # same rectified face this fit reads, so re-fitting the fields cannot
+    # invalidate them. Re-setting the face CORNERS invalidates both, and that is
+    # a different operation.
+    spec_path = folder / "design_spec.json"
+    if spec_path.exists():
+        previous = json.loads(spec_path.read_text(encoding="utf-8"))
+        for key in ("type_rows", "type_rows_note"):
+            if key in previous:
+                spec[key] = previous[key]
+
+    spec_path.write_text(
         json.dumps(spec, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return spec
 
