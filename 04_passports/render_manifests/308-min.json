@@ -177,6 +177,16 @@
         "cap_top_v": 0.2388,
         "align": "LEFT",
         "read_as": "Bromazépam"
+      },
+      "dosage_display": {
+        "u0": 0.0914,
+        "u1": 0.3786,
+        "v0": 0.3193,
+        "v1": 0.3772,
+        "cap_frac": 0.0443,
+        "cap_top_v": 0.3199,
+        "align": "LEFT",
+        "read_as": "6mg"
       }
     },
     "source_image": "raw_lexotanil_01.jpg"

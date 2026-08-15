@@ -48,11 +48,12 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 
 | | at baseline | now |
 |---|---:|---:|
-| rows scored | 18/21 | **19/19** |
-| worst vertical error | 0.0274 | **0.0014** |
-| mean vertical error | 0.0180 | **0.0003** |
-| worst `du_anchor` | 0.0091 | 0.0073 |
-| `cap_ratio` above 1 | to **1.384** | to 1.03 |
+| reference rows measured | 21 | **25** |
+| of those, scored in our renders | 18 | **24** |
+| worst vertical error | 0.0274 | 0.0206 → **0.0026** off Cialis's reversed row |
+| mean vertical error | 0.0180 | **0.0009** |
+| worst `du_anchor` | 0.0091 | 0.0109 → **0.0086** off the same row |
+| `cap_ratio` above 1 | to **1.384** | to 1.005 |
 
 *The denominator moved too: `MATCH_MIN` dropped three reference boxes that
 covered under 60% of their own string, and word-level claiming added two. See the
@@ -63,22 +64,31 @@ vertical axis and the two collisions.
 
 | SKU | folder | scored | worst dv | worst du |
 |---|---|---:|---:|---:|
-| `64-min` | Kamagra | 2/2 | 0.0000 | 0.0073 |
-| `74-min` | Viagra | 3/3 | 0.0002 | 0.0072 |
-| `135-min` | Ativan | 1/1 | 0.0001 | 0.0000 |
-| `155-min` | Imovane | 2/2 | 0.0013 | 0.0014 |
-| `156-min` | Xanax | 1/1 | 0.0002 | 0.0010 |
-| `272-min` | Valium | 2/2 | 0.0000 | 0.0040 |
-| `308-min` | Lexotanil | 2/2 | 0.0002 | 0.0069 |
-| `340-min` | Xanax Pfizer | 4/4 | 0.0008 | 0.0032 |
-| `344-min` | Modafinil | 1/1 | 0.0014 | 0.0009 |
-| `404-min` | Ritalin | 1/1 | 0.0000 | 0.0037 |
-| `59-min` | Cialis | 0/0 | — | — |
+| `59-min` | Cialis | 2/2 | 0.0206* | 0.0109* |
+| `64-min` | Kamagra | 2/3 | 0.0000 | 0.0073 |
+| `74-min` | Viagra | 4/4 | 0.0004 | 0.0072 |
+| `135-min` | Ativan | 1/1 | 0.0011 | 0.0000 |
+| `155-min` | Imovane | 2/2 | 0.0026 | 0.0014 |
+| `156-min` | Xanax | 1/1 | 0.0009 | 0.0010 |
+| `272-min` | Valium | 2/2 | 0.0011 | 0.0036 |
+| `308-min` | Lexotanil | 3/3 | 0.0005 | 0.0086 |
+| `340-min` | Xanax Pfizer | 4/4 | 0.0016 | 0.0032 |
+| `344-min` | Modafinil | 2/2 | 0.0026 | 0.0005 |
+| `404-min` | Ritalin | 1/1 | 0.0009 | 0.0037 |
 
-**`59-min` is not a pass.** Its reference measured no rows at all, so there is
-nothing to compare and the row is blank rather than perfect. Cialis prints its
-whole label on the generic grid — the carton that started this workstream is the
-one the type work has not reached.
+\* **Cialis's dosage is a reading artefact, not a build error**, and the scene
+says so exactly: its cap line lands on 0.3168 against a measured 0.3168 and its
+cap height on 1.00. That row is reversed white out of a dark olive block, and the
+reader's inverted pass returns a box inflated by the block's own edge — which
+reads back as a row 38% oversized and 0.02 high. A reversed row is the one shape
+this instrument measures worse than the driver builds it.
+
+`64-min`'s dosage is the one measured row our render does not read at all: 0.035
+of the face tall, the smallest in the group.
+
+**`59-min` used to be the blank row here** — no reference rows at all, so nothing
+to compare and a figure that read as neither pass nor fail. It now carries two;
+see the Cialis section below for why it read as it did and what changed.
 
 ## Defect 1: every measured row sat below its own measurement
 
@@ -144,7 +154,7 @@ instrument was built before the fixes rather than after them.
 
 ## Coverage, and how much to read into it
 
-Every measured row is now located and scored — 19 of 19. That was not true at
+Twenty-four of twenty-five measured rows are located and scored. That was not true at
 baseline, and it was not true at any point in between: `74-min`'s ingredient is
 0.055 of the face tall, dark grey on light grey, and moved in and out of coverage
 across four runs of this loop on renders differing by a few pixels. It was always
@@ -469,6 +479,83 @@ measurement there to protect.
 The five rows still short of their cap height are the ones that ran out of
 condensing: 0.69 to 0.90. Closing those means a narrower vendored face, which
 changes all 391 cartons and is not a design-group decision.
+
+## `59-min` Cialis: a face with five legible lines and no measurement
+
+*Added 2026-08-15.*
+
+Cialis is the carton that started this workstream and it was the one carrying no
+measured rows at all. The reader returned **four words** off a face that reads
+perfectly to a human — "A film-coated tablets" and a second "tablets" — and
+missed the wordmark, the dosage and the ingredient. Braille dots are embossed
+straight across the type and the print sits dark-on-cream at low contrast.
+
+This module's own docstring already said so: *"psm 11 … misses Cialis's wordmark
+entirely, which is the largest thing on that face."* It also claimed to read
+"across page-segmentation modes" while running one, because merging modes had
+been tried and reverted — the extra junk **outranked the real brand on cap
+height**. That justification had since expired: the structural fallback it
+protected was removed when roles started being identified by text alone.
+
+So modes were re-tested, and they are not the answer either — psm 3, 4 and 6
+return the wordmark and the dosage run together as one token, `‘ialistem`, which
+is a worse box than no box. **The useful variation is in the pixels.** Three
+preparations of the same face — as-is, unsharp-masked, contrast-stretched — each
+recover what the others miss, and the union is read as one set of words. That is
+the same move `type_qa` already made reading our own faces upright and inverted.
+
+Merging passes needs duplicate suppression that actually works. Intersection over
+union does not: two preparations return one word at slightly different extents
+and both survive, which is how Modafinil's ingredient became the row
+`Modaftin! afin!`. Containment — overlap against the *smaller* box — collapses
+them.
+
+| | rows measured |
+|---|---:|
+| `02_T1_SMALL_Cialis` | 0 → **2** |
+| `23_T1_Lexotanil` | 2 → 3 |
+| `25_T1_Modafinil_Generic` | 1 → 2 |
+| `31_Kamagra_Template_Reference` | 2 → 3 |
+| `32_Viagra_Template_Reference` | 3 → **4** |
+| the other six | unchanged |
+| **total** | 19 → **25** |
+
+Viagra's is a correction rather than a gain: its unit count had been measured on
+the *top* line, "film-coated tablets", and the fuller read finds the real one at
+the foot of the pack, "4 film-coated tablets" at 1.00.
+
+### Reading more of the face made two other things bite
+
+**A wrong line.** With three preparations the reader finds Lexotanil's form line
+"comprimé quadrisécable" near the top, which scores 0.78 against
+"30 comprimés quadrisécables" while the real count sits at the foot wrapped over
+two lines and can never score that high. So: if the expected string opens with a
+number and that number appears **anywhere** on the face, the row carrying it is
+the row. Only when it is somewhere — Viagra's count loses its "4" on one
+preparation and keeps it on another, and where no candidate has it a numberless
+read is the best available.
+
+**A box wider than its type.** `_similar` compares alphanumerics only, so
+trailing marks cost a reading nothing: Kamagra's dosage came back as the row
+`100mg ~“ | |` at a clean 1.00, with a box a sixth of the face wider than the
+type in it. `narrow_to_string` now prefers a shorter run at an equal score.
+
+### And one defect that was invisible to every placement figure
+
+Cialis sets its dosage **inside an olive block**, and the measurement puts our
+row in the same rectangle. The measured path took the position and kept the
+default dark ink — near-black on dark olive. The block path had always reversed
+its type out of the fill; the measured path, which outranks it, did not.
+
+Fixing that exposed a second layer. With the ink corrected the scene dump read
+`(1.0, 1.0, 1.0)` and **the render still came back dark**: design fields are
+extruded curves straddling the face plane, so their front surface lands at
+exactly the standoff the label uses, and the block was winning the depth test
+across the glyphs. The label now sits at twice the standoff. Nothing about the
+row was wrong — it was behind.
+
+Both are now asserted from the dump, which carries `base_color` per row for the
+purpose: geometry alone cannot see a row painted the wrong colour.
 
 ## Open, with a number attached
 

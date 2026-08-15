@@ -168,6 +168,16 @@
       "cap_top_v": 0.2388,
       "align": "LEFT",
       "read_as": "Bromazépam"
+    },
+    "dosage_display": {
+      "u0": 0.0914,
+      "u1": 0.3786,
+      "v0": 0.3193,
+      "v1": 0.3772,
+      "cap_frac": 0.0443,
+      "cap_top_v": 0.3199,
+      "align": "LEFT",
+      "read_as": "6mg"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."

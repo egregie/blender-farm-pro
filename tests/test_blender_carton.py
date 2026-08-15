@@ -1299,13 +1299,36 @@ class TestDesignFieldsReachTheScene(unittest.TestCase):
             "a design carton was built on white board; two of the eleven "
             "references have a coloured board, so white is not a rule they follow")
 
-    def test_the_dosage_is_reversed_out_of_its_block(self):
+    def test_the_dosage_is_set_inside_its_block(self):
+        """Asserted from where the row LANDS, not from how it is aligned.
+
+        Centring used to stand in for "in the block", because the block path is
+        the only one that centres. It stopped meaning that the moment the
+        reference's own dosage row was measured: `59-min` reads RIGHT, sits in
+        the same rectangle, and is placed by the measurement rather than by the
+        block. The proxy was pointing at the mechanism; this points at the
+        result.
+        """
         rows = [l for l in self.design["label"] if l["name"] == "label_dosage"]
         self.assertEqual(len(rows), 1)
-        self.assertEqual(
-            rows[0]["align_x"], "CENTER",
-            "the dosage is not centred, so it is still on the generic grid "
-            "rather than inside the block the reference reverses it out of")
+        blocks = [p for f in self.design_job["design"]["fields"]
+                  for p in f["parts"] if p["kind"] == "block"]
+        self.assertTrue(blocks, "the fixture carries no colour block to sit in")
+        us = [q[0] for q in blocks[0]["outline"]]
+        vs = [q[1] for q in blocks[0]["outline"]]
+        bounds = self.design["carton"]["self_bounds"]
+        left_x, width = bounds["min"][0], bounds["max"][0] - bounds["min"][0]
+        top_z, height = bounds["max"][2], bounds["max"][2] - bounds["min"][2]
+        box = rows[0]["bounds_in_carton_frame"]
+        u0 = (box["min"][0] - left_x) / width
+        u1 = (box["max"][0] - left_x) / width
+        v0 = (top_z - box["max"][2]) / height
+        v1 = (top_z - box["min"][2]) / height
+        self.assertTrue(
+            min(us) <= u0 and u1 <= max(us) and min(vs) <= v0 and v1 <= max(vs),
+            f"the dosage runs outside the block it belongs in: "
+            f"u {u0:.3f}-{u1:.3f} v {v0:.3f}-{v1:.3f} against a block at "
+            f"u {min(us):.3f}-{max(us):.3f} v {min(vs):.3f}-{max(vs):.3f}")
         self.assertEqual(rows[0]["body"],
                          self.design_job["label_content"]["dosage_display"],
                          "the dosage string changed on its way to the block")
@@ -1387,7 +1410,7 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
     # Three measured rows each, then the two collision cases: 135-min where a
     # grid row met a measured one mid-face, 340-min where it met one in the
     # bottom corner and had to rise rather than drop.
-    SKU = ("156-min", "308-min", "135-min", "340-min")
+    SKU = ("156-min", "308-min", "135-min", "340-min", "59-min")
     V_TOL = 0.002        # placement is a translation, so it is exact by build
 
     @classmethod
@@ -1516,6 +1539,47 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                             msg=f"{stem} {role}: built cap {built:.4f} against a "
                                 f"measured {want:.4f} while still at "
                                 f"{row['scale_x']:.3f} of full width")
+
+    def test_a_row_set_inside_a_colour_block_is_reversed_out_of_it(self):
+        """Ink follows the surface under it, and geometry cannot see that.
+
+        `59-min` sets its dosage inside an olive block and the measurement puts
+        our row in the same rectangle. Taking the measured position while
+        keeping the default dark ink prints near-black on dark olive -- every
+        placement figure perfect and the row unreadable.
+        """
+        found = 0
+        for stem in self.SKU + ("59-min",):
+            job = self.jobs.get(stem)
+            scene = self.scenes.get(stem)
+            if job is None or scene is None:
+                continue
+            blocks = [(p, f["fill"]) for f in (job.get("design") or {}).get("fields", [])
+                      for p in f["parts"] if p["kind"] == "block"]
+            if not blocks:
+                continue
+            measured = (job.get("design") or {}).get("type_rows") or {}
+            row = measured.get("dosage_display")
+            if row is None:
+                continue
+            part, _fill = blocks[0]
+            us = [q[0] for q in part["outline"]]
+            vs = [q[1] for q in part["outline"]]
+            if not (row["u0"] < max(us) and min(us) < row["u1"]
+                    and row["v0"] < max(vs) and min(vs) < row["v1"]):
+                continue
+            found += 1
+            drawn = [r for r in scene["label"] if r["name"] == "label_dosage"]
+            self.assertEqual(len(drawn), 1)
+            r, g, b = drawn[0]["base_color"][:3]
+            with self.subTest(sku=stem):
+                self.assertGreater(
+                    0.2126 * r + 0.7152 * g + 0.0722 * b, 0.5,
+                    f"{stem}: the dosage sits inside a dark colour block and is "
+                    f"painted {(round(r, 3), round(g, 3), round(b, 3))}")
+        self.assertGreaterEqual(
+            found, 1, "no fixture puts a measured dosage inside a colour block, "
+                      "so this test asserts nothing")
 
     def test_no_row_is_printed_through_another(self):
         """A measured row lands where the reference puts it, which is anywhere.

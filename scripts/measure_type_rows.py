@@ -31,7 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -43,11 +43,13 @@ from scripts.measure_reference_face import TEMPLATES_DIR, segment  # noqa: E402
 
 UPSCALE = 2                 # Tesseract reads small type far better at 2x
 MIN_CONF = 40
-PSM_MODE = 11               # sparse text. Merging modes was tried and reverted:
-                            # psm 6 and 3 add the same words again as slightly
-                            # different boxes, and the extra junk outranked the
-                            # real brand on cap height -- Ritalin's became a
-                            # stray "y", Kamagra's a "¢", Viagra's a ":".
+PSM_MODE = 11               # sparse text. Re-tested against 3, 4, 6 and 12 on
+                            # the face that reads worst: they add nothing psm 11
+                            # misses and merge Cialis's wordmark with its dosage
+                            # into one token. See _preparations for where the
+                            # useful variation is.
+# Two readings of one word overlap at least this much of the smaller box.
+DUPLICATE_OVERLAP = 0.6
 MIN_ROW_CHARS = 2           # a row of one glyph is OCR noise, never a label
 MIN_BRAND_CHARS = 3
 MAX_ROW_FRAC = 0.35         # taller than this is two rows merged, not one
@@ -96,20 +98,65 @@ def number_conflicts(read: str, want: str) -> bool:
     return bool(w and r and w.group(1) != r.group(1))
 
 
-def _words(img: Image.Image):
-    """Every word Tesseract finds, across page-segmentation modes.
+def _preparations(img: Image.Image):
+    """The same face, prepared for the reader three ways.
 
-    One mode is not enough and the failure is per carton, not per project: psm 11
-    reads Ritalin's whole layout and misses Cialis's wordmark entirely, which is
-    the largest thing on that face. Duplicates are dropped by box overlap.
+    One pass is not enough, and the failure is per carton rather than per
+    project. `02_T1_SMALL_Cialis` is the case: a face with five perfectly legible
+    lines returned FOUR words and not one of its labels, because braille dots are
+    embossed straight across the wordmark and the type sits dark-on-cream at low
+    contrast. Each preparation recovers something the others miss -- unsharp
+    masking finds its "10 mg", a contrast stretch finds "tadalafil" -- and none
+    of them finds everything.
+
+    Merging PAGE-SEGMENTATION modes was tried instead and is not worth it: psm
+    3, 4 and 6 return Cialis's wordmark and dosage run together as one token
+    ("‘ialistem"), which is a worse box than no box. The variation that helps is
+    in the pixels, not in the layout analysis.
+
+    This is the same move `type_qa.read_rows` makes when it reads our own face
+    upright and inverted, for the same reason: a reader that binarises per region
+    gives different answers to different preparations of one image, and the union
+    is strictly more than any single pass.
     """
+    grey = img.convert("L")
+    return (img,
+            grey.filter(ImageFilter.UnsharpMask(radius=3, percent=200)),
+            ImageEnhance.Contrast(grey).enhance(2.5))
+
+
+def _duplicate(box, kept_box) -> bool:
+    """Is this the same word already found, read again by another preparation?
+
+    Containment rather than IoU. Two preparations return the same word at
+    slightly different extents -- one clips a serif, the other includes a stray
+    mark -- and an intersection-over-union test at any sane threshold lets both
+    through: Modafinil's ingredient came back as the row "Modaftin! afin!",
+    which is one word counted twice.
+    """
+    ix = max(0.0, min(box[0] + box[2], kept_box[0] + kept_box[2]) - max(box[0], kept_box[0]))
+    iy = max(0.0, min(box[1] + box[3], kept_box[1] + kept_box[3]) - max(box[1], kept_box[1]))
+    inter = ix * iy
+    smaller = min(box[2] * box[3], kept_box[2] * kept_box[3])
+    return bool(inter and smaller and inter / smaller >= DUPLICATE_OVERLAP)
+
+
+def _words(img: Image.Image):
+    """Every word Tesseract finds, across preparations of the face."""
     import pytesseract
 
     w, h = img.size
-    big = img.resize((w * UPSCALE, h * UPSCALE), Image.LANCZOS)
     found = []
-    d = pytesseract.image_to_data(big, config=f"--psm {PSM_MODE}",
-                                  output_type=pytesseract.Output.DICT)
+    for prep in _preparations(img):
+        big = prep.resize((w * UPSCALE, h * UPSCALE), Image.LANCZOS)
+        d = pytesseract.image_to_data(big, config=f"--psm {PSM_MODE}",
+                                      output_type=pytesseract.Output.DICT)
+        _collect(d, found)
+    return found
+
+
+def _collect(d, found):
+    """Add this pass's words to *found*, keeping the fuller read of a duplicate."""
     for i, raw in enumerate(d["text"]):
         text = raw.strip()
         if not text or int(d["conf"][i]) < MIN_CONF:
@@ -118,7 +165,13 @@ def _words(img: Image.Image):
                d["width"][i] / UPSCALE, d["height"][i] / UPSCALE)
         if box[2] <= 0 or box[3] <= 0:
             continue
-        found.append((box, text, int(d["conf"][i])))
+        for j, (kbox, ktext, _kconf) in enumerate(found):
+            if _duplicate(box, kbox):
+                if len(_alnum(text)) > len(_alnum(ktext)):
+                    found[j] = (box, text, int(d["conf"][i]))
+                break
+        else:
+            found.append((box, text, int(d["conf"][i])))
     return found
 
 
@@ -260,14 +313,19 @@ def narrow_to_string(row: dict, want: str) -> dict:
     words = row.get("words") or []
     if len(words) < 2 or not want:
         return row
-    best, score = None, _similar(row["text"], want)
+    best, score = words, _similar(row["text"], want)
     for i in range(len(words)):
         for j in range(i + 1, len(words) + 1):
             run = words[i:j]
             sc = _similar(" ".join(w["text"] for w in run), want)
-            if sc > score:
+            # A shorter run at the SAME score is the tighter measurement, and the
+            # tie is not hypothetical: `_similar` compares alphanumerics only, so
+            # trailing marks cost a reading nothing while widening its box.
+            # Kamagra's dosage came back as the row "100mg ~“ | |", scoring a
+            # clean 1.00 over a box a sixth of the face wider than the type in it.
+            if sc > score or (sc == score and len(run) < len(best)):
                 best, score = run, sc
-    return row if best is None else _row_from_words(best)
+    return row if len(best) == len(words) else _row_from_words(best)
 
 
 def assign_roles(rows, expected: dict | None = None) -> dict:
@@ -305,6 +363,22 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
         for role, want in expected.items():
             if not want:
                 continue
+            # If the expected string opens with a number and the face shows that
+            # number ANYWHERE, the row carrying it is the row. Reading more of
+            # the face made this bite: with three preparations the reader finds
+            # Lexotanil's form line "comprimé quadrisécable" near the top, which
+            # scores 0.78 against "30 comprimés quadrisécables" while the real
+            # count sits at the foot of the pack wrapped over two lines and can
+            # never score that high.
+            #
+            # Only when the number IS somewhere. Viagra's count reads "4
+            # film-coated tablets" on one preparation and loses the "4" on
+            # another; if no candidate has it, a numberless read is the best
+            # available and is taken.
+            wanted = LEADING_NUMBER_RE.match(want)
+            digits = wanted.group(1) if wanted else None
+            if digits and not any(digits in r["text"] for r in rows):
+                digits = None
             best, score, box = None, 0.0, None
             for i, r in enumerate(rows):
                 if i in taken:
@@ -314,6 +388,8 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
                     continue
                 candidate = narrow_to_string(free, want)
                 if number_conflicts(candidate["text"], want):
+                    continue
+                if digits and digits not in candidate["text"]:
                     continue
                 sc = _similar(candidate["text"], want)
                 if sc > score:

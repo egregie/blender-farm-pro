@@ -4,26 +4,7 @@
       "sku": "59-min",
       "folder": "02_T1_SMALL_Cialis",
       "rows_on_grid": [
-        "active_ingredient_display",
         "brand_name_display",
-        "dosage_display",
-        "unit_count_display"
-      ],
-      "rows_in_reference": 0,
-      "rows_located": 0,
-      "rows_scored": 0,
-      "not_located": [],
-      "unreadable": [],
-      "worst_dv_cap": null,
-      "worst_du_anchor": null,
-      "mean_dv_cap": null,
-      "by_role": {}
-    },
-    {
-      "sku": "64-min",
-      "folder": "31_Kamagra_Template_Reference",
-      "rows_on_grid": [
-        "dosage_display",
         "unit_count_display"
       ],
       "rows_in_reference": 2,
@@ -31,14 +12,51 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
+      "worst_dv_cap": 0.0206,
+      "worst_du_anchor": 0.0109,
+      "mean_dv_cap": 0.0106,
+      "by_role": {
+        "active_ingredient_display": {
+          "dv_cap_top": 0.0006,
+          "du_anchor": -0.003,
+          "cap_ratio": 0.955,
+          "align": "CENTER",
+          "read_as": "Tadalafil",
+          "read_score": 1.0,
+          "scored": true
+        },
+        "dosage_display": {
+          "dv_cap_top": -0.0206,
+          "du_anchor": 0.0109,
+          "cap_ratio": 1.379,
+          "align": "RIGHT",
+          "read_as": "20mg",
+          "read_score": 1.0,
+          "scored": true
+        }
+      }
+    },
+    {
+      "sku": "64-min",
+      "folder": "31_Kamagra_Template_Reference",
+      "rows_on_grid": [
+        "unit_count_display"
+      ],
+      "rows_in_reference": 3,
+      "rows_located": 2,
+      "rows_scored": 2,
+      "not_located": [
+        "dosage_display"
+      ],
+      "unreadable": [],
       "worst_dv_cap": 0.0,
       "worst_du_anchor": 0.0073,
       "mean_dv_cap": 0.0,
       "by_role": {
         "brand_name_display": {
           "dv_cap_top": 0.0,
-          "du_anchor": 0.0011,
-          "cap_ratio": 1.002,
+          "du_anchor": 0.0014,
+          "cap_ratio": 1.005,
           "align": "CENTER",
           "read_as": "Kamagra",
           "read_score": 1.0,
@@ -47,32 +65,40 @@
         "active_ingredient_display": {
           "dv_cap_top": 0.0,
           "du_anchor": 0.0073,
-          "cap_ratio": 1.0,
+          "cap_ratio": 1.005,
           "align": "LEFT",
           "read_as": "Sildenafil",
           "read_score": 1.0,
           "scored": true
-        }
+        },
+        "dosage_display": null
       }
     },
     {
       "sku": "74-min",
       "folder": "32_Viagra_Template_Reference",
-      "rows_on_grid": [
-        "brand_name_display"
-      ],
-      "rows_in_reference": 3,
-      "rows_located": 3,
-      "rows_scored": 3,
+      "rows_on_grid": [],
+      "rows_in_reference": 4,
+      "rows_located": 4,
+      "rows_scored": 4,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0002,
+      "worst_dv_cap": 0.0004,
       "worst_du_anchor": 0.0072,
-      "mean_dv_cap": 0.0001,
+      "mean_dv_cap": 0.0002,
       "by_role": {
+        "brand_name_display": {
+          "dv_cap_top": 0.0002,
+          "du_anchor": 0.0009,
+          "cap_ratio": 1.004,
+          "align": "LEFT",
+          "read_as": "Viagra",
+          "read_score": 1.0,
+          "scored": true
+        },
         "active_ingredient_display": {
-          "dv_cap_top": -0.0002,
-          "du_anchor": -0.0036,
+          "dv_cap_top": 0.0002,
+          "du_anchor": -0.0031,
           "cap_ratio": 0.692,
           "align": "RIGHT",
           "read_as": "Sildenafil",
@@ -89,10 +115,10 @@
           "scored": true
         },
         "unit_count_display": {
-          "dv_cap_top": -0.0,
-          "du_anchor": 0.0011,
-          "cap_ratio": 1.001,
-          "align": "CENTER",
+          "dv_cap_top": 0.0004,
+          "du_anchor": 0.0059,
+          "cap_ratio": 1.0,
+          "align": "LEFT",
           "read_as": "30 Pills",
           "read_score": 1.0,
           "scored": true
@@ -112,12 +138,12 @@
       "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0001,
+      "worst_dv_cap": 0.0011,
       "worst_du_anchor": 0.0,
-      "mean_dv_cap": 0.0001,
+      "mean_dv_cap": 0.0011,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0001,
+          "dv_cap_top": 0.0011,
           "du_anchor": 0.0,
           "cap_ratio": 1.015,
           "align": "LEFT",
@@ -139,23 +165,23 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0013,
+      "worst_dv_cap": 0.0026,
       "worst_du_anchor": 0.0014,
-      "mean_dv_cap": 0.0007,
+      "mean_dv_cap": 0.002,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": 0.0013,
+          "dv_cap_top": 0.0026,
           "du_anchor": 0.0014,
-          "cap_ratio": 1.015,
+          "cap_ratio": 1.016,
           "align": "LEFT",
           "read_as": "Zopiclone",
           "read_score": 1.0,
           "scored": true
         },
         "unit_count_display": {
-          "dv_cap_top": 0.0001,
-          "du_anchor": -0.0009,
-          "cap_ratio": 1.029,
+          "dv_cap_top": 0.0014,
+          "du_anchor": 0.0,
+          "cap_ratio": 1.031,
           "align": "RIGHT",
           "read_as": "30 Pills",
           "read_score": 1.0,
@@ -176,14 +202,14 @@
       "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0002,
+      "worst_dv_cap": 0.0009,
       "worst_du_anchor": 0.001,
-      "mean_dv_cap": 0.0002,
+      "mean_dv_cap": 0.0009,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": 0.0002,
+          "dv_cap_top": 0.0009,
           "du_anchor": 0.001,
-          "cap_ratio": 0.84,
+          "cap_ratio": 0.844,
           "align": "LEFT",
           "read_as": "Alprazolam",
           "read_score": 1.0,
@@ -203,12 +229,12 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0,
-      "worst_du_anchor": 0.004,
-      "mean_dv_cap": 0.0,
+      "worst_dv_cap": 0.0011,
+      "worst_du_anchor": 0.0036,
+      "mean_dv_cap": 0.0011,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0,
+          "dv_cap_top": 0.0011,
           "du_anchor": 0.0,
           "cap_ratio": 1.009,
           "align": "LEFT",
@@ -217,8 +243,8 @@
           "scored": true
         },
         "active_ingredient_display": {
-          "dv_cap_top": -0.0,
-          "du_anchor": 0.004,
+          "dv_cap_top": 0.0011,
+          "du_anchor": 0.0036,
           "cap_ratio": 1.008,
           "align": "LEFT",
           "read_as": "Diazepam",
@@ -231,22 +257,21 @@
       "sku": "308-min",
       "folder": "23_T1_Lexotanil",
       "rows_on_grid": [
-        "dosage_display",
         "unit_count_display"
       ],
-      "rows_in_reference": 2,
-      "rows_located": 2,
-      "rows_scored": 2,
+      "rows_in_reference": 3,
+      "rows_located": 3,
+      "rows_scored": 3,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0002,
-      "worst_du_anchor": 0.0069,
-      "mean_dv_cap": 0.0001,
+      "worst_dv_cap": 0.0005,
+      "worst_du_anchor": 0.0086,
+      "mean_dv_cap": 0.0003,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0,
-          "du_anchor": 0.0011,
-          "cap_ratio": 1.006,
+          "dv_cap_top": 0.0002,
+          "du_anchor": 0.0018,
+          "cap_ratio": 1.009,
           "align": "CENTER",
           "read_as": "Lexotanil",
           "read_score": 1.0,
@@ -254,10 +279,19 @@
         },
         "active_ingredient_display": {
           "dv_cap_top": 0.0002,
-          "du_anchor": 0.0069,
-          "cap_ratio": 0.886,
+          "du_anchor": 0.0064,
+          "cap_ratio": 0.893,
           "align": "LEFT",
           "read_as": "Bromazepam",
+          "read_score": 1.0,
+          "scored": true
+        },
+        "dosage_display": {
+          "dv_cap_top": 0.0005,
+          "du_anchor": 0.0086,
+          "cap_ratio": 1.006,
+          "align": "LEFT",
+          "read_as": "3mg",
           "read_score": 1.0,
           "scored": true
         }
@@ -272,13 +306,13 @@
       "rows_scored": 4,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0008,
+      "worst_dv_cap": 0.0016,
       "worst_du_anchor": 0.0032,
-      "mean_dv_cap": 0.0006,
+      "mean_dv_cap": 0.0012,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0006,
-          "du_anchor": 0.0011,
+          "dv_cap_top": 0.0014,
+          "du_anchor": 0.0013,
           "cap_ratio": 0.88,
           "align": "CENTER",
           "read_as": "Xanax by Pfizer",
@@ -286,8 +320,8 @@
           "scored": true
         },
         "active_ingredient_display": {
-          "dv_cap_top": 0.0003,
-          "du_anchor": -0.0016,
+          "dv_cap_top": 0.0011,
+          "du_anchor": -0.0014,
           "cap_ratio": 1.003,
           "align": "CENTER",
           "read_as": "Alprazolam",
@@ -297,14 +331,14 @@
         "dosage_display": {
           "dv_cap_top": 0.0008,
           "du_anchor": 0.0032,
-          "cap_ratio": 1.0,
+          "cap_ratio": 1.007,
           "align": "LEFT",
-          "read_as": "0.5mg",
-          "read_score": 1.0,
+          "read_as": "0.5mMg",
+          "read_score": 0.75,
           "scored": true
         },
         "unit_count_display": {
-          "dv_cap_top": 0.0008,
+          "dv_cap_top": 0.0016,
           "du_anchor": 0.0023,
           "cap_ratio": 0.997,
           "align": "LEFT",
@@ -318,23 +352,31 @@
       "sku": "344-min",
       "folder": "25_T1_Modafinil_Generic",
       "rows_on_grid": [
-        "active_ingredient_display",
         "brand_name_display",
         "dosage_display"
       ],
-      "rows_in_reference": 1,
-      "rows_located": 1,
-      "rows_scored": 1,
+      "rows_in_reference": 2,
+      "rows_located": 2,
+      "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0014,
-      "worst_du_anchor": 0.0009,
-      "mean_dv_cap": 0.0014,
+      "worst_dv_cap": 0.0026,
+      "worst_du_anchor": 0.0005,
+      "mean_dv_cap": 0.002,
       "by_role": {
+        "active_ingredient_display": {
+          "dv_cap_top": 0.0026,
+          "du_anchor": 0.0005,
+          "cap_ratio": 0.947,
+          "align": "CENTER",
+          "read_as": "Modafinil",
+          "read_score": 1.0,
+          "scored": true
+        },
         "unit_count_display": {
           "dv_cap_top": 0.0014,
-          "du_anchor": -0.0009,
-          "cap_ratio": 0.998,
+          "du_anchor": -0.0004,
+          "cap_ratio": 1.015,
           "align": "RIGHT",
           "read_as": "30 Pills",
           "read_score": 1.0,
@@ -355,12 +397,12 @@
       "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0,
+      "worst_dv_cap": 0.0009,
       "worst_du_anchor": 0.0037,
-      "mean_dv_cap": 0.0,
+      "mean_dv_cap": 0.0009,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": -0.0,
+          "dv_cap_top": 0.0009,
           "du_anchor": 0.0037,
           "cap_ratio": 1.0,
           "align": "LEFT",

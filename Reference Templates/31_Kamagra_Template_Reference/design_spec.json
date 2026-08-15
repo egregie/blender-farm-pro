@@ -2070,6 +2070,16 @@
       "cap_top_v": 0.1422,
       "align": "LEFT",
       "read_as": "Sildenafil Citrate"
+    },
+    "dosage_display": {
+      "u0": 0.7391,
+      "u1": 0.8891,
+      "v0": 0.5502,
+      "v1": 0.5965,
+      "cap_frac": 0.0354,
+      "cap_top_v": 0.5507,
+      "align": "RIGHT",
+      "read_as": "100mg"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."

@@ -971,7 +971,28 @@
         ]
       }
     ],
-    "type_rows": {},
+    "type_rows": {
+      "active_ingredient_display": {
+        "u0": 0.3555,
+        "u1": 0.6455,
+        "v0": 0.5202,
+        "v1": 0.6315,
+        "cap_frac": 0.1048,
+        "cap_top_v": 0.5245,
+        "align": "CENTER",
+        "read_as": "tadalatl"
+      },
+      "dosage_display": {
+        "u0": 0.6282,
+        "u1": 0.7814,
+        "v0": 0.3158,
+        "v1": 0.4133,
+        "cap_frac": 0.0745,
+        "cap_top_v": 0.3168,
+        "align": "RIGHT",
+        "read_as": "10 mg"
+      }
+    },
     "source_image": "raw_cialis_front.png"
   },
   "palette": {

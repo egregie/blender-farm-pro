@@ -79,6 +79,16 @@
       }
     ],
     "type_rows": {
+      "active_ingredient_display": {
+        "u0": 0.4236,
+        "u1": 0.64,
+        "v0": 0.8343,
+        "v1": 1.0,
+        "cap_frac": 0.1561,
+        "cap_top_v": 0.8407,
+        "align": "CENTER",
+        "read_as": "Modaftin!"
+      },
       "unit_count_display": {
         "u0": 0.8364,
         "u1": 0.9995,

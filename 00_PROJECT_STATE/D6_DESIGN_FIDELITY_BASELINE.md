@@ -29,17 +29,17 @@ the two notes below.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
 |---|---|---:|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** | ±0.0 |
-| `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.093 | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 94.9% | 0.147 | ±0.1 |
+| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.060** | ±0.0 |
+| `308-min` | Lexotanil | **99.1%** | 99.7% | 97.1% | 0.093 | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.6% | 94.9% | 0.149 | ±0.1 |
 | `344-min` | Modafinil | 93.9% | 99.4% | 94.0% | 0.065 | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.7% | 94.0% | 0.127 | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.7% | 93.9% | 0.128 | ±0.0 |
 | `64-min` | Kamagra | 90.5% | 97.1% | 93.4% | 0.189 | ±0.4 |
-| `74-min` | Viagra | 95.0% | 99.6% | 93.4% | 0.191 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.7% | 92.1% | 0.111 | ±0.0 |
-| `135-min` | Ativan | 89.6% | 96.5% | 90.0% | 0.125 | ±0.4 |
-| `155-min` | Imovane | 93.7% | 84.3% | 80.0% | 0.111 | **±7.0** |
-| `59-min` | Cialis | 88.2% | 82.2% | 72.8% | 0.152 | **±3.9** |
+| `74-min` | Viagra | 95.0% | 99.6% | 93.3% | 0.191 | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.7% | 92.1% | 0.112 | ±0.1 |
+| `135-min` | Ativan | 89.6% | 95.8% | 89.4% | 0.153 | ±1.0 |
+| `155-min` | Imovane | 93.7% | 85.1% | 80.5% | 0.093 | **±7.5** |
+| `59-min` | Cialis | 88.2% | 85.7% | 72.6% | 0.170 | ±0.2 |
 
 **Two rows moved, and neither is a carton getting worse.**
 
@@ -56,6 +56,13 @@ to legible.
 That movement should have been reported with D-7 and was not: the type axis was
 re-run and the colour axis was not. It is separable after the fact only because
 Ativan's spec is byte-identical across both changes.
+
+`59-min` Cialis: 82.2% → **85.7%** against its spec, with its swing collapsing
+±3.9 → ±0.2. It went from no measured type rows to two, so more of its face is
+now set where the reference sets it, and the classification stopped depending on
+the illumination model. Its ΔC rises 0.152 → 0.170 and Ativan's 0.125 → 0.153 —
+both for the reason these figures always move on type work: more ink, in
+different places, changes which pixels the dark cut excludes.
 
 `156-min` Xanax: 98.6% → 98.8% against its spec, 92.4% → 92.2% against the
 photograph, ΔC 0.117 → 0.115. Its spec stopped carrying the reference's traced

@@ -686,7 +686,14 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     regular, bold = _load_font(FONT_REGULAR), _load_font(FONT_BOLD)
     # Sat just proud of the face so the glyphs cannot z-fight with it. The stripe
     # and badge straddle the plane instead; text is flat, so it goes in front.
-    y = front_y - half_thick
+    #
+    # TWICE the standoff, because the design fields straddle the plane too and
+    # their front surface lands at exactly one. Cialis is where that showed:
+    # its dosage is set inside an olive block, the ink was correctly reversed to
+    # white -- the scene dump says (1.0, 1.0, 1.0) -- and the render came back
+    # with dark glyphs, because the block's own surface was winning the depth
+    # test across them. Nothing about the label was wrong; it was simply behind.
+    y = front_y - 2.0 * half_thick
     left = left_x + LABEL_LEFT_FRAC * face_w
     right = left_x + LABEL_RIGHT_FRAC * face_w
     rows = []
@@ -768,11 +775,27 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     bottom_row = []
     dosage = (label_content.get("dosage_display") or "").strip()
     if dosage and "dosage_display" in measured:
-        # A measured row outranks the block. Both describe where the dosage goes
-        # and the measurement is of THIS carton, where the block is inferred from
-        # shape.
+        # A measured row outranks the block for POSITION. Both describe where the
+        # dosage goes and the measurement is of THIS carton, where the block is
+        # inferred from shape.
+        #
+        # The ink still has to follow the surface underneath it. Cialis sets its
+        # "10 mg" inside an olive block and both describe the same rectangle, so
+        # taking the measured position while keeping the default dark ink prints
+        # near-black on dark olive. Where the two overlap, the row reverses out
+        # of the block exactly as the block path would have drawn it.
+        row = measured["dosage_display"]
+        on_block = ink
+        if dosage_block is not None:
+            x0 = left_x + row["u0"] * face_w
+            x1 = left_x + row["u1"] * face_w
+            z1 = top_z - row["v1"] * face_h
+            z0 = top_z - row["v0"] * face_h
+            if (x0 < dosage_block["x1"] and dosage_block["x0"] < x1
+                    and z1 < dosage_block["z1"] and dosage_block["z0"] < z0):
+                on_block = _reverse_ink(dosage_block["fill"])
         rows.append(_place_measured_row(
-            "label_dosage", dosage, bold, measured["dosage_display"], ink,
+            "label_dosage", dosage, bold, row, on_block,
             face_w, face_h, left_x, top_z, y))
     elif dosage and dosage_block is not None and (
             dosage_block["x1"] - dosage_block["x0"]) >= DOSAGE_BLOCK_MIN_WIDTH_FRAC * face_w:
@@ -1769,6 +1792,9 @@ def dump_scene(path: str):
                 # 1.0 means they were not; CONDENSE_FLOOR means the width ran
                 # out and the size gave way after it.
                 "scale_x": t.scale.x,
+                # The ink. A row set inside a colour block reverses out of it,
+                # and a test cannot see that from geometry alone.
+                "base_color": _base_color(t),
             }
             # Front-panel rows only. The side panel's text is reported
             # separately, under "side_panel".

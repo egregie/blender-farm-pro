@@ -54,6 +54,16 @@
     "vertices": 5
   },
   "type_rows": {
+    "brand_name_display": {
+      "u0": 0.0632,
+      "u1": 0.735,
+      "v0": 0.1275,
+      "v1": 0.1972,
+      "cap_frac": 0.0674,
+      "cap_top_v": 0.1284,
+      "align": "LEFT",
+      "read_as": "VIAGRAL"
+    },
     "active_ingredient_display": {
       "u0": 0.5436,
       "u1": 0.7336,
@@ -75,14 +85,14 @@
       "read_as": "50 mg"
     },
     "unit_count_display": {
-      "u0": 0.3845,
-      "u1": 0.73,
-      "v0": 0.2455,
-      "v1": 0.2966,
-      "cap_frac": 0.0481,
-      "cap_top_v": 0.2475,
-      "align": "CENTER",
-      "read_as": "film-coated tablets"
+      "u0": 0.055,
+      "u1": 0.5059,
+      "v0": 0.8655,
+      "v1": 0.9208,
+      "cap_frac": 0.0521,
+      "cap_top_v": 0.8676,
+      "align": "LEFT",
+      "read_as": "4 film-coated tablets"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
