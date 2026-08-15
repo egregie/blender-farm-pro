@@ -443,6 +443,22 @@ excuse and a test forbids it.
 are this project's own art direction, not a measurement of anything, so there is nothing
 there to protect and they build identically.
 
+**A measured row's INK follows the surface under it, and the test for "dark" is perceived
+luminance.** The reference puts a row wherever it likes, and on these cartons that is often
+on the design: Kamagra sets its dosage inside a teal field and our render printed "100mg"
+near-black on it — right position, right size, invisible, and the one measured row the
+reader could not find. `_surface_fill()` point-tests the row's centre against the design's
+own polygons (last part wins) and every measured row goes through it. Two traps here:
+
+- the label must sit at **twice** the standoff, because design fields straddle the face
+  plane and their front surface lands at exactly one — with the ink corrected the dump read
+  `(1.0, 1.0, 1.0)` and the render still came back dark, the block winning the depth test;
+- `_reverse_ink` judges in **sRGB, not the linear values Blender is fed**. sRGB 0.5 is
+  linear 0.21, so a linear bar calls almost everything dark. It never bit while it only ran
+  on blocks (both genuinely dark) and flipped three of five surfaces wrongly once measured
+  rows could land anywhere — Imovane's light grey `#BCBCB2` sits at 0.734 perceived and
+  0.499 linear.
+
 **Do not read that 1.29 as better than ±0.3.** A reference face is rectified to the quad's
 own averaged edge ratio in the photograph, which under perspective is not its true aspect,
 and a horizontal stretch is indistinguishable from a condensed typeface once the glyphs are

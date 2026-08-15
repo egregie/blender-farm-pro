@@ -43,15 +43,13 @@
         "unit_count_display"
       ],
       "rows_in_reference": 3,
-      "rows_located": 2,
-      "rows_scored": 2,
-      "not_located": [
-        "dosage_display"
-      ],
+      "rows_located": 3,
+      "rows_scored": 3,
+      "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0,
+      "worst_dv_cap": 0.0001,
       "worst_du_anchor": 0.0073,
-      "mean_dv_cap": 0.0,
+      "mean_dv_cap": 0.0001,
       "by_role": {
         "brand_name_display": {
           "dv_cap_top": 0.0,
@@ -71,7 +69,15 @@
           "read_score": 1.0,
           "scored": true
         },
-        "dosage_display": null
+        "dosage_display": {
+          "dv_cap_top": -0.0001,
+          "du_anchor": -0.0023,
+          "cap_ratio": 0.775,
+          "align": "RIGHT",
+          "read_as": "100mg",
+          "read_score": 1.0,
+          "scored": true
+        }
       }
     },
     {

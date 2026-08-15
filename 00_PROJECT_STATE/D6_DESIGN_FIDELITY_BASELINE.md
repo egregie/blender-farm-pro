@@ -34,23 +34,23 @@ the two notes below.*
 | `340-min` | Xanax SR | 95.0% | 97.6% | 94.9% | 0.149 | ±0.1 |
 | `344-min` | Modafinil | 93.9% | 99.4% | 94.0% | 0.065 | ±0.0 |
 | `272-min` | Valium | 91.1% | 98.7% | 93.9% | 0.128 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 97.1% | 93.4% | 0.189 | ±0.4 |
+| `64-min` | Kamagra | 90.5% | 96.7% | 93.3% | 0.189 | ±0.4 |
 | `74-min` | Viagra | 95.0% | 99.6% | 93.3% | 0.191 | ±0.0 |
 | `156-min` | Xanax | 93.2% | 98.7% | 92.1% | 0.112 | ±0.1 |
 | `135-min` | Ativan | 89.6% | 95.8% | 89.4% | 0.153 | ±1.0 |
 | `155-min` | Imovane | 93.7% | 85.1% | 80.5% | 0.093 | **±7.5** |
 | `59-min` | Cialis | 88.2% | 85.7% | 72.6% | 0.170 | ±0.2 |
 
-**Two rows moved, and neither is a carton getting worse.**
+**Four rows moved across this round of type work, and not one of them is a carton getting worse.** Every figure here excludes dark pixels, so moving a label — or changing its colour — changes which pixels are scored.
 
-`135-min` Ativan went 96.6% → 94.3% → **96.5%** against its spec across two
+`135-min` Ativan went 96.6% → 94.3% → **95.8%** against its spec across two
 changes, and both movements are the type moving rather than the colour. D-7 first
 stopped its brand printing through its ingredient row, which moved the ingredient
 from v 0.49 to v 0.57; every figure in this table excludes dark pixels, so moving
 the type changes which pixels are scored. Contract 1.5 then took its brand off an
 ink-box cap height — "Lorazepam Orion" descends, so that row had been set 33%
-oversized — and the figure came back up past where it started, with the swing
-falling ±2.6 → ±0.4. The carton it dipped on is the one that went from illegible
+oversized — and the figure came back most of the way up, with the swing
+falling ±2.6 → ±1.0. The carton it dipped on is the one that went from illegible
 to legible.
 
 That movement should have been reported with D-7 and was not: the type axis was
@@ -63,6 +63,13 @@ now set where the reference sets it, and the classification stopped depending on
 the illumination model. Its ΔC rises 0.152 → 0.170 and Ativan's 0.125 → 0.153 —
 both for the reason these figures always move on type work: more ink, in
 different places, changes which pixels the dark cut excludes.
+
+`64-min` Kamagra: 97.1% → 96.7% against its spec, and that one is the metric
+disliking a repair. Its dosage sits inside a teal field and had been printing
+near-black on it — invisible, and the only measured row `type_qa` could not find
+in our own render. Reversed to white it reads, and the white pixels land where
+the spec expects teal. The dark cut excludes our ink when it is dark; it cannot
+when it is light.
 
 `156-min` Xanax: 98.6% → 98.8% against its spec, 92.4% → 92.2% against the
 photograph, ΔC 0.117 → 0.115. Its spec stopped carrying the reference's traced

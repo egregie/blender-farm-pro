@@ -49,7 +49,7 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 | | at baseline | now |
 |---|---:|---:|
 | reference rows measured | 21 | **25** |
-| of those, scored in our renders | 18 | **24** |
+| of those, scored in our renders | 18 | **25 — all of them** |
 | worst vertical error | 0.0274 | 0.0206 → **0.0026** off Cialis's reversed row |
 | mean vertical error | 0.0180 | **0.0009** |
 | worst `du_anchor` | 0.0091 | 0.0109 → **0.0086** off the same row |
@@ -65,7 +65,7 @@ vertical axis and the two collisions.
 | SKU | folder | scored | worst dv | worst du |
 |---|---|---:|---:|---:|
 | `59-min` | Cialis | 2/2 | 0.0206* | 0.0109* |
-| `64-min` | Kamagra | 2/3 | 0.0000 | 0.0073 |
+| `64-min` | Kamagra | 3/3 | 0.0001 | 0.0073 |
 | `74-min` | Viagra | 4/4 | 0.0004 | 0.0072 |
 | `135-min` | Ativan | 1/1 | 0.0011 | 0.0000 |
 | `155-min` | Imovane | 2/2 | 0.0026 | 0.0014 |
@@ -83,8 +83,8 @@ reader's inverted pass returns a box inflated by the block's own edge — which
 reads back as a row 38% oversized and 0.02 high. A reversed row is the one shape
 this instrument measures worse than the driver builds it.
 
-`64-min`'s dosage is the one measured row our render does not read at all: 0.035
-of the face tall, the smallest in the group.
+Every other row is located and scored. `64-min`'s dosage was the last hold-out
+and it was not a reading problem — see its section below.
 
 **`59-min` used to be the blank row here** — no reference rows at all, so nothing
 to compare and a figure that read as neither pass nor fail. It now carries two;
@@ -154,7 +154,7 @@ instrument was built before the fixes rather than after them.
 
 ## Coverage, and how much to read into it
 
-Twenty-four of twenty-five measured rows are located and scored. That was not true at
+All twenty-five measured rows are located and scored. That was not true at
 baseline, and it was not true at any point in between: `74-min`'s ingredient is
 0.055 of the face tall, dark grey on light grey, and moved in and out of coverage
 across four runs of this loop on renders differing by a few pixels. It was always
@@ -554,8 +554,43 @@ exactly the standoff the label uses, and the block was winning the depth test
 across the glyphs. The label now sits at twice the standoff. Nothing about the
 row was wrong — it was behind.
 
-Both are now asserted from the dump, which carries `base_color` per row for the
-purpose: geometry alone cannot see a row painted the wrong colour.
+## `64-min` Kamagra's dosage: the same defect, on a field rather than a block
+
+It was the one measured row the reader could not find in our own render, and the
+reason was not that it is small. Kamagra sets its dosage **inside a teal field
+covering the lower half of the pack**, and the fix above only consulted the
+`dosage_block` — so "100mg" printed near-black on `#00463B`. Right position,
+right size, invisible.
+
+The rule is not about blocks. **A measured row lands wherever the reference puts
+it, so its ink has to follow whatever surface is under it** — `_surface_fill()`
+point-tests the row's centre against the design's own polygons, last part wins,
+and every measured row goes through it rather than the dosage alone.
+
+### Which turned up a latent one in `_reverse_ink`
+
+It judged darkness on the LINEAR values Blender is fed, against a 0.5 bar. sRGB
+0.5 is linear 0.21, so that test calls almost everything dark. It had never bitten
+because it only ever ran on blocks, and both blocks in this sample are genuinely
+dark. Run against the surfaces a measured row can actually land on, it flipped
+three of five the wrong way:
+
+| surface | perceived | linear | old | correct |
+|---|---:|---:|---|---|
+| Cialis olive `#3F5A0A` | 0.308 | 0.084 | white | white |
+| Kamagra teal `#00463B` | 0.213 | 0.047 | white | white |
+| Lexotanil band `#55A096` | 0.562 | 0.293 | **white** | dark |
+| Imovane grey `#BCBCB2` | 0.734 | **0.499** | **white** | dark |
+
+Imovane's is the one to keep in mind: a light grey that landed a hair under the
+old bar, where white type would have been as unreadable as the black-on-teal this
+started from. Judged in sRGB all five come out right, and the two block rows are
+unchanged.
+
+All of this is asserted from the dump, which carries `base_color` per row for the
+purpose — geometry alone cannot see a row painted the wrong colour — and the test
+compares the ink against the surface it computes for itself rather than against a
+list of expected colours.
 
 ## Open, with a number attached
 

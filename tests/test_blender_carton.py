@@ -1410,7 +1410,9 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
     # Three measured rows each, then the two collision cases: 135-min where a
     # grid row met a measured one mid-face, 340-min where it met one in the
     # bottom corner and had to rise rather than drop.
-    SKU = ("156-min", "308-min", "135-min", "340-min", "59-min")
+    # 156/308 carry three measured rows each; 135 and 340 are the two collision
+    # cases; 59 sets a row inside a colour BLOCK and 64 inside a colour FIELD.
+    SKU = ("156-min", "308-min", "135-min", "340-min", "59-min", "64-min")
     V_TOL = 0.002        # placement is a translation, so it is exact by build
 
     @classmethod
@@ -1540,46 +1542,68 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                                 f"measured {want:.4f} while still at "
                                 f"{row['scale_x']:.3f} of full width")
 
-    def test_a_row_set_inside_a_colour_block_is_reversed_out_of_it(self):
+    @staticmethod
+    def _perceived(rgb):
+        r, g, b = rgb[:3]
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+    @staticmethod
+    def _covers(u, v, outline):
+        inside, n = False, len(outline)
+        for i in range(n):
+            x0, y0 = outline[i]
+            x1, y1 = outline[(i + 1) % n]
+            if (y0 > v) != (y1 > v) and y1 != y0:
+                if u < x0 + (v - y0) * (x1 - x0) / (y1 - y0):
+                    inside = not inside
+        return inside
+
+    def test_a_measured_row_reads_against_whatever_it_is_printed_on(self):
         """Ink follows the surface under it, and geometry cannot see that.
 
-        `59-min` sets its dosage inside an olive block and the measurement puts
-        our row in the same rectangle. Taking the measured position while
-        keeping the default dark ink prints near-black on dark olive -- every
-        placement figure perfect and the row unreadable.
+        A measured row lands wherever the reference puts it, and on these
+        cartons that is often ON the design. `64-min` sets its dosage inside a
+        teal field covering the lower half of the pack and our render printed
+        "100mg" in near-black on it -- right position, right size, invisible,
+        and the one measured row the reader could not find in our own render.
+
+        The threshold has to be PERCEIVED luminance, not the linear values
+        Blender is fed: sRGB 0.5 is linear 0.21, so a linear test calls almost
+        everything dark. Imovane's `#BCBCB2` is a light grey at 0.734 perceived
+        and 0.499 linear, and reversing white onto it is as unreadable as the
+        Kamagra case this fixes.
         """
-        found = 0
-        for stem in self.SKU + ("59-min",):
-            job = self.jobs.get(stem)
-            scene = self.scenes.get(stem)
-            if job is None or scene is None:
-                continue
-            blocks = [(p, f["fill"]) for f in (job.get("design") or {}).get("fields", [])
-                      for p in f["parts"] if p["kind"] == "block"]
-            if not blocks:
-                continue
-            measured = (job.get("design") or {}).get("type_rows") or {}
-            row = measured.get("dosage_display")
-            if row is None:
-                continue
-            part, _fill = blocks[0]
-            us = [q[0] for q in part["outline"]]
-            vs = [q[1] for q in part["outline"]]
-            if not (row["u0"] < max(us) and min(us) < row["u1"]
-                    and row["v0"] < max(vs) and min(vs) < row["v1"]):
-                continue
-            found += 1
-            drawn = [r for r in scene["label"] if r["name"] == "label_dosage"]
-            self.assertEqual(len(drawn), 1)
-            r, g, b = drawn[0]["base_color"][:3]
-            with self.subTest(sku=stem):
-                self.assertGreater(
-                    0.2126 * r + 0.7152 * g + 0.0722 * b, 0.5,
-                    f"{stem}: the dosage sits inside a dark colour block and is "
-                    f"painted {(round(r, 3), round(g, 3), round(b, 3))}")
+        checked = 0
+        for stem in self.SKU:
+            job, scene = self.jobs[stem], self.scenes[stem]
+            design = job.get("design") or {}
+            measured = design.get("type_rows") or {}
+            for row in scene["label"]:
+                role = self.ROLE_BY_NAME.get(row["name"])
+                if role not in measured or not row.get("base_color"):
+                    continue
+                ref = measured[role]
+                u = 0.5 * (ref["u0"] + ref["u1"])
+                v = 0.5 * (ref["v0"] + ref["v1"])
+                fill = None
+                for field in design.get("fields") or []:
+                    for part in field.get("parts") or []:
+                        if len(part["outline"]) >= 3 and self._covers(u, v, part["outline"]):
+                            fill = field["fill"]
+                if fill is None:
+                    continue
+                h = fill.lstrip("#")
+                surface = self._perceived([int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)])
+                checked += 1
+                with self.subTest(sku=stem, role=role):
+                    self.assertGreater(
+                        abs(self._perceived(row["base_color"]) - surface), 0.25,
+                        f"{stem} {role}: ink at "
+                        f"{self._perceived(row['base_color']):.2f} on a {fill} "
+                        f"surface at {surface:.2f} -- it will not read")
         self.assertGreaterEqual(
-            found, 1, "no fixture puts a measured dosage inside a colour block, "
-                      "so this test asserts nothing")
+            checked, 2, "no fixture puts a measured row on a design surface, so "
+                        "this test asserts nothing")
 
     def test_no_row_is_printed_through_another(self):
         """A measured row lands where the reference puts it, which is anywhere.

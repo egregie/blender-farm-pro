@@ -379,17 +379,63 @@ def _balanced_two_lines(text: str) -> str:
 
 
 def _reverse_ink(fill_hex: str):
-    """Ink that reads against *fill_hex*: white on a dark block, near-black on a light one.
+    """Ink that reads against *fill_hex*: white on a dark surface, near-black on a light one.
 
-    Chosen from the block's own measured colour rather than fixed, because the
+    Chosen from the surface's own measured colour rather than fixed, because the
     sample carries both -- Cialis and Ativan reverse white out of a dark green,
-    Kamagra sets dark type on a salmon block.
+    Lexotanil sets dark type on a mid teal band.
+
+    Judged in sRGB, NOT in the linear values Blender is fed. Linear luminance of
+    a mid sRGB tone is far below its perceived one -- sRGB 0.5 is linear 0.21 --
+    so a threshold applied to linear values calls almost everything dark and
+    reverses to white. That stayed hidden while this only ran on blocks, which in
+    this sample happen to be genuinely dark; measured on the surfaces a MEASURED
+    row can land on, it flips three of them wrongly. Imovane's `#BCBCB2` is a
+    light grey at 0.734 perceived and 0.499 linear -- a hair under the old bar,
+    and white type on it would be all but invisible.
     """
-    r, g, b, _ = hex_to_rgba(fill_hex or "#000000")
+    h = (fill_hex or "#000000").lstrip("#")
+    r, g, b = (int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
     luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
     return make_material(f"reversed_{('dark' if luma < 0.5 else 'light')}",
                          "#FFFFFF" if luma < 0.5 else LABEL_INK,
                          roughness=MATTE_ROUGHNESS)
+
+
+def _point_in_polygon(u, v, outline) -> bool:
+    """Ray cast in face coordinates. Written out; the driver imports nothing."""
+    inside = False
+    n = len(outline)
+    for i in range(n):
+        x0, y0 = float(outline[i][0]), float(outline[i][1])
+        x1, y1 = float(outline[(i + 1) % n][0]), float(outline[(i + 1) % n][1])
+        if (y0 > v) != (y1 > v) and y1 != y0:
+            if u < x0 + (v - y0) * (x1 - x0) / (y1 - y0):
+                inside = not inside
+    return inside
+
+
+def _surface_fill(design, u, v):
+    """The design part printed under (u, v), or None where the board shows.
+
+    A measured row lands wherever the reference puts it, and on these cartons
+    that is often ON the design rather than beside it: Kamagra sets its dosage
+    inside a teal field covering the lower half of the pack, and our render
+    printed "100mg" in near-black on it -- present, correct in position and size,
+    and invisible. It was the one measured row the reader could not find in our
+    own render.
+
+    Later parts paint over earlier ones, so the last containing part wins, the
+    same order build_design_fields draws them in. The row's CENTRE decides: a row
+    straddling two surfaces is a problem with the design, not with the ink.
+    """
+    found = None
+    for field in (design or {}).get("fields") or []:
+        for part in field.get("parts") or []:
+            outline = part.get("outline") or []
+            if len(outline) >= 3 and _point_in_polygon(u, v, outline):
+                found = field.get("fill")
+    return found
 
 
 def _add_text(name, body, font, cap_h, ink_mat, x, z, y, align="LEFT"):
@@ -658,7 +704,7 @@ def _place_measured_row(name, body, font, row, ink, face_w, face_h, left_x,
 
 def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z,
                 half_thick, unit_scale, badge_left_x=None, stripe_top_z=None,
-                dosage_block=None, type_rows=None):
+                dosage_block=None, type_rows=None, design=None):
     """The printed front panel: brand, ingredient, dosage and unit count.
 
     Every string is rendered as real text geometry carrying the manifest's bytes
@@ -706,6 +752,13 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         return min(cap_m * unit_scale, SMALL_PRINT_MAX_FRAC * face_h)
 
     measured = type_rows or {}
+
+    def _ink_for(row):
+        """Ink that reads against whatever this row is printed on."""
+        fill = _surface_fill(design, 0.5 * (row["u0"] + row["u1"]),
+                             0.5 * (row["v0"] + row["v1"]))
+        return _reverse_ink(fill) if fill else ink
+
     # A row placed by measurement and a row placed by the grid know nothing about
     # each other, and on Viagra they collided: the measured unit count sits at
     # v0.224 while the grid sets the brand from v0.10 at a cap that reaches past
@@ -728,7 +781,8 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     brand = (label_content.get("brand_name_display") or "").strip()
     if brand and "brand_name_display" in measured:
         rows.append(_place_measured_row(
-            "label_brand", brand, bold, measured["brand_name_display"], ink,
+            "label_brand", brand, bold, measured["brand_name_display"],
+            _ink_for(measured["brand_name_display"]),
             face_w, face_h, left_x, top_z, y))
     elif brand:
         t = _add_text("label_brand", brand, bold, BRAND_LINE_FRAC * face_h, ink,
@@ -755,7 +809,8 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     if ingredient and "active_ingredient_display" in measured:
         rows.append(_place_measured_row(
             "label_ingredient", ingredient, regular,
-            measured["active_ingredient_display"], ink,
+            measured["active_ingredient_display"],
+            _ink_for(measured["active_ingredient_display"]),
             face_w, face_h, left_x, top_z, y))
     elif ingredient:
         t = _add_text("label_ingredient", ingredient, regular,
@@ -784,18 +839,9 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         # taking the measured position while keeping the default dark ink prints
         # near-black on dark olive. Where the two overlap, the row reverses out
         # of the block exactly as the block path would have drawn it.
-        row = measured["dosage_display"]
-        on_block = ink
-        if dosage_block is not None:
-            x0 = left_x + row["u0"] * face_w
-            x1 = left_x + row["u1"] * face_w
-            z1 = top_z - row["v1"] * face_h
-            z0 = top_z - row["v0"] * face_h
-            if (x0 < dosage_block["x1"] and dosage_block["x0"] < x1
-                    and z1 < dosage_block["z1"] and dosage_block["z0"] < z0):
-                on_block = _reverse_ink(dosage_block["fill"])
         rows.append(_place_measured_row(
-            "label_dosage", dosage, bold, row, on_block,
+            "label_dosage", dosage, bold, measured["dosage_display"],
+            _ink_for(measured["dosage_display"]),
             face_w, face_h, left_x, top_z, y))
     elif dosage and dosage_block is not None and (
             dosage_block["x1"] - dosage_block["x0"]) >= DOSAGE_BLOCK_MIN_WIDTH_FRAC * face_w:
@@ -822,7 +868,8 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     if count and "unit_count_display" in measured:
         rows.append(_place_measured_row(
             "label_unit_count", count, regular, measured["unit_count_display"],
-            ink, face_w, face_h, left_x, top_z, y))
+            _ink_for(measured["unit_count_display"]),
+            face_w, face_h, left_x, top_z, y))
     elif count:
         t = _add_text("label_unit_count", count, regular,
                       small_print_cap(BOTTOM_ROW_CAP_M), ink,
@@ -1218,7 +1265,7 @@ def build_box(dims_m, palette: dict, label_content: dict = None,
 
     build_label(box, label_content, face_w, face_h, right_x - face_w,
                 front_y, top_z, half_thick, unit_scale, badge_left_x, stripe_top_z,
-                dosage_block, (design or {}).get("type_rows"))
+                dosage_block, (design or {}).get("type_rows"), design)
 
     if manifest:
         build_side_panel(box, manifest, depth, face_h, min(xs), front_y,

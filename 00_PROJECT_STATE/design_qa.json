@@ -36,26 +36,26 @@
       "palette_closest_pair": 0.1221,
       "separable": true,
       "render_vs_spec": {
-        "agreement": 0.9711,
+        "agreement": 0.9665,
         "iou": {
-          "0": 0.985,
-          "1": 0.179,
+          "0": 0.98,
+          "1": 0.18,
           "2": 0.0
         }
       },
-      "agreement_spread": 0.0039,
+      "agreement_spread": 0.0043,
       "colour_error_by_region": {
         "0": 0.1893,
-        "1": 0.1236,
+        "1": 0.1282,
         "2": 0.1561
       },
       "colour_error_worst": 0.1893,
       "spec_vs_reference": 0.9047,
       "render_vs_reference": {
-        "agreement": 0.9336,
+        "agreement": 0.9327,
         "iou": {
-          "0": 0.933,
-          "1": 0.054,
+          "0": 0.932,
+          "1": 0.055,
           "2": 0.0
         }
       }
