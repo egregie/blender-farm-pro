@@ -42,26 +42,30 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 
 | | at baseline | now |
 |---|---:|---:|
-| rows scored | 18/21 | **20/21** |
+| rows scored | 18/21 | **20/20** |
 | worst `dv_top` | 0.0274 | **0.0014** |
 | mean \|`dv_top`\| | 0.0180 | **0.0005** |
-| worst `du_anchor` | 0.0091 | 0.0091 |
+| worst `du_anchor` | 0.0091 | 0.0073 |
+
+*The denominator moved too: `MATCH_MIN` dropped three reference boxes that
+covered under 60% of their own string, and word-level claiming added two. See the
+`assign_roles` section below.*
 
 Horizontal placement was already right and is untouched. Everything below is the
 vertical axis and the two collisions.
 
 | SKU | folder | scored | worst dv | worst du |
 |---|---|---:|---:|---:|
-| `64-min` | Kamagra | 2/2 | 0.0000 | 0.0013 |
-| `74-min` | Viagra | 1/2 | 0.0000 | 0.0091 |
+| `64-min` | Kamagra | 2/2 | 0.0000 | 0.0073 |
+| `74-min` | Viagra | 3/3 | 0.0000 | 0.0072 |
 | `135-min` | Ativan | 1/1 | 0.0000 | 0.0000 |
 | `155-min` | Imovane | 2/2 | 0.0013 | 0.0014 |
-| `156-min` | Xanax | 3/3 | 0.0007 | 0.0027 |
+| `156-min` | Xanax | 1/1 | 0.0007 | 0.0010 |
 | `272-min` | Valium | 2/2 | 0.0011 | 0.0040 |
-| `308-min` | Lexotanil | 3/3 | 0.0000 | 0.0069 |
-| `340-min` | Xanax Pfizer | 3/3 | 0.0008 | 0.0030 |
+| `308-min` | Lexotanil | 3/3 | 0.0003 | 0.0069 |
+| `340-min` | Xanax Pfizer | 4/4 | 0.0008 | 0.0032 |
 | `344-min` | Modafinil | 1/1 | 0.0014 | 0.0013 |
-| `404-min` | Ritalin | 2/2 | 0.0000 | 0.0050 |
+| `404-min` | Ritalin | 1/1 | 0.0000 | 0.0050 |
 | `59-min` | Cialis | 0/0 | — | — |
 
 **`59-min` is not a pass.** Its reference measured no rows at all, so there is
@@ -130,17 +134,17 @@ carton, above an ingredient row it sat 0.6 of a face below and never touched.
 Coverage said so immediately, 19/21 → 18/21, which is the whole reason the
 instrument was built before the fixes rather than after them.
 
-## What is still not scored: one row of twenty-one
+## Coverage, and how much to read into it
 
-`74-min`'s ingredient. Tesseract does not return "Sildenafil" from that render —
-0.055 of the face tall, dark grey on light grey, a marginal read at baseline too
-(it came back as a 0.030-tall box). **It is built correctly**, and the scene dump
-is how that is known rather than assumed: v 0.3292 against a measured 0.3292,
-u 0.5396–0.7296 against 0.5436–0.7336.
+Every measured row is now located and scored — 20 of 20. That was not true at
+baseline, and it was not true at any point in between: `74-min`'s ingredient is
+0.055 of the face tall, dark grey on light grey, and moved in and out of coverage
+across four runs of this loop on renders differing by a few pixels. It was always
+**built correctly**; the scene dump is how that was known rather than assumed
+(v 0.3292 against a measured 0.3292, u 0.5396–0.7296 against 0.5436–0.7336).
 
-Coverage is not stable for a row that marginal. It moved in and out across three
-runs of this loop on renders that differ by a few pixels, which is worth knowing
-before reading a one-row change as a regression.
+So read a one-row change in coverage as noise on marginal rows until the scene
+dump says otherwise. A change of three, as below, is not noise.
 
 Two rows are reported as **unreadable** rather than absent when the reader
 returns something that is not the string we printed — a distinction the metric
@@ -213,18 +217,88 @@ for it — with no rows measured there is nothing to score against.
 The fitter now carries the block forward, and a test compares each manifest's
 `type_rows` against its spec's so the two cannot part company again.
 
-## Still visible on `156-min`, and not fixed here
+## The 0.5 bar in `assign_roles`, and the two things it was hiding
 
-With the wordmark gone, what the measurement actually captured is plain: our
-"Xanax" sits at u 0.41–0.82, the right-hand **half** of a reference wordmark that
-runs from u 0.12. D-2b read that row as `"NAX"` — the box is the part of the
-wordmark OCR could read, not the wordmark.
+*Added 2026-08-15.*
 
-`assign_roles` admits a row at a similarity of 0.5 and "NAX" against "XANAX"
-scores exactly 0.5, so this row entered at the bar. Raising the bar would drop it
-back to the generic grid, which starts at the left margin and would sit closer
-across — while losing the measured cap height. That is a trade to measure, not to
-guess, and it is not attempted here.
+With the wordmark gone, what the measurement had actually captured was plain: our
+"Xanax" sat at u 0.41–0.82, the right-hand **half** of a reference wordmark
+running from u 0.113. D-2b read that row as `"NAX"`, which scores exactly 0.50
+against "XANAX®" — the bar it had to clear.
+
+That is not a coincidence. `_similar` divides by the longer string, so **0.5 is
+very nearly the score of a box covering half what it claims to measure**, and the
+bar sat exactly there.
+
+### First, a confound had to go: the box was the whole ROW
+
+Reading the distribution was pointless while three rows were failing the opposite
+way — boxes **wider** than the string they were matched to, because the reader
+groups words by vertical centre and a carton sets several labels on one line:
+
+| read | matched to | score |
+|---|---|---:|
+| `0,5 mg ALPRAZOLAMUM` | Alprazolam | 0.60 |
+| `Sildenafil Citrate Tablets` | Sildenafil Citrate | 0.71 |
+| `50 mg film-coated tablets` | 4 film-coated tablets | 0.80 |
+
+`narrow_to_string` — the trim D-7 already applied to our own rows — moved to
+`measure_type_rows`, so both sides now narrow through one function rather than
+two. Kamagra's ingredient goes 0.71 → 1.00, Xanax Pfizer's 0.60 → 0.82.
+
+Narrowing then broke the bookkeeping under it: a role claimed the whole ROW, so
+Viagra's dosage matched "50 mg" out of "50 mg film-coated tablets" at 1.00 and
+took the unit count's words with it. **Words are claimed now, not rows** — which
+is the layout the driver's own `_lift_row` doctrine describes, dosage at one end
+of a band and unit count at the other.
+
+Together those added two rows and narrowed three: 21 → 23.
+
+### Then the bar, read off a distribution with a gap in it
+
+Sorted, the 23 scores run 0.50, 0.50, 0.50, **0.74**, 0.82, 0.82, 0.88, 0.88,
+0.94, then 1.00 fourteen times. The three at 0.50 are the whole of the problem,
+and measuring the ink in their own band says how far off they were — the true
+extent taken from the photograph's pixels, not from OCR:
+
+| | box | ink in that band | covers |
+|---|---|---|---:|
+| Xanax brand | u 0.410–0.823 | u 0.113–0.822 | **58%** |
+| Xanax dosage | u 0.112–0.316 | u 0.113–0.542 | **47%** |
+| Ritalin unit count | u 0.203–0.357 | u 0.115–0.733 | **25%** |
+
+`MATCH_MIN = 0.6` drops exactly those three. It is **not fitted to the eleven**:
+the next score above 0.50 is 0.74, so any value in that gap gives the same
+answer. What the evidence fixes is the floor — above "half the string" — not the
+number.
+
+This is the module's own stated rule finally being enforced: a label at a wrong
+measured box is worse than one on the grid, because the grid is at least
+consistent.
+
+### What it cost, stated
+
+| | before | after |
+|---|---:|---:|
+| reference rows measured | 21 | 20 |
+| of those, located in our renders | 20 | **20/20** |
+| `340-min` Xanax Pfizer | 3/4 | **4/4** |
+| `74-min` Viagra | 2/4 | **3/4** |
+| `156-min` Xanax | 3/4 | 1/4 |
+| `404-min` Ritalin | 2/4 | 1/4 |
+
+One row fewer overall, and for the first time every row that IS measured can be
+found and scored in our own render — the reader no longer disagrees with itself
+about where a row is.
+
+**The one loss worth naming** is Xanax's dosage. Its box was short at the right
+but its LEFT edge and top were exact, and the row is LEFT-aligned, so the anchor
+it would have set was right and only the width was small. A prefix fragment on a
+left-aligned row costs less than a suffix fragment on a centred one — Xanax's
+brand, at CENTER, would have set its anchor 0.15 of the face out. The bar does
+not know the difference. Making it know would mean measuring the true ink extent
+per row, and the instrument for that currently catches design fields as well as
+type: on Xanax it returns the purple edge bar along with the wordmark.
 
 ## Open, with a number attached
 

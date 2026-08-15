@@ -116,39 +116,6 @@ def read_rows(face: Image.Image) -> list[dict]:
     return sorted(merged, key=lambda r: r["v0"])
 
 
-def _narrow_to(row: dict, want: str) -> dict:
-    """Trim a row to the words that spell the string we printed.
-
-    A row is the right unit for identifying a label and the wrong one for
-    measuring one. `155-min` sets its dosage at the left of the bottom band and
-    its unit count at the right — one baseline, no overlap, the layout the
-    driver's own `_lift_row` doctrine asks for — and the reader groups them by
-    vertical centre into a single row 0.84 of the face wide reading
-    "Bmg 30 Pills". Measuring the unit count against that box would report it
-    starting 0.045 above where it does and twice its true size.
-
-    Only ever narrows, and only when narrowing reads CLOSER to the string we
-    asked about, so a row that is already one label is returned untouched.
-    """
-    words = row.get("words") or []
-    if len(words) < 2 or not want:
-        return row
-    best, score = None, _similar(row["text"], want)
-    for i in range(len(words)):
-        for j in range(i + 1, len(words) + 1):
-            run = words[i:j]
-            if _similar(" ".join(w["text"] for w in run), want) > score:
-                best = run
-                score = _similar(" ".join(w["text"] for w in run), want)
-    if best is None:
-        return row
-    v0, v1 = min(w["v0"] for w in best), max(w["v1"] for w in best)
-    return {"text": " ".join(w["text"] for w in best),
-            "u0": min(w["u0"] for w in best), "u1": max(w["u1"] for w in best),
-            "v0": v0, "v1": v1, "cap_frac": round(v1 - v0, 4),
-            "words": best}
-
-
 def locate(face: Image.Image, printed: dict) -> dict:
     """Our own rows, by role.
 
@@ -160,9 +127,8 @@ def locate(face: Image.Image, printed: dict) -> dict:
     box in the wrong place is worse than no box.
     """
     rows = read_rows(face)
-    roles, matched = assign_roles(rows, printed)
-    return {role: _narrow_to(rows[i], printed.get(role) or "")
-            for role, i in roles.items() if role in matched}
+    _roles, matched, boxes = assign_roles(rows, printed)
+    return {role: boxes[role] for role in matched}
 
 
 def _anchor(row: dict, align: str) -> float:

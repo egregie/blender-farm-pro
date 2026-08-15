@@ -67,18 +67,9 @@
       "u1": 0.6318,
       "v0": 0.3318,
       "v1": 0.4061,
-      "cap_frac": 0.0742,
+      "cap_frac": 0.0743,
       "align": "LEFT",
       "read_as": "methylphenidathydrochlorid"
-    },
-    "unit_count_display": {
-      "u0": 0.2027,
-      "u1": 0.3568,
-      "v0": 0.4776,
-      "v1": 0.5528,
-      "cap_frac": 0.0751,
-      "align": "LEFT",
-      "read_as": "tableitter"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."

@@ -52,6 +52,22 @@ MIN_ROW_CHARS = 2           # a row of one glyph is OCR noise, never a label
 MIN_BRAND_CHARS = 3
 MAX_ROW_FRAC = 0.35         # taller than this is two rows merged, not one
 LINE_TOLERANCE = 0.02       # share of face height within which words share a line
+# How closely a read must match the string it is identified as before its BOX is
+# emitted as a measurement of that string.
+#
+# `_similar` divides by the longer string, so 0.5 is very nearly the score of a
+# box covering HALF what it claims to measure -- and the bar sat exactly there.
+# Measured, the three rows that entered at 0.50 covered 47%, 47% and 25% of the
+# ink in their own band: Xanax's brand box reads u 0.410-0.823 against a wordmark
+# running 0.113-0.822, i.e. the right-hand half of "XANAX", and the renderer duly
+# set our brand in the middle of the face. This module already states the rule it
+# was breaking -- a label at a wrong measured box is worse than one on the grid,
+# because the grid is at least consistent.
+#
+# 0.6 says "more than half, with room for a misread". It is not fitted to the
+# eleven: the next score above 0.50 in the sample is 0.74, so anything in that
+# gap gives the same answer. What the evidence fixes is the floor, not the value.
+MATCH_MIN = 0.6
 
 DOSAGE_RE = re.compile(r"^\d+([.,]\d+)?\s*(mg|g|ml|mcg|µg|ug)\b", re.I)
 COUNT_RE = re.compile(r"^\d+\s*\D{2,}$")
@@ -153,6 +169,46 @@ def _similar(a: str, b: str) -> float:
     return len(A & B) / max(1, len(A), len(B))
 
 
+def _word_key(word: dict) -> tuple:
+    return (word["u0"], word["u1"], word["v0"], word["v1"])
+
+
+def _row_from_words(words: list[dict]) -> dict:
+    v0, v1 = min(w["v0"] for w in words), max(w["v1"] for w in words)
+    return {"text": " ".join(w["text"] for w in words),
+            "u0": min(w["u0"] for w in words), "u1": max(w["u1"] for w in words),
+            "v0": v0, "v1": v1, "cap_frac": round(v1 - v0, 4),
+            "words": words}
+
+
+def narrow_to_string(row: dict, want: str) -> dict:
+    """Trim a row to the words that spell the string being asked about.
+
+    A row is the right unit for IDENTIFYING a label and the wrong one for
+    MEASURING it, because the reader groups words by vertical centre and a
+    carton sets several labels on one line. Measured across the eleven, three
+    reference rows came back wider than the string they were matched to:
+    "0,5 mg ALPRAZOLAMUM" for Alprazolam, "Sildenafil Citrate Tablets" for
+    Sildenafil Citrate, "50 mg film-coated tablets" for 4 film-coated tablets.
+    Every one of those boxes then placed our own row across two of the
+    reference's.
+
+    Only ever narrows, and only when narrowing reads CLOSER to the string asked
+    about, so a row that is already one label is returned untouched.
+    """
+    words = row.get("words") or []
+    if len(words) < 2 or not want:
+        return row
+    best, score = None, _similar(row["text"], want)
+    for i in range(len(words)):
+        for j in range(i + 1, len(words) + 1):
+            run = words[i:j]
+            sc = _similar(" ".join(w["text"] for w in run), want)
+            if sc > score:
+                best, score = run, sc
+    return row if best is None else _row_from_words(best)
+
+
 def assign_roles(rows, expected: dict | None = None) -> dict:
     """Which measured row is the brand, the dosage, the ingredient, the count.
 
@@ -168,24 +224,44 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
     Ritalin, Aspendos for Modafinil, Lorazepam Orion for Ativan, Zopiclone
     Actavis for Imovane.
     """
-    taken, roles, matched = set(), {}, set()
+    taken, roles, matched, boxes = set(), {}, set(), {}
     rows = [r for r in rows if usable(r)]
+    # Words already claimed by a role, not rows. Once a box is narrowed to the
+    # words that spell its string, a row can legitimately serve two roles -- the
+    # bottom band of a pack carries the dosage at one end and the unit count at
+    # the other. Claiming the whole row cost Viagra exactly that: the dosage
+    # matched "50 mg" out of "50 mg film-coated tablets" at 1.00 and took the
+    # count's words with it.
+    claimed: set[tuple] = set()
+
+    def _unclaimed(row):
+        words = [w for w in (row.get("words") or []) if _word_key(w) not in claimed]
+        if not row.get("words"):
+            return row
+        return _row_from_words(words) if words else None
 
     if expected:
         for role, want in expected.items():
             if not want:
                 continue
-            best, score = None, 0.0
+            best, score, box = None, 0.0, None
             for i, r in enumerate(rows):
                 if i in taken:
                     continue
-                sc = _similar(r["text"], want)
+                free = _unclaimed(r)
+                if free is None:
+                    continue
+                candidate = narrow_to_string(free, want)
+                sc = _similar(candidate["text"], want)
                 if sc > score:
-                    best, score = i, sc
-            if best is not None and score >= 0.5:
+                    best, score, box = i, sc, candidate
+            if best is not None and score >= MATCH_MIN:
                 roles[role] = best
+                boxes[role] = box
                 matched.add(role)
-                taken.add(best)
+                claimed |= {_word_key(w) for w in (box.get("words") or [])}
+                if not box.get("words"):
+                    taken.add(best)
 
     for i, r in enumerate(rows):
         if DOSAGE_RE.match(r["text"]) and "dosage_display" not in roles:
@@ -211,7 +287,7 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
         pool = below or rest
         roles["active_ingredient_display"] = max(
             pool, key=lambda i: len(re.sub(r"[^A-Za-zÀ-ÿ]", "", rows[i]["text"])))
-    return roles, matched
+    return roles, matched, boxes
 
 
 def measure(folder: Path, preview: bool = False) -> dict:
@@ -225,7 +301,7 @@ def measure(folder: Path, preview: bool = False) -> dict:
         "dosage_display": lc.get("dosage_display"),
         "unit_count_display": lc.get("unit_count_display"),
     }
-    roles, matched = assign_roles(rows, expected)
+    roles, matched, boxes = assign_roles(rows, expected)
     # Only rows identified BY TEXT are emitted. The structural fallback -- tallest
     # row is the brand -- is what put "tablets" on Cialis and "nil" on Modafinil,
     # and a label placed at a wrong measured box is worse than one on the generic
@@ -234,8 +310,8 @@ def measure(folder: Path, preview: bool = False) -> dict:
     roles = {r: i for r, i in roles.items() if r in matched}
 
     out = {}
-    for role, i in roles.items():
-        r = rows[i]
+    for role in roles:
+        r = boxes[role]
         centre = 0.5 * (r["u0"] + r["u1"])
         out[role] = {
             "u0": r["u0"], "u1": r["u1"], "v0": r["v0"], "v1": r["v1"],

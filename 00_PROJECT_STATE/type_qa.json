@@ -32,7 +32,7 @@
       "not_located": [],
       "unreadable": [],
       "worst_dv_top": 0.0,
-      "worst_du_anchor": 0.0013,
+      "worst_du_anchor": 0.0073,
       "mean_dv_top": 0.0,
       "by_role": {
         "brand_name_display": {
@@ -46,9 +46,9 @@
         },
         "active_ingredient_display": {
           "dv_top": 0.0,
-          "du_anchor": -0.0013,
-          "cap_ratio": 1.067,
-          "align": "CENTER",
+          "du_anchor": 0.0073,
+          "cap_ratio": 1.017,
+          "align": "LEFT",
           "read_as": "Sildenafil",
           "read_score": 1.0,
           "scored": true
@@ -59,26 +59,40 @@
       "sku": "74-min",
       "folder": "32_Viagra_Template_Reference",
       "rows_on_grid": [
-        "brand_name_display",
-        "dosage_display"
+        "brand_name_display"
       ],
-      "rows_in_reference": 2,
-      "rows_located": 1,
-      "rows_scored": 1,
-      "not_located": [
-        "active_ingredient_display"
-      ],
+      "rows_in_reference": 3,
+      "rows_located": 3,
+      "rows_scored": 3,
+      "not_located": [],
       "unreadable": [],
       "worst_dv_top": 0.0,
-      "worst_du_anchor": 0.0091,
+      "worst_du_anchor": 0.0072,
       "mean_dv_top": 0.0,
       "by_role": {
-        "active_ingredient_display": null,
+        "active_ingredient_display": {
+          "dv_top": 0.0,
+          "du_anchor": -0.0036,
+          "cap_ratio": 0.548,
+          "align": "RIGHT",
+          "read_as": "Sildenafil",
+          "read_score": 1.0,
+          "scored": true
+        },
+        "dosage_display": {
+          "dv_top": 0.0,
+          "du_anchor": 0.0072,
+          "cap_ratio": 0.721,
+          "align": "LEFT",
+          "read_as": "100mg",
+          "read_score": 1.0,
+          "scored": true
+        },
         "unit_count_display": {
           "dv_top": 0.0,
-          "du_anchor": 0.0091,
-          "cap_ratio": 1.063,
-          "align": "LEFT",
+          "du_anchor": 0.0014,
+          "cap_ratio": 1.065,
+          "align": "CENTER",
           "read_as": "30 Pills",
           "read_score": 1.0,
           "scored": true
@@ -105,7 +119,7 @@
         "brand_name_display": {
           "dv_top": 0.0,
           "du_anchor": 0.0,
-          "cap_ratio": 1.074,
+          "cap_ratio": 1.073,
           "align": "LEFT",
           "read_as": "Ativan",
           "read_score": 1.0,
@@ -153,41 +167,25 @@
       "sku": "156-min",
       "folder": "15_T1_Xanax",
       "rows_on_grid": [
+        "brand_name_display",
+        "dosage_display",
         "unit_count_display"
       ],
-      "rows_in_reference": 3,
-      "rows_located": 3,
-      "rows_scored": 3,
+      "rows_in_reference": 1,
+      "rows_located": 1,
+      "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
       "worst_dv_top": 0.0007,
-      "worst_du_anchor": 0.0027,
+      "worst_du_anchor": 0.001,
       "mean_dv_top": 0.0007,
       "by_role": {
-        "brand_name_display": {
-          "dv_top": 0.0007,
-          "du_anchor": 0.0006,
-          "cap_ratio": 0.541,
-          "align": "CENTER",
-          "read_as": "Xanax",
-          "read_score": 1.0,
-          "scored": true
-        },
         "active_ingredient_display": {
           "dv_top": 0.0007,
           "du_anchor": 0.001,
-          "cap_ratio": 0.864,
+          "cap_ratio": 0.865,
           "align": "LEFT",
           "read_as": "Alprazolam",
-          "read_score": 1.0,
-          "scored": true
-        },
-        "dosage_display": {
-          "dv_top": 0.0007,
-          "du_anchor": 0.0027,
-          "cap_ratio": 0.564,
-          "align": "LEFT",
-          "read_as": "0.5mg",
           "read_score": 1.0,
           "scored": true
         }
@@ -221,7 +219,7 @@
         "active_ingredient_display": {
           "dv_top": 0.0011,
           "du_anchor": 0.004,
-          "cap_ratio": 0.858,
+          "cap_ratio": 0.857,
           "align": "LEFT",
           "read_as": "Diazepam",
           "read_score": 1.0,
@@ -264,8 +262,8 @@
         },
         "unit_count_display": {
           "dv_top": 0.0003,
-          "du_anchor": 0.0031,
-          "cap_ratio": 1.068,
+          "du_anchor": 0.0032,
+          "cap_ratio": 1.067,
           "align": "CENTER",
           "read_as": "30 Pills",
           "read_score": 1.0,
@@ -276,16 +274,14 @@
     {
       "sku": "340-min",
       "folder": "24_T1_Xanax_Pfizer",
-      "rows_on_grid": [
-        "dosage_display"
-      ],
-      "rows_in_reference": 3,
-      "rows_located": 3,
-      "rows_scored": 3,
+      "rows_on_grid": [],
+      "rows_in_reference": 4,
+      "rows_located": 4,
+      "rows_scored": 4,
       "not_located": [],
       "unreadable": [],
       "worst_dv_top": 0.0008,
-      "worst_du_anchor": 0.003,
+      "worst_du_anchor": 0.0032,
       "mean_dv_top": 0.0008,
       "by_role": {
         "brand_name_display": {
@@ -299,17 +295,26 @@
         },
         "active_ingredient_display": {
           "dv_top": 0.0008,
-          "du_anchor": -0.003,
-          "cap_ratio": 1.327,
+          "du_anchor": -0.0016,
+          "cap_ratio": 1.334,
           "align": "CENTER",
           "read_as": "Alprazolam",
           "read_score": 1.0,
           "scored": true
         },
+        "dosage_display": {
+          "dv_top": 0.0008,
+          "du_anchor": 0.0032,
+          "cap_ratio": 0.952,
+          "align": "LEFT",
+          "read_as": "0.5mMg",
+          "read_score": 0.75,
+          "scored": true
+        },
         "unit_count_display": {
           "dv_top": 0.0008,
           "du_anchor": 0.0023,
-          "cap_ratio": 1.055,
+          "cap_ratio": 1.071,
           "align": "LEFT",
           "read_as": "30 Pills",
           "read_score": 1.0,
@@ -337,7 +342,7 @@
         "unit_count_display": {
           "dv_top": 0.0014,
           "du_anchor": -0.0013,
-          "cap_ratio": 1.067,
+          "cap_ratio": 1.068,
           "align": "RIGHT",
           "read_as": "30 Pills",
           "read_score": 1.0,
@@ -350,11 +355,12 @@
       "folder": "30_T1_Ritalin",
       "rows_on_grid": [
         "brand_name_display",
-        "dosage_display"
+        "dosage_display",
+        "unit_count_display"
       ],
-      "rows_in_reference": 2,
-      "rows_located": 2,
-      "rows_scored": 2,
+      "rows_in_reference": 1,
+      "rows_located": 1,
+      "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
       "worst_dv_top": 0.0,
@@ -364,18 +370,9 @@
         "active_ingredient_display": {
           "dv_top": 0.0,
           "du_anchor": 0.005,
-          "cap_ratio": 1.338,
+          "cap_ratio": 1.336,
           "align": "LEFT",
           "read_as": "Methylphenidate",
-          "read_score": 1.0,
-          "scored": true
-        },
-        "unit_count_display": {
-          "dv_top": 0.0,
-          "du_anchor": 0.0037,
-          "cap_ratio": 0.917,
-          "align": "LEFT",
-          "read_as": "30 Pills",
           "read_score": 1.0,
           "scored": true
         }

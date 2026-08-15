@@ -2070,12 +2070,12 @@
       },
       "active_ingredient_display": {
         "u0": 0.0918,
-        "u1": 0.8095,
+        "u1": 0.5791,
         "v0": 0.1399,
-        "v1": 0.2024,
-        "cap_frac": 0.0625,
-        "align": "CENTER",
-        "read_as": "Sildenafil Citrate Tablets"
+        "v1": 0.1998,
+        "cap_frac": 0.0599,
+        "align": "LEFT",
+        "read_as": "Sildenafil Citrate"
       }
     },
     "source_image": "raw_Kamagra_front_01.png"

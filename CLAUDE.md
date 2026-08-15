@@ -428,6 +428,23 @@ Two consequences worth holding on to:
   0.55–1.34 of the reference's box. That is a question about what D-2b measured, not about
   where the driver puts it. Open; see `00_PROJECT_STATE/D7_TYPE_FIDELITY.md`.
 
+**A measured box has to cover the string it claims to measure, at both ends.** Two ways it
+does not, and `measure_type_rows` guards each:
+
+- *Too wide.* The reader groups words by vertical centre, and a carton sets several labels
+  on one line, so a row's box spans them all. `narrow_to_string()` trims a row to the words
+  that spell the string being asked about, and **claims WORDS, not rows** — otherwise
+  Viagra's dosage matched "50 mg" out of "50 mg film-coated tablets" and took the unit
+  count's words with it. Both sides go through this one function; do not re-implement it in
+  `type_qa`.
+- *Too narrow.* `MATCH_MIN` guards this, and 0.5 was the wrong number for a reason worth
+  keeping: `_similar` divides by the longer string, so **0.5 is very nearly the score of a
+  box covering half its string**. Three rows entered there, covering 47%, 47% and 25% of the
+  ink in their own band — Xanax's brand box read u 0.410–0.823 against a wordmark running
+  0.113–0.822, and the renderer set our brand in the middle of the face. 0.6 is "more than
+  half, with room for a misread"; the next score in the sample is 0.74, so the evidence
+  fixes the floor rather than the value.
+
 `scripts/type_qa.py` is the instrument for all of this — the type axis D-6 explicitly does
 not cover, since every figure there excludes dark pixels.
 

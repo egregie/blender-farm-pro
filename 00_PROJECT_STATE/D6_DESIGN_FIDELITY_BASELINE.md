@@ -22,18 +22,20 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-15, after the D-7 type work and the Xanax fitter fix.*
+*Re-measured 2026-08-15, after the D-7 type work, the Xanax fitter fix and the
+`assign_roles` threshold. `340-min` gains 0.6 points against its photograph — its
+dosage moved to a measured box; everything else moves by a tenth or less.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
 |---|---|---:|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.8%** | **97.6%** | **0.059** | ±0.0 |
+| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.059** | ±0.0 |
 | `308-min` | Lexotanil | **99.1%** | 99.6% | 97.1% | 0.093 | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.5% | 94.0% | 0.148 | ±0.1 |
+| `340-min` | Xanax SR | 95.0% | 97.7% | 94.6% | 0.147 | ±0.1 |
 | `344-min` | Modafinil | 93.9% | 99.4% | 93.9% | 0.065 | ±0.0 |
 | `272-min` | Valium | 91.1% | 98.7% | 93.9% | 0.123 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 97.1% | 93.3% | 0.188 | ±0.4 |
-| `74-min` | Viagra | 95.0% | 99.7% | 93.2% | 0.191 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.8% | 92.2% | 0.115 | ±0.1 |
+| `64-min` | Kamagra | 90.5% | 97.1% | 93.3% | 0.189 | ±0.4 |
+| `74-min` | Viagra | 95.0% | 99.7% | 93.3% | 0.191 | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.8% | 92.0% | 0.111 | ±0.0 |
 | `135-min` | Ativan | 89.6% | 94.3% | 87.8% | 0.125 | ±2.6 |
 | `155-min` | Imovane | 93.7% | 84.2% | 79.9% | 0.111 | **±7.0** |
 | `59-min` | Cialis | 88.2% | 82.2% | 72.8% | 0.152 | **±3.9** |

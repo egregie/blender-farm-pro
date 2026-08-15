@@ -63,14 +63,23 @@
       "align": "RIGHT",
       "read_as": "sildenafil"
     },
-    "unit_count_display": {
+    "dosage_display": {
       "u0": 0.0623,
-      "u1": 0.73,
+      "u1": 0.3014,
       "v0": 0.224,
       "v1": 0.3036,
       "cap_frac": 0.0796,
       "align": "LEFT",
-      "read_as": "50 mg film-coated tablets"
+      "read_as": "50 mg"
+    },
+    "unit_count_display": {
+      "u0": 0.3845,
+      "u1": 0.73,
+      "v0": 0.2455,
+      "v1": 0.2966,
+      "cap_frac": 0.0511,
+      "align": "CENTER",
+      "read_as": "film-coated tablets"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."

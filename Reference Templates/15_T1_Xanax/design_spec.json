@@ -149,15 +149,6 @@
     "vertices": 25
   },
   "type_rows": {
-    "brand_name_display": {
-      "u0": 0.4105,
-      "u1": 0.8232,
-      "v0": 0.0764,
-      "v1": 0.3399,
-      "cap_frac": 0.2635,
-      "align": "CENTER",
-      "read_as": "NAX"
-    },
     "active_ingredient_display": {
       "u0": 0.0995,
       "u1": 0.5764,
@@ -166,15 +157,6 @@
       "cap_frac": 0.155,
       "align": "LEFT",
       "read_as": "ALPRAZOLAM"
-    },
-    "dosage_display": {
-      "u0": 0.1118,
-      "u1": 0.3159,
-      "v0": 0.27,
-      "v1": 0.4338,
-      "cap_frac": 0.1638,
-      "align": "LEFT",
-      "read_as": "0,50"
     }
   },
   "type_rows_note": "GEOMETRY ONLY. `read_as` records the reference's own words, which are how each row was identified and are NOT what gets printed: the renderer draws the manifest's strings. The reference and the catalogue often carry different products -- Motiron for Ritalin, Aspendos for Modafinil."
