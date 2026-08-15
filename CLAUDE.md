@@ -429,11 +429,27 @@ carton:
 - `cap_frac` was the *ink* box height used as a cap height, over-sizing every row by
   1.034–1.384. Fixed at the measuring end in contract 1.5, so the field means its name.
 
-**Cap height may still be lost to `_fit_width`, and only in that direction.** Our typeface is
-not the reference's, so a row set at the reference's cap height can be wider than the box it
-was measured in: measured, three of eight rows keep 1.00 and the rest come out 0.67–0.95.
-That is a deliberate trade — a row that overflows its measured box lands on a design field.
-A row built *larger* than its measurement has no such excuse and a test forbids it.
+**A row that will not fit its measured box is NARROWED before it is reduced.** Our typeface
+is wider than the printed ones — measured with the reference's own string on both sides,
+DejaVu needs a median of **1.29** times the width it occupies on the photograph — so a row
+set at the measured cap height often overruns the box. Of the two numbers, only the cap
+height was measured; the width DejaVu needs is a property of a font nobody chose to match.
+`_fit_width(condense=True)` therefore takes `scale.x` down to `CONDENSE_FLOOR = 0.80` first
+and lets `size` give way only after that. Fifteen of twenty rows now keep their measured cap
+height exactly, against ten before. A row built *larger* than its measurement has no such
+excuse and a test forbids it.
+
+`condense` is passed **only from `_place_measured_row`**. The 380 generic cartons' row widths
+are this project's own art direction, not a measurement of anything, so there is nothing
+there to protect and they build identically.
+
+**Do not read that 1.29 as better than ±0.3.** A reference face is rectified to the quad's
+own averaged edge ratio in the photograph, which under perspective is not its true aspect,
+and a horizontal stretch is indistinguishable from a condensed typeface once the glyphs are
+all you have. Across the ten folders, how far the photographed aspect departs from the
+catalogue's correlates with how wide DejaVu looks at **+0.79**. Two other explanations were
+tested and dismissed: OCR boxes are tight (box/ink median 1.02), and the 2.37 outlier was a
+wrong row rather than a wide font — see `number_conflicts()`.
 
 Two consequences worth holding on to:
 

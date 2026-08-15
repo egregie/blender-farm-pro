@@ -71,18 +71,18 @@
       "mean_dv_cap": 0.0001,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": -0.0001,
+          "dv_cap_top": -0.0002,
           "du_anchor": -0.0036,
-          "cap_ratio": 0.558,
+          "cap_ratio": 0.692,
           "align": "RIGHT",
           "read_as": "Sildenafil",
           "read_score": 1.0,
           "scored": true
         },
         "dosage_display": {
-          "dv_cap_top": -0.0002,
+          "dv_cap_top": -0.0001,
           "du_anchor": 0.0072,
-          "cap_ratio": 0.722,
+          "cap_ratio": 0.898,
           "align": "LEFT",
           "read_as": "100mg",
           "read_score": 1.0,
@@ -139,14 +139,14 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0009,
+      "worst_dv_cap": 0.0013,
       "worst_du_anchor": 0.0014,
-      "mean_dv_cap": 0.0005,
+      "mean_dv_cap": 0.0007,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": 0.0009,
+          "dv_cap_top": 0.0013,
           "du_anchor": 0.0014,
-          "cap_ratio": 0.868,
+          "cap_ratio": 1.015,
           "align": "LEFT",
           "read_as": "Zopiclone",
           "read_score": 1.0,
@@ -176,14 +176,14 @@
       "rows_scored": 1,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0006,
+      "worst_dv_cap": 0.0002,
       "worst_du_anchor": 0.001,
-      "mean_dv_cap": 0.0006,
+      "mean_dv_cap": 0.0002,
       "by_role": {
         "active_ingredient_display": {
-          "dv_cap_top": 0.0006,
+          "dv_cap_top": 0.0002,
           "du_anchor": 0.001,
-          "cap_ratio": 0.672,
+          "cap_ratio": 0.84,
           "align": "LEFT",
           "read_as": "Alprazolam",
           "read_score": 1.0,
@@ -203,23 +203,23 @@
       "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
-      "worst_dv_cap": 0.0006,
+      "worst_dv_cap": 0.0,
       "worst_du_anchor": 0.004,
-      "mean_dv_cap": 0.0006,
+      "mean_dv_cap": 0.0,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0006,
+          "dv_cap_top": 0.0,
           "du_anchor": 0.0,
-          "cap_ratio": 0.895,
+          "cap_ratio": 1.009,
           "align": "LEFT",
           "read_as": "Valium Brand",
           "read_score": 1.0,
           "scored": true
         },
         "active_ingredient_display": {
-          "dv_cap_top": 0.0005,
+          "dv_cap_top": -0.0,
           "du_anchor": 0.004,
-          "cap_ratio": 0.857,
+          "cap_ratio": 1.008,
           "align": "LEFT",
           "read_as": "Diazepam",
           "read_score": 1.0,
@@ -231,21 +231,22 @@
       "sku": "308-min",
       "folder": "23_T1_Lexotanil",
       "rows_on_grid": [
-        "dosage_display"
+        "dosage_display",
+        "unit_count_display"
       ],
-      "rows_in_reference": 3,
-      "rows_located": 3,
-      "rows_scored": 3,
+      "rows_in_reference": 2,
+      "rows_located": 2,
+      "rows_scored": 2,
       "not_located": [],
       "unreadable": [],
       "worst_dv_cap": 0.0002,
       "worst_du_anchor": 0.0069,
-      "mean_dv_cap": 0.0002,
+      "mean_dv_cap": 0.0001,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": -0.0002,
+          "dv_cap_top": 0.0,
           "du_anchor": 0.0011,
-          "cap_ratio": 0.84,
+          "cap_ratio": 1.006,
           "align": "CENTER",
           "read_as": "Lexotanil",
           "read_score": 1.0,
@@ -254,18 +255,9 @@
         "active_ingredient_display": {
           "dv_cap_top": 0.0002,
           "du_anchor": 0.0069,
-          "cap_ratio": 0.707,
+          "cap_ratio": 0.886,
           "align": "LEFT",
           "read_as": "Bromazepam",
-          "read_score": 1.0,
-          "scored": true
-        },
-        "unit_count_display": {
-          "dv_cap_top": 0.0002,
-          "du_anchor": 0.0022,
-          "cap_ratio": 1.01,
-          "align": "CENTER",
-          "read_as": "30 Pills",
           "read_score": 1.0,
           "scored": true
         }
@@ -285,9 +277,9 @@
       "mean_dv_cap": 0.0006,
       "by_role": {
         "brand_name_display": {
-          "dv_cap_top": 0.0004,
+          "dv_cap_top": 0.0006,
           "du_anchor": 0.0011,
-          "cap_ratio": 0.703,
+          "cap_ratio": 0.88,
           "align": "CENTER",
           "read_as": "Xanax by Pfizer",
           "read_score": 1.0,
@@ -303,9 +295,9 @@
           "scored": true
         },
         "dosage_display": {
-          "dv_cap_top": 0.0007,
+          "dv_cap_top": 0.0008,
           "du_anchor": 0.0032,
-          "cap_ratio": 0.952,
+          "cap_ratio": 1.0,
           "align": "LEFT",
           "read_as": "0.5mg",
           "read_score": 1.0,

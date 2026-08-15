@@ -333,6 +333,14 @@ def _text_dimensions(obj):
 _CAP_RATIO_CACHE = {}
 _CAP_DROP_CACHE = {}
 
+# How far a MEASURED row may be narrowed before its size gives way instead. The
+# printed faces on the references are narrower than DejaVu -- measured over the
+# twenty measured rows, DejaVu needs a median of 1.29 times the width the same
+# string occupies on the photograph -- so a row set at the reference's measured
+# cap height often will not fit the box it was measured in. 0.80 is where
+# artificial condensing starts to distort stems.
+CONDENSE_FLOOR = 0.80
+
 
 def _cap_ratio(font) -> float:
     """Cap height per unit of Blender's text `size`, measured for this font.
@@ -578,17 +586,40 @@ def _clear_below(t, spans, gap, floor_z=None):
     return t
 
 
-def _fit_width(t, max_width):
-    """Shrink a row until it fits the space allowed for it.
+def _fit_width(t, max_width, condense=False):
+    """Fit a row into the space allowed for it.
 
     Font size scales the glyphs linearly, so one corrective pass is exact rather
     than iterative. Real data needs this: brand names reach 30 characters and the
     ingredient row reaches 61 ("Sildenafil / Tadalafil / Vardenafil / Avanafil
     (Specimen Mix)"), against faces as narrow as 35mm.
+
+    `condense` narrows the glyphs before reducing the size, and it is passed only
+    for a MEASURED row. The reason is which of the two numbers came from a
+    measurement: the reference's cap height did, and the width the same string
+    needs in DejaVu did not — our face is wider than the printed ones, by a
+    median of 1.29 over the twenty measured rows. Shrinking throws away the
+    figure that was measured to protect one that was not. Condensing keeps it.
+
+    The floor is where artificial condensing starts to distort stems, which is
+    also where a typographer stops using it; past that the size gives way after
+    all. Half the shrunk rows need less than 1.25 and come back to their measured
+    cap height exactly.
+
+    Deliberately off for the grid path — those 380 cartons' widths are this
+    project's own art direction, not a measurement of anything, so there is
+    nothing there to protect.
     """
     width = _text_dimensions(t).x
-    if width > max_width > 0 and width > 0:
-        t.data.size *= max_width / width
+    if not (width > max_width > 0 and width > 0):
+        return t
+    need = max_width / width
+    if not condense:
+        t.data.size *= need
+        return t
+    t.scale.x = max(need, CONDENSE_FLOOR)
+    if need < CONDENSE_FLOOR:
+        t.data.size *= need / CONDENSE_FLOOR
     return t
 
 
@@ -621,7 +652,7 @@ def _place_measured_row(name, body, font, row, ink, face_w, face_h, left_x,
     # Width first, then the vertical anchor: fitting the width scales the glyphs
     # about the origin, which moves the cap line with it. Aligning before that
     # would be aligning a row that is about to change size.
-    _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w))
+    _fit_width(t, max((row["u1"] - row["u0"]) * face_w, 0.08 * face_w), condense=True)
     return _align_cap_top(t, cap_top_z)
 
 
@@ -1734,6 +1765,10 @@ def dump_scene(path: str):
                 # other has to re-measure the font to do it.
                 "cap_h": (_cap_ratio(t.data.font) * t.data.size
                           if t.data.font else None),
+                # How far the glyphs were narrowed to fit the measured box.
+                # 1.0 means they were not; CONDENSE_FLOOR means the width ran
+                # out and the size gave way after it.
+                "scale_x": t.scale.x,
             }
             # Front-panel rows only. The side panel's text is reported
             # separately, under "side_panel".

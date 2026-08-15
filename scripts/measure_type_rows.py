@@ -71,6 +71,29 @@ MATCH_MIN = 0.6
 
 DOSAGE_RE = re.compile(r"^\d+([.,]\d+)?\s*(mg|g|ml|mcg|µg|ug)\b", re.I)
 COUNT_RE = re.compile(r"^\d+\s*\D{2,}$")
+LEADING_NUMBER_RE = re.compile(r"^\D*(\d+)")
+
+
+def number_conflicts(read: str, want: str) -> bool:
+    """Does this reading open with a DIFFERENT number from the one expected?
+
+    A pharmaceutical pack says the same words twice: once in the composition
+    block and once as the unit count. Lexotanil's composition line reads
+    "1 comprimé quadrisécable" and its unit count "30 comprimés quadrisécables"
+    -- 0.74 on bigrams, comfortably past any similarity bar -- so the reader
+    measured the composition line in the middle of the pack and the renderer set
+    "30 Pills" there.
+
+    The number is the one part of a count that IS the content, and a count that
+    says 1 is not a count that says 30. Note what this does NOT reject: a reading
+    that merely lost the number, like Viagra's "film-coated tablets" for "4
+    film-coated tablets". That is an incomplete read of the right line rather
+    than evidence of a different one, and rejecting it would cost a good row to
+    fix a bad one. Fires once across the eleven.
+    """
+    w = LEADING_NUMBER_RE.match(want)
+    r = LEADING_NUMBER_RE.match(read)
+    return bool(w and r and w.group(1) != r.group(1))
 
 
 def _words(img: Image.Image):
@@ -290,6 +313,8 @@ def assign_roles(rows, expected: dict | None = None) -> dict:
                 if free is None:
                     continue
                 candidate = narrow_to_string(free, want)
+                if number_conflicts(candidate["text"], want):
+                    continue
                 sc = _similar(candidate["text"], want)
                 if sc > score:
                     best, score, box = i, sc, candidate

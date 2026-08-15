@@ -48,9 +48,9 @@ rows both saw, OCR and exact geometry agreed to within 0.001 of face height.
 
 | | at baseline | now |
 |---|---:|---:|
-| rows scored | 18/21 | **20/20** |
+| rows scored | 18/21 | **19/19** |
 | worst vertical error | 0.0274 | **0.0014** |
-| mean vertical error | 0.0180 | **0.0004** |
+| mean vertical error | 0.0180 | **0.0003** |
 | worst `du_anchor` | 0.0091 | 0.0073 |
 | `cap_ratio` above 1 | to **1.384** | to 1.03 |
 
@@ -66,10 +66,10 @@ vertical axis and the two collisions.
 | `64-min` | Kamagra | 2/2 | 0.0000 | 0.0073 |
 | `74-min` | Viagra | 3/3 | 0.0002 | 0.0072 |
 | `135-min` | Ativan | 1/1 | 0.0001 | 0.0000 |
-| `155-min` | Imovane | 2/2 | 0.0009 | 0.0014 |
-| `156-min` | Xanax | 1/1 | 0.0006 | 0.0010 |
-| `272-min` | Valium | 2/2 | 0.0006 | 0.0040 |
-| `308-min` | Lexotanil | 3/3 | 0.0002 | 0.0069 |
+| `155-min` | Imovane | 2/2 | 0.0013 | 0.0014 |
+| `156-min` | Xanax | 1/1 | 0.0002 | 0.0010 |
+| `272-min` | Valium | 2/2 | 0.0000 | 0.0040 |
+| `308-min` | Lexotanil | 2/2 | 0.0002 | 0.0069 |
 | `340-min` | Xanax Pfizer | 4/4 | 0.0008 | 0.0032 |
 | `344-min` | Modafinil | 1/1 | 0.0014 | 0.0009 |
 | `404-min` | Ritalin | 1/1 | 0.0000 | 0.0037 |
@@ -144,7 +144,7 @@ instrument was built before the fixes rather than after them.
 
 ## Coverage, and how much to read into it
 
-Every measured row is now located and scored — 20 of 20. That was not true at
+Every measured row is now located and scored — 19 of 19. That was not true at
 baseline, and it was not true at any point in between: `74-min`'s ingredient is
 0.055 of the face tall, dark grey on light grey, and moved in and out of coverage
 across four runs of this loop on renders differing by a few pixels. It was always
@@ -385,6 +385,90 @@ compute that line in different code: PIL/FreeType metrics in `ink_profile`, a
 probe object in Blender for `_cap_drop`. They agree to **0.0014 of face height**
 across twenty rows. A disagreement between them would show up here as a
 placement error, which is a stronger check than either alone.
+
+## The width of our face against theirs
+
+*Added 2026-08-15.*
+
+With `cap_frac` fixed, everything left in the size figure was *below* 1: rows set
+at the reference's measured cap height did not fit the box they were measured in,
+and `_fit_width` reduced them. The question is how much of that is our typeface.
+
+Measured directly, and with the string held constant — the **reference's own**
+words, set in the vendored face, width normalised by that same string's ink
+height on both sides so no cap assumption enters:
+
+| | DejaVu wider by |
+|---|---:|
+| min | 0.99 |
+| median | **1.29** |
+| max | 2.37 |
+
+**A spread that wide is not a typeface.** A condensed face is about 0.82 of its
+regular; nothing is 2.37. Three things are mixed into it, and two were found by
+chasing the outliers.
+
+### What was ruled out, and what was not
+
+*Loose OCR boxes.* Tested: the box height against the actual ink height in the
+same band, over all twenty rows — median **1.02**, max 1.09. The boxes are tight.
+Not this.
+
+*A wrong row.* `23_T1_Lexotanil`'s unit count box, the 2.37, is drawn around
+"1 comprimé quadrisécable" from the **composition block in the middle of the
+pack** — not around "30 comprimés quadrisécables" at the bottom. A pack says the
+same words twice and the two differ by two characters in twenty-seven, so the
+reader took the wrong one and the renderer set "30 Pills" mid-face.
+`number_conflicts()` now rejects a reading that opens with a *different* number
+from the one expected, which is the one part of a count that is its content. It
+does not reject a reading that merely *lost* the number — Viagra's "film-coated
+tablets" for "4 film-coated tablets" is an incomplete read of the right line, and
+rejecting it would cost a good row to fix a bad one. Fires once across the eleven.
+
+*The rectified aspect.* Not ruled out, and it is the reason the figure above
+carries no more precision than it does. A reference face is rectified to **the
+quad's own averaged edge ratio in the photograph**, which under perspective is
+not the face's true aspect; get it wrong and every glyph in that face is
+stretched or squeezed horizontally. Across the ten folders, how far the
+photographed aspect departs from the catalogue's correlates with how wide DejaVu
+appears at **+0.79**. The two cannot be separated from the photograph alone — a
+uniform horizontal stretch and a condensed typeface produce identical glyphs, and
+none of these packs carries a feature of known proportion to calibrate against.
+
+So: **1.29, good to something like ±0.3.**
+
+### The decision that does not depend on the number
+
+When a row will not fit, reduce the axis that was **not** measured.
+
+The reference's cap height is a measurement; the width DejaVu needs for the same
+string is a property of a font nobody chose to match. Shrinking the row throws
+away the first to protect the second. `_fit_width(condense=True)` narrows the
+glyphs instead, down to `CONDENSE_FLOOR = 0.80` — where artificial condensing
+starts to distort stems, and where a typographer stops using it — and only then
+lets the size give way.
+
+This is right whether the true factor is 1.0 or 1.6, which is what makes it
+safe to take while the measurement is still ±0.3.
+
+| `cap_ratio` | before | after |
+|---|---:|---:|
+| rows at the measured cap height exactly | 10/20 | **14/19** |
+| mean | 0.891 | **0.962** |
+| lowest | 0.56 | 0.69 |
+
+*Nineteen, not twenty: Lexotanil's wrongly-matched unit count left with the
+number guard above, so it is out of the denominator too.*
+
+Nothing moved on the other axes — placement stayed at 0.0000–0.0014 and the
+colour figures moved by a tenth of a point either way. **The 380 generic cartons
+are untouched**: `condense` is passed only from `_place_measured_row`, because
+those cartons' row widths are this project's own art direction and there is no
+measurement there to protect.
+
+The five rows still short of their cap height are the ones that ran out of
+condensing: 0.69 to 0.90. Closing those means a narrower vendored face, which
+changes all 391 cartons and is not a design-group decision.
 
 ## Open, with a number attached
 

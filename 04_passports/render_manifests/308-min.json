@@ -177,16 +177,6 @@
         "cap_top_v": 0.2388,
         "align": "LEFT",
         "read_as": "Bromazépam"
-      },
-      "unit_count_display": {
-        "u0": 0.1064,
-        "u1": 0.8786,
-        "v0": 0.5417,
-        "v1": 0.6129,
-        "cap_frac": 0.0515,
-        "cap_top_v": 0.5466,
-        "align": "CENTER",
-        "read_as": "1 comprimé uadrisécable"
       }
     },
     "source_image": "raw_lexotanil_01.jpg"

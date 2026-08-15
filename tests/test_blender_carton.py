@@ -1484,6 +1484,39 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                         f"{stem} {role}: built cap {built:.4f} against a "
                         f"measured {measured[role]['cap_frac']:.4f}")
 
+    def test_size_gives_way_only_after_width_has(self):
+        """Which of the two numbers came from a measurement.
+
+        The reference's cap height did; the width DejaVu needs for the same
+        string did not -- our face is wider than the printed ones, by a median
+        of 1.29 over the twenty measured rows. So a row that will not fit its
+        measured box is narrowed first and only reduced once narrowing has run
+        out at `CONDENSE_FLOOR`. A row that is still at full width and short of
+        its measured cap height has thrown away a measurement to protect a
+        number nobody measured.
+        """
+        FLOOR = 0.80        # render_driver.CONDENSE_FLOOR, restated
+        for stem in self.SKU:
+            measured = self.jobs[stem]["design"]["type_rows"]
+            face = self._face(self.scenes[stem])
+            for row in self.scenes[stem]["label"]:
+                role = self.ROLE_BY_NAME.get(row["name"])
+                if role not in measured or row.get("cap_h") is None:
+                    continue
+                built = row["cap_h"] / face["height"]
+                want = measured[role]["cap_frac"]
+                with self.subTest(sku=stem, role=role):
+                    self.assertGreaterEqual(
+                        row["scale_x"], FLOOR - 1e-6,
+                        f"{stem} {role}: narrowed to {row['scale_x']:.3f}, past "
+                        f"where condensing distorts stems")
+                    if built < want - self.V_TOL:
+                        self.assertAlmostEqual(
+                            row["scale_x"], FLOOR, delta=1e-6,
+                            msg=f"{stem} {role}: built cap {built:.4f} against a "
+                                f"measured {want:.4f} while still at "
+                                f"{row['scale_x']:.3f} of full width")
+
     def test_no_row_is_printed_through_another(self):
         """A measured row lands where the reference puts it, which is anywhere.
 
