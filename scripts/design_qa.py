@@ -108,7 +108,42 @@ def _substrate_core(spec_idx: np.ndarray) -> np.ndarray:
         .filter(ImageFilter.MinFilter(19))) > 0
 
 
-def _classify(img: Image.Image, palette: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def _nearest(frame: np.ndarray, palette: np.ndarray) -> np.ndarray:
+    return ((frame[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1).argmin(-1)
+
+
+def _anchor(frame: np.ndarray, substrate_core: np.ndarray,
+            substrate_rgb: np.ndarray) -> np.ndarray:
+    """Put the frame on the spec's own level, using the one region it knows.
+
+    A nearest-colour classifier compares a RENDER against PRINT colours, with
+    nothing holding the two at the same level -- and our renders sit 5-15% below
+    their spec, which is a photograph of paint at an exposure rather than the
+    paint. Where the palette is wide that costs nothing, because the nearest
+    entry is still the right one. Where two entries are 0.086 apart it decides
+    everything: Imovane's highlight was classified over **0.3%** of the face
+    against a spec that draws it over 14.3%, the whole band falling to the
+    substrate side of a boundary a 5% shift had moved past it. 85.1% -> 98.4%.
+
+    The gain is read off the SUBSTRATE, eroded clear of its own edges: the spec
+    draws that region and states its paint, so this is a grey card the picture
+    actually contains rather than a fitted correction.
+
+    Deliberately NOT applied to `colour_error_by_region`. That figure asks
+    whether the renderer painted the colour it was told to, and anchoring the
+    frame to the spec is precisely how you erase its answer. An earlier attempt
+    put the gain in front of both and was reverted for costing Kamagra fourteen
+    points; the lesson was where it belongs, not that it is wrong.
+    """
+    sel = substrate_core & (frame.max(-1) >= DARK_V)
+    if sel.sum() < 500:
+        return frame
+    gain = substrate_rgb / np.maximum(np.median(frame[sel], axis=0), 1e-3)
+    return np.clip(frame * gain, 0.0, 1.0)
+
+
+def _classify(img: Image.Image, palette: np.ndarray,
+              substrate_core: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Nearest-colour index per pixel, plus a mask of pixels worth scoring.
 
     Dark pixels are dropped: our render prints the label and the reference
@@ -118,8 +153,10 @@ def _classify(img: Image.Image, palette: np.ndarray) -> tuple[np.ndarray, np.nda
     """
     a = _flatten_illumination(np.asarray(img.convert("RGB")).astype(float) / 255.0,
                               FLATTEN_RADIUS_DIV)
-    d = ((a[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1)
-    return d.argmin(-1), a.max(-1) >= DARK_V
+    mask = a.max(-1) >= DARK_V
+    if substrate_core is not None:
+        a = _anchor(a, substrate_core, palette[0])
+    return _nearest(a, palette), mask
 
 
 def _agreement(a_idx, b_idx, mask, n) -> dict:
@@ -200,16 +237,17 @@ def measure(stem: str, preview: bool = False) -> dict:
     ours_raw = np.asarray(ours.convert("RGB")).astype(float) / 255.0
     core = _substrate_core(t_idx)
     ours_flat = flatten_on_substrate(ours_raw, core)
-    o_idx = ((ours_flat[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1).argmin(-1)
     o_mask = ours_flat.max(-1) >= DARK_V
+    o_idx = _nearest(_anchor(ours_flat, core, palette[0]), palette)
 
-    # The same classification under the OTHER illumination model. Where the two
-    # disagree, the agreement figure is not measuring the render: it is measuring
-    # whether a classifier can separate two colours the palette places a hair
-    # apart. Measured on identical pixels, Cialis swings 8 points and Imovane 7
-    # between models, while the two cartons with wide palettes do not move at all.
-    alt = _flatten_illumination(ours_raw, 6.0)
-    alt_idx = ((alt[:, :, None, :] - palette[None, None, :, :]) ** 2).sum(-1).argmin(-1)
+    # The same classification under a SECOND illumination model, to say how much
+    # of the figure is the model rather than the render. A wide blur, because a
+    # lighting gradient across a flat card is very nearly a plane -- this is the
+    # model design_qa itself used before the plane fit. The NARROW blur is not a
+    # legitimate second opinion: it follows the design, which is the defect this
+    # module already records against Kamagra's colour error.
+    alt = _flatten_illumination(ours_raw, 2.0)
+    alt_idx = _nearest(_anchor(alt, core, palette[0]), palette)
 
     # The dark cut is there to keep printed TYPE out of the score. It must not
     # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black
@@ -225,7 +263,7 @@ def measure(stem: str, preview: bool = False) -> dict:
     ref_idx = ref_mask = None
     if ref_path.exists():
         ref = Image.open(ref_path).resize(size, Image.LANCZOS)
-        ref_idx, ref_mask = _classify(ref, palette)
+        ref_idx, ref_mask = _classify(ref, palette, core)
 
     result = {
         "sku": stem,

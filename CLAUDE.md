@@ -309,6 +309,25 @@ ADR/audit/release docs, `docs/` is the full safety-net copy of the source projec
 The Blender roadmap exists only in `06_docs/experiments/`, despite a stale cross-reference in
 `NEXT_STEPS.md` claiming otherwise.
 
+**`design_qa`'s agreement classifier is anchored to the substrate; its colour error is
+not.** A nearest-colour classifier compares a RENDER against PRINT colours with nothing
+holding the two at the same level, and our renders sit 5–15% below their spec — a render is
+a photograph of paint at an exposure, not the paint. Where the palette is wide that costs
+nothing. Where two entries are 0.086 apart it decides everything: Imovane's highlight band
+was classified over **0.3% of the face against a spec that draws it over 14.3%**, and its
+agreement read 85.1% with a ±7.5 swing. `_anchor()` takes a per-channel gain off the
+substrate — a region the spec draws and whose paint it states, so a grey card the picture
+contains — and the row reads 98.4% at ±4.3, with nine of eleven swings falling to zero and
+nothing regressing.
+
+Do **not** extend that anchor to `colour_error_by_region`: that figure asks whether the
+renderer painted the colour it was told to, and anchoring the frame to the spec is how you
+erase its answer. An earlier attempt put the gain in front of both and was reverted for
+costing Kamagra fourteen points — the lesson was where it belongs, not that it was wrong.
+The second illumination model is a blur at HALF the face, not a sixth: the narrow one
+follows the design, which is the defect recorded against Kamagra's colour error, and under
+an anchored classifier it is corrected twice over.
+
 **OCR needs the face flattened first.** The carton is rotated 27.5-35 degrees
 about Z, and Tesseract reads a skewed face very badly — measured, "Atomoxetine
 Generic" comes back as "Germetine" and one render returns an empty string, in

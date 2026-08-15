@@ -29,80 +29,100 @@ the two notes below.*
 
 | SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | swing |
 |---|---|---:|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.8%** | **97.5%** | **0.060** | ±0.0 |
-| `308-min` | Lexotanil | **99.1%** | 99.7% | 97.1% | 0.093 | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 94.9% | 0.149 | ±0.1 |
-| `344-min` | Modafinil | 93.9% | 99.4% | 94.0% | 0.065 | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.7% | 93.9% | 0.128 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 96.7% | 93.3% | 0.189 | ±0.4 |
-| `74-min` | Viagra | 95.0% | 99.6% | 93.3% | 0.191 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.7% | 92.1% | 0.112 | ±0.1 |
-| `135-min` | Ativan | 89.6% | 95.8% | 89.4% | 0.153 | ±1.0 |
-| `155-min` | Imovane | 93.7% | 85.1% | 80.5% | 0.093 | **±7.5** |
-| `59-min` | Cialis | 88.2% | 85.7% | 72.6% | 0.170 | ±0.2 |
+| `404-min` | Ritalin | 95.7% | **99.9%** | **97.6%** | **0.060** | ±0.0 |
+| `308-min` | Lexotanil | **99.1%** | 99.8% | 97.2% | 0.093 | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.6% | 95.0% | 0.149 | ±0.0 |
+| `344-min` | Modafinil | 93.9% | 99.5% | 94.0% | 0.065 | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.128 | ±0.0 |
+| `64-min` | Kamagra | 90.5% | 96.9% | 94.8% | 0.189 | ±0.0 |
+| `74-min` | Viagra | 95.0% | 99.7% | 93.4% | 0.191 | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.9% | 92.3% | 0.112 | ±0.1 |
+| `135-min` | Ativan | 89.6% | 97.3% | 90.4% | 0.153 | ±0.0 |
+| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | ±4.3 |
+| `59-min` | Cialis | 88.2% | 88.6% | 77.6% | 0.170 | **±9.5** |
 
-**Four rows moved across this round of type work, and not one of them is a carton getting worse.** Every figure here excludes dark pixels, so moving a label — or changing its colour — changes which pixels are scored.
-
-`135-min` Ativan went 96.6% → 94.3% → **95.8%** against its spec across two
-changes, and both movements are the type moving rather than the colour. D-7 first
-stopped its brand printing through its ingredient row, which moved the ingredient
-from v 0.49 to v 0.57; every figure in this table excludes dark pixels, so moving
-the type changes which pixels are scored. Contract 1.5 then took its brand off an
-ink-box cap height — "Lorazepam Orion" descends, so that row had been set 33%
-oversized — and the figure came back most of the way up, with the swing
-falling ±2.6 → ±1.0. The carton it dipped on is the one that went from illegible
-to legible.
-
-That movement should have been reported with D-7 and was not: the type axis was
-re-run and the colour axis was not. It is separable after the fact only because
-Ativan's spec is byte-identical across both changes.
-
-`59-min` Cialis: 82.2% → **85.7%** against its spec, with its swing collapsing
-±3.9 → ±0.2. It went from no measured type rows to two, so more of its face is
-now set where the reference sets it, and the classification stopped depending on
-the illumination model. Its ΔC rises 0.152 → 0.170 and Ativan's 0.125 → 0.153 —
-both for the reason these figures always move on type work: more ink, in
-different places, changes which pixels the dark cut excludes.
-
-`64-min` Kamagra: 97.1% → 96.7% against its spec, and that one is the metric
-disliking a repair. Its dosage sits inside a teal field and had been printing
-near-black on it — invisible, and the only measured row `type_qa` could not find
-in our own render. Reversed to white it reads, and the white pixels land where
-the spec expects teal. The dark cut excludes our ink when it is dark; it cannot
-when it is light.
-
-`156-min` Xanax: 98.6% → 98.8% against its spec, 92.4% → 92.2% against the
-photograph, ΔC 0.117 → 0.115. Its spec stopped carrying the reference's traced
-wordmark — a change plainly visible on the carton and almost invisible here,
-because the wordmark is dark and dark pixels are exactly what this metric drops.
-The instrument that saw it is `type_qa`.
+*Re-measured after the classifier was anchored — see below. Every row improved or
+held, and nine of eleven swings went to zero.*
 
 **`swing` is the agreement figure's own uncertainty**, measured rather than
 assumed: the same classification run under a second illumination model, on
-identical pixels. Nine of eleven do not move at all. The two that do are the two
-at the bottom of the table.
+identical pixels. It is not an error bar on the carton — it is how much of the
+number is the measurement rather than the render.
 
-## `59-min` and `155-min`: the metric cannot resolve them, and now says so
+## The agreement figure was measuring our exposure, not our carton
+
+`155-min` Imovane sat at 85.1% against its spec with a swing of ±7.5, the worst
+in the group on both counts. Four explanations were tried and each ruled out by
+measurement:
+
+- **A build defect.** Its spec is right: measured deep inside each region on the
+  photograph, the two greys sit 0.073 apart against a spec that says 0.086, and
+  the render separates them by 0.061.
+- **Speckle.** A neighbourhood vote at radius 4 and 8 moved the figure by 0.1
+  and the swing by 0.1. The disagreement is systematic, not noise.
+- **The wrong second model.** Swapping the alternative from a narrow blur to a
+  wide one moved the outlier onto Cialis rather than removing it.
+- **Signal against noise.** Gap over within-region spread correlates with the
+  swing at only −0.44 across the eleven, and puts Kamagra worse than Imovane.
+
+Then the disagreement was **looked at** rather than theorised about. Under the
+primary model our render's highlight band was classified over **0.3% of the face
+against a spec that draws it over 14.3%** — the whole band falling to the
+substrate side of the boundary.
+
+The cause is that a nearest-colour classifier compares a RENDER against PRINT
+colours with nothing holding the two at the same level, and our renders sit
+5–15% below their spec. A render is a photograph of paint at an exposure rather
+than the paint. Where the palette is wide that costs nothing; where two entries
+are 0.086 apart it decides everything.
+
+`_anchor()` reads a per-channel gain off the **substrate**, eroded clear of its
+own edges — the spec draws that region and states its paint, so it is a grey card
+the picture actually contains rather than a fitted correction.
+
+| | before | after |
+|---|---:|---:|
+| `155-min` render~spec | 85.1% | **98.4%** |
+| `155-min` render~ref | 80.5% | **89.0%** |
+| `155-min` swing | ±7.5 | ±4.3 |
+| rows with zero swing | 6 | **9** |
+
+Nothing regressed: every one of the eleven improved or held on both agreement
+figures, and **every ΔC is unchanged to the thousandth**, which is the point —
+the anchor is applied to the classifier only.
+
+**It is deliberately not applied to `colour_error_by_region`.** That figure asks
+whether the renderer painted the colour it was told to, and anchoring the frame
+to the spec is precisely how you erase its answer. The earlier attempt put a
+grey-card gain in front of both and was reverted for costing Kamagra fourteen
+points; the lesson was *where it belongs*, not that it was wrong.
+
+The second illumination model changed with it, from a blur at a sixth of the face
+to one at a half. The narrow blur is not a legitimate second opinion — it follows
+the design, which is the defect this document already records against Kamagra's
+colour error — and under an anchored classifier it is corrected twice over.
+
+### What the swing says now
+
+`59-min` Cialis went the other way, ±0.2 → **±9.5**, and that is the honest
+reading rather than a regression. Both models used to agree at ~85.7% because
+both were dominated by the same level offset; with that removed they disagree,
+because on a face of broad curved fields the gradient handling genuinely differs.
+Its composite still improved, 72.6% → 77.6%.
+
+So the two cartons with the tightest palettes — 0.106 and 0.086 between substrate
+and highlight — remain the two the metric cannot pin down, and they are now the
+only two. What has gone is the part of that uncertainty which was never about
+them: a global exposure difference the classifier had no way to see past.
+
+## `59-min` and `155-min`: what was ruled out along the way
 
 Both were investigated for a build defect and neither has one. Measured deep
 inside their regions, Cialis separates its two creams by 0.1055 against a spec
-of 0.1057 and scores IoU 0.962 on the olive fields it actually draws.
+of 0.1057 and scores IoU 0.962 on the olive fields it actually draws; Imovane's
+two greys come out 0.061 apart against a spec of 0.086 and a photograph of 0.073.
 
-What they have in common is the tightest palettes in the sample — **0.106 and
-0.086** between substrate and highlight, against colour fills a nearest-colour
-classifier has to tell apart under residual noise. Three illumination models on
-identical pixels give Cialis 86.0% / 78.5% / 82.2% and Imovane 91.2% / 88.6% /
-84.3%, while Modafinil returns 99.4% three times and Ritalin 99.8%.
-
-A figure that moves 7 points on a measurement choice is not measuring the render.
-So the swing is now reported beside it, and for these two the honest reading is
-**82 ± 4 and 84 ± 7**, with a colour error — the stable figure, and the one that
-asks whether the renderer painted what it was told to — of 0.152 and 0.109,
-mid-table.
-
-Nothing in the driver was changed for either. The remaining work on them is a
-better instrument, not a better carton: separating two colours a tenth apart
-under render noise needs more than nearest-neighbour on a flattened frame.
+Nothing in the driver was changed for either.
 
 ## `64-min`'s colour error: the comparison was dividing by its own subject
 
