@@ -11,15 +11,15 @@
         "blur": 0.0662
       },
       "render_vs_spec": {
-        "agreement": 0.9808,
+        "agreement": 0.9807,
         "iou": {
           "0": 0.976,
-          "1": 0.947,
+          "1": 0.946,
           "2": 0.944
         }
       },
       "field_iou_worst": 0.944,
-      "agreement_spread": 0.0111,
+      "agreement_spread": 0.0125,
       "colour_error_by_region": {
         "0": 0.1695,
         "1": 0.1441,
@@ -46,7 +46,7 @@
       "colour_residual_worst": 0.0562,
       "spec_vs_reference": 0.8819,
       "render_vs_reference": {
-        "agreement": 0.8032,
+        "agreement": 0.8033,
         "iou": {
           "0": 0.667,
           "1": 0.809,
@@ -65,15 +65,15 @@
         "blur": 0.0989
       },
       "render_vs_spec": {
-        "agreement": 0.8404,
+        "agreement": 0.9779,
         "iou": {
           "0": 0.98,
-          "1": 0.696,
-          "2": 0.084
+          "1": 0.949,
+          "2": 0.907
         }
       },
-      "field_iou_worst": 0.084,
-      "agreement_spread": 0.0028,
+      "field_iou_worst": 0.907,
+      "agreement_spread": 0.0001,
       "colour_error_by_region": {
         "0": 0.1893,
         "1": 0.1282,
@@ -100,11 +100,11 @@
       "colour_residual_worst": 0.0235,
       "spec_vs_reference": 0.9047,
       "render_vs_reference": {
-        "agreement": 0.8631,
+        "agreement": 0.8569,
         "iou": {
           "0": 0.895,
-          "1": 0.758,
-          "2": 0.114
+          "1": 0.71,
+          "2": 0.458
         }
       }
     },
@@ -119,14 +119,14 @@
         "blur": 0.0542
       },
       "render_vs_spec": {
-        "agreement": 0.9968,
+        "agreement": 0.9967,
         "iou": {
           "0": 0.997,
-          "1": 0.887
+          "1": 0.881
         }
       },
-      "field_iou_worst": 0.887,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": 0.881,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.1909,
         "1": 0.049
@@ -155,16 +155,16 @@
         "blur": 0.0435
       },
       "render_vs_spec": {
-        "agreement": 0.9728,
+        "agreement": 0.9739,
         "iou": {
-          "0": 0.975,
-          "1": 0.913,
-          "2": 0.576,
-          "3": 0.823
+          "0": 0.974,
+          "1": 0.924,
+          "2": 0.582,
+          "3": 0.839
         }
       },
-      "field_iou_worst": 0.576,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": 0.582,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.0887,
         "1": 0.1526,
@@ -193,12 +193,12 @@
       "colour_residual_worst": 0.0504,
       "spec_vs_reference": 0.8965,
       "render_vs_reference": {
-        "agreement": 0.9046,
+        "agreement": 0.9049,
         "iou": {
           "0": 0.923,
-          "1": 0.75,
+          "1": 0.753,
           "2": 0.287,
-          "3": 0.359
+          "3": 0.358
         }
       }
     },
@@ -213,10 +213,10 @@
         "blur": 0.0358
       },
       "render_vs_spec": {
-        "agreement": 0.9845,
+        "agreement": 0.9844,
         "iou": {
           "0": 0.979,
-          "1": 0.975,
+          "1": 0.974,
           "2": 0.919
         }
       },
@@ -270,12 +270,12 @@
         "agreement": 0.9886,
         "iou": {
           "0": 0.989,
-          "1": 0.955,
-          "2": 0.468
+          "1": 0.938,
+          "2": 0.498
         }
       },
-      "field_iou_worst": 0.468,
-      "agreement_spread": 0.0,
+      "field_iou_worst": 0.498,
+      "agreement_spread": 0.0001,
       "colour_error_by_region": {
         "0": 0.1119,
         "1": 0.0737,
@@ -305,8 +305,8 @@
         "agreement": 0.9273,
         "iou": {
           "0": 0.923,
-          "1": 0.711,
-          "2": 0.174
+          "1": 0.704,
+          "2": 0.175
         }
       }
     },
@@ -321,14 +321,14 @@
         "blur": 0.0611
       },
       "render_vs_spec": {
-        "agreement": 0.9885,
+        "agreement": 0.9882,
         "iou": {
-          "0": 0.987,
-          "1": 0.942,
-          "2": 0.855
+          "0": 0.986,
+          "1": 0.946,
+          "2": 0.818
         }
       },
-      "field_iou_worst": 0.855,
+      "field_iou_worst": 0.818,
       "agreement_spread": 0.0001,
       "colour_error_by_region": {
         "0": 0.0966,
@@ -356,11 +356,11 @@
       "colour_residual_worst": 0.0253,
       "spec_vs_reference": 0.9106,
       "render_vs_reference": {
-        "agreement": 0.9424,
+        "agreement": 0.9423,
         "iou": {
           "0": 0.933,
-          "1": 0.783,
-          "2": 0.465
+          "1": 0.785,
+          "2": 0.458
         }
       }
     },
@@ -396,7 +396,7 @@
         "agreement": 0.9725,
         "iou": {
           "0": 0.97,
-          "1": 0.752
+          "1": 0.753
         }
       }
     },
@@ -411,14 +411,14 @@
         "blur": 0.1401
       },
       "render_vs_spec": {
-        "agreement": 0.9764,
+        "agreement": 0.9763,
         "iou": {
-          "0": 0.977,
-          "1": 0.672,
-          "2": 0.692
+          "0": 0.976,
+          "1": 0.698,
+          "2": 0.658
         }
       },
-      "field_iou_worst": 0.672,
+      "field_iou_worst": 0.658,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.1489,
@@ -446,11 +446,11 @@
       "colour_residual_worst": 0.0139,
       "spec_vs_reference": 0.9495,
       "render_vs_reference": {
-        "agreement": 0.95,
+        "agreement": 0.9501,
         "iou": {
           "0": 0.95,
-          "1": 0.595,
-          "2": 0.42
+          "1": 0.615,
+          "2": 0.41
         }
       }
     },
@@ -465,13 +465,13 @@
         "blur": 0.041
       },
       "render_vs_spec": {
-        "agreement": 0.9946,
+        "agreement": 0.9937,
         "iou": {
-          "0": 0.995,
-          "1": 0.786
+          "0": 0.994,
+          "1": 0.758
         }
       },
-      "field_iou_worst": 0.786,
+      "field_iou_worst": 0.758,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.065,
@@ -483,10 +483,10 @@
       "colour_residual_worst": null,
       "spec_vs_reference": 0.9389,
       "render_vs_reference": {
-        "agreement": 0.9405,
+        "agreement": 0.9397,
         "iou": {
-          "0": 0.939,
-          "1": 0.26
+          "0": 0.938,
+          "1": 0.258
         }
       }
     },
@@ -501,13 +501,13 @@
         "blur": 0.0273
       },
       "render_vs_spec": {
-        "agreement": 0.9987,
+        "agreement": 0.9976,
         "iou": {
-          "0": 0.999,
-          "1": 0.926
+          "0": 0.998,
+          "1": 0.868
         }
       },
-      "field_iou_worst": 0.926,
+      "field_iou_worst": 0.868,
       "agreement_spread": 0.0001,
       "colour_error_by_region": {
         "0": 0.059,
@@ -519,10 +519,10 @@
       "colour_residual_worst": null,
       "spec_vs_reference": 0.9566,
       "render_vs_reference": {
-        "agreement": 0.9758,
+        "agreement": 0.9749,
         "iou": {
-          "0": 0.975,
-          "1": 0.403
+          "0": 0.974,
+          "1": 0.395
         }
       }
     }

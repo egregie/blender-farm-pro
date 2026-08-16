@@ -337,13 +337,46 @@ one placed wide.
 `design_qa.json` with one row, discarding the other ten. Merging would be worse — the rows
 would then come from different revisions of the script with nothing in the file saying so.
 
-**`design_qa`'s agreement classifier is anchored to the substrate; its colour error is
-not.** A nearest-colour classifier compares a RENDER against PRINT colours with nothing
-holding the two at the same level, and our renders sit 5–15% below their spec — a render is
-a photograph of paint at an exposure, not the paint. Where the palette is wide that costs
-nothing. Where two entries are 0.086 apart it decides everything: Imovane's highlight band
-was classified over **0.3% of the face against a spec that draws it over 14.3%**, and its
-agreement read 85.1% with a ±7.5 swing. `_anchor()` takes a per-channel gain off the
+**`design_qa` classifies against a MEASURED transfer curve, and the palette is mapped
+forward into the render's space rather than the render corrected back.** Comparing a render
+against PRINT colours is wrong in a way a substrate gain cannot reach: the transfer has a
+lift. Kamagra's `#00463B` and `#002F26` are 0.122 apart, our render separates them by 0.089
+— it builds both — but both arrive with a red near 0.135 against a spec that says 0.000,
+because a lit surface does not return black. That shared 0.145 displacement is larger than
+the gap it has to preserve, so 89% of the darker field classified as the lighter one:
+**0.084, the group's worst field by a factor of five, on a carton built correctly.**
+
+`scripts/calibrate_render.py` renders each carton a second time with its design replaced by
+a chart of 19 known patches — same geometry, same rig, same exposure, no design — and reads
+the curve off it. Three measured facts hold it up: the transfer is **per channel and
+independent of the others** (`#400000` renders `(0.251, 0.133, 0.133)`), so one curve
+suffices; it is **not affine** (a line leaves 0.046 residual, the interpolated ramp 0.013);
+and the **black lift is a rig constant**, 0.133–0.141 across all eleven, sd 0.0024. Kamagra's
+field goes **0.084 → 0.907** and its agreement 84.0% → 97.8%.
+
+**A curve fitted across the group's own regions also works and was deliberately not
+shipped** — leave-one-carton-out, it classifies 30/30 region medians correctly against 29/30
+for nearest-paint. It is still a transform fitted to the regions being judged, which can
+absorb a build error as calibration. The chart costs one render per carton and removes the
+objection. `render_calibration.json` carries a driver+settings fingerprint and `load_curve()`
+exits rather than applying a stale curve or falling back silently.
+
+**Both halves are load-bearing: the curve gives the shape, the substrate the level.** The
+curve alone breaks Imovane — worst field 91.9% → 76.2%, swing ±0.1 → ±2.9 — because the
+chart is read on the face as it comes while the classified frame has had its illumination
+divided out, and `flatten_on_substrate` renormalises to the estimate's mean. That 0.02–0.03
+is a third of Imovane's 0.086 gap. `_refer_to_substrate()` fixes it and Imovane returns to
+91.9% / ±0.1.
+
+**Five cartons lose field IoU and the loss is smaller than it reads.** Ritalin 92.6% →
+86.8%, Valium 85.5% → 81.8%, Modafinil 78.6% → 75.8% — all thin type-shaped fields of
+1.5–3% of the face, where nearly every pixel is an edge. As *area*: Ritalin's field is 1.63%
+of the face by spec, 1.65% under the anchor, 1.78% under the curve — a tenth of a point,
+claimed a pixel wider. Against Kamagra's brand at 36.15% by spec, **50.90% under the anchor**
+and 37.00% under the curve. Each field's median sits 0.004–0.028 from its predicted
+appearance against 0.34–1.00 from the substrate's.
+
+**`_anchor()` still takes a per-channel gain off the
 substrate — a region the spec draws and whose paint it states, so a grey card the picture
 contains — and the row reads 98.4% at ±4.3, with nine of eleven swings falling to zero and
 nothing regressing.
@@ -352,6 +385,7 @@ Do **not** extend that anchor to `colour_error_by_region`: that figure asks whet
 renderer painted the colour it was told to, and anchoring the frame to the spec is how you
 erase its answer. An earlier attempt put the gain in front of both and was reverted for
 costing Kamagra fourteen points — the lesson was where it belongs, not that it was wrong.
+The same rule is why the curve is applied to the PALETTE and never to the frame.
 **Which illumination model the classifier uses is chosen per carton, on the substrate.**
 Neither is right everywhere and the gap is not small: on `59-min` the plane leaves a
 residual of 0.085 against a blur's 0.066 and classifies 28.9% of the face as the white

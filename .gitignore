@@ -17,6 +17,9 @@ verification_failures.log
 # committed, inside each folder's metadata.json; these are how a human checks
 # them, not the record itself.
 02_processing/reference_measurement/
+# The calibration CHARTS. Rendered, read, and deleted unless --keep; the curve
+# they carry is the record and lives in 00_PROJECT_STATE/render_calibration.json.
+02_processing/calibration/
 02_processing/render_failed/
 02_processing/failed_logs/
 

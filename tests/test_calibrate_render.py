@@ -1,0 +1,123 @@
+"""The chart is only worth anything if it stays independent of the answers.
+
+`calibrate_render.py` renders a chart of known patches on each design carton's
+own geometry and reads the rig's paint-to-pixel transfer off it. That curve then
+decides how the classifier reads every field, so the two ways it could quietly
+stop being a measurement are worth pinning: the chart drifting toward the
+palettes it will be used to judge, and a stale curve being applied to output a
+different driver produced.
+"""
+import json
+import unittest
+from unittest import mock
+
+import numpy as np
+
+from scripts import calibrate_render as cr
+
+
+class TestTheCurveIsRead(unittest.TestCase):
+    XS = np.array([0.0, 0.25, 0.50, 1.0])
+    YS = np.array([0.13, 0.25, 0.42, 0.80])
+
+    def test_a_paint_lands_where_the_ramp_puts_it(self):
+        got = cr.appearance(np.array([[0.0, 0.25, 0.50]]), self.XS, self.YS)
+        np.testing.assert_allclose(got, [[0.13, 0.25, 0.42]])
+
+    def test_between_two_steps_it_interpolates(self):
+        got = cr.appearance(np.array([0.375]), self.XS, self.YS)
+        self.assertAlmostEqual(float(got[0]), 0.335, places=6)
+
+    def test_each_channel_goes_through_the_same_curve(self):
+        """Measured, not assumed: `#400000` renders (0.251, 0.133, 0.133) --
+        its red where the ramp puts 0.251, its empty channels where it puts 0.
+        One curve is enough only because that is true."""
+        got = cr.appearance(np.array([[0.25, 0.0, 0.0]]), self.XS, self.YS)
+        np.testing.assert_allclose(got, [[0.25, 0.13, 0.13]])
+
+    def test_the_ramp_reaches_white(self):
+        """Xanax Pfizer's substrate is `#F9F6F4`, above every other step. With
+        the ramp stopping short, `np.interp` clamps and predicts it a quarter of
+        a level too dark -- silently, since a clamp is not an error."""
+        self.assertIn(0xFF, cr.STEPS)
+        self.assertIn(0x00, cr.STEPS)
+
+
+class TestTheChartStaysIndependentOfWhatItJudges(unittest.TestCase):
+    def test_no_patch_is_a_colour_from_a_palette_it_will_be_used_on(self):
+        from src.design_group import FOLDER_BY_STEM, load_design
+        chart = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in cr.PATCHES}
+        for stem in FOLDER_BY_STEM:
+            with self.subTest(sku=stem):
+                spec = load_design(stem)
+                palette = {spec["substrate"].upper()} | {
+                    f["fill"].upper() for f in spec["fields"]}
+                self.assertEqual(
+                    chart & palette, set(),
+                    "a chart made of the answers is the circularity this exists "
+                    "to avoid")
+
+    def test_the_chart_carries_no_type(self):
+        """A label crossing a patch is ink, not paint, and the driver reverses
+        it against whatever it lands on -- which on the chart is a patch."""
+        job, _fills = cr.chart_manifest(next(iter(_design_stems())))
+        self.assertEqual(job["design"]["type_rows"], {})
+        self.assertEqual(set(job["label_content"].values()), {""})
+
+    def test_no_two_patches_share_an_edge(self):
+        """Two abutting fills put each one's lit fringe inside the other."""
+        boxes = [(min(u for u, _ in o), max(u for u, _ in o),
+                  min(v for _, v in o), max(v for _, v in o))
+                 for o in cr._grid(len(cr.PATCHES))]
+        for i, a in enumerate(boxes):
+            for b in boxes[i + 1:]:
+                overlap = (min(a[1], b[1]) - max(a[0], b[0]) > -1e-9
+                           and min(a[3], b[3]) - max(a[2], b[2]) > -1e-9)
+                self.assertFalse(overlap, f"{a} touches {b}")
+
+
+class TestAStaleCalibrationIsRefused(unittest.TestCase):
+    """A classifier quietly running on the wrong transfer is the failure this
+    was built to remove, and it would surface as a plausible number rather than
+    as an error."""
+
+    def test_a_missing_calibration_is_fatal_rather_than_a_fallback(self):
+        with mock.patch.object(cr, "OUT", cr.PROJECT_ROOT / "no-such-file.json"):
+            with self.assertRaises(SystemExit):
+                cr.load_curve("64-min")
+
+    def test_a_calibration_from_another_driver_is_fatal(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "cal.json"
+            p.write_text(json.dumps({
+                "driver": "0" * 16,
+                "rows": {"64-min": {"ramp": [[0.0, 0.1], [1.0, 0.8]]}}}),
+                encoding="utf-8")
+            with mock.patch.object(cr, "OUT", p):
+                with self.assertRaises(SystemExit):
+                    cr.load_curve("64-min")
+
+    def test_the_matching_driver_is_accepted(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "cal.json"
+            p.write_text(json.dumps({
+                "driver": cr.driver_fingerprint(),
+                "rows": {"64-min": {"ramp": [[0.0, 0.1], [1.0, 0.8]]}}}),
+                encoding="utf-8")
+            with mock.patch.object(cr, "OUT", p):
+                xs, ys = cr.load_curve("64-min")
+        np.testing.assert_allclose(xs, [0.0, 1.0])
+        np.testing.assert_allclose(ys, [0.1, 0.8])
+
+
+def _design_stems():
+    from src.design_group import FOLDER_BY_STEM
+    return sorted(FOLDER_BY_STEM, key=lambda s: int(s.split("-")[0]))
+
+
+if __name__ == "__main__":
+    unittest.main()

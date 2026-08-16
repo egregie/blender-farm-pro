@@ -38,6 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.deskew import flatten_face  # noqa: E402
 from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR, load_design  # noqa: E402
 from src.utils import load_config, resolve_path  # noqa: E402
+from scripts.calibrate_render import appearance, load_curve  # noqa: E402
 from scripts.fit_design_spec import rasterise  # noqa: E402
 from scripts.measure_reference_face import _flatten_illumination  # noqa: E402
 
@@ -131,30 +132,63 @@ def _anchor(frame: np.ndarray, substrate_core: np.ndarray,
             substrate_rgb: np.ndarray) -> np.ndarray:
     """Put the frame on the spec's own level, using the one region it knows.
 
-    A nearest-colour classifier compares a RENDER against PRINT colours, with
-    nothing holding the two at the same level -- and our renders sit 5-15% below
-    their spec, which is a photograph of paint at an exposure rather than the
-    paint. Where the palette is wide that costs nothing, because the nearest
-    entry is still the right one. Where two entries are 0.086 apart it decides
-    everything: Imovane's highlight was classified over **0.3%** of the face
-    against a spec that draws it over 14.3%, the whole band falling to the
-    substrate side of a boundary a 5% shift had moved past it. 85.1% -> 98.4%.
-
     The gain is read off the SUBSTRATE, eroded clear of its own edges: the spec
     draws that region and states its paint, so this is a grey card the picture
     actually contains rather than a fitted correction.
 
-    Deliberately NOT applied to `colour_error_by_region`. That figure asks
-    whether the renderer painted the colour it was told to, and anchoring the
-    frame to the spec is precisely how you erase its answer. An earlier attempt
-    put the gain in front of both and was reverted for costing Kamagra fourteen
-    points; the lesson was where it belongs, not that it is wrong.
+    Two jobs, and it has been demoted from the first.
+
+    It was the CLASSIFIER's level fix, and as one point per channel it could
+    only ever be a gain. That was enough for Imovane, whose highlight had fallen
+    to the substrate side of a boundary a 5% shift had moved past it (85.1% ->
+    98.4% when the gain was introduced), and not enough for Kamagra, whose two
+    greens are displaced by a LIFT a gain cannot reach. The classifier now
+    compares against a measured transfer curve instead -- calibrate_render.py.
+
+    What remains is putting the two illumination candidates on one level so
+    `_substrate_residual` compares their flatness rather than their exposure.
+
+    Deliberately NOT applied to `colour_error_by_region`, and the reason has not
+    changed: that figure asks whether the renderer painted the colour it was
+    told to, and putting the frame on the spec's level is precisely how you
+    erase its answer. An earlier attempt put the gain in front of both and was
+    reverted for costing Kamagra fourteen points; the lesson was where it
+    belongs, not that it is wrong. Note the curve is applied the other way
+    round, to the PALETTE, so it cannot be mistaken for correcting the render.
     """
     sel = substrate_core & (frame.max(-1) >= DARK_V)
     if sel.sum() < 500:
         return frame
     gain = substrate_rgb / np.maximum(np.median(frame[sel], axis=0), 1e-3)
     return np.clip(frame * gain, 0.0, 1.0)
+
+
+def _refer_to_substrate(seen: np.ndarray, frame: np.ndarray,
+                        substrate_core: np.ndarray) -> np.ndarray:
+    """Put the predicted appearance on this frame's own level.
+
+    The chart is measured on the rectified face as it comes; the frame being
+    classified has had its illumination divided out, and `flatten_on_substrate`
+    renormalises to the estimate's mean rather than preserving the level. The
+    residual is small -- 0.02 to 0.03 -- and on most cartons it changes nothing.
+
+    On Imovane it changes everything, and that is why both halves are here. Its
+    substrate and highlight are 0.086 apart, so being 0.03 out on the level is
+    a third of the gap the classifier has to resolve: the curve alone read its
+    worst field at 76.2% with a swing of +-2.9, against 91.9% and +-0.1 for the
+    gain-anchored paint it replaced. Kamagra is the opposite case, needing the
+    curve's LIFT, which no gain can supply -- 8.4% against 90.7%.
+
+    So: the curve supplies the shape, the grey card the level. Same gain
+    `_anchor` takes, applied to the MODEL rather than to the frame, which is
+    what keeps it clear of ColourError. Multiplicative because the thing being
+    undone is: the flattening scales the frame, ambient light included.
+    """
+    sel = substrate_core & (frame.max(-1) >= DARK_V)
+    if sel.sum() < 500:
+        return seen
+    gain = np.median(frame[sel], axis=0) / np.maximum(seen[0], 1e-3)
+    return np.clip(seen * gain, 0.0, 1.0)
 
 
 def _classify(img: Image.Image, palette: np.ndarray,
@@ -360,10 +394,27 @@ def measure(stem: str, preview: bool = False) -> dict:
     #
     # Chosen on the SUBSTRATE, never on the fields -- see _substrate_residual.
     candidates = {"plane": ours_flat, "blur": _flatten_illumination(ours_raw, 2.0)}
+    # The anchor still puts the two models on one level so their flatness is
+    # comparable. It no longer stands in for the transfer curve -- see below.
     anchored = {k: _anchor(v, core, palette[0]) for k, v in candidates.items()}
     residual = {k: _substrate_residual(v, core) for k, v in anchored.items()}
     chosen = min(residual, key=residual.get)
-    o_idx = _nearest(anchored[chosen], palette)
+
+    # Classify in the RENDER's space, against each paint as this rig renders it,
+    # measured off a chart -- see scripts/calibrate_render.py. Comparing a render
+    # against PRINT colours is wrong in a way a gain off the substrate cannot
+    # reach: the transfer has a lift, and at the dark end the lift is the larger
+    # term. Kamagra's `#00463B` and `#002F26` are 0.122 apart and both render
+    # with a red near 0.13 against a spec that says 0.000, so the shared
+    # displacement exceeded the gap it had to preserve and 89% of the darker
+    # field was classified as the lighter one -- 0.084, the group's worst field
+    # by a factor of five. Against the measured appearance it reads 0.907.
+    #
+    # The curve gives the shape and the grey card the level -- both, because
+    # each carton that needs one is broken by the other. See _refer_to_substrate.
+    predicted = appearance(palette, *load_curve(stem))
+    seen = _refer_to_substrate(predicted, candidates[chosen], core)
+    o_idx = _nearest(candidates[chosen], seen)
 
     # The swing is what the figure does under the same model with a different
     # arbitrary knob -- the erosion the plane is fitted through, the radius the
@@ -372,7 +423,9 @@ def measure(stem: str, preview: bool = False) -> dict:
     # not the figure's uncertainty: it read +-9.5 on `59-min` for exactly that.
     variant = (flatten_on_substrate(ours_raw, _substrate_core(t_idx, 9))
                if chosen == "plane" else _flatten_illumination(ours_raw, 2.5))
-    alt_idx = _nearest(_anchor(variant, core, palette[0]), palette)
+    # Referred to the variant's OWN substrate reading: the perturbation is the
+    # illumination estimate, and re-levelling is part of what it perturbs.
+    alt_idx = _nearest(variant, _refer_to_substrate(predicted, variant, core))
 
     # Every figure below reads the same mask -- see scored_mask. Inside Xanax's
     # near-black brand the bare cut left only the lit fringe, whose mean sits

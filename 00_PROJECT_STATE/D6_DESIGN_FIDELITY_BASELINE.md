@@ -22,23 +22,23 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-16, after the scored-mask fix below. Type work keeps moving
-these figures too, because moving a label changes which pixels are excluded —
-see the two notes further down.*
+*Re-measured 2026-08-16, after the scored-mask fix and the measured transfer
+curve, both below. Type work keeps moving these figures too, because moving a
+label changes which pixels are excluded — see the notes further down.*
 
 | SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | `308-min` | Lexotanil | **99.1%** | 99.8% | **97.4%** | 97.2% | 0.093 | — | ±0.0 |
-| `59-min` | Cialis | 88.2% | 98.1% | 94.4% | 80.3% | 0.170 | 0.056 | ±1.1 |
-| `404-min` | Ritalin | 95.7% | **99.9%** | 92.6% | **97.6%** | **0.060** | — | ±0.0 |
-| `155-min` | Imovane | 93.7% | 98.5% | 91.9% | 88.8% | 0.093 | 0.013 | ±0.1 |
-| `74-min` | Viagra | 95.0% | 99.7% | 88.7% | 93.4% | 0.191 | — | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.9% | 85.5% | 94.2% | 0.128 | 0.025 | ±0.0 |
-| `344-min` | Modafinil | 93.9% | 99.5% | 78.6% | 94.0% | 0.065 | — | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 67.2% | 95.0% | 0.149 | **0.014** | ±0.0 |
-| `135-min` | Ativan | 89.6% | 97.3% | 57.6% | 90.5% | 0.153 | 0.050 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.9% | 46.8% | 92.7% | 0.112 | 0.045 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | **84.0%** | **8.4%** | 86.3% | 0.189 | 0.024 | ±0.3 |
+| `59-min` | Cialis | 88.2% | 98.1% | 94.4% | 80.3% | 0.170 | 0.056 | ±1.2 |
+| `155-min` | Imovane | 93.7% | 98.4% | 91.9% | 88.8% | 0.093 | 0.013 | ±0.1 |
+| `64-min` | Kamagra | 90.5% | 97.8% | 90.7% | 85.7% | 0.189 | 0.024 | ±0.0 |
+| `74-min` | Viagra | 95.0% | 99.7% | 88.1% | 93.4% | 0.191 | — | ±0.0 |
+| `404-min` | Ritalin | 95.7% | **99.8%** | 86.8% | **97.5%** | **0.060** | — | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.8% | 81.8% | 94.2% | 0.128 | 0.025 | ±0.0 |
+| `344-min` | Modafinil | 93.9% | 99.4% | 75.8% | 94.0% | 0.065 | — | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.6% | 65.8% | 95.0% | 0.149 | **0.014** | ±0.0 |
+| `135-min` | Ativan | 89.6% | 97.4% | 58.2% | 90.5% | 0.153 | 0.050 | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.9% | **49.8%** | 92.7% | 0.112 | 0.045 | ±0.0 |
 
 `residual` is ΔC once the picture's own exposure and black level are taken out —
 see below. A dash is a carton with too few regions to fit them.
@@ -53,6 +53,101 @@ board. Read the field column for whether a design was built.
 assumed: the same classification run under a second illumination model, on
 identical pixels. It is not an error bar on the carton — it is how much of the
 number is the measurement rather than the render.
+
+## The classifier now compares against a chart, not against the paint
+
+Kamagra's `highlight` read **0.084** — the group's worst field by a factor of
+five, on a carton whose renderer builds the field correctly.
+
+Its two greens are `#00463B` and `#002F26`, 0.122 apart. Measured inside each
+region, our render separates them by 0.089 — it built both. But both arrive with
+a **red channel near 0.135 against a spec that says 0.000**: a lit surface does
+not return black. That displacement is shared, so it does not distinguish them,
+and at 0.145 it is larger than the 0.089 gap it has to preserve. The darker
+green lands nearer the lighter one's *paint*, and 89% of the field is classified
+as `brand`.
+
+`_anchor` cannot reach it. It reads one known surface, so it can fit one
+parameter per channel, and a gain has no black level. The transfer needs two.
+
+**So the transfer is measured.** `scripts/calibrate_render.py` renders each
+carton a second time with its design replaced by a chart of 19 known patches —
+same geometry, same rig, same exposure, no design present — and reads the curve
+off it. The chart says three things worth stating:
+
+- the transfer is **per channel and independent of the others**: `#400000`
+  renders `(0.251, 0.133, 0.133)`, its red where the ramp puts 0.251 and its two
+  empty channels where the ramp puts 0. One curve is therefore enough;
+- it is **not affine**. Kamagra's ramp runs 0.000→0.133, 0.126→0.172,
+  0.251→0.243, 0.439→0.377, 0.659→0.573, 0.878→0.756, 1.000→0.859. A straight
+  line through that leaves a residual of 0.046; the interpolated curve leaves
+  0.013 over the twelve colour patches, which is the channel-to-channel bleed a
+  1-D model cannot carry;
+- the **black lift is a rig constant**: 0.133–0.141 across all eleven cartons,
+  sd 0.0024. The white end is not — 0.859 to 0.936 — because exposure is metered
+  per carton shape.
+
+The palette is then mapped **forward** into the render's space and the classifier
+compares there. Forward, not inverted, so it cannot be mistaken for correcting
+the render — which is how ColourError's answer would be erased.
+
+**A curve fitted on the group's own regions would also have worked, and was not
+shipped.** Holding each carton out in turn, it classifies all thirty region
+medians correctly against one for nearest-paint. It is still a transform fitted
+to the regions being judged: it can absorb a real build error as calibration and
+then the instrument agrees with whatever the renderer did. The chart costs one
+render per carton and removes the objection.
+
+### Both halves are load-bearing
+
+The curve alone **broke Imovane**: worst field 91.9% → 76.2%, swing ±0.1 → ±2.9.
+Its substrate and highlight are 0.086 apart, and the chart is read on the face as
+it comes while the frame being classified has had its illumination divided out —
+`flatten_on_substrate` renormalises to the estimate's mean rather than preserving
+the level. The residual is 0.02–0.03, which is a third of the gap Imovane's
+classifier has to resolve.
+
+So `_refer_to_substrate()` puts the predicted appearance on the frame's own
+level, using the same grey card `_anchor` reads. **The curve supplies the shape,
+the substrate the level**, and each carton that needs one is broken by the other:
+
+| | paint + anchor | curve alone | curve × substrate |
+|---|---:|---:|---:|
+| `64-min` Kamagra worst field | 8.4% | 90.7% | **90.7%** |
+| `155-min` Imovane worst field | 91.9% | 76.2% | **91.9%** |
+| `155-min` Imovane swing | ±0.1 | ±2.9 | **±0.1** |
+| worst field in the group | 8.4% | 50.0% | **49.8%** |
+| mean field | 73.6% | 78.9% | **80.1%** |
+
+### What it cost, and why the cost is smaller than it reads
+
+Five cartons lose field IoU: Ritalin 92.6% → 86.8%, Valium 85.5% → 81.8%,
+Modafinil 78.6% → 75.8%, Xanax SR 67.2% → 65.8%, Viagra 88.7% → 88.1%. All five
+are **thin type-shaped fields of 1.5–3% of the face**, where almost every pixel
+is an edge.
+
+Read as *area* rather than as IoU, the direction reverses:
+
+| SKU | field | spec draws | anchor found | curve finds |
+|---|---|---:|---:|---:|
+| `64-min` | brand | 36.15% | 50.90% | **37.00%** |
+| `64-min` | highlight | 16.69% | 1.50% | **15.58%** |
+| `404-min` | type | 1.63% | 1.65% | 1.78% |
+| `272-min` | type | 1.54% | 1.69% | 1.79% |
+| `344-min` | type | 2.00% | 2.50% | 2.60% |
+
+The losses are a thin field claimed a pixel wider — a tenth of a point of face
+area. The gain is a fifth of a carton being found at all. And each field's own
+median now sits **0.004 to 0.028** from its predicted appearance, against 0.34 to
+1.00 from the substrate's: the targets are essentially exact where the field is
+unambiguous.
+
+**The calibration is refused if it is stale.** `render_calibration.json` carries
+a fingerprint of the driver plus the engine, sample and resolution settings, and
+`load_curve()` exits rather than applying a curve measured against different
+output. Same reasoning as `render_fresh`'s refusal to compare against a stale
+PNG, and a missing calibration is fatal rather than a silent fall back to the
+uncalibrated comparison.
 
 ## A dark field was scored only where we got it wrong
 
@@ -153,6 +248,13 @@ the picture actually contains rather than a fitted correction.
 Nothing regressed: every one of the eleven improved or held on both agreement
 figures, and **every ΔC is unchanged to the thousandth**, which is the point —
 the anchor is applied to the classifier only.
+
+*Since the transfer curve above, the anchor no longer stands in for the level of
+the whole comparison — one known surface can only ever fit a gain, and Kamagra
+needed a lift. What survives is exactly the half a grey card can answer: the
+curve supplies the shape and `_refer_to_substrate()` puts it on the frame's own
+level. Imovane still needs that half, and demonstrably: the curve without it read
+76.2% at ±2.9.*
 
 **It is deliberately not applied to `colour_error_by_region`.** That figure asks
 whether the renderer painted the colour it was told to, and anchoring the frame
