@@ -75,6 +75,83 @@ def spec_path(sku_id: str) -> Path | None:
     return (TEMPLATES_DIR / folder / "design_spec.json") if folder else None
 
 
+def _orientation(a, b, c) -> int:
+    v = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1])
+    return 0 if abs(v) < 1e-12 else (1 if v > 0 else 2)
+
+
+def _crosses(p1, p2, p3, p4) -> bool:
+    return (_orientation(p1, p2, p3) != _orientation(p1, p2, p4)
+            and _orientation(p3, p4, p1) != _orientation(p3, p4, p2))
+
+
+def ring_crossings(poly) -> list:
+    """Which pairs of this closed ring's edges cross each other."""
+    n, out = len(poly), []
+    for i in range(n):
+        for j in range(i + 1, n):
+            if (j + 1) % n == i or (i + 1) % n == j:
+                continue
+            if _crosses(poly[i], poly[(i + 1) % n], poly[j], poly[(j + 1) % n]):
+                out.append((i, j))
+    return out
+
+
+def _ring_area(poly) -> float:
+    n = len(poly)
+    return abs(sum(poly[i][0] * poly[(i + 1) % n][1]
+                   - poly[(i + 1) % n][0] * poly[i][1]
+                   for i in range(n))) / 2
+
+
+def simple_ring(poly):
+    """The same region as a ring that crosses itself nowhere.
+
+    A self-intersecting outline is not a region: it is a drawing instruction
+    whose meaning depends on the fill rule, and the two sides of this project
+    use different ones. `rasterise()` fills with PIL's even-odd scanline and is
+    what every spec's `verification.pixel_agreement` was measured against; the
+    driver hands the same points to a Blender curve, which tessellates them.
+
+    On `340-min` they disagreed by a fifth of the field. Its brand outline has
+    eight points, one of which -- `[0.980, 0.707]` -- sits far below the other
+    seven, the same one-pixel thread artefact `fills_its_box` already guards
+    against. Even-odd drops the sliver; Blender filled the triangle back to the
+    panel, **1.33% of the face**, and our packshot carried a magenta wedge the
+    real carton does not have. Measured excess: 1.07%. The field read 0.752 at
+    100.0% recall and 75.2% precision -- our magenta strictly contained the
+    spec's and was a third larger.
+
+    Eight parts across six of the eleven cartons are tangled this way.
+
+    Repaired by dropping the fewest vertices that untangle it, preferring the
+    removal that changes the enclosed area least. Only vertices belonging to a
+    crossing edge are candidates, which is what keeps this cheap. Against the
+    original's even-odd raster the repaired rings score 0.972 to 0.9999 IoU, so
+    this preserves the region that was verified rather than redrawing it.
+
+    Done at LOAD, not on disk: the spec file is a measurement of a photograph
+    and stays as traced. What every consumer receives is a region.
+    """
+    poly = [(float(p[0]), float(p[1])) for p in poly]
+    while len(poly) > 3:
+        hits = ring_crossings(poly)
+        if not hits:
+            break
+        n = len(poly)
+        candidates = sorted({k % n for i, j in hits
+                             for k in (i, i + 1, j, j + 1)})
+        before = _ring_area(poly)
+        best = None
+        for i in candidates:
+            cand = poly[:i] + poly[i + 1:]
+            key = (len(ring_crossings(cand)), abs(_ring_area(cand) - before))
+            if best is None or key < best[0]:
+                best = (key, cand)
+        poly = best[1]
+    return poly
+
+
 def load_design(sku_id: str) -> dict | None:
     """The design spec for *sku_id*, or None when the SKU is not in the group.
 
@@ -97,6 +174,17 @@ def load_design(sku_id: str) -> dict | None:
         raise MissingDesignSpec(f"{path} could not be read: {e}") from e
     if not spec.get("face_aspect"):
         raise MissingDesignSpec(f"{path} carries no face_aspect")
+    for field in spec.get("fields") or []:
+        for part in field.get("parts") or []:
+            outline = part.get("outline") or []
+            if len(outline) < 4:
+                continue
+            fixed = simple_ring(outline)
+            if len(fixed) != len(outline):
+                part["outline"] = [list(p) for p in fixed]
+                # Recorded rather than done quietly: a repaired outline is not
+                # what the tracer measured, and the manifest carries this.
+                part["simplified_from"] = len(outline)
     return spec
 
 

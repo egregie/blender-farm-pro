@@ -256,6 +256,39 @@ def validate_manifest(manifest: dict) -> None:
             "Install it with: python -m pip install -r requirements.txt"
         ) from e
     Draft202012Validator(load_schema()).validate(manifest)
+    _reject_tangled_outlines(manifest)
+
+
+def _reject_tangled_outlines(manifest: dict) -> None:
+    """A design field's outline must be a region, not a drawing instruction.
+
+    JSON Schema cannot say "does not cross itself", and the difference is not
+    cosmetic: a self-intersecting ring means different things under different
+    fill rules, and this project's two sides use different ones -- PIL's
+    even-odd scanline on the measuring side, Blender's tessellation on the
+    rendering side. On `340-min` they disagreed by 1.33% of the face and our
+    packshot carried a magenta wedge the real carton does not have.
+
+    Checked on write AND on load, like the rest of the contract, so a manifest
+    produced before `simple_ring` fails by name here rather than quietly
+    rendering the wedge again.
+    """
+    from src.design_group import ring_crossings
+
+    for field in ((manifest.get("design") or {}).get("fields") or []):
+        for i, part in enumerate(field.get("parts") or []):
+            outline = part.get("outline") or []
+            if len(outline) < 4:
+                continue
+            hits = ring_crossings([(float(p[0]), float(p[1])) for p in outline])
+            if hits:
+                raise ValueError(
+                    f"{manifest.get('sku_id')}: design field "
+                    f"{field.get('role')!r} part {i} has an outline that "
+                    f"crosses itself at {hits[:3]} -- that is not a region, and "
+                    f"the driver and the QA raster would fill different areas. "
+                    f"Regenerate the manifest; src.design_group.simple_ring "
+                    f"repairs it at load.")
 
 
 # ── carton resolution ────────────────────────────────────────────────────────

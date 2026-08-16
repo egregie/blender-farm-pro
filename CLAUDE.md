@@ -388,6 +388,30 @@ reported as `edge_dropped`. Xanax 49.8% → 82.7%, Modafinil 75.8% → 98.4%, Va
 — three cartons now read 100.0% against their spec. It corrects an earlier reading too: the
 four cartons recorded as losing IoU to the transfer curve were losing it to glyph rim.
 
+**A design outline that crosses itself is not a region, and one reached the packshot.** The
+only defect in this sequence that was in the RENDER rather than in the instrument. Xanax SR's
+brand outline has eight points and one of them — `[0.980, 0.707]` — sits far below the other
+seven, the one-pixel-thread artefact `fills_its_box` already guards against. `rasterise()`
+fills with PIL's even-odd scanline, which is what every spec's `verification.pixel_agreement`
+was measured against, and drops the sliver; the driver hands the same points to a Blender
+curve with `fill_mode = BOTH`, which tessellated them and **filled the triangle back to the
+panel — 1.33% of the face**. Our packshot carried a magenta wedge the real carton does not
+have, the field read 75.2% at 100.0% recall, and nothing said so: the renderer was obeying
+the contract and the contract was ambiguous. **Eight parts across six of the eleven cartons**
+are tangled this way.
+
+`simple_ring()` in `src/design_group.py` drops the fewest vertices that untangle the ring,
+preferring the smallest area change, with only vertices on a crossing edge as candidates —
+one to four per part, and the repaired rings score **0.972–0.9999 IoU against the original's
+even-odd raster**, so the verified region is preserved rather than redrawn. It runs inside
+`load_design()`, the single loader, so the manifest builder and the QA raster see the same
+rings; **the spec on disk stays as traced**, because it is a measurement and the repair
+belongs at the contract boundary. A repaired part carries `simplified_from`.
+`validate_manifest()` rejects a tangled outline by name on write and on load — JSON Schema
+cannot express "does not cross itself", and a stale manifest would render the wedge again in
+silence. Xanax SR: worst field 75.2% → **96.8%**, render~ref 97.2% → **98.6%**, the best in
+the group.
+
 **The same cut drops the SEAM where two spec regions meet, one pixel either side.** Ativan
 is that case: `#8E9DA0` is a 42% blend of its substrate and its `secondary_1`, its four
 regions and 175 vertices put **6.9% of its face within two pixels of a boundary**, and

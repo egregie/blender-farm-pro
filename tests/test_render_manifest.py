@@ -753,3 +753,87 @@ class TestDesignChannel(unittest.TestCase):
             "which is what a traced wordmark looks like. Every exemption is "
             "listed with the box-fill that earned it; a new one has to be "
             "measured, not assumed.")
+
+
+class TestAnOutlineIsARegion(unittest.TestCase):
+    """A self-intersecting ring means different things under different fill rules.
+
+    `rasterise()` fills with PIL's even-odd scanline and is what every spec's
+    `verification.pixel_agreement` was measured against; the driver hands the
+    same points to a Blender curve, which tessellates them. On `340-min` they
+    disagreed by 1.33% of the face -- its brand outline has eight points, one of
+    which sits far below the other seven, and Blender filled the triangle back
+    to the panel. Our packshot carried a magenta wedge the real carton does not
+    have, and the field read 0.752 at 100.0% recall and 75.2% precision.
+
+    Eight parts across six of the eleven cartons were tangled this way.
+    """
+
+    MANIFESTS = PROJECT_ROOT / "04_passports" / "render_manifests"
+
+    def _design_stems(self):
+        from src.design_group import FOLDER_BY_STEM
+        return sorted(FOLDER_BY_STEM, key=lambda s: int(s.split("-")[0]))
+
+    def test_no_manifest_on_disk_carries_a_ring_that_crosses_itself(self):
+        from src.design_group import ring_crossings
+        seen = 0
+        for stem in self._design_stems():
+            path = self.MANIFESTS / f"{stem}.json"
+            if not path.exists():
+                continue
+            seen += 1
+            design = json.loads(path.read_text(encoding="utf-8")).get("design") or {}
+            for field in design.get("fields") or []:
+                for i, part in enumerate(field.get("parts") or []):
+                    with self.subTest(sku=stem, field=field.get("role"), part=i):
+                        self.assertEqual(
+                            ring_crossings([(float(p[0]), float(p[1]))
+                                            for p in part["outline"]]), [])
+        self.assertTrue(seen, "no design manifests on disk to check")
+
+    def test_the_contract_rejects_one(self):
+        """On write and on load, by name -- not left to the renderer to find."""
+        stem = self._design_stems()[0]
+        manifest = json.loads(
+            (self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+        part = manifest["design"]["fields"][0]["parts"][0]
+        part["outline"] = [[0.1, 0.1], [0.9, 0.9], [0.9, 0.1], [0.1, 0.9]]
+        with self.assertRaises(ValueError) as ctx:
+            validate_manifest(manifest)
+        self.assertIn("crosses itself", str(ctx.exception))
+
+    def test_the_repair_keeps_the_region_that_was_verified(self):
+        """Dropping vertices must not redraw the field. Measured against the
+        original's even-odd raster, the eight repaired rings score 0.972-0.9999."""
+        try:
+            import numpy as np
+            from PIL import Image, ImageDraw
+        except ImportError as e:  # pragma: no cover - environment, not logic
+            self.skipTest(f"Pillow/numpy unavailable: {e}")
+        from src.design_group import ring_crossings, simple_ring, spec_path
+
+        def fill(poly, n=700):
+            im = Image.new("L", (n, n), 0)
+            ImageDraw.Draw(im).polygon([(u * n, v * n) for u, v in poly], fill=255)
+            return np.asarray(im) > 0
+
+        checked = 0
+        for stem in self._design_stems():
+            path = spec_path(stem)
+            if path is None or not path.exists():
+                continue
+            # The spec on disk is the raw trace; load_design repairs at load, so
+            # this reads the file directly to see what was traced.
+            spec = json.loads(path.read_text(encoding="utf-8"))
+            for field in spec.get("fields") or []:
+                for part in field.get("parts") or []:
+                    raw = [(float(p[0]), float(p[1])) for p in part["outline"]]
+                    if len(raw) < 4 or not ring_crossings(raw):
+                        continue
+                    checked += 1
+                    a, b = fill(raw), fill(simple_ring(raw))
+                    with self.subTest(sku=stem, field=field.get("role")):
+                        self.assertGreater((a & b).sum() / max((a | b).sum(), 1), 0.97)
+        if not checked:
+            self.skipTest("no tangled outlines in this checkout to repair")

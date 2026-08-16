@@ -23,8 +23,9 @@ instrument.
 ## The baseline
 
 *Re-measured 2026-08-16, after the scored-mask fix, the measured transfer curve,
-the ink rim and the seam — all four below. Type work keeps moving these figures
-too, because moving a label changes which pixels are excluded.*
+the ink rim, the seam and the outline repair — all five below. Type work keeps
+moving these figures too, because moving a label changes which pixels are
+excluded.*
 
 | SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing | on-line |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -33,12 +34,12 @@ too, because moving a label changes which pixels are excluded.*
 | `308-min` | Lexotanil | **99.1%** | **100.0%** | 99.9% | **98.5%** | 0.091 | — | ±0.0 | |
 | `404-min` | Ritalin | 95.7% | **100.0%** | 98.6% | 98.4% | **0.058** | — | ±0.0 | |
 | `272-min` | Valium | 91.1% | **100.0%** | 98.4% | 96.6% | 0.119 | 0.025 | ±0.0 | |
+| `340-min` | Xanax SR | 95.0% | 99.9% | 96.8% | **98.6%** | 0.129 | **0.010** | ±0.0 | |
 | `64-min` | Kamagra | 90.5% | 99.1% | 96.4% | 86.9% | 0.180 | 0.012 | ±0.0 | |
-| `155-min` | Imovane | 93.7% | 99.4% | 96.0% | 90.5% | 0.082 | 0.009 | ±0.1 | **0.015** |
-| `59-min` | Cialis | 88.2% | 99.0% | 95.9% | 82.0% | 0.165 | 0.054 | ±1.2 | |
-| `135-min` | Ativan | 89.6% | 99.4% | 94.3% | 93.3% | 0.144 | 0.048 | ±0.0 | **0.017** |
-| `156-min` | Xanax | 93.2% | 99.9% | 91.6% | 95.0% | 0.106 | 0.056 | ±0.0 | **0.013** |
-| `340-min` | Xanax SR | 95.0% | 98.5% | **75.2%** | 97.2% | 0.141 | **0.010** | ±0.0 | |
+| `155-min` | Imovane | 93.7% | 99.4% | 96.1% | 90.5% | 0.082 | 0.009 | ±0.1 | **0.015** |
+| `59-min` | Cialis | 88.2% | 99.0% | 96.0% | 82.0% | 0.165 | 0.054 | ±1.2 | |
+| `135-min` | Ativan | 89.6% | 99.4% | 94.2% | 93.3% | 0.144 | 0.047 | ±0.0 | **0.017** |
+| `156-min` | Xanax | 93.2% | 99.9% | **91.6%** | 95.0% | 0.106 | 0.056 | ±0.0 | **0.013** |
 
 `residual` is ΔC once the picture's own exposure and black level are taken out —
 see below. A dash is a carton with too few regions to fit them.
@@ -53,6 +54,73 @@ board. Read the field column for whether a design was built.
 assumed: the same classification run under a second illumination model, on
 identical pixels. It is not an error bar on the carton — it is how much of the
 number is the measurement rather than the render.
+
+## An outline that crosses itself is not a region — and this one reached the packshot
+
+**The first defect in this sequence that is in the RENDER rather than in the
+instrument.** Everything above changed what a figure measured; this changed the
+picture.
+
+Xanax SR's `brand` read **75.2% at 100.0% recall and 75.2% precision** — our
+magenta strictly *contained* the spec's and was a third larger. It was not near
+the panel either: the false pixels sat a median of 48 pixels away, and they were
+genuinely magenta in the render, not a classification artefact.
+
+Its brand outline has eight points, and one of them does not belong to the
+others:
+
+```
+[0.976, 0.227], [0.980, 0.707], [0.979, 0.490], [0.856, 0.484],
+[0.853, 0.321], [0.853, 0.233], [0.975, 0.238], [0.976, 0.229]
+```
+
+Seven describe a panel spanning v 0.23–0.49. The second, at **v 0.707**, sits
+far below all of them — the same one-pixel thread artefact `fills_its_box`
+already guards against, traced off the carton's right edge.
+
+That makes the ring self-intersecting, and **a self-intersecting ring is not a
+region**: it is a drawing instruction whose meaning depends on the fill rule.
+This project's two sides use different ones. `rasterise()` fills with PIL's
+even-odd scanline, which is what every spec's `verification.pixel_agreement` was
+measured against, and drops the sliver. The driver hands the same points to a
+Blender curve with `fill_mode = BOTH`, which tessellates them and **filled the
+triangle back to the panel — 1.33% of the face** against a measured excess of
+1.07%. Our packshot carried a magenta wedge the real carton does not have.
+
+Nothing said so. The renderer was obeying the contract; the contract was
+ambiguous.
+
+**Eight parts across six of the eleven cartons are tangled this way** — Cialis's
+highlight, both of Kamagra's, two of Ativan's, Imovane's highlight, and both of
+Xanax SR's.
+
+`simple_ring()` repairs them by dropping the fewest vertices that untangle the
+ring, preferring the removal that changes the enclosed area least, and only
+vertices belonging to a crossing edge are candidates. One to four vertices per
+part. Against the original's even-odd raster the repaired rings score **0.972 to
+0.9999 IoU**, so this preserves the region that was verified rather than
+redrawing it.
+
+It runs in `load_design()` — the single loader every consumer goes through, so
+the manifest builder and the QA raster see the same rings. **The spec file on
+disk stays as traced**: it is a measurement of a photograph, and the repair
+belongs at the contract boundary, not in the record. Where a ring was repaired
+the part carries `simplified_from`, so it is visible rather than quiet.
+
+`validate_manifest()` now rejects a tangled outline by name, on write and on
+load, because JSON Schema cannot express "does not cross itself" and a manifest
+written before this would otherwise render the wedge again in silence.
+
+| | before | after |
+|---|---:|---:|
+| `340-min` worst field | 75.2% | **96.8%** |
+| `340-min` render~spec | 98.5% | 99.9% |
+| `340-min` render~ref | 97.2% | **98.6%** — best in the group |
+| `340-min` worst ΔC | 0.141 | 0.129 |
+
+The other five cartons moved by a tenth of a point: their tangles are small
+local crossings in outlines of 40–120 vertices, where even-odd and tessellation
+disagree about very little.
 
 ## The seam between two regions was counted as the third
 
