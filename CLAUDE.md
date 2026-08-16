@@ -368,13 +368,33 @@ divided out, and `flatten_on_substrate` renormalises to the estimate's mean. Tha
 is a third of Imovane's 0.086 gap. `_refer_to_substrate()` fixes it and Imovane returns to
 91.9% / ±0.1.
 
-**Five cartons lose field IoU and the loss is smaller than it reads.** Ritalin 92.6% →
-86.8%, Valium 85.5% → 81.8%, Modafinil 78.6% → 75.8% — all thin type-shaped fields of
-1.5–3% of the face, where nearly every pixel is an edge. As *area*: Ritalin's field is 1.63%
-of the face by spec, 1.65% under the anchor, 1.78% under the curve — a tenth of a point,
-claimed a pixel wider. Against Kamagra's brand at 36.15% by spec, **50.90% under the anchor**
-and 37.00% under the curve. Each field's median sits 0.004–0.028 from its predicted
-appearance against 0.34–1.00 from the substrate's.
+Kamagra's brand also stops being over-claimed: 36.15% of the face by spec, **50.90% under
+the anchor**, 37.00% under the curve. Each field's median sits 0.004–0.028 from its
+predicted appearance against 0.34–1.00 from the substrate's.
+
+**The dark cut takes the ink's RIM with it, one pixel wide.** A pixel straddling a glyph
+edge is a mixture of ink and board — evidence about neither, and where some palette entry
+sits on the line between the two, evidence *for* that entry. Xanax is the case: `#968974` is
+a **44% blend of its substrate `#E8DCB4` and its brand `#2C1F2A` to within 0.013**, so every
+antialiased glyph edge on the carton read as that field. **99.8% of its false highlight
+pixels lay within two pixels of dropped ink**, totalling 0.80% of the face against a field
+that is 0.93% of it, and the field read 49.8% at 93.0% recall and 51.8% precision.
+
+**The width is measured, not chosen**: r=1 takes the group's mean field 80.1% → 90.1%, r=2
+reaches 90.3%, r=3 no further. It saturates at the resampling width, which is all it is —
+the face is rectified to 1100px from a 2048 render. Costs 0.5–1.7% of scored pixels,
+reported as `edge_dropped`. Xanax 49.8% → 82.7%, Modafinil 75.8% → 98.4%, Valium 81.8% →
+97.3%, Ritalin 86.8% → 97.0%, Viagra 88.1% → 98.8%, and **nothing regressed on any column**
+— three cartons now read 100.0% against their spec. It corrects an earlier reading too: the
+four cartons recorded as losing IoU to the transfer curve were losing it to glyph rim.
+
+**`palette_closest_pair` cannot see the condition that actually breaks these cartons.** It
+asks whether two entries are distinguishable; Xanax has the group's *second-widest* closest
+pair at 0.522. What matters is an entry lying **on the segment between two others**, which
+is what every boundary pixel between them averages to. `palette_on_line` reports it and the
+evidence has a gap: Xanax 0.013, Imovane 0.015, Ativan 0.017, then Cialis at 0.064. Not a
+gate — the colours are the carton's and the renderer cannot do anything about them — so it
+exists to make Ativan's 63.8% and Xanax's 82.7% read as the palette, not as the build.
 
 **`_anchor()` still takes a per-channel gain off the
 substrate — a region the spec draws and whose paint it states, so a grey card the picture

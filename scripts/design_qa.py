@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -67,6 +67,12 @@ FLATTEN_RADIUS_DIV = 2.0
 # nearly identical to its spec. A number that cannot discriminate has to say so
 # rather than be read as a failure.
 SEPARABLE_MIN = 0.08
+
+# Below this, an entry is close enough to the line between two others that the
+# boundary between those two averages to it, and a field's precision is decided
+# by how much edge the carton has rather than by the render. Set at the gap in
+# the evidence: three cartons sit at 0.013-0.017 and the next is 0.064.
+ON_LINE_MIN = 0.03
 
 
 def _hex_rgb(h: str) -> np.ndarray:
@@ -211,6 +217,34 @@ def _classify(img: Image.Image, palette: np.ndarray,
 LUMA = np.array([0.2126, 0.7152, 0.0722])
 
 
+def _collinearity(palette: np.ndarray, names: list) -> tuple:
+    """How near any spec colour sits to the line between two others.
+
+    `palette_closest_pair` asks whether two entries can be told apart, and
+    misses the condition that actually breaks these cartons: an entry lying ON
+    the segment between two others is what every boundary pixel between those
+    two averages to. Xanax has the group's second-WIDEST closest pair, 0.522,
+    and its `#968974` sits 0.013 off the line from substrate to brand -- a 44%
+    blend of them. Every antialiased glyph edge on the carton read as that
+    field.
+
+    Not a gate, because nothing can be done about it from the renderer's side:
+    the colours are the carton's. It is reported so a low field IoU on Xanax
+    (0.013) or Ativan (0.017) is read as the palette rather than as the build.
+    """
+    import itertools
+    best, who = float("inf"), ""
+    for k in range(len(palette)):
+        for i, j in itertools.combinations([x for x in range(len(palette)) if x != k], 2):
+            a, b = palette[i], palette[j]
+            ab = b - a
+            t = float(np.clip(np.dot(palette[k] - a, ab) / max(np.dot(ab, ab), 1e-9), 0, 1))
+            d = float(np.linalg.norm(palette[k] - (a + t * ab)))
+            if d < best:
+                best, who = d, f"{names[k]} on {names[i]}-{names[j]}"
+    return (None, None) if best == float("inf") else (round(best, 4), who)
+
+
 def scored_mask(frame: np.ndarray, palette: np.ndarray,
                 spec_idx: np.ndarray) -> np.ndarray:
     """Pixels a comparison is entitled to score.
@@ -238,6 +272,22 @@ def scored_mask(frame: np.ndarray, palette: np.ndarray,
     the restore on the fill's LUMA, and luma <= max always, so no fill the cut
     can reach is left unrestored.
 
+    The cut takes the ink's RIM with it, one pixel wide. A pixel straddling a
+    glyph edge is a mixture of ink and board and is evidence about neither, and
+    on a palette where some entry happens to sit on the line between the two, it
+    is evidence for that entry. Xanax is the case: `#968974` is a 44% blend of
+    its substrate and its brand to within 0.013, so every glyph edge on the
+    carton read as highlight. 99.8% of its false highlight pixels lay within two
+    pixels of dropped ink, they came to 0.80% of the face against a field that
+    is 0.93% of it, and the field read 49.8% at 93.0% recall and 51.8%
+    precision. With the rim dropped, 82.9%.
+
+    ONE pixel, and the width is measured rather than chosen: r=1 takes the mean
+    field from 80.1% to 90.1%, r=2 to 90.3% and r=3 no further. The benefit
+    saturates at the resampling width because that is all this is -- the face is
+    rectified to 1100px from a 2048 render. It costs 0.5-1.7% of the scored
+    pixels, reported as `edge_dropped` rather than left silent.
+
     What this still cannot answer: a dark pixel where the spec draws the light
     substrate is either a dark field overrunning its outline or the printed type
     the spec does not carry, and nothing in the colour separates them. The cut
@@ -245,7 +295,12 @@ def scored_mask(frame: np.ndarray, palette: np.ndarray,
     degenerates to RECALL -- the figure catches a field placed short, not one
     placed wide. Light fields are scored both ways as before.
     """
-    return (frame.max(-1) >= DARK_V) | ((palette * LUMA).sum(1) < DARK_V)[spec_idx]
+    expects_dark = ((palette * LUMA).sum(1) < DARK_V)[spec_idx]
+    lit = frame.max(-1) >= DARK_V
+    ink = ~lit & ~expects_dark
+    rim = np.asarray(Image.fromarray((ink * 255).astype("uint8"))
+                     .filter(ImageFilter.MaxFilter(3))) > 0
+    return (lit | expects_dark) & ~(rim & ~expects_dark)
 
 
 def _agreement(a_idx, b_idx, mask, n) -> dict:
@@ -365,6 +420,8 @@ def measure(stem: str, preview: bool = False) -> dict:
     gaps = [float(np.linalg.norm(palette[i] - palette[j]))
             for i in range(len(palette)) for j in range(i + 1, len(palette))]
     closest = min(gaps) if gaps else 1.0
+    on_line, on_line_who = _collinearity(palette,
+                                         ["substrate"] + [f["role"] for f in spec["fields"]])
     aspect = float(spec["face_aspect"])
     size = (OUT_WIDTH, max(1, round(OUT_WIDTH * aspect)))
 
@@ -439,13 +496,28 @@ def measure(stem: str, preview: bool = False) -> dict:
     ref_idx = ref_mask = None
     if ref_path.exists():
         ref = Image.open(ref_path).resize(size, Image.LANCZOS)
-        ref_idx, ref_mask = _classify(ref, palette, core)
+        ref_idx, _bare = _classify(ref, palette, core)
+        # The photograph carries type too, and its glyph rims blend the same
+        # way. Same mask, same reason.
+        ref_mask = scored_mask(
+            _flatten_illumination(np.asarray(ref.convert("RGB")).astype(float) / 255.0,
+                                  FLATTEN_RADIUS_DIV),
+            palette, t_idx)
 
     result = {
         "sku": stem,
         "folder": folder.name,
         "palette_closest_pair": round(closest, 4),
         "separable": closest >= SEPARABLE_MIN,
+        # A different failure from a close pair, and the pairwise figure cannot
+        # see it -- see _collinearity.
+        "palette_on_line": on_line,
+        "palette_on_line_who": on_line_who,
+        # What the ink's rim cost, so the cut is not silent about its own price.
+        "edge_dropped": round(float(1 - scored.sum()
+                                    / max(((ours_flat.max(-1) >= DARK_V)
+                                           | ((palette * LUMA).sum(1) < DARK_V)[t_idx]
+                                           ).sum(), 1)), 4),
         "illumination": chosen,
         "illumination_residual": {k: round(v, 4) for k, v in residual.items()},
         "render_vs_spec": _agreement(o_idx, t_idx, scored, len(palette)),
@@ -474,11 +546,8 @@ def measure(stem: str, preview: bool = False) -> dict:
               if int(k) > 0 and v is not None]
     result["field_iou_worst"] = min(fields) if fields else None
     if ref_idx is not None:
-        # `_classify` hands back the bare cut, so the photograph's dark fields
-        # need admitting on the same terms ours do -- the photograph is where
-        # they are actually printed.
-        both = scored & (ref_mask | ((palette * LUMA).sum(1) < DARK_V)[t_idx])
-        result["render_vs_reference"] = _agreement(o_idx, ref_idx, both, len(palette))
+        result["render_vs_reference"] = _agreement(o_idx, ref_idx,
+                                                   scored & ref_mask, len(palette))
 
     if preview:
         PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
@@ -510,6 +579,8 @@ def main() -> int:
         rows.append(r)
         sr = r["spec_vs_reference"]
         flag = "" if r["separable"] else "  (palette not separable)"
+        if r["palette_on_line"] is not None and r["palette_on_line"] < ON_LINE_MIN:
+            flag += f"  ({r['palette_on_line_who']}, {r['palette_on_line']:.3f})"
         # A dash, not a zero: too few regions to fit the picture's response is
         # not the same as nothing left after fitting it.
         resid = r["colour_residual_worst"]

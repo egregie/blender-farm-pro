@@ -22,23 +22,23 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-16, after the scored-mask fix and the measured transfer
-curve, both below. Type work keeps moving these figures too, because moving a
-label changes which pixels are excluded — see the notes further down.*
+*Re-measured 2026-08-16, after the scored-mask fix, the measured transfer curve
+and the ink rim — all three below. Type work keeps moving these figures too,
+because moving a label changes which pixels are excluded.*
 
-| SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
-| `308-min` | Lexotanil | **99.1%** | 99.8% | **97.4%** | 97.2% | 0.093 | — | ±0.0 |
-| `59-min` | Cialis | 88.2% | 98.1% | 94.4% | 80.3% | 0.170 | 0.056 | ±1.2 |
-| `155-min` | Imovane | 93.7% | 98.4% | 91.9% | 88.8% | 0.093 | 0.013 | ±0.1 |
-| `64-min` | Kamagra | 90.5% | 97.8% | 90.7% | 85.7% | 0.189 | 0.024 | ±0.0 |
-| `74-min` | Viagra | 95.0% | 99.7% | 88.1% | 93.4% | 0.191 | — | ±0.0 |
-| `404-min` | Ritalin | 95.7% | **99.8%** | 86.8% | **97.5%** | **0.060** | — | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.8% | 81.8% | 94.2% | 0.128 | 0.025 | ±0.0 |
-| `344-min` | Modafinil | 93.9% | 99.4% | 75.8% | 94.0% | 0.065 | — | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 65.8% | 95.0% | 0.149 | **0.014** | ±0.0 |
-| `135-min` | Ativan | 89.6% | 97.4% | 58.2% | 90.5% | 0.153 | 0.050 | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.9% | **49.8%** | 92.7% | 0.112 | 0.045 | ±0.0 |
+| SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing | on-line |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `308-min` | Lexotanil | **99.1%** | 99.9% | **99.0%** | **98.4%** | 0.091 | — | ±0.0 | |
+| `344-min` | Modafinil | 93.9% | **100.0%** | 98.4% | 95.5% | 0.062 | — | ±0.0 | |
+| `74-min` | Viagra | 95.0% | **100.0%** | 98.8% | 94.4% | 0.188 | — | ±0.0 | |
+| `272-min` | Valium | 91.1% | 99.7% | 97.3% | 96.3% | 0.128 | 0.027 | ±0.0 | |
+| `404-min` | Ritalin | 95.7% | **100.0%** | 97.0% | 98.4% | **0.060** | — | ±0.0 | |
+| `59-min` | Cialis | 88.2% | 98.5% | 94.6% | 81.2% | 0.165 | 0.053 | ±1.3 | |
+| `155-min` | Imovane | 93.7% | 99.0% | 94.4% | 90.0% | 0.084 | 0.009 | ±0.1 | **0.015** |
+| `64-min` | Kamagra | 90.5% | 98.0% | 90.7% | 86.3% | 0.185 | 0.024 | ±0.0 | |
+| `156-min` | Xanax | 93.2% | 99.8% | 82.7% | 94.7% | 0.106 | 0.048 | ±0.0 | **0.013** |
+| `340-min` | Xanax SR | 95.0% | 98.4% | 73.8% | 97.0% | 0.142 | **0.013** | ±0.0 | |
+| `135-min` | Ativan | 89.6% | 98.0% | **63.8%** | 91.5% | 0.153 | 0.051 | ±0.0 | **0.017** |
 
 `residual` is ΔC once the picture's own exposure and black level are taken out —
 see below. A dash is a carton with too few regions to fit them.
@@ -53,6 +53,71 @@ board. Read the field column for whether a design was built.
 assumed: the same classification run under a second illumination model, on
 identical pixels. It is not an error bar on the carton — it is how much of the
 number is the measurement rather than the render.
+
+## The ink's rim was being counted as a field
+
+Xanax's `highlight` read **49.8%** at 93.0% recall and 51.8% precision — nearly
+all of the field found, and about twice as much area claimed as the spec draws.
+
+The false pixels were not scattered. **99.8% of them lay within two pixels of
+dropped ink**, and they came to 0.80% of the face against a field that is 0.93%
+of it. The reason is in the palette: `#968974` is a **44% blend of the substrate
+`#E8DCB4` and the brand `#2C1F2A`, to within 0.013**. Every antialiased glyph
+edge on the carton averages to exactly that colour, so every glyph edge was
+counted as the field.
+
+The dark cut was already dropping the ink. It was not dropping the ink's rim,
+and a pixel straddling a glyph edge is a mixture of ink and board — evidence
+about neither, and on this palette evidence *for* the highlight.
+
+**The width is measured, not chosen.** A one-pixel rim takes the group's mean
+field from 80.1% to 90.1%; two pixels reach 90.3% and three go no further. The
+benefit saturates at the resampling width, which is all this is — the face is
+rectified to 1100px from a 2048 render. It costs 0.5–1.7% of the scored pixels,
+reported as `edge_dropped` rather than left silent.
+
+| SKU | worst field before | after |
+|---|---:|---:|
+| `156-min` Xanax | 49.8% | **82.7%** |
+| `344-min` Modafinil | 75.8% | **98.4%** |
+| `272-min` Valium | 81.8% | **97.3%** |
+| `404-min` Ritalin | 86.8% | **97.0%** |
+| `74-min` Viagra | 88.1% | **98.8%** |
+| `340-min` Xanax SR | 65.8% | 73.8% |
+| `135-min` Ativan | 58.2% | 63.8% |
+
+**Nothing regressed on any column** — agreement, worst field, render~ref and ΔC
+all improved or held on all eleven, and three cartons now read 100.0% against
+their spec. ΔC moved too, on seven of them, because the rim was contaminating
+the region means as well.
+
+This also corrects the reading in the commit before it. Ritalin, Valium,
+Modafinil and Viagra were recorded there as *losing* field IoU to the transfer
+curve, and the losses were real numbers attributed to the wrong cause: they were
+glyph rim, which the curve had made slightly more visible. All four now sit far
+above where they were under either classifier.
+
+### The pairwise separability figure cannot see this
+
+`palette_closest_pair` asks whether two entries can be told apart. Xanax has the
+group's **second-widest** closest pair, 0.522, and is the carton this broke.
+
+The condition that matters is an entry lying **on the segment between two
+others**, because that is what every boundary pixel between those two averages
+to. `palette_on_line` reports it, and the evidence has a gap in it: three
+cartons sit at 0.013–0.017 and the next is 0.064.
+
+| SKU | closest pair | on the line | which |
+|---|---:|---:|---|
+| `156-min` Xanax | 0.522 | **0.013** | highlight on substrate–brand |
+| `155-min` Imovane | 0.086 | **0.015** | substrate on brand–highlight |
+| `135-min` Ativan | 0.265 | **0.017** | highlight on substrate–secondary_1 |
+| `59-min` Cialis | 0.106 | 0.064 | substrate on brand–highlight |
+| `64-min` Kamagra | 0.122 | 0.084 | brand on substrate–highlight |
+
+It is **not a gate**, because nothing can be done about it from the renderer's
+side — the colours are the carton's. It is reported so that Ativan's 63.8% and
+Xanax's 82.7% are read as the palette rather than as the build.
 
 ## The classifier now compares against a chart, not against the paint
 

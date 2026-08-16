@@ -92,6 +92,28 @@ class TestADarkFieldIsScoredWhereTheSpecExpectsOne(unittest.TestCase):
         m = scored_mask(frame, self.palette, self.spec)
         self.assertFalse(m[5:9, 5:40].any())
 
+    def test_the_ink_s_rim_goes_with_it(self):
+        """A pixel straddling a glyph edge is a mixture of ink and board and is
+        evidence about neither -- and where some entry sits on the line between
+        them, it is evidence FOR that entry. Xanax's `#968974` is a 44% blend of
+        its substrate and brand, so every glyph edge on the carton read as that
+        field: 0.80% of the face against a field that is 0.93% of it."""
+        frame = self.palette[self.spec].copy()
+        frame[5:9, 5:40] = 0.02
+        frame[4, 5:40] = frame[9, 5:40] = 0.5        # the antialiased rim
+        m = scored_mask(frame, self.palette, self.spec)
+        self.assertFalse(m[4, 5:40].any())
+        self.assertFalse(m[9, 5:40].any())
+        self.assertTrue(m[2, 5:40].all(), "two pixels away is board, and stays")
+
+    def test_the_rim_never_eats_a_field_the_spec_asks_for(self):
+        """Our ink lands on dark fields too, and there the rim is the field."""
+        frame = self.palette[self.spec].copy()
+        mid = (self.LO + self.HI) // 2
+        frame[mid - 2:mid + 2, self.LO + 5:self.HI - 5] = 0.02   # type on the field
+        m = scored_mask(frame, self.palette, self.spec)
+        self.assertTrue(m[self.spec == 1].all())
+
 
 class TestTheTwoDarknessTestsAgreeInTheDirectionThatMatters(unittest.TestCase):
     """The cut is on the pixel's MAX channel and the restore on the fill's LUMA.
