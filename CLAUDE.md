@@ -212,8 +212,21 @@ label_content, template_id}`, not prose. This is intentional, not an inconsisten
 **Output directories are segregated by engine** (`01_input_raster/gemini_renders_raw` vs
 `02_processing/blender_test_renders`). Resume logic scans the output dir for existing PNGs
 and cannot tell which engine produced a file, so mixing them would corrupt both resume and
-Stage 3. Stage 3 still sources from the Gemini dir by default — feeding Blender output into
-it currently needs a manual `image_processor.source_dir` override via `--config`.
+Stage 3.
+
+**Stage 3 follows the selected engine on its own** — `image_processor.source_dir` and
+`output_dir` are both `auto`, resolved through `src.render_stage`, so with
+`render.engine: blender` Stage 3 reads `02_processing/blender_test_renders` and writes
+`02_processing/blender_renders_final`. A real path in either key is a live override and
+wins. No `--config` is needed. (This paragraph used to say the opposite, and was stale: the
+constant pointing at the Gemini directory was replaced by `_engine_aware()`, whose comment
+records the bug it removed — `main.py --full` rendering with Blender, converting Gemini's
+renders, and reporting success.)
+
+**Resume in Stage 2 is unconditional and there is no force flag.** `load_progress()` calls a
+SKU done if `{stem}.png` exists in the output dir, so re-rendering the catalogue means
+moving the existing PNGs aside first. Stage 3 is the other way round: it overwrites unless
+`--resume` is passed.
 
 Blender runs as an **external executable**, never imported. `import bpy` appears only in
 `05_assets/blender/render_driver.py`, which executes inside Blender's own bundled interpreter.
