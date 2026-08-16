@@ -174,6 +174,46 @@ def _classify(img: Image.Image, palette: np.ndarray,
     return _nearest(a, palette), mask
 
 
+LUMA = np.array([0.2126, 0.7152, 0.0722])
+
+
+def scored_mask(frame: np.ndarray, palette: np.ndarray,
+                spec_idx: np.ndarray) -> np.ndarray:
+    """Pixels a comparison is entitled to score.
+
+    The dark cut exists to keep printed TYPE out of the figures: our render
+    prints it and the spec deliberately does not carry it. It must not also cut
+    the dark FIELDS the spec does carry, and where it did, it cut them in the
+    one way that cannot show up as a low score -- a field is dropped exactly
+    where our render painted it dark, i.e. where we got it RIGHT, leaving the
+    field scored only over the pixels we missed.
+
+    Ritalin is the demonstration. Its `type` field is `#2E1D3C`, its only field,
+    and it reported the group's BEST agreement (99.87%) on an IoU of 0.043. With
+    the field's own pixels admitted the IoU is 0.926 and the agreement does not
+    move, because the field is 1.6% of the face. Kamagra is the opposite corner:
+    its two greens are 53% of the face, were being seen as 3%, and its agreement
+    falls 96.9% -> 84.0% once they are scored.
+
+    Whether a pixel counts therefore depends on what the SPEC expects there, not
+    on how bright the pixel happens to be. `_colour_error` and `_response` were
+    given this in contract 1.5; `_agreement` was not, which is the defect.
+
+    The two darkness tests are deliberately different and the asymmetry is safe
+    in the only direction that matters: the cut is on the pixel's MAX channel,
+    the restore on the fill's LUMA, and luma <= max always, so no fill the cut
+    can reach is left unrestored.
+
+    What this still cannot answer: a dark pixel where the spec draws the light
+    substrate is either a dark field overrunning its outline or the printed type
+    the spec does not carry, and nothing in the colour separates them. The cut
+    drops it either way, so a dark field's overspill costs nothing and its IoU
+    degenerates to RECALL -- the figure catches a field placed short, not one
+    placed wide. Light fields are scored both ways as before.
+    """
+    return (frame.max(-1) >= DARK_V) | ((palette * LUMA).sum(1) < DARK_V)[spec_idx]
+
+
 def _agreement(a_idx, b_idx, mask, n) -> dict:
     match = float((a_idx == b_idx)[mask].mean()) if mask.any() else 0.0
     iou = {}
@@ -308,7 +348,7 @@ def measure(stem: str, preview: bool = False) -> dict:
     # it should be, so its illumination estimate must not be able to absorb the
     # design -- a blur can, which is the defect recorded against Kamagra below.
     ours_flat = flatten_on_substrate(ours_raw, core)
-    o_mask = ours_flat.max(-1) >= DARK_V
+    scored = scored_mask(ours_flat, palette, t_idx)
 
     # The CLASSIFIER takes whichever model leaves the substrate flattest. Neither
     # is right everywhere and the difference is not small: on `59-min` the plane
@@ -334,14 +374,11 @@ def measure(stem: str, preview: bool = False) -> dict:
                if chosen == "plane" else _flatten_illumination(ours_raw, 2.5))
     alt_idx = _nearest(_anchor(variant, core, palette[0]), palette)
 
-    # The dark cut is there to keep printed TYPE out of the score. It must not
-    # also cut dark FIELDS, which the spec does carry: inside Xanax's near-black
-    # brand it left only the lit fringe, whose mean sits nowhere near the fill,
-    # and reported 0.600 against a render measured at 99.4% agreement. Whether a
-    # pixel is scored now depends on what the SPEC expects there, not on how
-    # bright the pixel happens to be.
-    dark_fill = (palette * np.array([0.2126, 0.7152, 0.0722])).sum(1) < DARK_V
-    scored = o_mask | dark_fill[t_idx]
+    # Every figure below reads the same mask -- see scored_mask. Inside Xanax's
+    # near-black brand the bare cut left only the lit fringe, whose mean sits
+    # nowhere near the fill, and ColourError read 0.600 against a render measured
+    # at 99.4% agreement. Agreement was left on the bare cut for one contract
+    # longer and was reporting the same distortion the other way round.
     colour_err = _colour_error(ours_flat, t_idx, palette, scored)
     response, colour_residual = _response(ours_flat, t_idx, palette, scored)
 
@@ -358,11 +395,17 @@ def measure(stem: str, preview: bool = False) -> dict:
         "separable": closest >= SEPARABLE_MIN,
         "illumination": chosen,
         "illumination_residual": {k: round(v, 4) for k, v in residual.items()},
-        "render_vs_spec": _agreement(o_idx, t_idx, o_mask, len(palette)),
+        "render_vs_spec": _agreement(o_idx, t_idx, scored, len(palette)),
+        # Agreement is area-weighted and a substrate is 55-99.9% of these faces,
+        # so a field can be missed entirely without moving it: Ritalin's field
+        # is 1.6% of its carton. The worst FIELD is the figure that shows a
+        # design failing, and it belongs in the printed table rather than only
+        # in the JSON, which is how the collapsed IoUs went unread.
+        "field_iou_worst": None,
         # The figure's own uncertainty, measured rather than assumed.
         "agreement_spread": round(abs(
-            _agreement(o_idx, t_idx, o_mask, len(palette))["agreement"]
-            - _agreement(alt_idx, t_idx, o_mask, len(palette))["agreement"]), 4),
+            _agreement(o_idx, t_idx, scored, len(palette))["agreement"]
+            - _agreement(alt_idx, t_idx, scored, len(palette))["agreement"]), 4),
         "colour_error_by_region": colour_err,
         "colour_error_worst": (max([v for v in colour_err.values() if v is not None],
                                    default=None)),
@@ -374,8 +417,14 @@ def measure(stem: str, preview: bool = False) -> dict:
                                       default=None)),
         "spec_vs_reference": (spec.get("verification") or {}).get("pixel_agreement"),
     }
+    fields = [v for k, v in result["render_vs_spec"]["iou"].items()
+              if int(k) > 0 and v is not None]
+    result["field_iou_worst"] = min(fields) if fields else None
     if ref_idx is not None:
-        both = o_mask & ref_mask
+        # `_classify` hands back the bare cut, so the photograph's dark fields
+        # need admitting on the same terms ours do -- the photograph is where
+        # they are actually printed.
+        both = scored & (ref_mask | ((palette * LUMA).sum(1) < DARK_V)[t_idx])
         result["render_vs_reference"] = _agreement(o_idx, ref_idx, both, len(palette))
 
     if preview:
@@ -401,7 +450,8 @@ def main() -> int:
 
     rows = []
     print(f"{'SKU':9s} {'folder':32s} {'spec~ref':>9s} {'render~spec':>12s} "
-          f"{'render~ref':>11s} {'worst dC':>9s} {'residual':>8s} {'swing':>6s}")
+          f"{'worst fld':>10s} {'render~ref':>11s} {'worst dC':>9s} "
+          f"{'residual':>8s} {'swing':>6s}")
     for stem in stems:
         r = measure(stem, args.preview)
         rows.append(r)
@@ -411,15 +461,25 @@ def main() -> int:
         # not the same as nothing left after fitting it.
         resid = r["colour_residual_worst"]
         resid_txt = "--" if resid is None else f"{resid:.3f}"
+        fiw = r["field_iou_worst"]
         print(f"{stem:9s} {r['folder']:32s} "
               f"{(100 * sr if sr else 0):8.1f}% "
               f"{100 * r['render_vs_spec']['agreement']:11.1f}% "
+              f"{(100 * fiw if fiw is not None else 0):9.1f}% "
               f"{100 * r.get('render_vs_reference', {}).get('agreement', 0):10.1f}% "
               f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f} "
               f"{resid_txt:>8s} "
               f"+-{100 * r['agreement_spread']:4.1f}{flag}")
 
     out = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"
+    if args.sku:
+        # A single-SKU run used to write the report with one row in it, silently
+        # discarding the other ten. Merging them instead would be worse: the
+        # rows would then come from different revisions of this script with
+        # nothing in the file to say which. The full run is the report.
+        print(f"\n--sku is a probe; {out.name} is left alone. Run without it to "
+              f"rewrite the report.")
+        return 0
     out.write_text(json.dumps({"rows": rows}, indent=2), encoding="utf-8")
     print(f"\n{out}")
     return 0

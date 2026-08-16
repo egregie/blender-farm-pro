@@ -185,10 +185,6 @@ class TestEveryPhotographedFolderIsInTheBarrier(unittest.TestCase):
             f"all). A reference folder with no image is a reference to nothing.")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestARowBoxedAsItsBlock(unittest.TestCase):
     """`ink_within` recovers the glyphs when the reader returns the shape.
 
@@ -253,3 +249,7 @@ class TestARowBoxedAsItsBlock(unittest.TestCase):
         self.assertEqual(
             ink_within(self._face(), row, [("#204020", self._block_outline())]),
             row, "a row whose box is not the shape must be returned unchanged")
+
+
+if __name__ == "__main__":
+    unittest.main()

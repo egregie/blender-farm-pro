@@ -309,6 +309,34 @@ ADR/audit/release docs, `docs/` is the full safety-net copy of the source projec
 The Blender roadmap exists only in `06_docs/experiments/`, despite a stale cross-reference in
 `NEXT_STEPS.md` claiming otherwise.
 
+**`design_qa`'s headline agreement is area-weighted, and a substrate is 55–99.9% of these
+faces. Read `field_iou_worst`.** Ranked by agreement, Ritalin is the best carton in the
+group at 99.9%; ranked by its fields it is seventh, and Cialis — the worst agreement — is
+second. Agreement is largely a statement about the board.
+
+**Every figure reads `scored_mask()`, and adding a fourth caller was the fix.** The dark
+cut drops any pixel under 0.30 so printed TYPE stays out — our render prints it, the spec
+does not carry it. Eight of eleven cartons have a *field* that dark, and the cut took those
+too, dropping each one **exactly where our render painted it correctly**: what was left to
+score was the misses. Ritalin held the group's best agreement, 99.87%, on an IoU of 0.043
+over its only field. Contract 1.5 had already fixed this for ΔC and `_response` — "whether
+a pixel is scored depends on what the SPEC expects there, not on how bright the pixel is" —
+and `_agreement`, the figure the report is read by, was left on the bare cut. Ritalin 0.043
+→ 0.926, Xanax's brand 0.024 → 0.955, mean field IoU 0.601 → 0.791, and **every field the
+cut could not reach unchanged to three decimals**. Kamagra's agreement falls 96.9% → 84.0%,
+which is the honest number: 53% of its face was being dropped before it could disagree.
+
+Two properties of that mask, both asserted in `tests/test_design_qa.py` rather than assumed:
+the cut tests the pixel's MAX channel and the restore tests the fill's LUMA, which is safe
+only because luma ≤ max, so no fill the cut reaches goes unrestored; and a dark pixel where
+the spec draws the substrate cannot be told from type, so it is dropped either way and a
+**dark field's IoU degenerates to recall** — the figure catches a field placed short, never
+one placed wide.
+
+**`design_qa.py --sku` no longer writes the report.** A single-SKU run used to rewrite
+`design_qa.json` with one row, discarding the other ten. Merging would be worse — the rows
+would then come from different revisions of the script with nothing in the file saying so.
+
 **`design_qa`'s agreement classifier is anchored to the substrate; its colour error is
 not.** A nearest-colour classifier compares a RENDER against PRINT colours with nothing
 holding the two at the same level, and our renders sit 5–15% below their spec — a render is

@@ -22,36 +22,95 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-15, after the D-7 type work, the Xanax fitter fix, the
-`assign_roles` threshold and contract 1.5's cap heights. Type work keeps moving
-these figures because moving the label changes which pixels are excluded — see
-the two notes below.*
+*Re-measured 2026-08-16, after the scored-mask fix below. Type work keeps moving
+these figures too, because moving a label changes which pixels are excluded —
+see the two notes further down.*
 
-| SKU | folder | spec~ref | render~spec | render~ref | worst ΔC | residual | swing |
-|---|---|---:|---:|---:|---:|---:|---:|
-| `404-min` | Ritalin | 95.7% | **99.9%** | **97.6%** | **0.060** | — | ±0.0 |
-| `308-min` | Lexotanil | **99.1%** | 99.8% | 97.2% | 0.093 | — | ±0.0 |
-| `340-min` | Xanax SR | 95.0% | 97.6% | 95.0% | 0.149 | **0.014** | ±0.0 |
-| `344-min` | Modafinil | 93.9% | 99.5% | 94.0% | 0.065 | — | ±0.0 |
-| `272-min` | Valium | 91.1% | 98.8% | 94.2% | 0.128 | 0.025 | ±0.0 |
-| `64-min` | Kamagra | 90.5% | 96.9% | 94.8% | 0.189 | 0.024 | ±0.0 |
-| `74-min` | Viagra | 95.0% | 99.7% | 93.4% | 0.191 | — | ±0.0 |
-| `156-min` | Xanax | 93.2% | 98.8% | 92.3% | 0.112 | 0.045 | ±0.0 |
-| `135-min` | Ativan | 89.6% | 97.3% | 90.4% | 0.153 | 0.050 | ±0.0 |
-| `155-min` | Imovane | 93.7% | 98.4% | 89.0% | 0.093 | 0.013 | ±0.1 |
-| `59-min` | Cialis | 88.2% | 98.1% | 80.3% | 0.170 | 0.056 | ±1.1 |
+| SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| `308-min` | Lexotanil | **99.1%** | 99.8% | **97.4%** | 97.2% | 0.093 | — | ±0.0 |
+| `59-min` | Cialis | 88.2% | 98.1% | 94.4% | 80.3% | 0.170 | 0.056 | ±1.1 |
+| `404-min` | Ritalin | 95.7% | **99.9%** | 92.6% | **97.6%** | **0.060** | — | ±0.0 |
+| `155-min` | Imovane | 93.7% | 98.5% | 91.9% | 88.8% | 0.093 | 0.013 | ±0.1 |
+| `74-min` | Viagra | 95.0% | 99.7% | 88.7% | 93.4% | 0.191 | — | ±0.0 |
+| `272-min` | Valium | 91.1% | 98.9% | 85.5% | 94.2% | 0.128 | 0.025 | ±0.0 |
+| `344-min` | Modafinil | 93.9% | 99.5% | 78.6% | 94.0% | 0.065 | — | ±0.0 |
+| `340-min` | Xanax SR | 95.0% | 97.6% | 67.2% | 95.0% | 0.149 | **0.014** | ±0.0 |
+| `135-min` | Ativan | 89.6% | 97.3% | 57.6% | 90.5% | 0.153 | 0.050 | ±0.0 |
+| `156-min` | Xanax | 93.2% | 98.9% | 46.8% | 92.7% | 0.112 | 0.045 | ±0.0 |
+| `64-min` | Kamagra | 90.5% | **84.0%** | **8.4%** | 86.3% | 0.189 | 0.024 | ±0.3 |
 
 `residual` is ΔC once the picture's own exposure and black level are taken out —
 see below. A dash is a carton with too few regions to fit them.
 
-*Re-measured after the classifier was anchored and its illumination model chosen
-on evidence — the two sections below. Every row improved or held, every carton now
-agrees with its spec at 96.9% or better, and the worst swing in the group is ±1.1.*
+**The table is sorted by worst field, and that is not the order agreement gives.**
+Ritalin holds the group's best agreement on its third-worst field; Cialis, the
+worst agreement, has the second-best fields. Agreement is area-weighted and a
+substrate is 55–99.9% of these faces, so it is largely a statement about the
+board. Read the field column for whether a design was built.
 
 **`swing` is the agreement figure's own uncertainty**, measured rather than
 assumed: the same classification run under a second illumination model, on
 identical pixels. It is not an error bar on the carton — it is how much of the
 number is the measurement rather than the render.
+
+## A dark field was scored only where we got it wrong
+
+The instrument's ranking was inverted, and one line of masking did it.
+
+The dark cut exists so printed **type** stays out of the figures: our render
+prints it, the spec deliberately does not carry it, and scoring it would measure
+the type grid instead of the design. It drops any pixel whose brightest channel
+is under 0.30. But eight of the eleven cartons carry a **field** that dark, and
+the cut took those too — dropping each one *exactly where our render painted it
+correctly*, because that is where our render is dark. What survived was the
+misses, and the field was scored over them alone.
+
+`404-min` Ritalin is the demonstration. It held the group's **best** agreement,
+99.87%, on an IoU of **0.043** over its only field. Both figures were honest
+arithmetic over the wrong set of pixels.
+
+Contract 1.5 had already fixed this for ΔC — "whether a pixel is scored depends
+on what the spec expects there, not on how bright it happens to be" — and the
+fix was applied to `_colour_error` and `_response` and **not** to `_agreement`,
+which is the one the report is read by. `scored_mask()` is now the single place
+that decides, and all four axes take it.
+
+| SKU | field | fill | IoU before | after |
+|---|---|---|---:|---:|
+| `404-min` | type | `#2E1D3C` | 0.043 | **0.926** |
+| `156-min` | brand | `#2C1F2A` | 0.024 | **0.955** |
+| `272-min` | type | `#1D2C30` | 0.106 | 0.855 |
+| `64-min` | brand | `#00463B` | 0.185 | 0.696 |
+| `340-min` | type | `#48323D` | 0.241 | 0.692 |
+| `344-min` | type | `#43384B` | 0.781 | 0.786 |
+| `64-min` | highlight | `#002F26` | 0.000 | 0.084 |
+
+**Every field the cut could not reach is unchanged to three decimals** — Cialis
+0.947/0.944, Viagra 0.887, Lexotanil 0.974 — which is what says the change is
+the defect and not a recalibration. Mean field IoU across the group: 0.601 →
+0.791.
+
+**Kamagra pays for it and the bill is real.** Its two greens are 53% of its
+face and the instrument was seeing 3% of them; scored, its agreement falls
+**96.9% → 84.0%** and render~ref 94.8% → 86.3%. The earlier claim that every
+carton agreed with its spec at 96.9% or better was resting on this bug. What is
+left is the near-degenerate pair — `#00463B` against `#002F26`, 0.122 apart —
+which the anchor was not enough to separate and which `SEPARABLE_MIN = 0.08`
+still calls separable. That threshold was fixed from Modafinil's four-level
+pair; Kamagra is evidence 0.122 is not far enough either. Open.
+
+**What the cut still cannot answer.** A dark pixel where the spec draws the
+light substrate is either a dark field overrunning its outline or the printed
+type the spec does not carry, and nothing in the colour separates them. It is
+dropped either way, so a dark field's overspill costs nothing and its IoU
+degenerates to **recall** — the figure catches a field placed short, not one
+placed wide. Light fields are still scored both ways. Stated in a test rather
+than left to be rediscovered.
+
+`scripts/design_qa.py` had no tests at all before this; `tests/test_design_qa.py`
+is synthetic, because the properties are about masks and index maps and stating
+them in pixels is clearer than rendering a carton to demonstrate one.
 
 ## The agreement figure was measuring our exposure, not our carton
 
@@ -147,10 +206,13 @@ fitted through, or the radius the blur is taken at.
 | `155-min` Imovane | ±7.5 | ±4.3 | **±0.1** |
 | worst in the group | ±7.5 | ±9.5 | **±1.1** |
 
-Every carton now agrees with its spec at **96.9% or better**, and nine of eleven
-do not move at all under the perturbation. The two tightest palettes are still
-the two that move — 0.106 and 0.086 between substrate and highlight — but by a
-point rather than by ten.
+Nine of eleven do not move at all under the perturbation. The two tightest
+palettes are still the two that move — 0.106 and 0.086 between substrate and
+highlight — but by a point rather than by ten.
+
+*This section once read "every carton now agrees with its spec at 96.9% or
+better". It did not: Kamagra's 96.9% was 53% of its face being dropped before it
+could disagree. See the scored-mask section above.*
 
 **ColourError still reads the plane, always.** It asks whether a region is the
 colour it should be, so its illumination estimate must not be able to absorb the
