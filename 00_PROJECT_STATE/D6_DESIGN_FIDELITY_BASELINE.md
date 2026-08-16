@@ -22,23 +22,23 @@ instrument.
 
 ## The baseline
 
-*Re-measured 2026-08-16, after the scored-mask fix, the measured transfer curve
-and the ink rim — all three below. Type work keeps moving these figures too,
-because moving a label changes which pixels are excluded.*
+*Re-measured 2026-08-16, after the scored-mask fix, the measured transfer curve,
+the ink rim and the seam — all four below. Type work keeps moving these figures
+too, because moving a label changes which pixels are excluded.*
 
 | SKU | folder | spec~ref | render~spec | **worst field** | render~ref | worst ΔC | residual | swing | on-line |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `308-min` | Lexotanil | **99.1%** | 99.9% | **99.0%** | **98.4%** | 0.091 | — | ±0.0 | |
-| `344-min` | Modafinil | 93.9% | **100.0%** | 98.4% | 95.5% | 0.062 | — | ±0.0 | |
-| `74-min` | Viagra | 95.0% | **100.0%** | 98.8% | 94.4% | 0.188 | — | ±0.0 | |
-| `272-min` | Valium | 91.1% | 99.7% | 97.3% | 96.3% | 0.128 | 0.027 | ±0.0 | |
-| `404-min` | Ritalin | 95.7% | **100.0%** | 97.0% | 98.4% | **0.060** | — | ±0.0 | |
-| `59-min` | Cialis | 88.2% | 98.5% | 94.6% | 81.2% | 0.165 | 0.053 | ±1.3 | |
-| `155-min` | Imovane | 93.7% | 99.0% | 94.4% | 90.0% | 0.084 | 0.009 | ±0.1 | **0.015** |
-| `64-min` | Kamagra | 90.5% | 98.0% | 90.7% | 86.3% | 0.185 | 0.024 | ±0.0 | |
-| `156-min` | Xanax | 93.2% | 99.8% | 82.7% | 94.7% | 0.106 | 0.048 | ±0.0 | **0.013** |
-| `340-min` | Xanax SR | 95.0% | 98.4% | 73.8% | 97.0% | 0.142 | **0.013** | ±0.0 | |
-| `135-min` | Ativan | 89.6% | 98.0% | **63.8%** | 91.5% | 0.153 | 0.051 | ±0.0 | **0.017** |
+| `344-min` | Modafinil | 93.9% | **100.0%** | **100.0%** | 95.5% | 0.062 | — | ±0.0 | |
+| `74-min` | Viagra | 95.0% | **100.0%** | 99.9% | 94.4% | 0.188 | — | ±0.0 | |
+| `308-min` | Lexotanil | **99.1%** | **100.0%** | 99.9% | **98.5%** | 0.091 | — | ±0.0 | |
+| `404-min` | Ritalin | 95.7% | **100.0%** | 98.6% | 98.4% | **0.058** | — | ±0.0 | |
+| `272-min` | Valium | 91.1% | **100.0%** | 98.4% | 96.6% | 0.119 | 0.025 | ±0.0 | |
+| `64-min` | Kamagra | 90.5% | 99.1% | 96.4% | 86.9% | 0.180 | 0.012 | ±0.0 | |
+| `155-min` | Imovane | 93.7% | 99.4% | 96.0% | 90.5% | 0.082 | 0.009 | ±0.1 | **0.015** |
+| `59-min` | Cialis | 88.2% | 99.0% | 95.9% | 82.0% | 0.165 | 0.054 | ±1.2 | |
+| `135-min` | Ativan | 89.6% | 99.4% | 94.3% | 93.3% | 0.144 | 0.048 | ±0.0 | **0.017** |
+| `156-min` | Xanax | 93.2% | 99.9% | 91.6% | 95.0% | 0.106 | 0.056 | ±0.0 | **0.013** |
+| `340-min` | Xanax SR | 95.0% | 98.5% | **75.2%** | 97.2% | 0.141 | **0.010** | ±0.0 | |
 
 `residual` is ΔC once the picture's own exposure and black level are taken out —
 see below. A dash is a carton with too few regions to fit them.
@@ -53,6 +53,61 @@ board. Read the field column for whether a design was built.
 assumed: the same classification run under a second illumination model, on
 identical pixels. It is not an error bar on the carton — it is how much of the
 number is the measurement rather than the render.
+
+## The seam between two regions was counted as the third
+
+Ativan's `highlight` read **63.8%** at 92.2% recall and 67.4% precision — the
+same shape of failure as Xanax, from the same cause one layer up.
+
+`#8E9DA0` is a **42% blend of its substrate `#C2C2B6` and its `secondary_1`
+`#50697C`**. Ativan has four regions, a brand in three parts and 175 vertices,
+so **6.9% of its face is within two pixels of a boundary** — the most in the
+group — and **94.0% of its false highlight pixels lay in that band**.
+
+The asymmetry causing it is structural rather than anyone's mistake:
+`rasterise()` fills polygons hard-edged, and our render arrives through a
+Lanczos rectification. The target has a step where we have a ramp, the ramp
+passes through every colour between the two fills, and where a palette entry
+lives there it collects the whole boundary.
+
+`_seam()` drops it, one pixel either side. Again the width is measured: r=1
+takes the group's mean field from 90.1% to 95.2%, and r=2, 3, 4 give 95.3%,
+95.2%, 95.1% — it saturates and then decays. Costs 0.1–4.1% of scored pixels.
+
+| SKU | worst field before | after |
+|---|---:|---:|
+| `135-min` Ativan | 63.8% | **94.3%** |
+| `156-min` Xanax | 82.7% | 91.6% |
+| `64-min` Kamagra | 90.7% | 96.4% |
+| `344-min` Modafinil | 98.4% | **100.0%** |
+| `340-min` Xanax SR | 73.8% | 75.2% |
+
+**Five cartons now agree with their spec at 100.0%**, and again nothing
+regressed on any column. ΔC improved on six, because the seam was in the region
+means too — Kamagra's residual halves, 0.024 → 0.012.
+
+### Two things checked before throwing pixels away
+
+**It does not blind the figure to a misplaced field.** Shifting our own
+classification two pixels and re-scoring with the seam excluded: Ativan 94.4% →
+59.5%, Modafinil 100.0% → 65.2%, Valium 98.4% → 64.6%, Ritalin 98.6% → 70.2%. A
+one-pixel exclusion cannot hide a two-pixel error, and a synthetic test pins the
+arithmetic — widen the exclusion to three pixels and the test's offset bar reads
+1.0 instead of 0.9.
+
+**It does not hollow a field out.** Every field keeps at least 68.9% of itself
+and all but Ativan's highlight keep 83% or more. `field_kept_min` travels in the
+report so a field measured on a sliver would say so rather than report a
+confident number about very little of itself.
+
+### A softer target was tried instead, and is worse
+
+The spec rasterised at 4× and box-averaged down, so both sides carry a ramp and
+no pixels are discarded. It helps — but much less: Ativan 70.4% against the
+exclusion's 94.4%, Kamagra 93.8% against 96.4%. A box-filtered 4× raster is not
+the ramp a Lanczos rectification leaves, so the two softnesses still disagree.
+Recorded because it is the obvious alternative and the reason it loses is not
+obvious.
 
 ## The ink's rim was being counted as a field
 

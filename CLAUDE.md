@@ -388,6 +388,24 @@ reported as `edge_dropped`. Xanax 49.8% → 82.7%, Modafinil 75.8% → 98.4%, Va
 — three cartons now read 100.0% against their spec. It corrects an earlier reading too: the
 four cartons recorded as losing IoU to the transfer curve were losing it to glyph rim.
 
+**The same cut drops the SEAM where two spec regions meet, one pixel either side.** Ativan
+is that case: `#8E9DA0` is a 42% blend of its substrate and its `secondary_1`, its four
+regions and 175 vertices put **6.9% of its face within two pixels of a boundary**, and
+**94.0% of its false highlight pixels lay in that band** — the field read 63.8%. The
+asymmetry is structural: `rasterise()` fills polygons hard-edged and our render arrives
+through a Lanczos rectification, so the target has a step where we have a ramp. Ativan 63.8%
+→ **94.3%**, Xanax 82.7% → 91.6%, Kamagra 90.7% → 96.4%, and **five cartons now read 100.0%**.
+Width measured the same way: r=1 takes the mean field 90.1% → 95.2%, r=2/3/4 give
+95.3%/95.2%/95.1% — saturates, then decays.
+
+**Two things were checked before throwing those pixels away, and both are pinned by tests.**
+A one-pixel exclusion does not hide a two-pixel error — shift the classification and Ativan
+goes 94.4% → 59.5%, Modafinil 100.0% → 65.2%. And it does not hollow a field out: every
+field keeps ≥68.9% of itself, reported as `field_kept_min`. A **softer target** was tried
+instead — the spec rasterised at 4× and averaged down, so no pixels are discarded — and is
+much worse (Ativan 70.4% against 94.4%), because a box-filtered 4× raster is not the ramp a
+Lanczos rectification leaves.
+
 **`palette_closest_pair` cannot see the condition that actually breaks these cartons.** It
 asks whether two entries are distinguishable; Xanax has the group's *second-widest* closest
 pair at 0.522. What matters is an entry lying **on the segment between two others**, which

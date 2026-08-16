@@ -58,10 +58,16 @@ class TestADarkFieldIsScoredWhereTheSpecExpectsOne(unittest.TestCase):
 
     def test_the_field_is_scored_on_what_the_spec_expects_there(self):
         m = scored_mask(self.frame, self.palette, self.spec)
-        self.assertTrue(m[self.spec == 1].all())
-        side, shift = self.HI - self.LO, self.SHIFT
+        interior = np.zeros_like(self.spec, dtype=bool)
+        interior[self.LO + 1:self.HI - 1, self.LO + 1:self.HI - 1] = True
+        self.assertTrue(m[interior].all(), "the field's interior must be scored")
+        # The seam takes a pixel off each edge, leaving this much of the field
+        # scored; our field is offset by SHIFT, and one of those pixels was
+        # already gone with the seam.
+        side = self.HI - self.LO - 2
+        overlap = side - (self.SHIFT - 1)
         self.assertAlmostEqual(_agreement(self.ours, self.spec, m, 2)["iou"][1],
-                               round((side - shift) ** 2 / side ** 2, 3), places=3)
+                               round(overlap ** 2 / side ** 2, 3), places=3)
 
     def test_on_a_dark_field_the_figure_reads_as_recall(self):
         """What the cut still cannot answer, stated rather than left implied.
@@ -83,6 +89,39 @@ class TestADarkFieldIsScoredWhereTheSpecExpectsOne(unittest.TestCase):
         frame = self.palette[self.spec]
         m = scored_mask(frame, self.palette, self.spec)
         self.assertEqual(_agreement(self.spec, self.spec, m, 2)["iou"][1], 1.0)
+
+    def test_the_seam_between_two_regions_is_not_scored(self):
+        """A pixel straddling a boundary is a mixture of both regions and is
+        evidence about neither. Ativan's `#8E9DA0` is a 42% blend of its
+        substrate and secondary_1, so its boundaries collected the field."""
+        m = scored_mask(self.palette[self.spec], self.palette, self.spec)
+        self.assertFalse(m[self.LO, self.LO:self.HI].any())
+        self.assertFalse(m[self.LO - 1, self.LO:self.HI].any())
+        self.assertTrue(m[self.LO + 1, self.LO + 1:self.HI - 1].all(),
+                        "one pixel in, and only one")
+
+    def test_a_field_placed_two_pixels_out_still_fails(self):
+        """The check before throwing pixels away: a one-pixel exclusion must not
+        hide a two-pixel error. On the group it does not -- Ativan 94.4% ->
+        59.5%, Modafinil 100.0% -> 65.2% when the classification is shifted.
+
+        A THIN field, because that is the geometry where it matters and where
+        every one of those cartons sits. On a 58-pixel square a two-pixel offset
+        genuinely is a 3% error and the figure is right to say so; on a bar
+        twelve pixels deep it is a fifth of the field.
+        """
+        spec = np.zeros((self.N, self.N), dtype=int)
+        spec[40:52, 20:80] = 1                       # a bar, as type-shaped as this gets
+        ours = np.zeros_like(spec)
+        ours[42:54, 20:80] = 1
+        m = scored_mask(self.palette[ours], self.palette, spec)
+        self.assertEqual(_agreement(spec, spec, m, 2)["iou"][1], 1.0)
+        # Twelve rows, less one to the seam at each edge, leaves ten; our bar
+        # is two rows down, so nine of them agree. Exact rather than a bound:
+        # widen the exclusion to three pixels and this reads 1.0, which is the
+        # failure the test is here to catch.
+        self.assertAlmostEqual(_agreement(ours, spec, m, 2)["iou"][1],
+                               round(9 / 10, 3), places=3)
 
     def test_type_the_spec_does_not_carry_is_still_cut(self):
         """The reason the cut exists at all: our render prints type, the spec
@@ -112,7 +151,9 @@ class TestADarkFieldIsScoredWhereTheSpecExpectsOne(unittest.TestCase):
         mid = (self.LO + self.HI) // 2
         frame[mid - 2:mid + 2, self.LO + 5:self.HI - 5] = 0.02   # type on the field
         m = scored_mask(frame, self.palette, self.spec)
-        self.assertTrue(m[self.spec == 1].all())
+        interior = np.zeros_like(self.spec, dtype=bool)
+        interior[self.LO + 1:self.HI - 1, self.LO + 1:self.HI - 1] = True
+        self.assertTrue(m[interior].all())
 
 
 class TestTheTwoDarknessTestsAgreeInTheDirectionThatMatters(unittest.TestCase):

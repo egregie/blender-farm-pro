@@ -300,7 +300,48 @@ def scored_mask(frame: np.ndarray, palette: np.ndarray,
     ink = ~lit & ~expects_dark
     rim = np.asarray(Image.fromarray((ink * 255).astype("uint8"))
                      .filter(ImageFilter.MaxFilter(3))) > 0
-    return (lit | expects_dark) & ~(rim & ~expects_dark)
+    return (lit | expects_dark) & ~(rim & ~expects_dark) & ~_seam(spec_idx)
+
+
+def _seam(spec_idx: np.ndarray) -> np.ndarray:
+    """Where two spec regions meet, one pixel either side.
+
+    The same argument as the ink's rim, and the same measurement behind it: a
+    pixel straddling a boundary is a mixture of both regions and is evidence
+    about neither. Ativan is the case here -- `#8E9DA0` is a 42% blend of its
+    substrate and its `secondary_1`, **94.0% of its false highlight pixels lay
+    within two pixels of a spec boundary**, and the field read 63.8% at 92.2%
+    recall and 67.4% precision. Excluded, 94.4%.
+
+    The asymmetry that causes it is structural rather than anyone's mistake:
+    `rasterise` fills polygons hard-edged, and our render arrives through a
+    Lanczos rectification, so the target has a step where we have a ramp. The
+    ramp passes through every colour between the two fills, and if some entry
+    of the palette lives there it collects the whole boundary.
+
+    ONE pixel, measured the same way the rim was: r=1 takes the group's mean
+    field from 90.1% to 95.2% and r=2, 3, 4 give 95.3%, 95.2%, 95.1% -- it
+    saturates, then decays. Costs 0.1-4.1% of the scored pixels.
+
+    **It does not blind the figure to a misplaced field**, which was the thing
+    to check before throwing pixels away. Shifting our own classification two
+    pixels and re-scoring with the seam excluded: Ativan 94.4% -> 59.5%,
+    Modafinil 100.0% -> 65.2%, Valium 98.4% -> 64.6%, Ritalin 98.6% -> 70.2%.
+    A one-pixel exclusion cannot hide a two-pixel error.
+
+    Nor does it hollow a field out: every field keeps at least 68.9% of itself
+    and all but Ativan's highlight keep 83% or more. `field_kept_min` travels in
+    the report so a field measured on a sliver would say so.
+
+    A softer TARGET was tried instead -- the spec rasterised at 4x and averaged
+    down, so both sides carry a ramp. It is better than nothing and much worse
+    than this (Ativan 70.4% against 94.4%), because a box-filtered 4x raster is
+    not the same ramp a Lanczos rectification leaves.
+    """
+    idx = spec_idx.astype("uint8")
+    lo = np.asarray(Image.fromarray(idx).filter(ImageFilter.MinFilter(3)))
+    hi = np.asarray(Image.fromarray(idx).filter(ImageFilter.MaxFilter(3)))
+    return lo != hi
 
 
 def _agreement(a_idx, b_idx, mask, n) -> dict:
@@ -545,6 +586,15 @@ def measure(stem: str, preview: bool = False) -> dict:
     fields = [v for k, v in result["render_vs_spec"]["iou"].items()
               if int(k) > 0 and v is not None]
     result["field_iou_worst"] = min(fields) if fields else None
+    # The smallest share of any field left standing once the seam and the rim
+    # are gone. A field measured on a sliver has to say so rather than report a
+    # confident number about very little of itself.
+    kept = []
+    for k in range(1, len(palette)):
+        whole = (t_idx == k)
+        if whole.sum() >= 200:
+            kept.append(float((whole & scored).sum() / whole.sum()))
+    result["field_kept_min"] = round(min(kept), 4) if kept else None
     if ref_idx is not None:
         result["render_vs_reference"] = _agreement(o_idx, ref_idx,
                                                    scored & ref_mask, len(palette))
