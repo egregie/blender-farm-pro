@@ -111,11 +111,27 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.5`.** Bumps up to 1.3 and again at 1.5 added or repurposed
+**Contract version is `1.6`.** Bumps up to 1.3 and again at 1.5 and 1.6 added or repurposed
 *required* fields — deliberately not additive-optional changes, so a manifest written before
 them fails validation loudly instead of quietly producing a packshot with something missing.
 `manifest_version` is pinned by `const` in the schema, so stale files on disk are rejected
 until Stage 1 regenerates them.
+
+- `1.6` — **`product_code`, separating what is PRINTED from what KEYS the row.**
+  `SKU.csv`'s first column is named `picture` and holds the source image's filename. That
+  value became the SSOT registry's key, then the passport's `sku_id`, then the manifest's —
+  and the side panel prints the identifier under the barcode and encodes it into the Code
+  128. So **all 391 cartons carried `.jpg` on them, as a scannable product code.** No single
+  step was wrong: `sku_id` really is the catalogue's key and the barcode really should carry
+  the SKU. The two questions had never been separated, so the answer to one was used for the
+  other. `src/utils.product_code()` is the single implementation (`design_group._stem`
+  delegates to it), the schema rejects a `product_code` that ends in an image or `.json`
+  extension, and the driver raises `SystemExit` rather than falling back to `sku_id` — a
+  silent fallback is how the filename got onto the carton in the first place. It is
+  deliberately **not** a GTIN, PZN or national drug code: the project holds none, and
+  inventing one is the act it already refuses for LOT and EXP. **`sku_id` keeps its
+  extension** and stays the registry key; a test asserts that too, so a later tidy-up cannot
+  break every lookup.
 
 - `1.5` — **`design.type_rows.cap_frac` repurposed from an ink height to a CAP height**, with
   `cap_top_v` and `read_as` added beside it as required. An OCR box is the extent of the
@@ -695,10 +711,14 @@ Magnify the reference side panel before trusting it. Its 2D code is a blob of no
 finder pattern; its LOT/EXP values read `SLAQF FDЯT`; its microprint is not text. **That
 panel is evidence of layout, not of content.** What the driver builds instead:
 
-- **A real Code 128** subset B of `sku_id`, encoded by `encode_code128b()`. A test decodes it
-  back out of the built *geometry* — recovering spaces from the gaps between bars, the way a
-  scanner does — and re-derives the modulo-103 checksum, so "it is a real barcode" is a fact
-  rather than a claim. Do not replace it with a decorative bar pattern.
+- **A real Code 128** subset B of **`product_code`, never `sku_id`**, encoded by
+  `encode_code128b()`, with the same string printed under it as the human-readable line. A
+  test decodes it back out of the built *geometry* — recovering spaces from the gaps between
+  bars, the way a scanner does — and re-derives the modulo-103 checksum, so "it is a real
+  barcode" is a fact rather than a claim. Do not replace it with a decorative bar pattern.
+  Until contract 1.6 it encoded `sku_id`, which is a filename, so **every carton in the
+  catalogue carried `.jpg` in print and in a scannable symbol**; a second test now asserts
+  the decoded string is neither a filename nor equal to `sku_id`.
 - **LOT and EXP as empty labels with a rule.** No values, deliberately: the project holds no
   lot or expiry data, and a real carton carries none either — they are inkjetted at packing.
   Printing a plausible-looking value would be inventing data on pharmaceutical packaging.

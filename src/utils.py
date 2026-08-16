@@ -97,6 +97,36 @@ def resolve_path(p) -> Path:
     return pp if pp.is_absolute() else (PROJECT_ROOT / pp)
 
 
+_FILE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp", ".json")
+
+
+def product_code(sku_id: str) -> str:
+    """The identifier that goes ON the carton, as opposed to the one that keys it.
+
+    `SKU.csv`'s first column is named `picture` and holds the source image's
+    filename. That value became the SSOT registry's key, then the passport's
+    `sku_id`, then the manifest's -- and the side panel prints `sku_id` under
+    the barcode and encodes it into the Code 128. So **every one of the 391
+    cartons carried `.jpg` on it**, as its product code, in print and in a
+    scannable symbol.
+
+    Nothing was wrong with any single step. `sku_id` really is the catalogue's
+    key and the barcode really should carry the SKU. The two questions -- what
+    identifies this row, and what is printed on the pack -- had simply never
+    been separated, so the answer to the first was used for the second.
+
+    This is the second question. It is deliberately NOT a GTIN, PZN or national
+    drug code: the project holds none, and inventing one would be the act it
+    already refuses for LOT and EXP. It is this catalogue's own SKU, which is
+    real data, with the filename extension that was never part of it removed.
+    """
+    code = str(sku_id or "").strip()
+    for suffix in _FILE_SUFFIXES:
+        if code.lower().endswith(suffix):
+            return code[: -len(suffix)]
+    return code
+
+
 def _deep_merge(base: dict, override: dict) -> dict:
     out = copy.deepcopy(base)
     for k, v in (override or {}).items():

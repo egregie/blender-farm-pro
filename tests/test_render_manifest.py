@@ -837,3 +837,66 @@ class TestAnOutlineIsARegion(unittest.TestCase):
                         self.assertGreater((a & b).sum() / max((a | b).sum(), 1), 0.97)
         if not checked:
             self.skipTest("no tangled outlines in this checkout to repair")
+
+
+class TestWhatIsPrintedIsNotWhatKeysIt(unittest.TestCase):
+    """Contract 1.6 — `sku_id` identifies the row, `product_code` goes on the pack.
+
+    `SKU.csv`'s first column is named `picture` and holds the source image's
+    filename. It became the SSOT registry's key, then the passport's `sku_id`,
+    then the manifest's -- and the side panel prints the identifier under the
+    barcode and encodes it into the Code 128. So all 391 cartons carried `.jpg`
+    on them, as a scannable product code.
+
+    No single step was wrong. `sku_id` really is the catalogue's key and the
+    barcode really should carry the SKU. The two questions had never been
+    separated, so the answer to one was used for the other.
+    """
+
+    MANIFESTS = PROJECT_ROOT / "04_passports" / "render_manifests"
+    FILENAME = re.compile(r"(?i)\.(jpg|jpeg|png|webp|json)$")
+
+    def _manifests(self):
+        return sorted(self.MANIFESTS.glob("*.json"))
+
+    def test_no_manifest_carries_a_product_code_that_is_a_filename(self):
+        seen = 0
+        for path in self._manifests():
+            m = json.loads(path.read_text(encoding="utf-8"))
+            seen += 1
+            with self.subTest(sku=path.stem):
+                self.assertNotRegex(m["product_code"], self.FILENAME)
+        self.assertTrue(seen, "no manifests on disk to check")
+
+    def test_it_is_the_key_with_the_extension_removed(self):
+        from src.utils import product_code
+        for path in self._manifests()[:40]:
+            m = json.loads(path.read_text(encoding="utf-8"))
+            with self.subTest(sku=path.stem):
+                self.assertEqual(m["product_code"], product_code(m["sku_id"]))
+
+    def test_the_catalogue_is_still_keyed_by_the_filename(self):
+        """The other half of the separation, asserted so a later 'tidy-up' of
+        `sku_id` cannot silently break every registry lookup."""
+        m = json.loads(self._manifests()[0].read_text(encoding="utf-8"))
+        self.assertRegex(m["sku_id"], self.FILENAME)
+
+    def test_the_contract_rejects_a_printed_filename(self):
+        m = json.loads(self._manifests()[0].read_text(encoding="utf-8"))
+        m["product_code"] = m["sku_id"]
+        with self.assertRaises(Exception):
+            validate_manifest(m)
+
+    def test_a_manifest_without_one_is_rejected(self):
+        m = json.loads(self._manifests()[0].read_text(encoding="utf-8"))
+        del m["product_code"]
+        with self.assertRaises(Exception):
+            validate_manifest(m)
+
+    def test_the_code_is_encodable_as_code_128_subset_b(self):
+        """It is put into a scannable symbol, so every character must be in the
+        subset the encoder implements."""
+        for path in self._manifests():
+            code = json.loads(path.read_text(encoding="utf-8"))["product_code"]
+            with self.subTest(sku=path.stem):
+                self.assertTrue(all(32 <= ord(c) <= 126 for c in code), code)

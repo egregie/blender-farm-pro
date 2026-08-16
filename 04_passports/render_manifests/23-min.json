@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.5",
+  "manifest_version": "1.6",
   "sku_id": "23-min.jpg",
+  "product_code": "23-min",
   "template_id": "T_BOTTLE_BOX",
   "is_bottle_override": false,
   "packaging_geometry": "BOTTLE",

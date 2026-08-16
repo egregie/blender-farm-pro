@@ -921,10 +921,21 @@ def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
     the panel's own coordinates and every string comes from the manifest.
     """
     carton = manifest.get("carton") or {}
-    sku_id = str(manifest.get("sku_id") or "")
+    # `product_code`, NEVER `sku_id`. The catalogue's key is SKU.csv's `picture`
+    # column -- the source image's filename -- so printing it put `.jpg` on all
+    # 391 cartons, under the barcode and inside the Code 128 as a scannable
+    # product code. Contract 1.6 separates the two; see src/utils.product_code.
+    #
+    # SystemExit rather than a fallback to sku_id: Blender exits 0 after an
+    # ordinary uncaught exception, and a silent fallback here is precisely how
+    # the filename got onto the carton in the first place.
+    code = str(manifest.get("product_code") or "")
+    if not code:
+        raise SystemExit(
+            "manifest carries no product_code (contract 1.6). Regenerate it "
+            "with `python main.py --passports-only`; this driver will not fall "
+            "back to sku_id, which is a filename.")
     built = []
-    if not sku_id:
-        return built
 
     ink = make_material("panel_ink", LABEL_INK, roughness=MATTE_ROUGHNESS)
     regular, bold = _load_font(FONT_REGULAR), _load_font(FONT_BOLD)
@@ -939,7 +950,7 @@ def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
         return top_z - frac * panel_h
 
     # ── barcode ──────────────────────────────────────────────────────────────
-    widths = encode_code128b(sku_id)
+    widths = encode_code128b(code)
     total_modules = sum(widths) + 20              # 10 modules of quiet zone each end
     span = BARCODE_LEN_FRAC * panel_h
     module = span / total_modules
@@ -975,7 +986,7 @@ def build_side_panel(box, manifest: dict, panel_w, panel_h, left_x, back_y,
         v -= run
 
     built.append(_add_panel_text(
-        "panel_barcode_hri", sku_id, regular,
+        "panel_barcode_hri", code, regular,
         min(BARCODE_HRI_CAP_M * unit_scale, 0.30 * usable_w), ink,
         u_start, v - 0.4 * module * 20, x))
     _fit_width(built[-1], usable_w)

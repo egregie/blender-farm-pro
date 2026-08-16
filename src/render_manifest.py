@@ -41,8 +41,9 @@ import functools
 from pathlib import Path
 
 from src.design_group import load_design, reshape_to_design
+from src.utils import product_code
 
-MANIFEST_VERSION = "1.5"
+MANIFEST_VERSION = "1.6"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -405,6 +406,10 @@ def build_manifest(passport: dict) -> dict:
     return {
         "manifest_version": MANIFEST_VERSION,
         "sku_id": str(passport.get("sku_id", "")),
+        # What identifies the row and what is printed on the pack are two
+        # questions; conflating them put `.jpg` on all 391 cartons. See
+        # utils.product_code.
+        "product_code": product_code(passport.get("sku_id", "")),
         "template_id": template_id,
         "is_bottle_override": bool(is_bottle_override),
         "packaging_geometry": str(passport.get("packaging_geometry") or "BOX"),

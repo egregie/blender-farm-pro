@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.5",
+  "manifest_version": "1.6",
   "sku_id": "151-min.jpg",
+  "product_code": "151-min",
   "template_id": "T1",
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",

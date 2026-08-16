@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.5",
+  "manifest_version": "1.6",
   "sku_id": "348-min.jpg",
+  "product_code": "348-min",
   "template_id": "T_MULTIPACK",
   "is_bottle_override": false,
   "packaging_geometry": "BOX",

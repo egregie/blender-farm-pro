@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.utils import PROJECT_ROOT
+from src.utils import PROJECT_ROOT, product_code
 
 TEMPLATES_DIR = PROJECT_ROOT / "Reference Templates"
 
@@ -60,14 +60,12 @@ def is_design_sku(sku_id: str) -> bool:
 def _stem(sku_id: str) -> str:
     """`59-min.jpg` and `59-min` are the same SKU.
 
-    Manifests carry `sku_id` as it appears in the passport, which for some SKU
-    still has a file extension on it.
+    Manifests carry `sku_id` as it appears in the passport, which for EVERY SKU
+    has a file extension on it -- `SKU.csv`'s key column is named `picture`.
+    One implementation, in utils, because the same strip decides what is printed
+    on the carton; see `product_code`.
     """
-    stem = str(sku_id).strip()
-    for suffix in (".jpg", ".jpeg", ".png", ".json"):
-        if stem.lower().endswith(suffix):
-            stem = stem[: -len(suffix)]
-    return stem
+    return product_code(sku_id)
 
 
 def spec_path(sku_id: str) -> Path | None:

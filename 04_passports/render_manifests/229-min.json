@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.5",
+  "manifest_version": "1.6",
   "sku_id": "229-min.jpg",
+  "product_code": "229-min",
   "template_id": "T_VERT_DROPPER",
   "is_bottle_override": false,
   "packaging_geometry": "BOTTLE",

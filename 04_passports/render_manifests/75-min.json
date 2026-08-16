@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.5",
+  "manifest_version": "1.6",
   "sku_id": "75-min.jpg",
+  "product_code": "75-min",
   "template_id": "T1_SMALL",
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",

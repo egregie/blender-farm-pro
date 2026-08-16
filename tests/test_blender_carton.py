@@ -95,7 +95,11 @@ JOB = {
     # eleven SKU with measured reference photography follow their own carton
     # instead. Pointed at one of those, these tests would assert the wrong rule
     # and fail for the right behaviour.
-    "sku_id": "test-carton",
+    # With the extension, because every real one has it: SKU.csv's key column is
+    # named `picture`. The fixture only exercises contract 1.6's separation if
+    # the two values actually differ.
+    "sku_id": "test-carton.jpg",
+    "product_code": "test-carton",
     "template_id": "T1",
     "is_bottle_override": False,
     "packaging_geometry": "BLISTER",
@@ -957,15 +961,24 @@ class TestSidePanel(unittest.TestCase):
                  o["bounds_in_carton_frame"]["max"][2])
                 for o in self.panel if o["kind"] == "barcode"]
 
-    def test_the_barcode_decodes_to_the_sku_id(self):
+    def test_the_barcode_decodes_to_the_product_code(self):
         """The assertion that makes "a real barcode" a fact rather than a claim.
         Reproducing the reference's unscannable 2D blob would be re-creating by
         hand the exact hallucination this engine exists to remove."""
         decoded = decode_code128_from_bars(self._bars())
         self.assertEqual(
-            decoded, JOB["sku_id"],
+            decoded, JOB["product_code"],
             f"the built symbol reads {decoded!r}, not the manifest's "
-            f"{JOB['sku_id']!r}")
+            f"{JOB['product_code']!r}")
+
+    def test_the_symbol_does_not_encode_a_filename(self):
+        """It did, on all 391 cartons. `sku_id` comes from SKU.csv's first
+        column, which is named `picture`, so the scannable code on every pack
+        read `1-min.jpg`. Contract 1.6 separated the catalogue's key from the
+        identifier that goes on the carton."""
+        decoded = decode_code128_from_bars(self._bars())
+        self.assertNotRegex(decoded, r"(?i)\.(jpg|jpeg|png|webp|json)$")
+        self.assertNotEqual(decoded, JOB["sku_id"])
 
     def test_barcode_has_bars(self):
         self.assertGreater(len(self._bars()), 20, "no barcode geometry was built")
@@ -991,7 +1004,7 @@ class TestSidePanel(unittest.TestCase):
     def test_every_panel_string_comes_from_the_manifest(self):
         """Same guarantee the front panel has: nothing invented, nothing padded."""
         real = JOB["carton"]["passport_dimensions"]
-        allowed = {"LOT", "EXP", JOB["sku_id"], JOB["packaging_geometry"],
+        allowed = {"LOT", "EXP", JOB["product_code"], JOB["packaging_geometry"],
                    JOB["carton"]["material"],
                    f"{real['width_mm']:.0f}x{real['height_mm']:.0f}"
                    f"x{real['depth_mm']:.0f}mm",
