@@ -71,3 +71,7 @@ Reference Templates/**/*.jpeg
 03_knowledge_graph/reference_benchmarks_ssot/*.png
 03_knowledge_graph/reference_benchmarks_ssot/*.webp
 03_knowledge_graph/reference_benchmarks_ssot/*.jpg
+
+# Moved-aside renders, kept for recovery rather than deleted. Nothing here is
+# an input to anything; the working set is 02_processing.
+trash/
