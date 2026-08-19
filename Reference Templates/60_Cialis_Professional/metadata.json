@@ -1,0 +1,70 @@
+{
+  "sku_id": "60-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Cialis Professional",
+  "active_ingredient": "Tadalafil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Cialis Professional",
+    "dosage_display": "20mg",
+    "unit_count_display": "10 pills"
+  },
+  "reference_images": [
+    "Cialis Professional_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "awaiting_front_face_corners",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Cialis Professional_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": "clean studio frame; the PRIX SPECIAL banner and the kazavie.fr watermark sit on the picture, not on the carton"
+  },
+  "front_face_px": [
+    [
+      218,
+      178
+    ],
+    [
+      845,
+      148
+    ],
+    [
+      845,
+      778
+    ],
+    [
+      218,
+      803
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Cialis Professional_front_raw.webp",
+    "rectified_px": [
+      1100,
+      1100
+    ],
+    "reference_aspect": 1.0,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 8.6,
+        "hex": "#E0AE31"
+      },
+      "substrate": {
+        "pct": 77.3,
+        "hex": "#E6E7F0"
+      },
+      "highlight": {
+        "pct": 14.1,
+        "hex": "#274F2D"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

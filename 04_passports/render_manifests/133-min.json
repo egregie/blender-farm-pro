@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "height_mm": 51.013999999999996,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -15,13 +15,111 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.4436,
+    "substrate": "#CACAC9",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#FF973E",
+        "coverage_pct": 24.9,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 20.6,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.0155,
+                0.0266
+              ],
+              [
+                0.2145,
+                0.0328
+              ],
+              [
+                0.2145,
+                0.998
+              ],
+              [
+                0.0164,
+                0.998
+              ],
+              [
+                0.0155,
+                0.8893
+              ],
+              [
+                0.0073,
+                0.998
+              ],
+              [
+                0.0,
+                0.998
+              ],
+              [
+                0.0,
+                0.043
+              ],
+              [
+                0.0036,
+                0.0902
+              ],
+              [
+                0.0136,
+                0.1066
+              ],
+              [
+                0.0145,
+                0.0287
+              ]
+            ]
+          },
+          {
+            "kind": "block",
+            "area_pct": 2.5,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.8845,
+                0.1639
+              ],
+              [
+                0.9764,
+                0.166
+              ],
+              [
+                0.9755,
+                0.3832
+              ],
+              [
+                0.8373,
+                0.3811
+              ],
+              [
+                0.8373,
+                0.166
+              ],
+              [
+                0.8836,
+                0.166
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Ambien_front_raw.jpg"
   },
   "palette": {
     "primary": "#003366",

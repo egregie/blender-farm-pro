@@ -6,8 +6,8 @@
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",
   "carton": {
-    "width_mm": 110.0,
-    "height_mm": 56.708311072807945,
+    "width_mm": 87.23927353477676,
+    "height_mm": 110.0,
     "depth_mm": 18.0,
     "passport_dimensions": {
       "width_mm": 110.0,
@@ -15,13 +15,90 @@
       "depth_mm": 18.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 1.2609,
+    "substrate": "#EDC8C3",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#6A072D",
+        "coverage_pct": 23.9,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 10.6,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.9155,
+                0.5263
+              ],
+              [
+                0.9164,
+                0.6813
+              ],
+              [
+                0.0727,
+                0.6813
+              ],
+              [
+                0.0709,
+                0.5278
+              ],
+              [
+                0.9145,
+                0.527
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "highlight",
+        "fill": "#FFFEFE",
+        "coverage_pct": 15.0,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 12.7,
+            "smoothness": 0.2,
+            "outline": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.9991,
+                0.0
+              ],
+              [
+                0.9991,
+                0.9993
+              ],
+              [
+                0.0,
+                0.9993
+              ],
+              [
+                0.0,
+                0.0007
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Hydrocodone_front_face.png"
   },
   "palette": {
     "primary": "#003366",

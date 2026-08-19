@@ -1,0 +1,70 @@
+{
+  "sku_id": "158-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Klonopin",
+  "active_ingredient": "Clonazepam",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Klonopin",
+    "dosage_display": "1mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Klonopin_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Klonopin_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      58,
+      45
+    ],
+    [
+      455,
+      22
+    ],
+    [
+      455,
+      222
+    ],
+    [
+      58,
+      244
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Klonopin_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      552
+    ],
+    "reference_aspect": 0.5018,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 17.3,
+        "hex": "#3569D6"
+      },
+      "substrate": {
+        "pct": 75.2,
+        "hex": "#DBD9E1"
+      },
+      "highlight": {
+        "pct": 7.5,
+        "hex": "#52C147"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

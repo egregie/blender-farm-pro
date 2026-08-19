@@ -1,0 +1,75 @@
+{
+  "sku_id": "23_T1_Lexotanil",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Lexotanil",
+  "active_ingredient": "Bromazepam BP",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Lexotanil",
+    "unit_count_display": "70 tablets",
+    "dosage_display": "3 mg"
+  },
+  "reference_images": [
+    "Lexotanil_front_raw.webp"
+  ],
+  "packaging_market": "in",
+  "market_evidence": "British Pharmacopoeia designation (Bromazepam BP); English count",
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "front_face_rectified_and_inspected",
+  "provenance_note": "rebuilt 2026-08-18 on new reference photography. The previous metadata.json in git HEAD measures a DIFFERENT carton, whose photograph is not on disk and was never tracked; label_content and active_ingredient here are read off the image named in reference_images.",
+  "front_face_px": [
+    [
+      112,
+      248
+    ],
+    [
+      495,
+      186
+    ],
+    [
+      495,
+      350
+    ],
+    [
+      112,
+      392
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "Lexotanil_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "fair",
+    "corner_note": "a blister overlaps the lower right of the face, and the source has heavy upscaling artefacts along every edge"
+  },
+  "design_measurement": {
+    "source_image": "Lexotanil_front_raw.webp",
+    "rectified_px": [
+      1100,
+      438
+    ],
+    "reference_aspect": 0.3982,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 3.6,
+        "hex": "#01898F"
+      },
+      "substrate": {
+        "pct": 90.2,
+        "hex": "#CACDC5"
+      },
+      "highlight": {
+        "pct": 3.6,
+        "hex": "#889191"
+      },
+      "type": {
+        "pct": 2.6,
+        "hex": "#44474F"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

@@ -6,8 +6,8 @@
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",
   "carton": {
-    "width_mm": 56.77610466551469,
-    "height_mm": 115.0,
+    "width_mm": 115.0,
+    "height_mm": 45.793,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -25,172 +25,52 @@
   },
   "design": {
     "spec_version": "0.1",
-    "face_aspect": 2.0255,
-    "substrate": "#8AB663",
-    "fields": [
-      {
-        "role": "brand",
-        "fill": "#55A096",
-        "coverage_pct": 8.2,
-        "parts": [
-          {
-            "kind": "field",
-            "area_pct": 7.0,
-            "smoothness": 0.45,
-            "outline": [
-              [
-                0.0,
-                0.2998
-              ],
-              [
-                0.9991,
-                0.3317
-              ],
-              [
-                0.9991,
-                0.4013
-              ],
-              [
-                0.9891,
-                0.4057
-              ],
-              [
-                0.57,
-                0.395
-              ],
-              [
-                0.2555,
-                0.382
-              ],
-              [
-                0.1718,
-                0.3797
-              ],
-              [
-                0.1509,
-                0.382
-              ],
-              [
-                0.1327,
-                0.3788
-              ],
-              [
-                0.0,
-                0.3734
-              ],
-              [
-                0.0,
-                0.3003
-              ]
-            ]
-          },
-          {
-            "kind": "field",
-            "area_pct": 0.9,
-            "smoothness": 0.25,
-            "outline": [
-              [
-                0.0,
-                0.0153
-              ],
-              [
-                0.0291,
-                0.018
-              ],
-              [
-                0.0355,
-                0.0256
-              ],
-              [
-                0.0327,
-                0.0592
-              ],
-              [
-                0.0409,
-                0.1513
-              ],
-              [
-                0.0364,
-                0.1531
-              ],
-              [
-                0.0409,
-                0.1535
-              ],
-              [
-                0.0445,
-                0.2356
-              ],
-              [
-                0.0436,
-                0.2464
-              ],
-              [
-                0.0436,
-                0.2356
-              ],
-              [
-                0.0391,
-                0.2352
-              ],
-              [
-                0.0436,
-                0.2617
-              ],
-              [
-                0.0273,
-                0.2599
-              ],
-              [
-                0.0209,
-                0.2639
-              ],
-              [
-                0.0,
-                0.263
-              ],
-              [
-                0.0,
-                0.0157
-              ]
-            ]
-          }
-        ]
-      }
-    ],
+    "face_aspect": 0.3982,
+    "substrate": "#CACDC5",
+    "fields": [],
     "type_rows": {
       "brand_name_display": {
-        "u0": 0.08,
-        "u1": 0.8764,
-        "v0": 0.0938,
-        "v1": 0.1667,
-        "cap_frac": 0.0687,
-        "cap_top_v": 0.0966,
-        "align": "CENTER",
-        "read_as": "Lexomil* Roche"
+        "u0": 0.1,
+        "u1": 0.4673,
+        "v0": 0.0411,
+        "v1": 0.2751,
+        "cap_frac": 0.2204,
+        "cap_top_v": 0.0502,
+        "align": "LEFT",
+        "read_as": "Lexotanil"
       },
       "active_ingredient_display": {
-        "u0": 0.0886,
-        "u1": 0.5827,
-        "v0": 0.235,
-        "v1": 0.2893,
-        "cap_frac": 0.0392,
-        "cap_top_v": 0.2388,
+        "u0": 0.1014,
+        "u1": 0.3509,
+        "v0": 0.3447,
+        "v1": 0.4498,
+        "cap_frac": 0.0816,
+        "cap_top_v": 0.3447,
         "align": "LEFT",
-        "read_as": "Bromazépam"
+        "read_as": "Bromazepam"
       },
       "dosage_display": {
-        "u0": 0.0914,
-        "u1": 0.3786,
-        "v0": 0.3193,
-        "v1": 0.3772,
-        "cap_frac": 0.0443,
-        "cap_top_v": 0.3199,
+        "u0": 0.1023,
+        "u1": 0.2109,
+        "v0": 0.6062,
+        "v1": 0.718,
+        "cap_frac": 0.0855,
+        "cap_top_v": 0.6074,
         "align": "LEFT",
-        "read_as": "6mg"
+        "read_as": "3mg"
+      },
+      "unit_count_display": {
+        "u0": 0.1018,
+        "u1": 0.2732,
+        "v0": 0.8505,
+        "v1": 0.9566,
+        "cap_frac": 0.0999,
+        "cap_top_v": 0.8546,
+        "align": "LEFT",
+        "read_as": "70 tablets"
       }
     },
-    "source_image": "raw_lexotanil_01.jpg"
+    "source_image": "Lexotanil_front_raw.webp"
   },
   "palette": {
     "primary": "#003366",

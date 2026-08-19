@@ -1,0 +1,71 @@
+{
+  "sku_id": "362-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Hydrocodone",
+  "active_ingredient": "Hydrocodone Bitartrate",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Hydrocodone",
+    "dosage_display": "10mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Hydrocodone_front_face.png",
+    "Hydrocodone_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "awaiting_front_face_corners",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Hydrocodone_front_face.png",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "unset",
+    "corner_note": "the source is a bottle label, not a carton. The owner named its printed panel as the front face; it is cropped from Hydrocodone_front_raw.jpg at (262, 28, 585, 435) and saved here, and the face is that crop in full."
+  },
+  "front_face_px": [
+    [
+      0,
+      0
+    ],
+    [
+      322,
+      0
+    ],
+    [
+      322,
+      406
+    ],
+    [
+      0,
+      406
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Hydrocodone_front_face.png",
+    "rectified_px": [
+      1100,
+      1387
+    ],
+    "reference_aspect": 1.2609,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 23.9,
+        "hex": "#6A072D"
+      },
+      "substrate": {
+        "pct": 37.2,
+        "hex": "#EDC8C3"
+      },
+      "highlight": {
+        "pct": 15.0,
+        "hex": "#FFFEFE"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

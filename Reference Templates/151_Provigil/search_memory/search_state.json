@@ -1,0 +1,77 @@
+{
+  "folder_name": "c:\\lil_projects\\Package Hunter\\01_input_products\\12_Provigil",
+  "product_name": "Provigil",
+  "created_at": "2026-08-17T14:53:27.703780",
+  "updated_at": "2026-08-17T14:57:21.450557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 2,
+  "queries_executed": [
+    "Modafinil 100 mg tablets Milpharm POM European folding carton"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 2,
+      "failed_attempts": 0,
+      "successful_candidates": 1,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T14:54:35.485498",
+      "status": "SUCCESS"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://upload.wikimedia.org/wikipedia/commons/2/28/Modafinil.jpg"
+  ],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "modafinil_milpharm_uk_100mg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/28/Modafinil.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Modafinil.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "european_packaging_gate": true,
+      "final_decision": "ACCEPTED"
+    },
+    "phash": "da9521ca3e80773d",
+    "timestamp": "2026-08-17T14:54:35.487498"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T14:53:27.705768",
+      "query": "Modafinil 100 mg tablets Milpharm POM European folding carton",
+      "search_route": "LEVEL_5_OPEN_PHARMA_DATABASES: European Public Medicine Archive (Wikimedia Commons)",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Modafinil.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Authentic UK/European Modafinil 100mg folding carton (Milpharm Limited POM) verified and accepted across all 7 strict gates.",
+      "next_strategy": "TARGET_ACQUIRED: Search complete."
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T14:54:35.485498",
+      "query": "Modafinil 100 mg tablets Milpharm POM European folding carton",
+      "search_route": "LEVEL_5_OPEN_PHARMA_DATABASES: European Public Medicine Archive (Wikimedia Commons)",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Modafinil.jpg",
+      "result_status": "ACCEPTED",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Authentic UK/European Modafinil 100mg folding carton (Milpharm Limited POM) verified and accepted across all 7 strict gates.",
+      "next_strategy": "TARGET_ACQUIRED: Search complete."
+    }
+  ]
+}

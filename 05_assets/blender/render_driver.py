@@ -743,6 +743,10 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     left = left_x + LABEL_LEFT_FRAC * face_w
     right = left_x + LABEL_RIGHT_FRAC * face_w
     rows = []
+    # The rows the GRID placed, as opposed to the ones a measurement placed.
+    # Only these get their ink settled from where they finally stand; see the
+    # pass at the end of this function.
+    grid_rows = []          # (text object, the right limit it may not overrun)
 
     def v_to_z(v):
         return top_z - v * face_h
@@ -804,6 +808,7 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
             floor = max(floor, measured_top_z + BRAND_INGREDIENT_GAP_FRAC * face_h)
         _fit_above(t, floor)
         rows.append(t)
+        grid_rows.append((t, brand_right))
 
     ingredient = (label_content.get("active_ingredient_display") or "").strip()
     if ingredient and "active_ingredient_display" in measured:
@@ -820,6 +825,7 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         rows.append(_clear_below(t, measured_spans,
                                  BRAND_INGREDIENT_GAP_FRAC * face_h,
                                  top_z - face_h))
+        grid_rows.append((rows[-1], right))
 
     half_row = max((right - left - BOTTOM_ROW_GUTTER_M * unit_scale) / 2.0,
                    0.1 * face_w)
@@ -859,10 +865,12 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
                       y, align="CENTER")
         _fit_width(t, bw * DOSAGE_BLOCK_FILL_FRAC)
         rows.append(t)
+        grid_rows.append((t, right))
     elif dosage:
         t = _add_text("label_dosage", dosage, bold, small_print_cap(BOTTOM_ROW_CAP_M),
                       ink, left, v_to_z(BOTTOM_ROW_TOP_FRAC), y)
         bottom_row.append(_fit_width(t, half_row))
+        grid_rows.append((t, left + half_row))
 
     count = (label_content.get("unit_count_display") or "").strip()
     if count and "unit_count_display" in measured:
@@ -875,9 +883,51 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
                       small_print_cap(BOTTOM_ROW_CAP_M), ink,
                       right, v_to_z(BOTTOM_ROW_TOP_FRAC), y, align="RIGHT")
         bottom_row.append(_fit_width(t, half_row))
+        grid_rows.append((t, right))
 
     rows.extend(_lift_row(bottom_row, floor_z, measured_spans,
                           BRAND_INGREDIENT_GAP_FRAC * face_h))
+
+    # Ink is settled HERE, from where each row FINALLY stands, and for EVERY row
+    # rather than only the measured ones.
+    #
+    # `_surface_fill` arrived for measured rows, because a measured row lands
+    # wherever the reference puts it and on these cartons that is often on the
+    # design. A GRID row is just as capable of landing on a field -- it gets
+    # there by our own art direction rather than by the reference -- and those
+    # rows kept the constant LABEL_INK. Cialis hangs its unit count across the
+    # green swoosh and Kamagra hangs its across the teal, so both printed
+    # near-black on a dark field: present, correctly placed, and unreadable. The
+    # OCR barrier could not read either and said nothing, because its committed
+    # fixtures were three contract versions stale and it was reading a carton
+    # the renderer had stopped building.
+    #
+    # AFTER placement, not at creation, because a grid row moves: `_fit_above`
+    # shrinks it, `_clear_below` lowers it, and `_lift_row` raises the whole
+    # bottom row to clear the accent stripe. Ink chosen from where a row was
+    # going to go is ink chosen for the wrong surface the moment one of those
+    # fires.
+    #
+    # GRID rows only. A measured row keeps the ink `_ink_for` gave it from the
+    # MEASURED box, and the difference is not academic: `_place_measured_row`
+    # sets a row against its cap line and `_fit_width` may condense it, so the
+    # built box's centre is not the measured box's centre, and on `64-min` the
+    # two fall on different surfaces. Judging every row by the built centre
+    # flipped that dosage's ink and cost the OCR barrier a field that had been
+    # reading. The measured box is what the reference measured; that is the one
+    # to honour where there is a measurement at all.
+    substrate = (design or {}).get("substrate")
+    for t, right_limit in grid_rows:
+        _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
+                         right_limit)
+        b = _bounds_in_frame(t, box)
+        fill = _surface_fill(
+            design,
+            0.5 * (b["min"][0] + b["max"][0] - 2.0 * left_x) / face_w,
+            (top_z - 0.5 * (b["min"][2] + b["max"][2])) / face_h)
+        if fill:
+            t.data.materials.clear()
+            t.data.materials.append(_reverse_ink(fill))
 
     for t in rows:
         t.parent = box
@@ -888,6 +938,72 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     lines = sum(t.data.body.count(chr(10)) + 1 for t in rows)
     print(f"[render_driver] label: {lines} text object(s)")
     return rows
+
+
+def _one_ink_serves(design, substrate, u0, u1, v0, v1):
+    """True when every surface under this band sits on one side of the ink bar.
+
+    Not "one surface": `135-min` sets its dosage across `#032F5D` and `#AD3A9D`
+    and white reads on both, so crossing that boundary costs nothing. What
+    cannot be served is a band carrying both a light and a dark surface.
+    """
+    dark = light = False
+    for i in range(24):
+        for j in range(6):
+            fill = _surface_fill(design, u0 + (u1 - u0) * (i + 0.5) / 24,
+                                 v0 + (v1 - v0) * (j + 0.5) / 6) or substrate
+            h = (fill or "#FFFFFF").lstrip("#")
+            r, g, b = (int(h[k:k + 2], 16) / 255.0 for k in (0, 2, 4))
+            if 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5:
+                dark = True
+            else:
+                light = True
+            if dark and light:
+                return False
+    return True
+
+
+def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
+                     right_limit):
+    """Indent a LEFT-set grid row until one ink can serve all of its capitals.
+
+    A measured row never needs this: the reference puts a row where the real
+    carton puts it, which is on one surface. The grid is design-blind, and on
+    `59-min` it starts the brand at LABEL_LEFT_FRAC -- inside the green swoosh.
+    "Cia" printed dark on dark green and Tesseract returned "lis", off our
+    render AND off the reference photograph, the same three letters.
+
+    Indenting is not an invention: the real Cialis carton starts its wordmark
+    clear of the swoosh at u 0.22 against our 0.076, and the measured shift that
+    clears it here is +0.184.
+
+    Judged over the CAP BAND, because a row's bounding box carries ascender and
+    descender space that reaches where no glyph does -- by the box, `135-min`
+    and `344-min` look affected and stop looking so as the sampling gets finer;
+    over the cap band both are clean at every density.
+
+    Bounded by the row's own right limit rather than by a chosen distance: a row
+    that cannot be cleared before it would overrun stays where the grid put it
+    and keeps whatever ink `_surface_fill` gives it. Two rows in the sample are
+    in that position -- both bottom-right unit counts, where the design owns the
+    corner and no offset in either axis comes within a third of the face.
+    """
+    if not design or t.data.align_x != "LEFT":
+        return t
+    width = _text_dimensions(t).x
+    cap_top = t.location.z - _cap_drop(t.data.font) * t.data.size
+    cap_bot = cap_top - _cap_ratio(t.data.font) * t.data.size
+    step = 0.005 * face_w
+    x = t.location.x
+    while True:
+        if _one_ink_serves(design, substrate,
+                           (x - left_x) / face_w, (x + width - left_x) / face_w,
+                           (top_z - cap_top) / face_h, (top_z - cap_bot) / face_h):
+            t.location.x = x
+            return t
+        if x + width + step > right_limit:
+            return t
+        x += step
 
 
 def _add_panel_text(name, body, font, cap_h, ink_mat, u, v, x, align="LEFT"):

@@ -1,0 +1,93 @@
+{
+  "folder_name": "c:\\lil_projects\\Package Hunter\\01_input_products\\04_Cialis_Super_Active",
+  "product_name": "Cialis Super Active",
+  "created_at": "2026-08-17T13:53:12.212005",
+  "updated_at": "2026-08-17T14:57:21.415557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 3,
+  "queries_executed": [
+    "Cialis Super Active European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 3,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:57:24.003879",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg"
+  ],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "CAND_04_Cialis_Super_Active_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "a8fe50b0aec1aec9",
+    "timestamp": "2026-08-17T13:57:24.006880"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:55:41.232605",
+      "query": "Cialis Super Active European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T13:56:38.808233",
+      "query": "Cialis Super Active European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_003",
+      "timestamp": "2026-08-17T13:57:24.003879",
+      "query": "Cialis Super Active European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Cialis_5mg_UK.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

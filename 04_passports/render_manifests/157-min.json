@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "height_mm": 81.3395,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -15,13 +15,90 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.7073,
+    "substrate": "#BFC4C7",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#DE56A4",
+        "coverage_pct": 15.3,
+        "parts": [
+          {
+            "kind": "field",
+            "area_pct": 14.8,
+            "smoothness": 0.2,
+            "outline": [
+              [
+                0.0,
+                0.3586
+              ],
+              [
+                0.9991,
+                0.4036
+              ],
+              [
+                0.9964,
+                0.5463
+              ],
+              [
+                0.0,
+                0.5283
+              ],
+              [
+                0.0,
+                0.3599
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "type",
+        "fill": "#1F0A24",
+        "coverage_pct": 5.9,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 0.8,
+            "smoothness": 0.2,
+            "outline": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.03,
+                0.0
+              ],
+              [
+                0.0282,
+                0.2738
+              ],
+              [
+                0.0,
+                0.2712
+              ],
+              [
+                0.0,
+                0.0013
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Valium_front_raw.png"
   },
   "palette": {
     "primary": "#003366",

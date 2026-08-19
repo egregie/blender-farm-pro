@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "height_mm": 64.814,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -15,13 +15,99 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.5636,
+    "substrate": "#F5F4F6",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#A6CFD0",
+        "coverage_pct": 7.1,
+        "parts": [
+          {
+            "kind": "field",
+            "area_pct": 1.3,
+            "smoothness": 0.57,
+            "outline": [
+              [
+                0.0055,
+                0.729
+              ],
+              [
+                0.0218,
+                0.8048
+              ],
+              [
+                0.05,
+                0.8774
+              ],
+              [
+                0.1036,
+                0.9484
+              ],
+              [
+                0.1536,
+                0.979
+              ],
+              [
+                0.0036,
+                0.9887
+              ],
+              [
+                0.0055,
+                0.7306
+              ]
+            ]
+          },
+          {
+            "kind": "field",
+            "area_pct": 1.2,
+            "smoothness": 0.43,
+            "outline": [
+              [
+                0.0091,
+                0.3016
+              ],
+              [
+                0.1455,
+                0.3065
+              ],
+              [
+                0.0891,
+                0.3532
+              ],
+              [
+                0.0518,
+                0.4113
+              ],
+              [
+                0.0182,
+                0.5016
+              ],
+              [
+                0.0073,
+                0.5613
+              ],
+              [
+                0.0082,
+                0.3032
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Atarax_front_raw.jpg"
   },
   "palette": {
     "primary": "#003366",

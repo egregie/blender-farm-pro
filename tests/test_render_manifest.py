@@ -635,14 +635,20 @@ class TestDesignChannel(unittest.TestCase):
                 self.assertEqual(carton["source"], "design_spec")
 
     def test_the_reference_proportion_does_not_inflate_the_carton(self):
-        """Lexotanil's face is 2.026 -- portrait, against a landscape passport.
+        """Ativan's face is 1.540 -- portrait, against a landscape passport.
 
-        Solving it by keeping the WIDTH would give a 110x223mm box: a carton
-        twice the size of the one the passport describes, to carry a proportion.
-        Keeping the long edge and assigning it by orientation gives 57x115, which
-        is the passport's own carton stood up.
+        Solving it by keeping the WIDTH would give a 115x177mm box: a carton far
+        larger than the one the passport describes, to carry a proportion.
+        Keeping the long edge and assigning it by orientation gives 75x115,
+        which is the passport's own 115x55 carton stood up.
+
+        This was Lexotanil's case at 2.026 until a re-acquisition replaced the
+        group's photography and its new reference is landscape at 0.398. The
+        property is the reshape's, not that carton's, so it moved to whichever
+        SKU currently holds a portrait reference rather than being deleted with
+        the photograph that first showed it.
         """
-        m = self._manifest("308-min")
+        m = self._manifest("135-min")
         carton = m["carton"]
         real = carton["passport_dimensions"]
         longest_built = max(carton["width_mm"], carton["height_mm"])
@@ -679,9 +685,14 @@ class TestDesignChannel(unittest.TestCase):
     def test_a_type_row_without_a_cap_line_is_rejected(self):
         """1.5's whole point: `cap_frac` changed meaning, so a 1.4 row is not a
         1.5 row with a field missing -- it is the same number meaning something
-        else, and reading it as a cap height oversizes the row by up to 38%."""
+        else, and reading it as a cap height oversizes the row by up to 38%.
+
+        Reads `59-min` rather than `340-min`: Xanax Pfizer left the design group
+        when its reference photograph was replaced by an unmeasurable frame, so
+        its manifest no longer carries a design block at all. Cialis is one of
+        the three folders the re-acquisition did not touch."""
         from src.render_manifest import validate_manifest
-        stale = self._manifest("340-min")
+        stale = self._manifest("59-min")
         for row in stale["design"]["type_rows"].values():
             row.pop("cap_top_v", None)
         with self.assertRaises(Exception):
@@ -710,10 +721,16 @@ class TestDesignChannel(unittest.TestCase):
                     f"over the other")
 
     # Parts that are neither off the face nor a block, i.e. admitted on the
-    # strength of filling their own bounding box. Exactly one exists, measured
-    # at 0.96: Xanax Pfizer's magenta panel, a clean rectangle carrying a
-    # one-pixel thread down the carton's edge that halves its polygon's fill.
-    BOX_FILL_EXEMPT = {("24_T1_Xanax_Pfizer", "brand", 3.2)}
+    # strength of filling their own bounding box.
+    #
+    # Empty, and it tightened rather than drifted. The one exemption that ever
+    # existed was Xanax Pfizer's magenta panel, measured at 0.96 -- a clean
+    # rectangle carrying a one-pixel thread down the carton's edge that halved
+    # its polygon's fill. That folder left the design group when a
+    # re-acquisition replaced its photograph with a frame holding two cartons,
+    # so the exemption went with the spec it described. None of the six specs
+    # rebuilt on the new photography needs one.
+    BOX_FILL_EXEMPT = set()
 
     def test_no_spec_field_is_the_reference_s_own_lettering(self):
         """A spec carrying letter outlines prints the REFERENCE's words.

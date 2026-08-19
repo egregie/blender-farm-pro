@@ -1,0 +1,72 @@
+{
+  "sku_id": "14_T1_Imovane",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Imovane (sanofi aventis)",
+  "active_ingredient": "Zopiclone",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Imovane",
+    "unit_count_display": "20 db",
+    "dosage_display": "7,5 mg"
+  },
+  "reference_images": [
+    "Imovane_front_raw.jpg"
+  ],
+  "packaging_market": "eu",
+  "market_evidence": "Hungarian text (20 db) and an OGYI marketing number",
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "front_face_rectified_and_inspected",
+  "provenance_note": "rebuilt 2026-08-18 on new reference photography. The previous metadata.json in git HEAD measures a DIFFERENT carton, whose photograph is not on disk and was never tracked; label_content and active_ingredient here are read off the image named in reference_images.",
+  "front_face_px": [
+    [
+      113,
+      192
+    ],
+    [
+      553,
+      117
+    ],
+    [
+      553,
+      460
+    ],
+    [
+      113,
+      530
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "Imovane_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": ""
+  },
+  "design_measurement": {
+    "source_image": "Imovane_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      840
+    ],
+    "reference_aspect": 0.7636,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 7.2,
+        "hex": "#6932A9"
+      },
+      "substrate": {
+        "pct": 88.3,
+        "hex": "#DFDED8"
+      },
+      "highlight": {
+        "pct": 4.4,
+        "hex": "#9D92BC"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

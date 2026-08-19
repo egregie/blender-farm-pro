@@ -25,18 +25,55 @@ TEMPLATES_DIR = PROJECT_ROOT / "Reference Templates"
 
 #: folder name -> catalogue SKU stem. Folders with no reference photograph are
 #: deliberately absent: there is nothing for them to be a reference OF.
+#:
+#: `21_Valium_Brand` and `24_Xanax_Pfizer` are DELIBERATELY absent, and their
+#: absence is the point. A re-acquisition replaced every photograph in the group
+#: except Cialis's, Kamagra's and Viagra's, and the two it left those folders are
+#: not measurable: Valium's carton is shot from above with a blister lying across
+#: its printed face, and Xanax Pfizer's frame holds two cartons on a wooden table.
+#: A SKU with no spec must not sit in this map -- `load_design` raises rather than
+#: falling back, so leaving them here does not render them generically, it stops
+#: them rendering at all. Out of the map they take the generic art direction,
+#: which is the honest outcome for a carton nothing has measured.
+#:
+#: The folder's numeric prefix is its SKU's number, so the key now carries the
+#: value's number in it. The map stays explicit anyway: the number is the only
+#: part of a folder name that identifies a SKU, and deriving the map from the
+#: name would re-introduce exactly the matching this module refuses to do.
+#: Renamed from the old sequential prefixes (`02_Cialis` and the rest) after the
+#: rule was checked against every pair already in this map and reproduced all
+#: eleven. Note `58-min` is "Cialis Brand", a different SKU with no folder --
+#: `59-min` is the plain "Cialis" this one holds.
 TEMPLATE_SAMPLE: dict[str, str] = {
-    "02_T1_SMALL_Cialis":            "59-min",
-    "08_T1_Ativan":                  "135-min",
-    "14_T1_Imovane":                 "155-min",
-    "15_T1_Xanax":                   "156-min",
-    "21_T1_Valium_Brand":            "272-min",
-    "23_T1_Lexotanil":               "308-min",
-    "24_T1_Xanax_Pfizer":            "340-min",
-    "25_T1_Modafinil_Generic":       "344-min",
-    "30_T1_Ritalin":                 "404-min",
-    "31_Kamagra_Template_Reference": "64-min",
-    "32_Viagra_Template_Reference":  "74-min",
+    "59_Cialis":                       "59-min",
+    "60_Cialis_Professional":          "60-min",
+    "62_Cialis_Super_Active":          "62-min",
+    "64_Kamagra_Template_Reference":   "64-min",
+    "74_Viagra_Template_Reference":    "74-min",
+    "107_Tramadol":                    "107-min",
+    "133_Ambien":                      "133-min",
+    "134_Atarax":                      "134-min",
+    "135_Ativan":                      "135-min",
+    "149_Modalert":                    "149-min",
+    "150_Waklert":                     "150-min",
+    "151_Provigil":                    "151-min",
+    "152_Artvigil":                    "152-min",
+    "155_Imovane":                     "155-min",
+    "156_Xanax":                       "156-min",
+    "157_Valium":                      "157-min",
+    "158_Klonopin":                    "158-min",
+    "221_Inderal":                     "221-min",
+    "230_Slimex":                      "230-min",
+    "272_Valium_Brand":                "272-min",
+    "304_Sonata":                      "304-min",
+    "308_Lexotanil":                   "308-min",
+    "340_Xanax_Pfizer":                "340-min",
+    "344_Modafinil_Generic":           "344-min",
+    "346_Modvigil":                    "346-min",
+    "357_Adderall":                    "357-min",
+    "362_Hydrocodone":                 "362-min",
+    "365_Tapentadol":                  "365-min",
+    "404_Ritalin":                     "404-min",
 }
 
 #: catalogue SKU stem -> folder name

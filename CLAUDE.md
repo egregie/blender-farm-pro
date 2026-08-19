@@ -149,13 +149,15 @@ until Stage 1 regenerates them.
   no reference photography to measure, so requiring it would fail the catalogue. Loudness moved
   to where it can still be enforced — `src/design_group.py` raises `MissingDesignSpec` for a SKU
   that IS in the group and has no spec, rather than letting it fall back to the generic art
-  direction and render a plausible carton in the wrong colours. A test asserts all eleven carry
-  it. Where the block is present `carton.source` reads `design_spec` and the carton is built to
-  the reference's **front-face** aspect — a different quantity from `TARGET_SILHOUETTE_ASPECT`,
-  which is the whole visible silhouette; the spec's `u,v` are normalised to the printed face,
-  so matching the wrong one puts every outline somewhere else. `reshape_to_design()` keeps the
-  long edge and assigns it by orientation, so Lexotanil's portrait 2.026 gives 57×115 rather
-  than inflating the carton to 110×223 to carry a proportion.
+  direction and render a plausible carton in the wrong colours. A test asserts every member of
+  the group carries it. Where the block is present `carton.source` reads `design_spec` and the
+  carton is built to the reference's **front-face** aspect — a different quantity from
+  `TARGET_SILHOUETTE_ASPECT`, which is the whole visible silhouette; the spec's `u,v` are
+  normalised to the printed face, so matching the wrong one puts every outline somewhere else.
+  `reshape_to_design()` keeps the long edge and assigns it by orientation, so Ativan's portrait
+  1.540 gives 75×115 rather than inflating the passport's 115×55 carton to carry a proportion.
+  (This was Lexotanil's 2.026 → 57×115 until the reference swap; its new photograph is
+  landscape at 0.398, so the test that pins the property moved to Ativan with it.)
 
   **Two scripts write `design_spec.json` and neither may erase the other.**
   `scripts/fit_design_spec.py` owns `fields`, `scripts/measure_type_rows.py` owns
@@ -524,7 +526,32 @@ stripe from the brand badge.
 Blender output is judged against the curated reference renders in `01_input_raster/reference/`,
 analysed in [`01_input_raster/reference_analysis.md`](01_input_raster/reference_analysis.md).
 
-**Two of these constraints are now conditional, and which is which matters.** The eleven SKU
+**The design group's photography was REPLACED on 2026-08-18, and most figures below it are
+therefore historical.** An acquisition run re-searched the catalogue and swapped the reference
+photograph in eight of the eleven folders — not re-encodes of the same picture but *different
+packaging*: `08_Ativan` went from a Polish "Lorazepam Orion, 30 tabletek" to a Mexican Pfizer
+"Ativán, 80 tabletas"; `23_Lexotanil` from a lime "Lexomil Roche 6 mg" to a cream "Lexotanil
+3 mg, 70 tablets"; `30_Ritalin` from a 20/N1 pack to a 50/N2 one. Only Cialis, Kamagra and
+Viagra kept theirs. **The originals were never tracked** — `Reference Templates/` holds no
+images in git — so nothing reproduces the old measurements, and the old `design_spec.json` and
+`design_measurement` for those eight describe cartons no photograph on disk contains.
+
+Six were rebuilt end to end (passport, corners, D-1, D-2, type rows) against the new frames.
+Two left the group: `21_Valium_Brand` is shot from above with a blister lying across its
+printed face, and `24_Xanax_Pfizer`'s frame holds two cartons on a wooden table. They are out
+of `TEMPLATE_SAMPLE`, which puts them on the generic art direction — a SKU left *in* the map
+without a spec does not fall back, `load_design` raises and it stops rendering at all.
+
+So: **every number quoted below against Ativan, Imovane, Xanax, Lexotanil, Modafinil, Ritalin,
+Valium or Xanax SR was measured on the previous photograph.** The reasoning those passages
+record is why each instrument is built the way it is and still governs; the figures are a log,
+not a current reading. Cialis's, Kamagra's and Viagra's numbers are live.
+
+The same run also acquired photography for **seventeen further folders** that name no SKU, so
+`test_no_photographed_folder_is_missing_from_the_sample` fails by design until the group is
+either extended to them or they are removed. That failure is the acquisition's, not a regression.
+
+**Two of these constraints are now conditional, and which is which matters.** The **nine** SKU
 in `src/design_group.py` are judged against *real packaging photography* instead — see
 [`00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md`](00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md). For
 them the measured design governs:
@@ -537,7 +564,7 @@ them the measured design governs:
 | no depth of field | holds | holds |
 
 Surface colour is superseded because it is a *design* rule fitted to nine AI renders, and two
-of the eleven real cartons have a coloured board (Kamagra teal, Lexotanil lime) — it fails
+of the nine real cartons have a coloured board (Kamagra teal, Ritalin orange) — it fails
 inside the sample, not at its edge. Finish and lighting are **not** superseded: the design
 spec carries no print finish, and the owner's brief was composition and colour. The
 references are glossy and our renders are matte; that is a known, deliberate difference

@@ -5,6 +5,16 @@
 photography** — composition, colour and typography — **excluding manufacturer
 logos and holographic elements**.*
 
+**Status note, 2026-08-18 — the group is now NINE, on new photography.**
+An acquisition run replaced the reference photograph in eight of the eleven
+folders with pictures of *different packaging*; the originals were never tracked
+and are gone. Six were rebuilt end to end against the new frames. Two —
+`21_Valium_Brand` and `24_Xanax_Pfizer` — left the group because their new frames
+cannot be measured, and now render on the generic art direction. The target and
+the reasoning below are unchanged; the per-carton tables describe the previous
+references. Seventeen further folders acquired photography and name no SKU, so
+extending the group to them is an open decision, not an oversight.
+
 This replaces nothing in the audit roadmap. It sits beside it, and it is the
 first workstream in this project aimed at what a packshot *looks like* rather
 than at whether the code that makes it is sound.

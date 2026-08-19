@@ -1,0 +1,70 @@
+{
+  "sku_id": "150-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Waklert",
+  "active_ingredient": "Armodafinil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Waklert",
+    "dosage_display": "150mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Waklert_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Waklert_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": "a blister stack overlaps the lower right of the face"
+  },
+  "front_face_px": [
+    [
+      308,
+      252
+    ],
+    [
+      888,
+      200
+    ],
+    [
+      888,
+      480
+    ],
+    [
+      300,
+      545
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Waklert_front_raw.webp",
+    "rectified_px": [
+      1100,
+      537
+    ],
+    "reference_aspect": 0.4882,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 20.9,
+        "hex": "#AE6335"
+      },
+      "substrate": {
+        "pct": 67.5,
+        "hex": "#DCDCDB"
+      },
+      "highlight": {
+        "pct": 7.8,
+        "hex": "#EFDACD"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

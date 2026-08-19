@@ -1,0 +1,64 @@
+{
+  "folder_name": "29_Tapentadol",
+  "product_name": "Tapentadol",
+  "created_at": "2026-08-17T13:25:10.946918",
+  "updated_at": "2026-08-17T14:57:21.521557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 1,
+  "queries_executed": [
+    "Tapentadol Palexia IR 50mg Filmtabletten Grünenthal box packaging"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 1,
+      "failed_attempts": 0,
+      "successful_candidates": 1,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:25:11.714992",
+      "status": "SUCCESS"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Palexia_IR_50mg_box.jpg"
+  ],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "cand_01",
+    "image_url": "https://commons.wikimedia.org/wiki/File:Palexia_IR_50mg_box.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Palexia_IR_50mg_box.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true
+    },
+    "phash": "d5d502874eef0a78",
+    "timestamp": "2026-08-17T13:25:11.712020"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:25:11.714992",
+      "query": "Tapentadol Palexia IR 50mg Filmtabletten Grünenthal box packaging",
+      "search_route": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Palexia_IR_50mg_box.jpg",
+      "result_status": "ACCEPTED",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Passed all strict gates & verified authentic European packaging box.",
+      "next_strategy": ""
+    }
+  ]
+}

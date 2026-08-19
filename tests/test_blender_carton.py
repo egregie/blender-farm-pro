@@ -1420,12 +1420,21 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                     "label_ingredient": "active_ingredient_display",
                     "label_dosage": "dosage_display",
                     "label_unit_count": "unit_count_display"}
-    # Three measured rows each, then the two collision cases: 135-min where a
-    # grid row met a measured one mid-face, 340-min where it met one in the
-    # bottom corner and had to rise rather than drop.
-    # 156/308 carry three measured rows each; 135 and 340 are the two collision
-    # cases; 59 sets a row inside a colour BLOCK and 64 inside a colour FIELD.
-    SKU = ("156-min", "308-min", "135-min", "340-min", "59-min", "64-min")
+    # 156/308/135 carry three or four measured rows each; 59 sets a row inside
+    # a colour BLOCK and 64 inside a colour FIELD; and the two collision cases
+    # are 155-min, where the grid's ingredient at v0.46 meets a measured dosage
+    # running v0.318-0.466 and has to drop, and 404-min, where the measured unit
+    # count sits at v0.88-0.94 in the bottom LEFT corner the grid hangs the
+    # dosage in, so the bottom row has to rise rather than drop.
+    #
+    # Those two cases were 135-min and 340-min until a re-acquisition replaced
+    # the group's photography. Xanax Pfizer left the group altogether -- its new
+    # frame holds two cartons -- and the new Ativan measures three rows that no
+    # longer collide with the grid. Both cases are covered again rather than
+    # dropped with the photographs that first showed them; the bottom-corner one
+    # is now the more common of the two, holding on 74/155/308/404 alike.
+    SKU = ("156-min", "308-min", "135-min", "155-min", "404-min",
+           "59-min", "64-min")
     V_TOL = 0.002        # placement is a translation, so it is exact by build
 
     @classmethod
@@ -1642,3 +1651,234 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                             f"{stem}: {a} at v{av0:.3f}-{av1:.3f} u{au0:.3f}-"
                             f"{au1:.3f} overlaps {b} at v{bv0:.3f}-{bv1:.3f} "
                             f"u{bu0:.3f}-{bu1:.3f}")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestLabelInkFollowsTheSurfaceUnderIt(unittest.TestCase):
+    """Ink is chosen from what a row is printed ON, whoever placed the row.
+
+    `_surface_fill` was added for MEASURED rows, because a measured row lands
+    wherever the reference puts it and on these cartons that is often on the
+    design: Kamagra sets its dosage inside a teal field and our render printed
+    "100mg" near-black on it -- present, right position, right size, invisible.
+
+    A GRID row lands wherever the grid puts it, which is just as capable of
+    being on top of a field, and those rows were still built with the constant
+    `LABEL_INK`. Cialis is the case: its brand and unit count are not measured,
+    the grid hangs them across the green swoosh, and both printed near-black on
+    dark green. Kamagra's unit count does the same on its teal. The OCR barrier
+    could not read either, and said so only once the committed fixtures -- three
+    contract versions stale -- were rebuilt.
+
+    The rule restated rather than imported, as elsewhere in this file: asking
+    the driver's own predicate whether the driver was right cannot answer the
+    question. Judged in sRGB, which is the trap `_reverse_ink` documents.
+    """
+
+    SKU = ("59-min", "64-min", "156-min", "308-min", "135-min", "155-min",
+           "404-min")
+    DARK_INK = "#1A1A1A"
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.jobs, cls.scenes = {}, {}
+        for stem in cls.SKU:
+            cls.jobs[stem] = json.loads(
+                (manifests / f"{stem}.json").read_text(encoding="utf-8"))
+            cls.scenes[stem] = build_scene(cls.jobs[stem])
+
+    @staticmethod
+    def _channels(hex_color):
+        h = hex_color.lstrip("#")
+        return [int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+
+    @classmethod
+    def _linear(cls, hex_color):
+        return [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+                for c in cls._channels(hex_color)]
+
+    @classmethod
+    def _is_dark(cls, hex_color):
+        r, g, b = cls._channels(hex_color)
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5
+
+    @staticmethod
+    def _inside(u, v, outline):
+        inside, n = False, len(outline)
+        for i in range(n):
+            x0, y0 = float(outline[i][0]), float(outline[i][1])
+            x1, y1 = float(outline[(i + 1) % n][0]), float(outline[(i + 1) % n][1])
+            if (y0 > v) != (y1 > v) and y1 != y0:
+                if u < x0 + (v - y0) * (x1 - x0) / (y1 - y0):
+                    inside = not inside
+        return inside
+
+    @classmethod
+    def _fill_under(cls, job, u, v):
+        """The design fill printed under (u, v); later parts paint over earlier."""
+        found = None
+        for field in ((job.get("design") or {}).get("fields") or []):
+            for part in field.get("parts") or []:
+                outline = part.get("outline") or []
+                if len(outline) >= 3 and cls._inside(u, v, outline):
+                    found = field.get("fill")
+        return found
+
+    def test_no_label_row_is_printed_in_ink_its_surface_hides(self):
+        for stem in self.SKU:
+            scene, job = self.scenes[stem], self.jobs[stem]
+            bounds = scene["carton"]["self_bounds"]
+            top_z, left_x = bounds["max"][2], bounds["min"][0]
+            face_h = bounds["max"][2] - bounds["min"][2]
+            face_w = bounds["max"][0] - bounds["min"][0]
+            for row in scene["label"]:
+                box = row["bounds_in_carton_frame"]
+                u = 0.5 * (box["min"][0] + box["max"][0] - 2 * left_x) / face_w
+                v = (top_z - 0.5 * (box["min"][2] + box["max"][2])) / face_h
+                fill = self._fill_under(job, u, v)
+                if fill is None:
+                    continue
+                want_hex = "#FFFFFF" if self._is_dark(fill) else self.DARK_INK
+                want = self._linear(want_hex)
+                got = row["base_color"][:3]
+                with self.subTest(sku=stem, row=row["name"]):
+                    for i, axis in enumerate("rgb"):
+                        self.assertAlmostEqual(
+                            got[i], want[i], places=3,
+                            msg=f"{stem}: {row['name']} '{row['body']}' sits on "
+                                f"a design field filled {fill}, so it must be "
+                                f"printed {want_hex}; its {axis} is {got[i]:.4f} "
+                                f"against {want[i]:.4f}. A row the surface hides "
+                                f"is present, correctly placed, and unreadable.")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
+    """A row that crosses a design boundary cannot be saved by any one ink.
+
+    `_surface_fill` picks the ink from one point, so a row lying half on a dark
+    field and half on the board gets an ink that hides one half or the other.
+    Cialis is the case: the grid starts the brand at LABEL_LEFT_FRAC, which on
+    that carton is inside the green swoosh, so "Cia" printed dark on dark green
+    and Tesseract returned "lis" -- off our render AND off the reference
+    photograph, the same three letters.
+
+    Measured rows never do this. All four of the rows that straddle are grid
+    rows, and the reason is structural: the reference puts a row where the real
+    carton puts it, which is on one surface, while the grid is design-blind.
+    The real Cialis carton starts its wordmark clear of the swoosh at u 0.22.
+
+    Judged on READABILITY, not on how many surfaces the row crosses. The two are
+    different and the difference has a case: `135-min` sets its dosage across
+    `#032F5D` and `#AD3A9D`, and white reads on both, so crossing that boundary
+    costs nothing. What counts is area where the ink and the surface under it
+    fall on the same side of the bar `_reverse_ink` splits on.
+
+    A ratchet, not a threshold. Two of the three cannot be fixed by placement at
+    all -- measured, there is no offset in either axis within a third of the
+    face that puts either bottom-right unit count on one surface, because the
+    design owns that corner on both cartons. They are listed so the set cannot
+    quietly grow, and asserted to still fail so it cannot go stale.
+    """
+
+    SKU = ("59-min", "64-min", "74-min", "135-min", "155-min", "156-min",
+           "308-min", "344-min", "404-min")
+    ROLE = {"label_brand": "brand_name_display",
+            "label_ingredient": "active_ingredient_display",
+            "label_dosage": "dosage_display",
+            "label_unit_count": "unit_count_display"}
+    # (sku, row) -> why placement cannot clear it.
+    KNOWN_STRADDLING = {
+        ("59-min", "label_unit_count"),   # design owns the bottom-right corner
+        ("64-min", "label_unit_count"),   # likewise
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.jobs, cls.scenes = {}, {}
+        for stem in cls.SKU:
+            cls.jobs[stem] = json.loads(
+                (manifests / f"{stem}.json").read_text(encoding="utf-8"))
+            cls.scenes[stem] = build_scene(cls.jobs[stem])
+
+    @staticmethod
+    def _inside(u, v, poly):
+        r, n = False, len(poly)
+        for i in range(n):
+            x0, y0 = float(poly[i][0]), float(poly[i][1])
+            x1, y1 = float(poly[(i + 1) % n][0]), float(poly[(i + 1) % n][1])
+            if (y0 > v) != (y1 > v) and y1 != y0:
+                if u < x0 + (v - y0) * (x1 - x0) / (y1 - y0):
+                    r = not r
+        return r
+
+    @classmethod
+    def _fill_at(cls, fields, u, v):
+        found = None
+        for f in fields:
+            for p in f.get("parts") or []:
+                o = p.get("outline") or []
+                if len(o) >= 3 and cls._inside(u, v, o):
+                    found = f.get("fill")
+        return found
+
+    @staticmethod
+    def _luma(hex_color):
+        h = (hex_color or "#FFFFFF").lstrip("#")
+        r, g, b = (int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+    def _straddling(self):
+        out = set()
+        for stem in self.SKU:
+            design = self.jobs[stem].get("design") or {}
+            fields = design.get("fields") or []
+            if not fields:
+                continue
+            substrate = design.get("substrate") or "#FFFFFF"
+            b = self.scenes[stem]["carton"]["self_bounds"]
+            top_z, left_x = b["max"][2], b["min"][0]
+            fh = b["max"][2] - b["min"][2]
+            fw = b["max"][0] - b["min"][0]
+            for row in self.scenes[stem]["label"]:
+                box = row["bounds_in_carton_frame"]
+                u0 = (box["min"][0] - left_x) / fw
+                u1 = (box["max"][0] - left_x) / fw
+                # The CAP BAND, not the bounding box. A row's box carries the
+                # font's ascender and descender space, so a box can graze a
+                # field edge where no glyph reaches: measured, `135-min`'s
+                # dosage reads 5.67% hidden by its box at one sampling density
+                # and 0.00% at twice that, and `344-min`'s 10.00% falls to
+                # 5.00%. Over the cap band both are 0 at every density, and the
+                # three real cases hold at 31.5 / 51.0 / 23.2%.
+                cap_top, cap_h = row.get("cap_top_z"), row.get("cap_h")
+                if cap_top is None or cap_h is None:
+                    continue
+                v0 = (top_z - cap_top) / fh
+                v1 = (top_z - (cap_top - cap_h)) / fh
+                ink_is_white = row["base_color"][0] > 0.5
+                hidden = 0
+                for i in range(30):
+                    for j in range(10):
+                        fill = self._fill_at(
+                            fields, u0 + (u1 - u0) * (i + 0.5) / 30,
+                            v0 + (v1 - v0) * (j + 0.5) / 10) or substrate
+                        if (self._luma(fill) < 0.5) == (not ink_is_white):
+                            hidden += 1
+                if hidden:
+                    out.add((stem, row["name"]))
+        return out
+
+    def test_the_set_of_unreadable_rows_is_exactly_the_known_one(self):
+        self.assertEqual(
+            self._straddling(), self.KNOWN_STRADDLING,
+            "a label row spans two design surfaces. No single ink reads on "
+            "both, so part of the string is printed in a colour its own "
+            "background hides: present, correctly placed, unreadable. Either "
+            "the row can be moved clear -- which is what the real carton does "
+            "-- or it belongs in KNOWN_STRADDLING with the measurement that "
+            "shows placement cannot clear it.")

@@ -1,0 +1,101 @@
+{
+  "folder_name": "28_Hydrocodone",
+  "product_name": "Hydrocodone",
+  "created_at": "2026-08-17T13:25:12.125261",
+  "updated_at": "2026-08-17T14:57:21.517558",
+  "current_status": "ACCEPTED",
+  "attempt_count": 2,
+  "queries_executed": [
+    "Hydrocodone DHC 60mg Mundipharma Retardtabletten Germany box packaging",
+    "Hydrocodone European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 2,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:57:37.206171",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:DHC_60_mg_Mundipharma_Retardtabletten.jpg",
+    "https://commons.wikimedia.org/wiki/File:Bo%C3%AEte_Dicodin.jpg"
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "cand_01",
+      "image_url": "https://commons.wikimedia.org/wiki/File:DHC_60_mg_Mundipharma_Retardtabletten.jpg",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:DHC_60_mg_Mundipharma_Retardtabletten.jpg",
+      "source_domain": "commons.wikimedia.org",
+      "decision": "REJECTED",
+      "rejection_reason": "BLUR",
+      "gates": {
+        "download_gate": false,
+        "ocr_gate": false,
+        "visual_gate": true,
+        "duplicate_check": false,
+        "real_package_gate": true,
+        "front_face_gate": true,
+        "european_packaging_gate": false
+      },
+      "phash": null,
+      "timestamp": "2026-08-17T13:25:12.409485"
+    }
+  ],
+  "accepted_candidate": {
+    "candidate_id": "CAND_28_Hydrocodone_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:Bo%C3%AEte_Dicodin.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Bo%C3%AEte_Dicodin.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "9be53a9585da854a",
+    "timestamp": "2026-08-17T13:57:37.209169"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:25:12.412462",
+      "query": "Hydrocodone DHC 60mg Mundipharma Retardtabletten Germany box packaging",
+      "search_route": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:DHC_60_mg_Mundipharma_Retardtabletten.jpg",
+      "result_status": "REJECTED",
+      "candidates_found": 1,
+      "candidate_status": "REJECTED",
+      "failure_type": null,
+      "reason": "BLUR",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T13:57:37.206171",
+      "query": "Hydrocodone European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Bo%C3%AEte_Dicodin.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

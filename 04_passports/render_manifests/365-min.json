@@ -7,7 +7,7 @@
   "packaging_geometry": "PEN",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "height_mm": 55.096500000000006,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -15,13 +15,95 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.4791,
+    "substrate": "#E9DCDC",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#FD7902",
+        "coverage_pct": 12.2,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 9.6,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.9927,
+                0.888
+              ],
+              [
+                0.9991,
+                0.888
+              ],
+              [
+                0.9991,
+                0.9981
+              ],
+              [
+                0.0627,
+                0.9981
+              ],
+              [
+                0.0627,
+                0.9051
+              ],
+              [
+                0.9918,
+                0.8899
+              ]
+            ]
+          },
+          {
+            "kind": "field",
+            "area_pct": 1.5,
+            "smoothness": 0.43,
+            "outline": [
+              [
+                0.0009,
+                0.0
+              ],
+              [
+                0.0155,
+                0.0
+              ],
+              [
+                0.0191,
+                0.8786
+              ],
+              [
+                0.0191,
+                0.9981
+              ],
+              [
+                0.0064,
+                0.9981
+              ],
+              [
+                0.0055,
+                0.962
+              ],
+              [
+                0.0009,
+                0.0019
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Tapentadol_front_raw.jpg"
   },
   "palette": {
     "primary": "#003366",

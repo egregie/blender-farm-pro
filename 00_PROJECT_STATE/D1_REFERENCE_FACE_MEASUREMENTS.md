@@ -1,4 +1,21 @@
 # D-1 — the eleven reference faces, measured
+> **Superseded for eight of the eleven, 2026-08-18.** An acquisition run replaced
+> the reference photograph in every folder except `02_Cialis`,
+> `31_Kamagra_Template_Reference` and `32_Viagra_Template_Reference`, and the new
+> frames are *different packaging* rather than re-encodes — a different
+> manufacturer, market, dosage or pack size in each case. The originals were never
+> tracked in git, so nothing on disk reproduces the measurements below.
+>
+> Six folders were rebuilt against the new frames: `08_Ativan`, `14_Imovane`,
+> `15_Xanax`, `23_Lexotanil`, `25_Modafinil_Generic`, `30_Ritalin`.
+> `21_Valium_Brand` and `24_Xanax_Pfizer` left the design group — their new frames
+> cannot be measured (a blister lying across the printed face; two cartons in one
+> shot) — and now take the generic art direction.
+>
+> **Every figure below for those eight describes the previous reference.** Cialis,
+> Kamagra and Viagra are unchanged and their rows remain live. Kept as a record of
+> what was measured and why each instrument is built the way it is.
+
 
 *2026-08-11. `scripts/measure_reference_face.py`, corners in each folder's
 `metadata.json`, previews in `02_processing/reference_measurement/`.*

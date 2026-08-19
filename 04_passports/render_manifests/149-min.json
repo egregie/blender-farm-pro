@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 70.79227967958224,
+    "height_mm": 44.5395,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -15,13 +15,56 @@
       "depth_mm": 48.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.3873,
+    "substrate": "#DCDCDC",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#C84569",
+        "coverage_pct": 21.6,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 9.3,
+            "smoothness": 0.2,
+            "outline": [
+              [
+                0.2509,
+                0.6925
+              ],
+              [
+                0.8155,
+                0.7089
+              ],
+              [
+                0.7618,
+                0.9319
+              ],
+              [
+                0.1955,
+                0.9272
+              ],
+              [
+                0.25,
+                0.6948
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Modalert_front_raw.webp"
   },
   "palette": {
     "primary": "#DDA7A5",

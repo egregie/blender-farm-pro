@@ -523,7 +523,16 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     KNOWN_OCR_MISSES = {("135-min", "dosage_display")}
 
     # The sample cannot silently shrink to the one fixture it replaced.
-    MIN_SAMPLE = 11
+    #
+    # Nine, not eleven, and the two it lost are named in `src/design_group.py`
+    # rather than merely subtracted here: a re-acquisition replaced the group's
+    # photography, and `21_Valium_Brand` and `24_Xanax_Pfizer` came back with
+    # frames nothing can measure -- a blister lying across the printed face, and
+    # two cartons in one shot. They left TEMPLATE_SAMPLE, so they left this
+    # barrier with it. Lowering this number is exactly the quiet shrink the
+    # constant exists to catch, which is why it is lowered in the open, with the
+    # cause written down, and not by one.
+    MIN_SAMPLE = 9
 
     @classmethod
     def setUpClass(cls):

@@ -1,0 +1,70 @@
+{
+  "sku_id": "151-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Provigil",
+  "active_ingredient": "Modafinil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Provigil",
+    "dosage_display": "200mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Provigil_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Provigil_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "the printed face is the carton's END panel -- it is the one carrying the brand, dosage and ingredient; the large white face beside it is the side"
+  },
+  "front_face_px": [
+    [
+      14,
+      105
+    ],
+    [
+      160,
+      100
+    ],
+    [
+      162,
+      352
+    ],
+    [
+      14,
+      348
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Provigil_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      1851
+    ],
+    "reference_aspect": 1.6827,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 15.8,
+        "hex": "#1D218F"
+      },
+      "substrate": {
+        "pct": 64.5,
+        "hex": "#0E25A7"
+      },
+      "highlight": {
+        "pct": 8.3,
+        "hex": "#DDE6F6"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

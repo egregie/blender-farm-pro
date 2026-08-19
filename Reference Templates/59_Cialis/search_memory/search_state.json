@@ -1,0 +1,17 @@
+{
+  "folder_name": "c:\\lil_projects\\Package Hunter\\01_input_products\\02_Cialis",
+  "product_name": "02_Cialis",
+  "created_at": "2026-08-17T14:57:21.403556",
+  "updated_at": "2026-08-17T14:57:21.405558",
+  "current_status": "TEMPLATE_REFERENCE",
+  "attempt_count": 0,
+  "queries_executed": [],
+  "visited_domains": {},
+  "blacklisted_domains": {},
+  "visited_urls": [],
+  "rejected_candidates": [],
+  "accepted_candidate": null,
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": []
+}

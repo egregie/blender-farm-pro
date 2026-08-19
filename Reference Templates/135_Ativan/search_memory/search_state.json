@@ -1,0 +1,101 @@
+{
+  "folder_name": "08_Ativan",
+  "product_name": "Ativan",
+  "created_at": "2026-08-17T13:25:11.716992",
+  "updated_at": "2026-08-17T14:57:21.433558",
+  "current_status": "ACCEPTED",
+  "attempt_count": 2,
+  "queries_executed": [
+    "Ativan Temesta 1mg Wyeth Pfizer Sweden box packaging",
+    "Ativan European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 2,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:57:30.262104",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Temesta_swedish_lorazepam_1mg.jpg",
+    "https://commons.wikimedia.org/wiki/File:3_boites_de_loraz%C3%A9pam_2,5.jpg"
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "cand_01",
+      "image_url": "https://commons.wikimedia.org/wiki/File:Temesta_swedish_lorazepam_1mg.jpg",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Temesta_swedish_lorazepam_1mg.jpg",
+      "source_domain": "commons.wikimedia.org",
+      "decision": "REJECTED",
+      "rejection_reason": "NAME_MISMATCH",
+      "gates": {
+        "download_gate": true,
+        "ocr_gate": false,
+        "visual_gate": true,
+        "duplicate_check": true,
+        "real_package_gate": true,
+        "front_face_gate": true,
+        "european_packaging_gate": false
+      },
+      "phash": null,
+      "timestamp": "2026-08-17T13:25:12.120251"
+    }
+  ],
+  "accepted_candidate": {
+    "candidate_id": "CAND_08_Ativan_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:3_boites_de_loraz%C3%A9pam_2,5.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:3_boites_de_loraz%C3%A9pam_2,5.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "fc956ac2c93af00b",
+    "timestamp": "2026-08-17T13:57:30.265102"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:25:12.123251",
+      "query": "Ativan Temesta 1mg Wyeth Pfizer Sweden box packaging",
+      "search_route": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Temesta_swedish_lorazepam_1mg.jpg",
+      "result_status": "REJECTED",
+      "candidates_found": 1,
+      "candidate_status": "REJECTED",
+      "failure_type": null,
+      "reason": "NAME_MISMATCH",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T13:57:30.262104",
+      "query": "Ativan European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:3_boites_de_loraz%C3%A9pam_2,5.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

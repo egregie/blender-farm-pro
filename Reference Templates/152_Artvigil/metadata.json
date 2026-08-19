@@ -1,0 +1,70 @@
+{
+  "sku_id": "152-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Artvigil",
+  "active_ingredient": "Armodafinil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Artvigil",
+    "dosage_display": "150mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Artvigil_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Artvigil_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      75,
+      172
+    ],
+    [
+      1125,
+      148
+    ],
+    [
+      1125,
+      700
+    ],
+    [
+      75,
+      706
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Artvigil_front_raw.webp",
+    "rectified_px": [
+      1100,
+      569
+    ],
+    "reference_aspect": 0.5173,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 22.4,
+        "hex": "#E05506"
+      },
+      "substrate": {
+        "pct": 75.7,
+        "hex": "#EFEEEF"
+      },
+      "highlight": {
+        "pct": 1.9,
+        "hex": "#B3A49D"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

@@ -1,12 +1,13 @@
 {
-  "manifest_version": "1.3",
+  "manifest_version": "1.6",
   "sku_id": "404-min.jpg",
+  "product_code": "404-min",
   "template_id": "T1",
   "is_bottle_override": false,
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 110.0,
-    "height_mm": 56.708311072807945,
+    "height_mm": 45.705,
     "depth_mm": 18.0,
     "passport_dimensions": {
       "width_mm": 110.0,
@@ -14,13 +15,149 @@
       "depth_mm": 18.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.4155,
+    "substrate": "#D28A15",
+    "fields": [
+      {
+        "role": "highlight",
+        "fill": "#CCCEC4",
+        "coverage_pct": 40.1,
+        "parts": [
+          {
+            "kind": "field",
+            "area_pct": 39.1,
+            "smoothness": 0.11,
+            "outline": [
+              [
+                0.0673,
+                0.0
+              ],
+              [
+                0.5445,
+                0.0
+              ],
+              [
+                0.54,
+                0.9869
+              ],
+              [
+                0.2318,
+                0.9803
+              ],
+              [
+                0.22,
+                0.9781
+              ],
+              [
+                0.2155,
+                0.9475
+              ],
+              [
+                0.2045,
+                0.9519
+              ],
+              [
+                0.2055,
+                0.9781
+              ],
+              [
+                0.1964,
+                0.9781
+              ],
+              [
+                0.1927,
+                0.9475
+              ],
+              [
+                0.1818,
+                0.9497
+              ],
+              [
+                0.1818,
+                0.9781
+              ],
+              [
+                0.1718,
+                0.9759
+              ],
+              [
+                0.17,
+                0.9475
+              ],
+              [
+                0.1582,
+                0.9497
+              ],
+              [
+                0.1582,
+                0.9781
+              ],
+              [
+                0.0791,
+                0.9759
+              ],
+              [
+                0.0673,
+                0.0022
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {
+      "brand_name_display": {
+        "u0": 0.0791,
+        "u1": 0.2891,
+        "v0": 0.0624,
+        "v1": 0.2133,
+        "cap_frac": 0.1421,
+        "cap_top_v": 0.0682,
+        "align": "LEFT",
+        "read_as": "Ritalin®"
+      },
+      "active_ingredient_display": {
+        "u0": 0.0864,
+        "u1": 0.4932,
+        "v0": 0.605,
+        "v1": 0.6805,
+        "cap_frac": 0.0568,
+        "cap_top_v": 0.6073,
+        "align": "LEFT",
+        "read_as": "Methylphenidathydrochlorid"
+      },
+      "dosage_display": {
+        "u0": 0.3082,
+        "u1": 0.4686,
+        "v0": 0.0667,
+        "v1": 0.2538,
+        "cap_frac": 0.143,
+        "cap_top_v": 0.0687,
+        "align": "LEFT",
+        "read_as": "10mg"
+      },
+      "unit_count_display": {
+        "u0": 0.0895,
+        "u1": 0.3227,
+        "v0": 0.8818,
+        "v1": 0.9398,
+        "cap_frac": 0.0498,
+        "cap_top_v": 0.8838,
+        "align": "LEFT",
+        "read_as": "50 Tabletten/N2"
+      }
+    },
+    "source_image": "Ritalin_front_raw.webp"
   },
   "palette": {
     "primary": "#DDA7A5",

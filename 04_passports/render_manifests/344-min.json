@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 35.65,
+    "height_mm": 44.5395,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -25,54 +25,38 @@
   },
   "design": {
     "spec_version": "0.1",
-    "face_aspect": 0.31,
-    "substrate": "#A39F9F",
+    "face_aspect": 0.3873,
+    "substrate": "#DCDCDC",
     "fields": [
       {
-        "role": "type",
-        "fill": "#43384B",
-        "coverage_pct": 10.3,
+        "role": "brand",
+        "fill": "#C84569",
+        "coverage_pct": 21.6,
         "parts": [
           {
             "kind": "block",
-            "area_pct": 2.0,
-            "smoothness": 0.33,
+            "area_pct": 9.3,
+            "smoothness": 0.2,
             "outline": [
               [
-                0.3927,
-                0.5806
+                0.2509,
+                0.6925
               ],
               [
-                0.3964,
-                0.8006
+                0.8155,
+                0.7089
               ],
               [
-                0.3818,
-                0.8211
+                0.7618,
+                0.9319
               ],
               [
-                0.32,
-                0.8358
+                0.1955,
+                0.9272
               ],
               [
-                0.3145,
-                0.8182
-              ],
-              [
-                0.31,
-                0.6569
-              ],
-              [
-                0.3136,
-                0.6188
-              ],
-              [
-                0.3227,
-                0.6041
-              ],
-              [
-                0.3918,
-                0.5836
+                0.25,
+                0.6948
               ]
             ]
           }
@@ -81,27 +65,27 @@
     ],
     "type_rows": {
       "active_ingredient_display": {
-        "u0": 0.4236,
-        "u1": 0.64,
-        "v0": 0.8343,
-        "v1": 1.0,
-        "cap_frac": 0.1561,
-        "cap_top_v": 0.8407,
-        "align": "CENTER",
-        "read_as": "Modaftin!"
+        "u0": 0.1591,
+        "u1": 0.4841,
+        "v0": 0.4108,
+        "v1": 0.5763,
+        "cap_frac": 0.1559,
+        "cap_top_v": 0.4172,
+        "align": "LEFT",
+        "read_as": "Modafinil"
       },
       "unit_count_display": {
-        "u0": 0.8364,
-        "u1": 0.9995,
-        "v0": 0.2185,
-        "v1": 0.327,
-        "cap_frac": 0.0817,
-        "cap_top_v": 0.2219,
+        "u0": 0.755,
+        "u1": 0.9836,
+        "v0": 0.2653,
+        "v1": 0.3415,
+        "cap_frac": 0.0718,
+        "cap_top_v": 0.2683,
         "align": "RIGHT",
-        "read_as": "30 comprima"
+        "read_as": "10 x 10 Tablets"
       }
     },
-    "source_image": "raw_modafinil_generic_01.jpg"
+    "source_image": "Modafinil Generic_front_raw.webp"
   },
   "palette": {
     "primary": "#DDA7A5",

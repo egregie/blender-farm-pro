@@ -1,0 +1,70 @@
+{
+  "sku_id": "365-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Tapentadol",
+  "active_ingredient": "Tapentadol HCl",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Tapentadol",
+    "dosage_display": "50mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Tapentadol_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Tapentadol_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": "a blister strip covers everything below the accent band"
+  },
+  "front_face_px": [
+    [
+      42,
+      52
+    ],
+    [
+      467,
+      48
+    ],
+    [
+      467,
+      252
+    ],
+    [
+      42,
+      255
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Tapentadol_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      527
+    ],
+    "reference_aspect": 0.4791,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 12.2,
+        "hex": "#FD7902"
+      },
+      "substrate": {
+        "pct": 79.2,
+        "hex": "#E9DCDC"
+      },
+      "highlight": {
+        "pct": 5.3,
+        "hex": "#9DA291"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

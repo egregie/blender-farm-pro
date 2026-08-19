@@ -1,0 +1,70 @@
+{
+  "sku_id": "62-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Cialis Super Active",
+  "active_ingredient": "Tadalafil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Cialis Super Active",
+    "dosage_display": "20mg",
+    "unit_count_display": "10 pills"
+  },
+  "reference_images": [
+    "Cialis Super Active_front_raw.png"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Cialis Super Active_front_raw.png",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      65,
+      58
+    ],
+    [
+      478,
+      40
+    ],
+    [
+      478,
+      288
+    ],
+    [
+      65,
+      305
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Cialis Super Active_front_raw.png",
+    "rectified_px": [
+      1100,
+      659
+    ],
+    "reference_aspect": 0.5991,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 26.4,
+        "hex": "#E9B44B"
+      },
+      "substrate": {
+        "pct": 69.1,
+        "hex": "#F5EDE1"
+      },
+      "highlight": null,
+      "type": {
+        "pct": 4.5,
+        "hex": "#3D3333"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

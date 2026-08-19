@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 110.0,
-    "height_mm": 56.708311072807945,
+    "height_mm": 72.10499999999999,
     "depth_mm": 18.0,
     "passport_dimensions": {
       "width_mm": 110.0,
@@ -15,13 +15,21 @@
       "depth_mm": 18.0,
       "source": "passport_secondary"
     },
-    "source": "art_direction",
+    "source": "design_spec",
     "features": [
       "Braille",
       "DataMatrix_Zone",
       "Tamper_Evident_Seal"
     ],
     "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.6555,
+    "substrate": "#E0E3EB",
+    "fields": [],
+    "type_rows": {},
+    "source_image": "Sonata_front_raw.jpg"
   },
   "palette": {
     "primary": "#003366",

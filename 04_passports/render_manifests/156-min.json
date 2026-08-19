@@ -7,7 +7,7 @@
   "packaging_geometry": "BLISTER",
   "carton": {
     "width_mm": 115.0,
-    "height_mm": 71.81750000000001,
+    "height_mm": 79.24650000000001,
     "depth_mm": 48.0,
     "passport_dimensions": {
       "width_mm": 115.0,
@@ -25,132 +25,69 @@
   },
   "design": {
     "spec_version": "0.1",
-    "face_aspect": 0.6245,
-    "substrate": "#E8DCB4",
+    "face_aspect": 0.6891,
+    "substrate": "#F9F8F4",
     "fields": [
       {
         "role": "brand",
-        "fill": "#2C1F2A",
-        "coverage_pct": 16.2,
+        "fill": "#ED68BF",
+        "coverage_pct": 16.4,
         "parts": [
           {
-            "kind": "field",
-            "area_pct": 5.2,
-            "smoothness": 0.17,
+            "kind": "block",
+            "area_pct": 7.7,
+            "smoothness": 0.33,
             "outline": [
               [
-                0.9109,
-                0.1659
+                0.0,
+                0.0
               ],
               [
-                0.9991,
-                0.1834
+                0.0691,
+                0.0
               ],
               [
-                0.9991,
-                0.4891
+                0.0791,
+                0.5963
               ],
               [
-                0.9845,
-                0.6638
+                0.0782,
+                0.9868
               ],
               [
-                0.8718,
-                0.6492
+                0.0,
+                0.9987
               ],
               [
-                0.91,
-                0.1674
+                0.0,
+                0.0013
               ]
             ]
-          }
-        ]
-      },
-      {
-        "role": "highlight",
-        "fill": "#968974",
-        "coverage_pct": 4.2,
-        "parts": [
+          },
           {
-            "kind": "field",
-            "area_pct": 0.8,
-            "smoothness": 0.11,
+            "kind": "block",
+            "area_pct": 4.3,
+            "smoothness": 0.0,
             "outline": [
               [
-                0.9964,
-                0.6084
+                0.8655,
+                0.2309
               ],
               [
-                0.9991,
-                0.7234
+                0.9673,
+                0.2375
               ],
               [
-                0.9909,
-                0.7263
+                0.9636,
+                0.6398
               ],
               [
-                0.9991,
-                0.7307
+                0.8627,
+                0.6478
               ],
               [
-                0.9991,
-                0.9985
-              ],
-              [
-                0.9627,
-                0.9985
-              ],
-              [
-                0.9745,
-                0.818
-              ],
-              [
-                0.9818,
-                0.7962
-              ],
-              [
-                0.9809,
-                0.7322
-              ],
-              [
-                0.9836,
-                0.7147
-              ],
-              [
-                0.9873,
-                0.7293
-              ],
-              [
-                0.9909,
-                0.7132
-              ],
-              [
-                0.9882,
-                0.7016
-              ],
-              [
-                0.9855,
-                0.7103
-              ],
-              [
-                0.9836,
-                0.6856
-              ],
-              [
-                0.9864,
-                0.6754
-              ],
-              [
-                0.9964,
-                0.6754
-              ],
-              [
-                0.9918,
-                0.6739
-              ],
-              [
-                0.9955,
-                0.6099
+                0.8645,
+                0.2322
               ]
             ]
           }
@@ -158,18 +95,38 @@
       }
     ],
     "type_rows": {
+      "brand_name_display": {
+        "u0": 0.1573,
+        "u1": 0.8064,
+        "v0": 0.1926,
+        "v1": 0.3734,
+        "cap_frac": 0.1808,
+        "cap_top_v": 0.1926,
+        "align": "CENTER",
+        "read_as": "XANAX"
+      },
       "active_ingredient_display": {
-        "u0": 0.0995,
-        "u1": 0.5764,
-        "v0": 0.4636,
-        "v1": 0.6186,
-        "cap_frac": 0.1499,
-        "cap_top_v": 0.4657,
+        "u0": 0.1586,
+        "u1": 0.6441,
+        "v0": 0.4109,
+        "v1": 0.5224,
+        "cap_frac": 0.105,
+        "cap_top_v": 0.4152,
         "align": "LEFT",
-        "read_as": "ALPRAZOLAM"
+        "read_as": "Alorazolamum"
+      },
+      "dosage_display": {
+        "u0": 0.1623,
+        "u1": 0.6255,
+        "v0": 0.5567,
+        "v1": 0.6992,
+        "cap_frac": 0.1089,
+        "cap_top_v": 0.5582,
+        "align": "LEFT",
+        "read_as": "0.25 mg"
       }
     },
-    "source_image": "raw_xanax_01.jpg"
+    "source_image": "Xanax_front_raw.jpg"
   },
   "palette": {
     "primary": "#003366",
