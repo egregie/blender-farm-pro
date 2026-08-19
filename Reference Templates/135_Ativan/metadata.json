@@ -1,0 +1,72 @@
+{
+  "sku_id": "08_T1_Ativan",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Ativan (Pfizer)",
+  "active_ingredient": "lorazepam",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Ativan",
+    "unit_count_display": "Caja con 80 tabletas",
+    "dosage_display": "1 mg"
+  },
+  "reference_images": [
+    "Ativan_front_raw.webp"
+  ],
+  "packaging_market": "mx",
+  "market_evidence": "Spanish text (Tabletas, Caja con 80 tabletas); Pfizer mark",
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "front_face_rectified_and_inspected",
+  "provenance_note": "rebuilt 2026-08-18 on new reference photography. The previous metadata.json in git HEAD measures a DIFFERENT carton, whose photograph is not on disk and was never tracked; label_content and active_ingredient here are read off the image named in reference_images.",
+  "front_face_px": [
+    [
+      250,
+      72
+    ],
+    [
+      558,
+      68
+    ],
+    [
+      557,
+      546
+    ],
+    [
+      262,
+      524
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "Ativan_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "a thin wedge of backdrop inside the bottom-left corner"
+  },
+  "design_measurement": {
+    "source_image": "Ativan_front_raw.webp",
+    "rectified_px": [
+      1100,
+      1694
+    ],
+    "reference_aspect": 1.54,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 15.3,
+        "hex": "#032F5D"
+      },
+      "substrate": {
+        "pct": 76.8,
+        "hex": "#E1E5DF"
+      },
+      "highlight": {
+        "pct": 7.9,
+        "hex": "#AD3A9D"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

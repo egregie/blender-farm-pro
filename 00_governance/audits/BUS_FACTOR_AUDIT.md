@@ -32,7 +32,7 @@ Severity legend: 🔴 high (blocks understanding) · 🟡 medium (slows maintena
 | # | Decision | Where | Severity |
 |---|---|---|---|
 | B1 | **Optical calibration**: `3/4 isometric, 25° pitch, box rotated 35°, 85mm lens, f/8` (and `20° pitch / 25–30° rotation` variants for vertical templates). No recorded rationale for these exact values. | `src/passport_generator.py:570, 608, 646, 684, 721, 758, 796, 834, 872, 910` | 🟡 |
-| B2 | **"Accent stripe on Row 6, front face only; carton otherwise pure white #FFFFFF."** A strict art-direction rule with no documented "why". | `src/passport_generator.py:562, 581, 593` | 🟡 |
+| B2 | **"Accent stripe on Row 6, front face only; carton otherwise pure white #FFFFFF."** A strict art-direction rule with no documented "why". *Written up in [DESIGN_RATIONALE §7](../../06_docs/DESIGN_RATIONALE.md) — the rule, its two elements and their separate colours are now stated and confirmed against the reference renders; the original motivation for white specifically is still unrecovered.* | `src/passport_generator.py:562, 581, 593` | ⚪ |
 | B3 | **Production confidence threshold 0.75** (raised from 0.70) and the per-check penalty weights. Why 0.75 and why each weight is unexplained. | `verification_agent.py:161, 170-177` | 🟡 |
 | B4 | **"P-numbering"** (P6.0, P8.0, P20, P21, P22) referenced across code comments with no glossary. | passim in `src/`, docs | ⚪ |
 

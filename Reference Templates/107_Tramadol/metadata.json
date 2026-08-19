@@ -1,0 +1,71 @@
+{
+  "sku_id": "107-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Tramadol",
+  "active_ingredient": "Tramadol HCl",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Tramadol",
+    "dosage_display": "50mg",
+    "unit_count_display": "60 pills"
+  },
+  "reference_images": [
+    "Tramadol_front_raw.png",
+    "Tramadol_front_raw_2.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Tramadol_front_raw.png",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      24,
+      104
+    ],
+    [
+      268,
+      44
+    ],
+    [
+      268,
+      240
+    ],
+    [
+      24,
+      206
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Tramadol_front_raw.png",
+    "rectified_px": [
+      1100,
+      659
+    ],
+    "reference_aspect": 0.5991,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 29.6,
+        "hex": "#4F6ECF"
+      },
+      "substrate": {
+        "pct": 53.1,
+        "hex": "#E7E7E9"
+      },
+      "highlight": {
+        "pct": 12.2,
+        "hex": "#9197AC"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

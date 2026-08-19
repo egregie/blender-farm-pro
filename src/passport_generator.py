@@ -17,11 +17,12 @@ from verification_agent import agent_2_verifier
 # ================= SETTINGS =================
 # Paths are centralised in config.yaml (see src/utils.py). Defaults are identical
 # to the original hard-coded values, so behaviour is unchanged without a config.
-from src.utils import load_config, get_path
+from src.utils import load_config, get_path, PROJECT_ROOT
 
 _CFG = load_config()
 INPUT_DIR    = get_path(_CFG, "passports_json")
 OUTPUT_DIR   = get_path(_CFG, "passports_md")
+MANIFEST_DIR = get_path(_CFG, "passports_manifests")
 FAILURES_LOG = get_path(_CFG, "failures_log")
 SSOT_MASTER  = get_path(_CFG, "ssot_master_json")
 DESIGN_SPECS_PATH = get_path(_CFG, "ssot_design_specs")
@@ -30,7 +31,7 @@ SKU_CSV_PATH = get_path(_CFG, "ssot_sku_csv")
 
 def _load_sku_csv() -> dict:
     """
-    Load SSOT/SKU.csv into a dict keyed by picture filename.
+    Load the SKU registry CSV into a dict keyed by picture filename.
     Returns: { "1-min.jpg": {"name": "Atomoxetine (Generic)", "active_ingredient": "Atomoxetine",
                               "package_type": "pills", "primary_geometry": "Blister (PVC/Aluminium)",
                               "unit_count_standard": "30", "dosage_type": "mg"}, ... }
@@ -58,7 +59,7 @@ def _load_sku_csv() -> dict:
 SKU_REGISTRY = _load_sku_csv()
 
 def _load_ssot_master() -> dict:
-    """Load SSOT/master.json. Returns empty dict if not found."""
+    """Load the SSOT master registry. Returns empty dict if not found."""
     if SSOT_MASTER.exists():
         with open(SSOT_MASTER, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -1385,6 +1386,15 @@ def main():
             with open(md_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
 
+            # Render manifest — the structured half of Stage 1's output, and the
+            # contract Stage 2 consumes (schemas/render_manifest.schema.json).
+            # The Markdown above is prose for an LLM; a 3D renderer needs the
+            # decisions instead. Imported here rather than at module scope
+            # because render_manifest imports back into this module.
+            from src.render_manifest import build_manifest, write_manifest, manifest_path_for
+            write_manifest(build_manifest(data),
+                          manifest_path_for(json_path.stem, MANIFEST_DIR))
+
             # Accumulate placeholder routing stats
             geom = str(data.get("packaging_geometry", "BOX"))
             product_name = str(data.get("product_name", ""))
@@ -1447,8 +1457,12 @@ def main():
 
     # Placeholder Routing Audit Report generation disabled per P10.0 requirements
 
-    # Write Data-Driven Override Audit Report
-    docs_dir = Path("docs")
+    # Write Data-Driven Override Audit Report. Anchored to the project root
+    # rather than the working directory — this was Path("docs"), which meant the
+    # whole stage crashed at the very end if run from anywhere else, after all
+    # 391 passports had already been written.
+    docs_dir = PROJECT_ROOT / "06_docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
     override_report_path = docs_dir / "DATA_DRIVEN_OVERRIDE_AUDIT.md"
     with open(override_report_path, "w", encoding="utf-8") as of:
         of.write("# DATA-DRIVEN OVERRIDE AUDIT REPORT\n\n")

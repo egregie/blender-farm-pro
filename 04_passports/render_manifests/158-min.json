@@ -1,0 +1,126 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "158-min.jpg",
+  "product_code": "158-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 57.707,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "design_spec",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.5018,
+    "substrate": "#DBD9E1",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#3569D6",
+        "coverage_pct": 17.3,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 17.2,
+            "smoothness": 0.14,
+            "outline": [
+              [
+                0.9736,
+                0.6721
+              ],
+              [
+                0.9991,
+                0.6757
+              ],
+              [
+                0.9991,
+                0.846
+              ],
+              [
+                0.0609,
+                0.8804
+              ],
+              [
+                0.0,
+                0.8804
+              ],
+              [
+                0.0,
+                0.6902
+              ],
+              [
+                0.9727,
+                0.6739
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "highlight",
+        "fill": "#52C147",
+        "coverage_pct": 7.5,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 4.1,
+            "smoothness": 0.33,
+            "outline": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.0682,
+                0.0091
+              ],
+              [
+                0.0709,
+                0.5036
+              ],
+              [
+                0.07,
+                0.5851
+              ],
+              [
+                0.0,
+                0.587
+              ],
+              [
+                0.0,
+                0.0018
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Klonopin_front_raw.jpg"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Klonopin",
+    "active_ingredient_display": "Clonazepam",
+    "dosage_display": "1mg",
+    "unit_count_display": "30 Pills"
+  }
+}

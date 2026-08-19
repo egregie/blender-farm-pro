@@ -29,13 +29,13 @@ v1.0  Production (391 SKU) → Unification → Hardening
 The project began as a computer-vision effort: read pharmaceutical product photos
 and extract structured data. The residue of this era is `pipeline/cv/`
 (detection, OCR, zone/geometry classifiers, `yolov8n.pt`). This established the
-input side: source photos in `input/` and the idea of a per-SKU "passport".
+input side: source photos in `07_input/` and the idea of a per-SKU "passport".
 
 ## Phase 2 — Passports (~v0.3–0.46, 2026-05-02 → 05-10)
 
 Focus shifted to turning extracted data into a precise, reviewable prompt. The
 **passport** concept solidified: a JSON record per SKU, compiled into a
-human-readable **Markdown** prompt ([ADR-002](docs/DECISIONS/ADR-002-why-markdown.md)).
+human-readable **Markdown** prompt ([ADR-002](00_governance/DECISIONS/ADR-002-why-markdown.md)).
 This is the lineage of today's `src/passport_generator.py` and the
 `pharma_pkg/` routing/geometry/classifier library, plus the rule-based
 `verification_agent.py`.
@@ -46,8 +46,8 @@ Many image generators were tried and discarded — DALL·E, Flux, Hugging Face,
 Pollinations, and an Imagen wrapper (all now in `trash/_archive/`). Commit
 *"Add auto-fallback logic to Plan B"* captures the instability of this period.
 The lesson — API renderers were costly or low-quality — drove the eventual choice
-of Gemini ([ADR-001](docs/DECISIONS/ADR-001-why-gemini.md)) over a paid API
-([ADR-004](docs/DECISIONS/ADR-004-why-rpa.md)).
+of Gemini ([ADR-001](00_governance/DECISIONS/ADR-001-why-gemini.md)) over a paid API
+([ADR-004](00_governance/DECISIONS/ADR-004-why-rpa.md)).
 
 ## Phase 4 — Templates & data discipline (~v0.49–0.66, 2026-05-25 → 06-05)
 
@@ -55,7 +55,7 @@ The art-direction system matured: geometry-based template routing (T1/T2/T3 and
 the bottle/vertical family), colour zoning, and the optical calibration rules.
 Data discipline tightened in parallel — palette and price-matching work that led
 to **SSOT/SKU.csv becoming the routing authority**
-([ADR-005](docs/DECISIONS/ADR-005-ssot-routing-authority.md), introduced ~P6.0).
+([ADR-005](00_governance/DECISIONS/ADR-005-ssot-routing-authority.md), introduced ~P6.0).
 
 ## Phase 5 — Catalogue hardening: P20–P22 (2026-06-06)
 
@@ -73,7 +73,7 @@ The Selenium RPA renderer (`gemini_image_generator.py`, now
 `src/rpa_orchestrator.py`) was stabilized: batch context resets, timeout/throttle
 backoff, failure screenshots, an end-of-run retry pass, and the
 `gemini_rpa_progress_v23.txt` resume tracker. The full catalogue of **391 SKU**
-was rendered to PNG and optimized to WEBP ([ADR-003](docs/DECISIONS/ADR-003-why-webp.md)).
+was rendered to PNG and optimized to WEBP ([ADR-003](00_governance/DECISIONS/ADR-003-why-webp.md)).
 At this point the project was production-complete but existed as three loose scripts.
 
 ## Phase 7 — Unification (2026-06-27)
@@ -81,22 +81,22 @@ At this point the project was production-complete but existed as three loose scr
 The three scripts were unified behind a single entry point **`main.py`** with a
 central **`config.yaml`**, a `src/` package, subprocess orchestration, resume,
 and rich logging — preserving stage logic byte-for-byte
-([ADR-006](docs/DECISIONS/ADR-006-unified-entrypoint.md)). Stale `c:\pharma_v2`
+([ADR-006](00_governance/DECISIONS/ADR-006-unified-entrypoint.md)). Stale `c:\pharma_v2`
 paths were fixed; root shims kept backward compatibility.
 
 ## Phase 8 — Repository polish (2026-06-28)
 
 Root minimized; utilities moved to `scripts/`; legacy/experimental artifacts
 archived to `trash/` (via `git mv`, history preserved); a bilingual README and
-editable Mermaid diagrams added. See [REPO_AUDIT.md](docs/REPO_AUDIT.md).
+editable Mermaid diagrams added. See [REPO_AUDIT.md](06_docs/REPO_AUDIT.md).
 
 ## Phase 9 — Production Hardening (2026-06-28, current)
 
 The dev phase was declared complete and a hardening phase opened: the
-[Bus Factor](docs/audits/BUS_FACTOR_AUDIT.md),
-[Production Readiness](docs/audits/PRODUCTION_READINESS_AUDIT.md) and
-[CRM Readiness](docs/audits/CRM_READINESS_AUDIT.md) audits, the
-[ADRs](docs/DECISIONS/), and this history — preparing the project to be owned by
+[Bus Factor](00_governance/audits/BUS_FACTOR_AUDIT.md),
+[Production Readiness](00_governance/audits/PRODUCTION_READINESS_AUDIT.md) and
+[CRM Readiness](00_governance/audits/CRM_READINESS_AUDIT.md) audits, the
+[ADRs](00_governance/DECISIONS/), and this history — preparing the project to be owned by
 a team rather than its author.
 
 ---

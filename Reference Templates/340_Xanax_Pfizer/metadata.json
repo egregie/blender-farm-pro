@@ -1,0 +1,70 @@
+{
+  "sku_id": "340-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Xanax by Pfizer",
+  "active_ingredient": "Alprazolam",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Xanax by Pfizer",
+    "dosage_display": "0.5mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Xanax_Pfizer_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "awaiting_front_face_corners",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Xanax_Pfizer_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": "two cartons in frame; measured on the LOWER one, beside the blister, which is the sharper of the two"
+  },
+  "front_face_px": [
+    [
+      300,
+      578
+    ],
+    [
+      988,
+      370
+    ],
+    [
+      1052,
+      600
+    ],
+    [
+      365,
+      810
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Xanax_Pfizer_front_raw.webp",
+    "rectified_px": [
+      1100,
+      367
+    ],
+    "reference_aspect": 0.3336,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 12.2,
+        "hex": "#B60D7F"
+      },
+      "substrate": {
+        "pct": 35.6,
+        "hex": "#E3E3DF"
+      },
+      "highlight": {
+        "pct": 31.7,
+        "hex": "#D8D8CE"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

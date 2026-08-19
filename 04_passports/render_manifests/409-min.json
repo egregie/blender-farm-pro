@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "409-min.jpg",
+  "product_code": "409-min",
+  "template_id": "T_BOTTLE_BOX",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOX",
+  "carton": {
+    "width_mm": 72.06604768052557,
+    "height_mm": 110.0,
+    "depth_mm": 18.0,
+    "passport_dimensions": {
+      "width_mm": 50.0,
+      "height_mm": 110.0,
+      "depth_mm": 18.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [],
+    "material": "Glass Type I"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Nandrolone Decanoate Generic",
+    "active_ingredient_display": "Nandrolone Decanoate",
+    "dosage_display": "200mg",
+    "unit_count_display": "1 Pills"
+  }
+}

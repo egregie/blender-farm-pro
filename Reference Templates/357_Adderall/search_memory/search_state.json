@@ -1,0 +1,65 @@
+{
+  "folder_name": "c:\\lil_projects\\Package Hunter\\01_input_products\\27_Adderall",
+  "product_name": "Adderall",
+  "created_at": "2026-08-17T13:57:34.802922",
+  "updated_at": "2026-08-17T14:57:21.513558",
+  "current_status": "ACCEPTED",
+  "attempt_count": 1,
+  "queries_executed": [
+    "Adderall European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 1,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:57:34.805893",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Dexedrine_5mg_tablets.jpg"
+  ],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "CAND_27_Adderall_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:Dexedrine_5mg_tablets.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Dexedrine_5mg_tablets.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "c1d4027e817d37da",
+    "timestamp": "2026-08-17T13:57:34.807893"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:57:34.805893",
+      "query": "Adderall European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Dexedrine_5mg_tablets.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

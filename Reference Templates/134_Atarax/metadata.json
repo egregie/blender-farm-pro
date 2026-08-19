@@ -1,0 +1,70 @@
+{
+  "sku_id": "134-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Atarax",
+  "active_ingredient": "Hydroxyzine",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Atarax",
+    "dosage_display": "25mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Atarax_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Atarax_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      50,
+      76
+    ],
+    [
+      508,
+      30
+    ],
+    [
+      508,
+      302
+    ],
+    [
+      50,
+      322
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Atarax_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      620
+    ],
+    "reference_aspect": 0.5636,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 7.1,
+        "hex": "#A6CFD0"
+      },
+      "substrate": {
+        "pct": 87.1,
+        "hex": "#F5F4F6"
+      },
+      "highlight": null,
+      "type": {
+        "pct": 5.8,
+        "hex": "#18181A"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

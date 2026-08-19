@@ -172,7 +172,11 @@ def preflight(stages, cfg, log, render_engine="gemini") -> bool:
                             f"           The render stage needs a logged-in Gemini session in that profile.")
 
     if STAGE_PROCESS in stages:
-        rdir = get_path(cfg, "renders_raw")
+        # The directory the SELECTED engine writes to, not a constant. Checking
+        # paths.renders_raw here meant a blender run pre-flighted against Gemini's
+        # output and passed on somebody else's files.
+        from src.render_stage import raw_output_dir
+        rdir = resolve_path(raw_output_dir(cfg, render_engine))
         n = _count(rdir, "*.png")
         if n == 0 and STAGE_RENDER not in stages:
             log.error(f"No raw PNG renders in {rdir} — run the render stage first."); ok = False
@@ -239,51 +243,130 @@ def run_stage(stage, args, cfg, env, log) -> dict:
 
 # ── Reporting ─────────────────────────────────────────────────────────────────
 def artifact_counts(cfg) -> dict:
+    """Counts for the summary, reported PER STAGE HANDOFF rather than per directory.
+
+    A count of what a stage produced does not say whether the next stage took it.
+    Until 2026-08-10 the summary reported "Final WEBP" from the Gemini directory
+    whatever engine had just run, so a full pass under blender printed a healthy
+    number of artefacts none of which it had made.
+    """
+    from src.render_stage import final_output_dir, raw_output_dir
+
+    engine = cfg.get("render", {}).get("engine", "gemini")
+    raw_dir = resolve_path(raw_output_dir(cfg, engine))
+    final_dir = resolve_path(final_output_dir(cfg, engine))
+
     counts = {
-        "JSON passports": _count(get_path(cfg, "passports_json"), "*.json"),
-        "MD passports":   _count(get_path(cfg, "passports_md"), "*.md"),
-        "Raw PNG (gemini)": _count(get_path(cfg, "renders_raw"), "*.png"),
-        "Final WEBP":     _count(get_path(cfg, "renders_final"), "*.webp"),
+        "JSON passports":  _count(get_path(cfg, "passports_json"), "*.json"),
+        "MD passports":    _count(get_path(cfg, "passports_md"), "*.md"),
+        f"Raw PNG ({engine})":   _count(raw_dir, "*.png"),
+        f"Final WEBP ({engine})": _count(final_dir, "*.webp"),
     }
-    # EXPERIMENTAL: only show the Blender counter when that output dir has ever been used.
-    blender_dir = resolve_path(cfg["blender"]["output_dir"])
-    if blender_dir.exists():
-        counts["Raw PNG (blender)"] = _count(blender_dir, "*.png")
+    # The handoff Stage 2 -> Stage 3, which is the number that was missing: how
+    # many of the renders this engine produced came out the far end.
+    produced = counts[f"Raw PNG ({engine})"]
+    accepted = counts[f"Final WEBP ({engine})"]
+    counts["Stage 2 -> Stage 3"] = f"{produced} produced -> {accepted} converted"
+
+    # The other engine's directories, shown only when they hold something, so a
+    # mixed workspace stays visible instead of looking like this engine's output.
+    other = "gemini" if engine == "blender" else "blender"
+    other_raw = resolve_path(raw_output_dir(cfg, other))
+    if other_raw.exists() and _count(other_raw, "*.png"):
+        counts[f"Raw PNG ({other})"] = _count(other_raw, "*.png")
+    other_final = resolve_path(final_output_dir(cfg, other))
+    if other_final.exists() and _count(other_final, "*.webp"):
+        counts[f"Final WEBP ({other})"] = _count(other_final, "*.webp")
     return counts
 
 
-_STATUS_LABEL = {"ok": "✅ OK", "failed": "❌ FAILED", "skipped": "⏭️  SKIPPED"}
+# A legacy Windows console reports its codepage (cp1251) as stdout's encoding, and
+# that codepage cannot represent the emoji/box glyphs below. rich writes the summary
+# straight to stdout, so one unencodable character raised UnicodeEncodeError and
+# killed the process *after* every stage had already succeeded — a correct run
+# reported as rc=1. Stages get PYTHONIOENCODING=utf-8 (see main()); the parent
+# instead picks glyphs the stream can encode, because forcing utf-8 onto a console
+# still set to cp1251 renders mojibake rather than fixing anything.
+_STATUS_LABELS_UNICODE = {"ok": "✅ OK", "failed": "❌ FAILED", "skipped": "⏭️  SKIPPED"}
+_STATUS_LABELS_ASCII   = {"ok": "[OK]",  "failed": "[FAILED]",  "skipped": "[SKIPPED]"}
+
+_GLYPHS_UNICODE = {"dash": "—", "rule": "─", "arrow": "▶"}
+_GLYPHS_ASCII   = {"dash": "-", "rule": "-", "arrow": ">"}
 
 
-def print_summary(results, counts, log_path, total_dur, log):
+def stream_can_encode(text: str, stream=None) -> bool:
+    """True when *stream* can represent *text* in its own encoding."""
+    enc = getattr(stream if stream is not None else sys.stdout, "encoding", None)
+    if not enc:
+        return True                 # in-memory streams hold str — nothing to encode
+    try:
+        text.encode(enc)            # strict on purpose: this call *is* the probe
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+def console_style(stream=None):
+    """(status labels, decorative glyphs) that *stream* can actually encode.
+
+    All-or-nothing: cp1251 takes the em dash but not the emoji, and a half-ASCII
+    summary reads worse than a consistent one.
+    """
+    probe = "".join(_STATUS_LABELS_UNICODE.values()) + "".join(_GLYPHS_UNICODE.values())
+    if stream_can_encode(probe, stream):
+        return _STATUS_LABELS_UNICODE, _GLYPHS_UNICODE
+    return _STATUS_LABELS_ASCII, _GLYPHS_ASCII
+
+
+def harden_stream(stream) -> None:
+    """Degrade unencodable characters to '?' instead of raising.
+
+    Backstop only — console_style() already picks glyphs that fit. Deliberately
+    keeps the stream's own encoding so nothing that renders correctly today turns
+    into mojibake.
+    """
+    try:
+        stream.reconfigure(errors="replace")
+    except (AttributeError, ValueError, OSError):
+        pass                        # not a reconfigurable TextIOWrapper
+
+
+def print_summary(results, counts, log_path, total_dur, log, stream=None):
+    out = stream if stream is not None else sys.stdout
+    labels, glyphs = console_style(out)
+    ascii_only = labels is _STATUS_LABELS_ASCII
     try:
         from rich.console import Console
         from rich.table import Table
-        console = Console()
+        from rich import box
+        console = Console(file=out)
+        # rich swaps in ASCII box art by itself on a legacy console, but not when
+        # stdout is merely redirected to a codepage-limited stream — be explicit.
+        table_box = box.ASCII if ascii_only else box.HEAVY_HEAD
 
-        t = Table(title="PharmaGen PRO — Run Summary", show_lines=False)
+        t = Table(title=f"PharmaGen PRO {glyphs['dash']} Run Summary", show_lines=False, box=table_box)
         t.add_column("Stage"); t.add_column("Status"); t.add_column("Duration", justify="right"); t.add_column("RC", justify="right")
         for r in results:
             dur = f"{r['duration']:.1f}s" if r.get("duration") else "-"
-            t.add_row(r["stage"], _STATUS_LABEL.get(r["status"], r["status"]), dur,
+            t.add_row(r["stage"], labels.get(r["status"], r["status"]), dur,
                       str(r.get("rc") if r.get("rc") is not None else "-"))
         console.print(t)
 
-        ct = Table(title="Artifacts on disk", show_lines=False)
+        ct = Table(title="Artifacts on disk", show_lines=False, box=table_box)
         ct.add_column("Type"); ct.add_column("Count", justify="right")
         for k, v in counts.items():
             ct.add_row(k, str(v))
         console.print(ct)
     except ImportError:
-        log.info("─" * 50)
+        log.info(glyphs["rule"] * 50)
         log.info("RUN SUMMARY")
         for r in results:
             dur = f"{r['duration']:.1f}s" if r.get("duration") else "-"
-            log.info(f"  {r['stage']:<16} {_STATUS_LABEL.get(r['status'], r['status']):<12} {dur:>8}  rc={r.get('rc')}")
+            log.info(f"  {r['stage']:<16} {labels.get(r['status'], r['status']):<12} {dur:>8}  rc={r.get('rc')}")
         log.info("ARTIFACTS")
         for k, v in counts.items():
             log.info(f"  {k:<16} {v}")
-        log.info("─" * 50)
+        log.info(glyphs["rule"] * 50)
 
     log.info(f"Total wall time: {total_dur:.1f}s")
     if log_path:
@@ -292,6 +375,11 @@ def print_summary(results, counts, log_path, total_dur, log):
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main(argv=None) -> int:
+    # Before parse_args: --help and argparse errors carry non-ASCII text too.
+    harden_stream(sys.stdout)
+    harden_stream(sys.stderr)
+    _, glyphs = console_style()
+
     args = parse_args(argv)
 
     # Propagate flags to subprocess stages via environment (read by src/utils).
@@ -311,7 +399,7 @@ def main(argv=None) -> int:
     mode_label = "full" if len(stages) == 3 else ", ".join(stages)
     render_engine = resolve_render_engine(args, cfg)
     log.info("=" * 70)
-    log.info("  PharmaGen PRO — unified pipeline")
+    log.info(f"  PharmaGen PRO {glyphs['dash']} unified pipeline")
     log.info(f"  Mode:    {mode_label}")
     if STAGE_RENDER in stages:
         log.info(f"  Engine:  {render_engine}"
@@ -348,9 +436,9 @@ def main(argv=None) -> int:
                 continue
 
             log.info("")
-            log.info("─" * 60)
-            log.info(f"▶ STAGE: {stage}")
-            log.info("─" * 60)
+            log.info(glyphs["rule"] * 60)
+            log.info(f"{glyphs['arrow']} STAGE: {stage}")
+            log.info(glyphs["rule"] * 60)
 
             res = run_stage(stage, args, cfg, child_env, log)
             res["status"] = "ok" if res["ok"] else "failed"

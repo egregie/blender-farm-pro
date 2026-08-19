@@ -1,0 +1,72 @@
+{
+  "sku_id": "15_T1_Xanax",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Xanax (Viatris)",
+  "active_ingredient": "Alprazolamum",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "XANAX",
+    "unit_count_display": "30 Tabletten/Comprimes",
+    "dosage_display": "0.25 mg"
+  },
+  "reference_images": [
+    "Xanax_front_raw.jpg"
+  ],
+  "packaging_market": "eu",
+  "market_evidence": "Swiss bilingual count (30 Tabletten/Comprimes); Viatris mark",
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "front_face_rectified_and_inspected",
+  "provenance_note": "rebuilt 2026-08-18 on new reference photography. The previous metadata.json in git HEAD measures a DIFFERENT carton, whose photograph is not on disk and was never tracked; label_content and active_ingredient here are read off the image named in reference_images.",
+  "front_face_px": [
+    [
+      171,
+      170
+    ],
+    [
+      424,
+      102
+    ],
+    [
+      424,
+      296
+    ],
+    [
+      169,
+      334
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "Xanax_front_raw.jpg",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": "the fold shadow falls a pixel or two inside the left edge; the magenta band there is the face's own margin, not the navy end panel"
+  },
+  "design_measurement": {
+    "source_image": "Xanax_front_raw.jpg",
+    "rectified_px": [
+      1100,
+      758
+    ],
+    "reference_aspect": 0.6891,
+    "catalogue_aspect": 0.4783,
+    "fields": {
+      "brand": {
+        "pct": 16.4,
+        "hex": "#ED68BF"
+      },
+      "substrate": {
+        "pct": 76.8,
+        "hex": "#F9F8F4"
+      },
+      "highlight": null,
+      "type": {
+        "pct": 6.8,
+        "hex": "#4F4B48"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

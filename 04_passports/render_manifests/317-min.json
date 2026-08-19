@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "317-min.jpg",
+  "product_code": "317-min",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "TUBE",
+  "carton": {
+    "width_mm": 140.0,
+    "height_mm": 55.52027023833445,
+    "depth_mm": 25.0,
+    "passport_dimensions": {
+      "width_mm": 140.0,
+      "height_mm": 35.0,
+      "depth_mm": 25.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#E2583E",
+    "accent": "#4B4632",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Benzac",
+    "active_ingredient_display": "Benzoyl",
+    "dosage_display": "5g/2.5%",
+    "unit_count_display": "1 Tube"
+  }
+}

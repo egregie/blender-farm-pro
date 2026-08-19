@@ -1,0 +1,70 @@
+{
+  "sku_id": "149-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Modalert",
+  "active_ingredient": "Modafinil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Modalert",
+    "dosage_display": "200mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Modalert_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Modalert_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      88,
+      408
+    ],
+    [
+      644,
+      390
+    ],
+    [
+      640,
+      606
+    ],
+    [
+      100,
+      616
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Modalert_front_raw.webp",
+    "rectified_px": [
+      1100,
+      426
+    ],
+    "reference_aspect": 0.3873,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 21.6,
+        "hex": "#C84569"
+      },
+      "substrate": {
+        "pct": 74.9,
+        "hex": "#DCDCDC"
+      },
+      "highlight": {
+        "pct": 3.4,
+        "hex": "#DD8DA6"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "folder_name": "15_Xanax",
+  "product_name": "Xanax",
+  "created_at": "2026-08-17T13:25:09.713685",
+  "updated_at": "2026-08-17T14:57:21.464557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 2,
+  "queries_executed": [
+    "Xanax Xanor 1mg Pfizer Europe Nordic box packaging",
+    "Xanax European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 2,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T13:57:31.769941",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Xanor_1mg_Pfizer_Nordic.jpg",
+    "https://commons.wikimedia.org/wiki/File:IMAG0002xanor.jpg"
+  ],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "CAND_15_Xanax_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:IMAG0002xanor.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:IMAG0002xanor.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "8fe0ae9f60c0d89d",
+    "timestamp": "2026-08-17T13:57:31.772950"
+  },
+  "manual_review_candidates": [
+    {
+      "candidate_id": "cand_01",
+      "image_url": "https://commons.wikimedia.org/wiki/File:Xanor_1mg_Pfizer_Nordic.jpg",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Xanor_1mg_Pfizer_Nordic.jpg",
+      "source_domain": "commons.wikimedia.org",
+      "decision": "MANUAL_REVIEW",
+      "rejection_reason": null,
+      "gates": {
+        "download_gate": true,
+        "ocr_gate": true,
+        "visual_gate": true,
+        "duplicate_check": true,
+        "real_package_gate": true,
+        "front_face_gate": true,
+        "european_packaging_gate": false
+      },
+      "phash": null,
+      "timestamp": "2026-08-17T13:25:10.120997"
+    }
+  ],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:25:10.123018",
+      "query": "Xanax Xanor 1mg Pfizer Europe Nordic box packaging",
+      "search_route": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Xanor_1mg_Pfizer_Nordic.jpg",
+      "result_status": "MANUAL_REVIEW",
+      "candidates_found": 1,
+      "candidate_status": "MANUAL_REVIEW",
+      "failure_type": null,
+      "reason": "Enqueued to manual review due to uncertain European design.",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T13:57:31.769941",
+      "query": "Xanax European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:IMAG0002xanor.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

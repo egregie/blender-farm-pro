@@ -1,0 +1,75 @@
+{
+  "sku_id": "30_T1_Ritalin",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Ritalin (Novartis)",
+  "active_ingredient": "Methylphenidathydrochlorid",
+  "template_id": "T1",
+  "label_content": {
+    "brand_name_display": "Ritalin",
+    "unit_count_display": "50 Tabletten/N2",
+    "dosage_display": "10 mg"
+  },
+  "reference_images": [
+    "Ritalin_front_raw.webp"
+  ],
+  "packaging_market": "eu",
+  "market_evidence": "German text (Wirkstoff, Zentrales Stimulans) and an N2 pack size",
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "front_face_rectified_and_inspected",
+  "provenance_note": "rebuilt 2026-08-18 on new reference photography. The previous metadata.json in git HEAD measures a DIFFERENT carton, whose photograph is not on disk and was never tracked; label_content and active_ingredient here are read off the image named in reference_images.",
+  "front_face_px": [
+    [
+      148,
+      195
+    ],
+    [
+      888,
+      185
+    ],
+    [
+      888,
+      492
+    ],
+    [
+      155,
+      500
+    ]
+  ],
+  "front_face_measurement": {
+    "source_image": "Ritalin_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits, so src/deskew.flatten_face reads it unchanged",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "good",
+    "corner_note": ""
+  },
+  "design_measurement": {
+    "source_image": "Ritalin_front_raw.webp",
+    "rectified_px": [
+      1100,
+      457
+    ],
+    "reference_aspect": 0.4155,
+    "catalogue_aspect": 0.4545,
+    "fields": {
+      "brand": {
+        "pct": 3.0,
+        "hex": "#726058"
+      },
+      "substrate": {
+        "pct": 50.4,
+        "hex": "#D28A15"
+      },
+      "highlight": {
+        "pct": 40.1,
+        "hex": "#CCCEC4"
+      },
+      "type": {
+        "pct": 6.5,
+        "hex": "#0B081D"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

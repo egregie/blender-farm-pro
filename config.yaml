@@ -22,6 +22,7 @@ paths:
   # ── Stage I/O — remapped to 04_passports/ and 01_input_raster/ ──────────────
   passports_json:      "04_passports/passports_json"           # input  (Stage 1)  JSON v2.1
   passports_md:        "04_passports/passports_markdown"       # output (Stage 1)  MD prompts
+  passports_manifests: "04_passports/render_manifests"         # output (Stage 1)  render manifests — the Stage 1 -> Stage 2 contract (schemas/render_manifest.schema.json)
   renders_raw:         "01_input_raster/gemini_renders_raw"    # output (Stage 2, gemini)  raw PNG
   renders_failed:      "02_processing/render_failed"           # Stage 2 failure screenshots
   renders_failed_logs: "02_processing/failed_logs"             # Stage 2 failure log
@@ -54,18 +55,51 @@ render:
 # ── Stage 2: Blender renderer — the primary engine of this fork ─────────────
 blender:
   executable:   'C:\Program Files\Blender Foundation\Blender 5.1\blender.exe'
-  scenes_dir:   "assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
-  driver_script: "assets/blender/render_driver.py"
+  scenes_dir:   "05_assets/blender/scenes"          # optional hand-authored .blend templates (Phase 2)
+  driver_script: "05_assets/blender/render_driver.py"
   output_dir:   "02_processing/blender_test_renders"  # Blender's own render attempts (distinct from the 01_input_raster/ reference material)
-  engine_type:  "CYCLES"                         # CYCLES | EEVEE
+  final_dir:    "02_processing/blender_renders_final"  # Stage 3 output for this engine, kept away from 01_input_raster/gemini_renders_final
+  engine_type:  "CYCLES"                         # Blender engine identifier, e.g. CYCLES | BLENDER_EEVEE | BLENDER_WORKBENCH.
+                                                 # Must be an identifier this Blender build accepts ("EEVEE" is not one);
+                                                 # an unavailable engine now fails the render rather than silently substituting.
   resolution:   [2048, 2048]
-  samples:      64
-  render_timeout: 300   # seconds, per SKU
+  samples:      16                               # Calibrated, not guessed: measured against a 256-sample reference on 1-min,
+                                                 # 16 lands at 60.6 dB PSNR (>40 dB is already indistinguishable) and Stage 3's
+                                                 # own resize+WEBP shifts pixels more than the sample count does. 64 cost 167 s
+                                                 # per SKU for no measurable gain; 16 costs 67 s. Roughly 45 s of that is fixed
+                                                 # (startup, BVH, denoiser), so lowering further buys little. Re-check after any
+                                                 # material/geometry change that adds glass, metal or real GI.
+  render_timeout: 300   # seconds, per SKU — ~4.5x headroom at 16 samples (was ~1.8x at 64)
 
 # ── Stage 3: final image processor (webp_converter behaviour — canonical) ────
 image_processor:
-  source_dir:       "01_input_raster/gemini_renders_raw"
-  output_dir:       "01_input_raster/gemini_renders_final"
+  # "auto" = wherever the SELECTED Stage 2 engine writes (src/render_stage.py
+  # resolves it: blender.output_dir for blender, paths.renders_raw for gemini).
+  # A real path here overrides that and wins -- the key is a live override, not
+  # dead weight. It was a constant pointing at the Gemini directory until
+  # 2026-08-10, which meant `--full` under the blender engine converted nothing
+  # it had just rendered and still reported success.
+  source_dir:       "auto"
+  # "auto" mirrors source_dir on the output side: each engine keeps its own
+  # final directory. Both engines name their WEBP after the SKU stem, so a
+  # shared output dir means Blender silently overwrites Gemini's finished
+  # artefacts -- the same collision the raw directories were split to avoid.
+  output_dir:       "auto"
+  # scripts/image_postprocessor.py's own failure copies (named after the SKU
+  # stem, e.g. 1-min.png). Deliberately its own directory, NOT paths.renders_failed
+  # (02_processing/render_failed) -- that one is Stage 2's RPA/Selenium error
+  # screenshots (src/rpa_orchestrator.py), a different producer with a different
+  # naming scheme; sharing a bin invites a silent collision between the two.
+  failed_dir:       "02_processing/image_postprocessor_failed"
+  # scripts/image_postprocessor.py's own output (2048px WEBP, quality 85 --
+  # see scripts/README.md, "non-canonical"). Deliberately its own directory,
+  # NOT output_dir above: output_dir is src/image_processor.py's CANONICAL
+  # Stage 3 output, and git tracks 389 deliverables there. Both scripts derive
+  # the same {stem}.webp filename, so sharing output_dir would let this script
+  # silently overwrite every canonical deliverable with a file that violates
+  # the documented Stage 3 contract (1600px, <=500KB) -- same failure shape
+  # failed_dir above was split out to avoid, one directory over.
+  postprocessor_output_dir: "02_processing/image_postprocessor_output"
   target_size:      [1600, 1600]   # px (LANCZOS upscale, square 1:1)
   max_file_size_kb: 500            # hard weight cap; quality is auto-tuned
 

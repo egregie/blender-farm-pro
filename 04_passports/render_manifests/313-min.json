@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "313-min.jpg",
+  "product_code": "313-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOX",
+  "carton": {
+    "width_mm": 110.0,
+    "height_mm": 56.708311072807945,
+    "depth_mm": 18.0,
+    "passport_dimensions": {
+      "width_mm": 110.0,
+      "height_mm": 50.0,
+      "depth_mm": 18.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [],
+    "material": "Cold-form Aluminium"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Viagra Strips",
+    "active_ingredient_display": "Sildenafil Citrate",
+    "dosage_display": "100mg",
+    "unit_count_display": "1 Pills"
+  }
+}

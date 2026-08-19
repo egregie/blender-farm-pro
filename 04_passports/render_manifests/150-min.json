@@ -1,0 +1,173 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "150-min.jpg",
+  "product_code": "150-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 56.143,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "design_spec",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.4882,
+    "substrate": "#DCDCDB",
+    "fields": [
+      {
+        "role": "brand",
+        "fill": "#AE6335",
+        "coverage_pct": 20.9,
+        "parts": [
+          {
+            "kind": "field",
+            "area_pct": 9.8,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.1936,
+                0.0
+              ],
+              [
+                0.9782,
+                0.0
+              ],
+              [
+                0.9773,
+                0.0782
+              ],
+              [
+                0.0255,
+                0.1248
+              ],
+              [
+                0.0227,
+                0.0074
+              ],
+              [
+                0.1927,
+                0.0019
+              ]
+            ]
+          },
+          {
+            "kind": "field",
+            "area_pct": 1.7,
+            "smoothness": 0.17,
+            "outline": [
+              [
+                0.8691,
+                0.9032
+              ],
+              [
+                0.9091,
+                0.9702
+              ],
+              [
+                0.8973,
+                0.9739
+              ],
+              [
+                0.6809,
+                0.9981
+              ],
+              [
+                0.6473,
+                0.9311
+              ],
+              [
+                0.8682,
+                0.905
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "highlight",
+        "fill": "#EFDACD",
+        "coverage_pct": 7.8,
+        "parts": [
+          {
+            "kind": "field",
+            "area_pct": 1.1,
+            "smoothness": 0.0,
+            "outline": [
+              [
+                0.02,
+                0.0
+              ],
+              [
+                0.1473,
+                0.0
+              ],
+              [
+                0.0227,
+                0.0037
+              ],
+              [
+                0.0255,
+                0.1285
+              ],
+              [
+                0.9764,
+                0.0838
+              ],
+              [
+                0.98,
+                0.0
+              ],
+              [
+                0.98,
+                0.0838
+              ],
+              [
+                0.9727,
+                0.0931
+              ],
+              [
+                0.0273,
+                0.1359
+              ],
+              [
+                0.02,
+                0.1117
+              ],
+              [
+                0.0191,
+                0.0019
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "type_rows": {},
+    "source_image": "Waklert_front_raw.webp"
+  },
+  "palette": {
+    "primary": "#DDA7A5",
+    "accent": "#6B2D5C",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Waklert",
+    "active_ingredient_display": "Armodafinil",
+    "dosage_display": "150mg",
+    "unit_count_display": "30 Pills"
+  }
+}

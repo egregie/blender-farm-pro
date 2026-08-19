@@ -1,10 +1,15 @@
 """PharmaGen PRO — Stage 2, Blender render engine (EXPERIMENTAL).
 
-Alternative to src/rpa_orchestrator.py (Selenium/Gemini RPA). Reads the
-STRUCTURED JSON passport (pipeline/passports/*.json — the same input Stage 1
-consumes, NOT the compiled Markdown prompt) because a 3D renderer needs
-{palette, primary_package, label_content, template_id}, not prose. See
-docs/experiments/BLENDER_RENDERER_ROADMAP.md §1.2-1.3 for the rationale.
+Alternative to src/rpa_orchestrator.py (Selenium/Gemini RPA). Consumes the
+RENDER MANIFEST that Stage 1 emits (schemas/render_manifest.schema.json), not
+the compiled Markdown prompt: the Markdown is prose written for an LLM, while a
+3D renderer needs the decisions — template, carton dimensions, palette, label
+strings. See 06_docs/experiments/BLENDER_RENDERER_ROADMAP.md §1.2-1.3.
+
+If a manifest has not been written yet (Stage 2 run standalone, without a prior
+Stage 1 pass) the manifest is built in-process from the JSON passport, so
+`--render-only` keeps working on its own. Either way the same contract is
+validated before anything reaches Blender.
 
 Output is written to a SEPARATE directory (blender.output_dir, default
 render_output/raw_blender/) so it never collides with Gemini's
@@ -38,6 +43,7 @@ _BLENDER = _CFG["blender"]
 BLENDER_EXE     = _BLENDER["executable"]
 DRIVER_SCRIPT   = str(resolve_path(_BLENDER["driver_script"]))
 JSON_DIR        = str(get_path(_CFG, "passports_json"))      # structured input (Stage 1's input)
+MANIFEST_DIR    = str(get_path(_CFG, "passports_manifests")) # Stage 1's render manifests (preferred input)
 OUT_DIR         = str(resolve_path(_BLENDER["output_dir"]))  # segregated from Gemini's render_output/raw
 ENGINE_TYPE     = _BLENDER.get("engine_type", "CYCLES")
 RESOLUTION      = _BLENDER.get("resolution", [2048, 2048])
@@ -83,25 +89,26 @@ def load_progress() -> set[str]:
     return done
 
 
-def resolve_template(passport: dict) -> tuple[str, bool]:
-    """Reuse Stage 1's routing decision — do not re-implement it (see roadmap §1.3)."""
-    from src.passport_generator import agent_1_router
-    return agent_1_router(passport)
-
-
 def build_render_job(passport_path: Path) -> dict:
+    """The render manifest for one SKU, validated against the shared contract.
+
+    Prefers the manifest Stage 1 persisted; falls back to building it here so a
+    standalone `--render-only` run still works. Both paths go through the same
+    builder, so the fallback cannot drift from the persisted form.
+    """
+    from src.render_manifest import (
+        build_manifest, load_manifest, manifest_path_for, validate_manifest,
+    )
+
+    manifest_file = manifest_path_for(passport_path.stem, Path(MANIFEST_DIR))
+    if manifest_file.exists():
+        return load_manifest(manifest_file)
+
     with open(passport_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    template_id, is_override = resolve_template(data)
-    return {
-        "sku_id":             data.get("sku_id", passport_path.stem),
-        "template_id":        template_id,
-        "is_bottle_override": is_override,
-        "packaging_geometry": data.get("packaging_geometry", "BOX"),
-        "palette":            data.get("branding", {}).get("palette", {}),
-        "label_content":      data.get("label_content", {}),
-        "primary_package":    data.get("primary_package", {}),
-    }
+    manifest = build_manifest(data)
+    validate_manifest(manifest)
+    return manifest
 
 
 def render_one(passport_path: Path, out_path: Path) -> tuple[bool, str]:

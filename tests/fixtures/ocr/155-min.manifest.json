@@ -1,0 +1,66 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "155-min.jpg",
+  "product_code": "155-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 87.814,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "design_spec",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.7636,
+    "substrate": "#DFDED8",
+    "fields": [],
+    "type_rows": {
+      "dosage_display": {
+        "u0": 0.0432,
+        "u1": 0.4018,
+        "v0": 0.3179,
+        "v1": 0.4655,
+        "cap_frac": 0.114,
+        "cap_top_v": 0.3179,
+        "align": "LEFT",
+        "read_as": "7,5 mg"
+      },
+      "unit_count_display": {
+        "u0": 0.0432,
+        "u1": 0.1682,
+        "v0": 0.869,
+        "v1": 0.9274,
+        "cap_frac": 0.055,
+        "cap_top_v": 0.8713,
+        "align": "LEFT",
+        "read_as": "20 db"
+      }
+    },
+    "source_image": "Imovane_front_raw.jpg"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Imovane",
+    "active_ingredient_display": "Zopiclone",
+    "dosage_display": "7.5mg",
+    "unit_count_display": "30 Pills"
+  }
+}

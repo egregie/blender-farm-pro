@@ -6,7 +6,72 @@ logs/
 verification_failures.log
 
 # Blender output is regenerable/deterministic (unlike the committed Gemini
-# reference renders in 01_input_raster/) — no need to version it.
+# reference renders in 01_input_raster/) — no need to version it. blender_renders_final
+# is Stage 3's WEBP for that engine (blender.final_dir): derived from the raw renders
+# above, so it inherits their reasoning. The Gemini side stays tracked because its raw
+# input never was.
 02_processing/blender_test_renders/
+02_processing/blender_renders_final/
+# D-1 previews: the rectified reference faces and their segmentation, rebuilt by
+# `scripts/measure_reference_face.py --all --preview`. The MEASUREMENTS are
+# committed, inside each folder's metadata.json; these are how a human checks
+# them, not the record itself.
+02_processing/reference_measurement/
+# The calibration CHARTS. Rendered, read, and deleted unless --keep; the curve
+# they carry is the record and lives in 00_PROJECT_STATE/render_calibration.json.
+02_processing/calibration/
 02_processing/render_failed/
 02_processing/failed_logs/
+
+# Tree-sitter code graph database — a local build artifact, rebuilt with
+# `code-review-graph build`. 3.9 MB and changes on every update.
+.code-review-graph/
+
+# Per-run diagnostic artifacts, scoped to the directory that produces them so a
+# future test fixture named *.job.json is not silently untracked.
+02_processing/blender_test_renders/*.job.json
+02_processing/blender_test_renders/*.scene.json
+
+# render_qa.py's OCR report: per-machine output regenerated on every run, not a
+# curated record -- unlike 00_PROJECT_STATE/sweep_report.md, which IS committed.
+06_docs/RENDER_QA_REPORT.md
+
+# image_postprocessor.py's own failure copies -- segregated from Stage 2's
+# renders_failed (02_processing/render_failed) so the two producers never share
+# a bin. The directory itself is tracked (.gitkeep) so DEFAULT_FAILED_DIR
+# resolves on a clean checkout; the per-run failure copies inside are not.
+02_processing/image_postprocessor_failed/*
+!02_processing/image_postprocessor_failed/.gitkeep
+
+# image_postprocessor.py's own output -- segregated from image_processor.py's
+# CANONICAL Stage 3 output (01_input_raster/gemini_renders_final, 389 tracked
+# deliverables) so this non-canonical script can never overwrite them. Same
+# tracked-directory/untracked-contents split as image_postprocessor_failed.
+02_processing/image_postprocessor_output/*
+!02_processing/image_postprocessor_output/.gitkeep
+
+# SAAT reference photography. The METADATA is tracked -- metadata.json, the
+# reverse-engineering passports, the collection log and the benchmark SSOT --
+# because those are what gets edited, reviewed in a diff, and consumed as a
+# contract by the Blender driver, the SVG generator and the UV builder. The
+# PHOTOGRAPHS are not: 29 templates at up to 7 images each is roughly 200 files
+# and 100+ MB, which would make every clone pay for material that is acquired
+# rather than authored.
+#
+# Consequence worth knowing before you debug it: a clean clone has the template
+# folders and their contracts but none of their pictures.
+# tests/test_reference_templates.py treats "folder holds no images at all" as
+# that state and skips, while a folder holding SOME images with a listed one
+# missing still fails -- the manifest lying is a different thing from the data
+# being elsewhere.
+Reference Templates/**/*.png
+Reference Templates/**/*.webp
+Reference Templates/**/*.jpg
+Reference Templates/**/*.jpeg
+03_knowledge_graph/reference_benchmarks_ssot/*.png
+03_knowledge_graph/reference_benchmarks_ssot/*.webp
+03_knowledge_graph/reference_benchmarks_ssot/*.jpg
+
+# Moved-aside renders, kept for recovery rather than deleted. Nothing here is
+# an input to anything; the working set is 02_processing.
+trash/

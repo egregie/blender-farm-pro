@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "268-min.jpg",
+  "product_code": "268-min",
+  "template_id": "T_VERT_INHALER",
+  "is_bottle_override": false,
+  "packaging_geometry": "INHALER",
+  "carton": {
+    "width_mm": 86.1468674658037,
+    "height_mm": 115.0,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 55.0,
+      "height_mm": 115.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [],
+    "material": "PP / Glass Type I"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Ventolin",
+    "active_ingredient_display": "Albuterol",
+    "dosage_display": "100mg",
+    "unit_count_display": "1 Inhaler"
+  }
+}

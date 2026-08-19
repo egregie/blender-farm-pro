@@ -1,0 +1,33 @@
+{
+  "folder_name": "c:\\lil_projects\\Package Hunter\\01_input_products\\21_Valium_Brand",
+  "product_name": "21_Valium_Brand",
+  "created_at": "2026-08-17T14:57:21.483558",
+  "updated_at": "2026-08-17T14:57:21.485557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 0,
+  "queries_executed": [],
+  "visited_domains": {},
+  "blacklisted_domains": {},
+  "visited_urls": [],
+  "rejected_candidates": [],
+  "accepted_candidate": {
+    "candidate_id": "21_Valium_Brand_validated_reference",
+    "image_url": "file:///c:/lil_projects/Package Hunter/04_validated_references/21_Valium_Brand/reference.jpg",
+    "source_page_url": "verified_archive",
+    "source_domain": "verified_european_archive",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "european_packaging_gate": true,
+      "final_decision": "ACCEPTED"
+    },
+    "timestamp": "2026-08-17T14:57:21.485557"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": []
+}

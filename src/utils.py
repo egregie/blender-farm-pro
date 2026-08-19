@@ -30,6 +30,7 @@ _DEFAULTS = {
         "ssot_design_specs":   "SSOT/master_pharma_design_specs.json",
         "passports_json":      "pipeline/passports",
         "passports_md":        "pipeline/passports.markdown",
+        "passports_manifests": "pipeline/render_manifests",
         "renders_raw":         "render_output/raw",
         "renders_failed":      "render_output/failed",
         "renders_failed_logs": "render_output/failed_logs",
@@ -53,6 +54,14 @@ _DEFAULTS = {
     "image_processor": {
         "source_dir":       "render_output/raw",
         "output_dir":       "output",
+        # Legacy default verbatim -- the source project's own image_postprocessor.py
+        # hardcoded this exact value before it read config.yaml at all.
+        "failed_dir":       "render_output/failed",
+        # Legacy default verbatim -- image_postprocessor.py's own
+        # DEFAULT_OUTPUT_DIR before it read config.yaml at all. Distinct from
+        # output_dir above (src/image_processor.py's canonical Stage 3 output)
+        # for the same reason failed_dir is distinct from paths.renders_failed.
+        "postprocessor_output_dir": "render_output/processed",
         "target_size":      [1600, 1600],
         "max_file_size_kb": 500,
     },
@@ -64,8 +73,8 @@ _DEFAULTS = {
     # top-level and namespaced so it never collides with "rpa" (Gemini) keys.
     "blender": {
         "executable":    r"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe",
-        "scenes_dir":    "assets/blender/scenes",
-        "driver_script": "assets/blender/render_driver.py",
+        "scenes_dir":    "05_assets/blender/scenes",
+        "driver_script": "05_assets/blender/render_driver.py",
         "output_dir":    "render_output/raw_blender",
         "engine_type":   "CYCLES",
         "resolution":    [2048, 2048],
@@ -86,6 +95,36 @@ def resolve_path(p) -> Path:
     """Resolve a possibly-relative path against PROJECT_ROOT (absolute paths are kept)."""
     pp = Path(p)
     return pp if pp.is_absolute() else (PROJECT_ROOT / pp)
+
+
+_FILE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp", ".json")
+
+
+def product_code(sku_id: str) -> str:
+    """The identifier that goes ON the carton, as opposed to the one that keys it.
+
+    `SKU.csv`'s first column is named `picture` and holds the source image's
+    filename. That value became the SSOT registry's key, then the passport's
+    `sku_id`, then the manifest's -- and the side panel prints `sku_id` under
+    the barcode and encodes it into the Code 128. So **every one of the 391
+    cartons carried `.jpg` on it**, as its product code, in print and in a
+    scannable symbol.
+
+    Nothing was wrong with any single step. `sku_id` really is the catalogue's
+    key and the barcode really should carry the SKU. The two questions -- what
+    identifies this row, and what is printed on the pack -- had simply never
+    been separated, so the answer to the first was used for the second.
+
+    This is the second question. It is deliberately NOT a GTIN, PZN or national
+    drug code: the project holds none, and inventing one would be the act it
+    already refuses for LOT and EXP. It is this catalogue's own SKU, which is
+    real data, with the filename extension that was never part of it removed.
+    """
+    code = str(sku_id or "").strip()
+    for suffix in _FILE_SUFFIXES:
+        if code.lower().endswith(suffix):
+            return code[: -len(suffix)]
+    return code
 
 
 def _deep_merge(base: dict, override: dict) -> dict:

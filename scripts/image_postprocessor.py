@@ -16,10 +16,46 @@ except ImportError:
     print("[ERROR] Pillow not installed. Run: pip install Pillow")
     sys.exit(1)
 
+# Resolved through the config, not hardcoded: this fork remapped every path onto
+# numbered folders, and render_output/ -- this script's old default -- has
+# never existed here. A stale default doesn't crash; it finds no PNGs and
+# reports "0 processed", which reads exactly like a clean pass.
+# `python scripts/image_postprocessor.py` puts scripts/ (not the project root)
+# at sys.path[0], so src wouldn't be importable without this -- the same
+# pattern scripts/catalogue_sweep.py, scripts/generate_architecture_snapshot.py
+# and scripts/render_qa.py use.
+_SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+if str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+
+from src.utils import load_config, resolve_path  # noqa: E402
+
+_CFG = load_config()
 # Configuration
-DEFAULT_INPUT_DIR = Path("render_output/raw")
-DEFAULT_OUTPUT_DIR = Path("render_output/processed")
-DEFAULT_FAILED_DIR = Path("render_output/failed")
+# image_processor.source_dir, not paths.renders_raw: the two are read by
+# different scripts for different purposes and could silently diverge if only
+# one were ever edited.
+#
+# Since 2026-08-10 that key may hold the sentinel "auto", meaning "wherever the
+# SELECTED Stage 2 engine writes". Every reader of the key has to understand the
+# sentinel or it becomes a trap: this script resolved it as a literal directory
+# name and pointed at <root>/auto, which tests/test_script_paths.py caught.
+_configured_input = str(_CFG["image_processor"]["source_dir"]).strip()
+if _configured_input.lower() == "auto":
+    from src.render_stage import raw_output_dir      # config-only; imports no engine
+    DEFAULT_INPUT_DIR = resolve_path(raw_output_dir(_CFG))
+else:
+    DEFAULT_INPUT_DIR = resolve_path(_configured_input)
+# NOT image_processor.output_dir -- that key is src/image_processor.py's
+# CANONICAL Stage 3 output, and git tracks 389 deliverables there. Both
+# scripts derive the same {stem}.webp filename from an input PNG, so sharing
+# output_dir would let this script (2048px, quality 85) silently overwrite
+# every canonical deliverable (1600px, <=500KB) with an off-spec file.
+DEFAULT_OUTPUT_DIR = resolve_path(_CFG["image_processor"]["postprocessor_output_dir"])
+# NOT paths.renders_failed -- that key is Stage 2's RPA/Selenium error
+# screenshots (src/rpa_orchestrator.py). This script's failure copies are named
+# after the SKU stem (e.g. 1-min.png) and must not share a bin with those.
+DEFAULT_FAILED_DIR = resolve_path(_CFG["image_processor"]["failed_dir"])
 
 def process_image(input_path: Path, output_dir: Path, failed_dir: Path = DEFAULT_FAILED_DIR) -> tuple[bool, str]:
     """

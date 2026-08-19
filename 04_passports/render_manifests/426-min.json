@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "426-min.jpg",
+  "product_code": "426-min",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "SACHET",
+  "carton": {
+    "width_mm": 130.0,
+    "height_mm": 56.92275994888523,
+    "depth_mm": 40.0,
+    "passport_dimensions": {
+      "width_mm": 130.0,
+      "height_mm": 90.0,
+      "depth_mm": 40.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#006A4E",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Cialis Oral Jelly",
+    "active_ingredient_display": "Tadalafil",
+    "dosage_display": "20mg",
+    "unit_count_display": "7 Sachets"
+  }
+}

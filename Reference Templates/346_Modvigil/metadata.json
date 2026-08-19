@@ -1,0 +1,73 @@
+{
+  "sku_id": "346-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Modvigil",
+  "active_ingredient": "Modafinil",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Modvigil",
+    "dosage_display": "200mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Modvigil_front_raw.webp"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "corners_set_awaiting_inspection",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Modvigil_front_raw.webp",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "first pass, unverified",
+    "corner_note": ""
+  },
+  "front_face_px": [
+    [
+      112,
+      335
+    ],
+    [
+      1240,
+      302
+    ],
+    [
+      1240,
+      838
+    ],
+    [
+      112,
+      852
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Modvigil_front_raw.webp",
+    "rectified_px": [
+      1100,
+      513
+    ],
+    "reference_aspect": 0.4664,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 19.6,
+        "hex": "#083776"
+      },
+      "substrate": {
+        "pct": 51.4,
+        "hex": "#EEEEEF"
+      },
+      "highlight": {
+        "pct": 20.4,
+        "hex": "#9BB3D8"
+      },
+      "type": {
+        "pct": 8.6,
+        "hex": "#030910"
+      }
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}

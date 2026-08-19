@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "223-min.jpg",
+  "product_code": "223-min",
+  "template_id": "T1_SMALL",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 70.17759573331637,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#005A9C",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Levitra Soft Tabs",
+    "active_ingredient_display": "Vardenafil HCl",
+    "dosage_display": "20mg",
+    "unit_count_display": "10 Pills"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.6",
+  "sku_id": "22-min.jpg",
+  "product_code": "22-min",
+  "template_id": "T_BOTTLE_BOX",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOTTLE",
+  "carton": {
+    "width_mm": 41.94953396781679,
+    "height_mm": 100.0,
+    "depth_mm": 55.0,
+    "passport_dimensions": {
+      "width_mm": 55.0,
+      "height_mm": 100.0,
+      "depth_mm": 55.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Effexor",
+    "active_ingredient_display": "Venlafaxine",
+    "dosage_display": "75mg",
+    "unit_count_display": "30 Pills"
+  }
+}

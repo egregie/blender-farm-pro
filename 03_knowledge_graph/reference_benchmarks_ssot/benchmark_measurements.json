@@ -1,0 +1,306 @@
+[
+  {
+    "image": "raw_viagra_front.png",
+    "image_size": [
+      1080,
+      810
+    ],
+    "mask_source": "alpha",
+    "carton_bbox_px": [
+      118,
+      41,
+      963,
+      769
+    ],
+    "carton_share_of_frame_pct": 62.47,
+    "carton_bbox_aspect": 1.1607,
+    "text_tokens": [
+      {
+        "text": "VIAGRA",
+        "confidence": 95,
+        "x": 0.3811,
+        "y": 0.1758,
+        "w": 0.4485,
+        "h": 0.1016
+      },
+      {
+        "text": "50",
+        "confidence": 96,
+        "x": 0.3822,
+        "y": 0.3022,
+        "w": 0.0627,
+        "h": 0.0577
+      },
+      {
+        "text": "mg",
+        "confidence": 96,
+        "x": 0.4639,
+        "y": 0.3008,
+        "w": 0.0828,
+        "h": 0.0577
+      },
+      {
+        "text": "film-coated",
+        "confidence": 90,
+        "x": 0.6012,
+        "y": 0.283,
+        "w": 0.1396,
+        "h": 0.0604
+      },
+      {
+        "text": "tablets",
+        "confidence": 95,
+        "x": 0.7515,
+        "y": 0.2761,
+        "w": 0.0757,
+        "h": 0.0398
+      },
+      {
+        "text": "sildenafil",
+        "confidence": 94,
+        "x": 0.7065,
+        "y": 0.3434,
+        "w": 0.1231,
+        "h": 0.0508
+      },
+      {
+        "text": "(",
+        "confidence": 54,
+        "x": 0.0793,
+        "y": 0.3187,
+        "w": 0.0036,
+        "h": 0.0371
+      },
+      {
+        "text": "!",
+        "confidence": 54,
+        "x": 0.0805,
+        "y": 0.3654,
+        "w": 0.0036,
+        "h": 0.0316
+      },
+      {
+        "text": "ets",
+        "confidence": 58,
+        "x": 0.645,
+        "y": 0.831,
+        "w": 0.0391,
+        "h": 0.0343
+      },
+      {
+        "text": "A",
+        "confidence": 81,
+        "x": 0.3822,
+        "y": 0.8599,
+        "w": 0.0249,
+        "h": 0.0453
+      },
+      {
+        "text": "film-coated",
+        "confidence": 64,
+        "x": 0.4249,
+        "y": 0.842,
+        "w": 0.1574,
+        "h": 0.0577
+      },
+      {
+        "text": "tabl",
+        "confidence": 91,
+        "x": 0.5929,
+        "y": 0.8324,
+        "w": 0.0497,
+        "h": 0.0412
+      },
+      {
+        "text": "|",
+        "confidence": 61,
+        "x": 0.0426,
+        "y": 0.2239,
+        "w": 0.0249,
+        "h": 0.1305
+      }
+    ],
+    "colour_zones": [
+      {
+        "hex": "#D8D8D8",
+        "rgb": [
+          216,
+          216,
+          216
+        ],
+        "area_pct": 64.24
+      },
+      {
+        "hex": "#082858",
+        "rgb": [
+          8,
+          40,
+          88
+        ],
+        "area_pct": 21.5
+      },
+      {
+        "hex": "#787888",
+        "rgb": [
+          120,
+          120,
+          136
+        ],
+        "area_pct": 9.5
+      },
+      {
+        "hex": "#282898",
+        "rgb": [
+          40,
+          40,
+          152
+        ],
+        "area_pct": 3.43
+      }
+    ],
+    "coordinate_space": "Boxes are normalised to the carton's IMAGE bounding box, not to the front face's own coordinates. The face is photographed at an angle, so the two are not the same and must not be presented as such.",
+    "settings": {
+      "ocr_psm": 3,
+      "min_confidence": 40,
+      "colour_merge_distance": 60.0,
+      "min_zone_share_pct": 1.0
+    }
+  },
+  {
+    "image": "raw_Kamagra_front_01.png",
+    "image_size": [
+      1536,
+      1024
+    ],
+    "mask_source": "luma-vs-corner",
+    "carton_bbox_px": [
+      288,
+      48,
+      1247,
+      975
+    ],
+    "carton_share_of_frame_pct": 42.09,
+    "carton_bbox_aspect": 1.0345,
+    "text_tokens": [
+      {
+        "text": "R",
+        "confidence": 45,
+        "x": 0.1814,
+        "y": 0.1208,
+        "w": 0.0428,
+        "h": 0.0431
+      },
+      {
+        "text": "Sildenafil",
+        "confidence": 93,
+        "x": 0.1814,
+        "y": 0.1812,
+        "w": 0.1658,
+        "h": 0.0572
+      },
+      {
+        "text": "Citrate",
+        "confidence": 96,
+        "x": 0.3639,
+        "y": 0.1823,
+        "w": 0.1199,
+        "h": 0.0496
+      },
+      {
+        "text": "Tablets",
+        "confidence": 96,
+        "x": 0.4964,
+        "y": 0.1737,
+        "w": 0.1272,
+        "h": 0.0529
+      },
+      {
+        "text": "IP",
+        "confidence": 59,
+        "x": 0.6392,
+        "y": 0.1748,
+        "w": 0.0282,
+        "h": 0.0475
+      },
+      {
+        "text": "KAMAGRA-100",
+        "confidence": 91,
+        "x": 0.1846,
+        "y": 0.2535,
+        "w": 0.4786,
+        "h": 0.0723
+      },
+      {
+        "text": "@",
+        "confidence": 70,
+        "x": 0.2106,
+        "y": 0.3711,
+        "w": 0.0282,
+        "h": 0.0227
+      }
+    ],
+    "colour_zones": [
+      {
+        "hex": "#084838",
+        "rgb": [
+          8,
+          72,
+          56
+        ],
+        "area_pct": 38.08
+      },
+      {
+        "hex": "#E8D8C8",
+        "rgb": [
+          232,
+          216,
+          200
+        ],
+        "area_pct": 47.08
+      },
+      {
+        "hex": "#088878",
+        "rgb": [
+          8,
+          136,
+          120
+        ],
+        "area_pct": 7.25
+      },
+      {
+        "hex": "#D88878",
+        "rgb": [
+          216,
+          136,
+          120
+        ],
+        "area_pct": 1.93
+      },
+      {
+        "hex": "#58B8B8",
+        "rgb": [
+          88,
+          184,
+          184
+        ],
+        "area_pct": 1.66
+      },
+      {
+        "hex": "#787878",
+        "rgb": [
+          120,
+          120,
+          120
+        ],
+        "area_pct": 1.1
+      }
+    ],
+    "coordinate_space": "Boxes are normalised to the carton's IMAGE bounding box, not to the front face's own coordinates. The face is photographed at an angle, so the two are not the same and must not be presented as such.",
+    "settings": {
+      "ocr_psm": 3,
+      "min_confidence": 40,
+      "colour_merge_distance": 60.0,
+      "min_zone_share_pct": 1.0
+    }
+  }
+]

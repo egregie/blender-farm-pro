@@ -6,9 +6,11 @@
 > at commit `79553d9`.
 
 **Start here:** [`00_PROJECT_STATE/CURRENT_STATE.md`](00_PROJECT_STATE/CURRENT_STATE.md)
-for what's done and what's next. The original PharmaGen PRO README (business
-context, pipeline stage docs, bilingual EN/RU) is preserved unchanged at
-[`docs/README.md`](docs/README.md).
+for what's done and what's next, and
+[`06_docs/ARCHITECTURE.md`](06_docs/ARCHITECTURE.md) for how the pipeline is put
+together. (An earlier version of this file promised the source project's
+bilingual README at `docs/README.md`; that file was never carried into the fork,
+and the link had been dead since the fork was created.)
 
 ## What was forked, and why
 
@@ -29,17 +31,41 @@ Blender Farm Pro/
 ├── 02_processing/        ← legacy CV/OCR code, Blender's own test-render output, Stage-2 failure logs
 ├── 03_knowledge_graph/   ← SSOT (SKU.csv, master.json, design specs)
 ├── 04_passports/         ← JSON + Markdown passports (391 SKU)
-├── 05_output_svg/        ← reserved, currently unused (see its README)
-├── 06_archive/           ← this fork's own archive (empty at creation — see its README)
-├── 07_output_3mf/        ← reserved, currently unused (see its README)
-├── input/                ← original 389 source product photos
-├── ops/                  ← deployment & operations docs (forked)
-├── memory/               ← session/agent memory for this fork
-├── src/, pharma_pkg/, schemas/, tests/, scripts/, assets/  ← code (forked, functional)
-├── docs/                 ← full copy of PharmaGen PRO's docs/ (safety net — nothing lost)
-├── SSOT/                 ← COMPATIBILITY MIRROR of 03_knowledge_graph/ (see note below)
-├── config.yaml, requirements.txt, main.py, pass_tomd.py, ...  ← forked, paths remapped
+├── 05_assets/            ← Blender driver, vendored DejaVu fonts, optional .blend scenes
+├── 06_docs/              ← architecture, design rationale, the Blender roadmap
+├── 07_input/             ← original 389 source product photos
+├── 08_ops/               ← deployment & operations runbooks
+│
+├── src/                  ← the pipeline: stages, the render-manifest contract, utilities
+├── pharma_pkg/           ← packaging geometry: family routing, dimension resolution
+├── schemas/              ← the render-manifest JSON Schema, plus Pydantic models
+├── tests/                ← stdlib unittest
+├── scripts/              ← diagnostics and operator tools, outside the three stages
+└── config.yaml, requirements.txt, main.py, pass_tomd.py, ...
 ```
+
+**Why five folders are not numbered.** `src`, `pharma_pkg`, `schemas`, `tests`
+and `scripts` are Python packages, imported as `from src.utils import ...`,
+`python -m src.render_stage`, `python -m unittest discover -s tests`. A package
+name cannot begin with a digit — `import 05_src` raises `SyntaxError: invalid
+decimal literal`, which is a language rule rather than a convention — so
+numbering them would stop the project running. Everything numbered is data,
+documentation or output, which nothing imports.
+
+Each documented subject has exactly one home. `00_governance/` holds the ADRs,
+audits and release-engineering records; `08_ops/` holds the deployment and
+operations runbooks; `06_docs/` holds architecture, design rationale and the
+Blender roadmap. Copies of the first two also lived under `docs/` when the fork
+was created, 24 files of them byte-identical, and were removed once the fork
+started editing the governance copies — a reader following a link should not
+have to guess which of two identical files is the live one.
+
+Four placeholders created empty at fork time were removed on 2026-08-02, none
+having ever held a file: `05_output_svg/`, `06_archive/`, `07_output_3mf/` and
+`memory/`. The last one also documented a mechanism that does not exist — it
+pointed readers at `~/.claude/memory/`, which is not a directory Claude keeps —
+and the job it described is already covered by `CLAUDE.md` and
+`00_PROJECT_STATE/`.
 
 ## ⚠️ Important: this fork is not a 1:1 copy — paths were remapped
 
@@ -50,14 +76,17 @@ renders → `01_input_raster/`, logs/state → `00_PROJECT_STATE/`). This was
 this fork's own directory and its regenerated Markdown passports are **byte-
 identical** to the source project's.
 
-**One compatibility fix required:** `verification_agent.py` hardcodes
-`Path("SSOT/SKU.csv")` / `Path("SSOT/master.json")` — it does **not** read
-`config.yaml`. A physical `SSOT/` folder (mirroring `03_knowledge_graph/`) was
-added purely so that hardcoded path resolves. Without it, every passport's
-verification confidence silently dropped from 1.0 to 0.9 (CHECK 12 failing to
-find the SKU registry) — caught by diffing the regenerated output against the
-source project, not assumed. Full details:
-[`00_PROJECT_STATE/CURRENT_STATE.md`](00_PROJECT_STATE/CURRENT_STATE.md).
+**A compatibility mirror used to be required, and no longer is.**
+`verification_agent.py` hardcoded `Path("SSOT/SKU.csv")` and
+`Path("SSOT/master.json")` outside the config system, so a duplicate `SSOT/`
+directory had to exist alongside the real data in `03_knowledge_graph/` purely
+to satisfy those two lookups. Had that duplicate ever gone missing, CHECK 12
+would have docked 0.10 from every passport with nothing in the log to say why.
+Both paths now resolve through
+`src/utils.get_path`, the 1.3 MB mirror is gone, and the module no longer
+depends on the working directory it happens to be invoked from. Stage 1's output
+is byte-identical across the change and the confidence distribution is unchanged
+at 380 × 1.0 and 11 × 0.85.
 
 `render.engine` defaults to **`blender`** here (the source project defaults to
 `gemini`) — this fork's whole purpose is the Blender engine.

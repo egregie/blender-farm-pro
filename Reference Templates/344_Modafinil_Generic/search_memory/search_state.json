@@ -1,0 +1,101 @@
+{
+  "folder_name": "25_Modafinil_Generic",
+  "product_name": "Modafinil Generic",
+  "created_at": "2026-08-17T13:25:10.476863",
+  "updated_at": "2026-08-17T14:57:21.503557",
+  "current_status": "ACCEPTED",
+  "attempt_count": 2,
+  "queries_executed": [
+    "Modafinil Generic Aspendos 100mg European box packaging",
+    "Modafinil Generic European authentic packaging box"
+  ],
+  "visited_domains": {
+    "commons.wikimedia.org": {
+      "domain": "commons.wikimedia.org",
+      "attempts": 2,
+      "failed_attempts": 0,
+      "successful_candidates": 0,
+      "rejected_candidates": 0,
+      "last_visit": "2026-08-17T14:14:30.780969",
+      "status": "ACTIVE"
+    }
+  },
+  "blacklisted_domains": {},
+  "visited_urls": [
+    "https://commons.wikimedia.org/wiki/File:Aspendos_Modafinil_100mg_EU.jpg",
+    "https://commons.wikimedia.org/wiki/File:Modafinil-generic-aspendos.jpg"
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "cand_01",
+      "image_url": "https://commons.wikimedia.org/wiki/File:Aspendos_Modafinil_100mg_EU.jpg",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Aspendos_Modafinil_100mg_EU.jpg",
+      "source_domain": "commons.wikimedia.org",
+      "decision": "REJECTED",
+      "rejection_reason": "NAME_MISMATCH",
+      "gates": {
+        "download_gate": true,
+        "ocr_gate": false,
+        "visual_gate": true,
+        "duplicate_check": true,
+        "real_package_gate": true,
+        "front_face_gate": true,
+        "european_packaging_gate": false
+      },
+      "phash": null,
+      "timestamp": "2026-08-17T13:25:10.941947"
+    }
+  ],
+  "accepted_candidate": {
+    "candidate_id": "CAND_25_Modafinil_Generic_001",
+    "image_url": "https://commons.wikimedia.org/wiki/File:Modafinil-generic-aspendos.jpg",
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Modafinil-generic-aspendos.jpg",
+    "source_domain": "commons.wikimedia.org",
+    "decision": "ACCEPTED",
+    "rejection_reason": null,
+    "gates": {
+      "download_gate": true,
+      "ocr_gate": true,
+      "visual_gate": true,
+      "duplicate_check": true,
+      "real_package_gate": true,
+      "front_face_gate": true,
+      "european_packaging_gate": true,
+      "gemini_visual": true
+    },
+    "phash": "9ac0857a4f4b5a7c",
+    "timestamp": "2026-08-17T14:14:30.782546"
+  },
+  "manual_review_candidates": [],
+  "current_escalation_level": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+  "search_attempts": [
+    {
+      "attempt_id": "ATTEMPT_001",
+      "timestamp": "2026-08-17T13:25:10.944919",
+      "query": "Modafinil Generic Aspendos 100mg European box packaging",
+      "search_route": "LEVEL_1_GOOGLE_IMAGES_CANONICAL",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Aspendos_Modafinil_100mg_EU.jpg",
+      "result_status": "REJECTED",
+      "candidates_found": 1,
+      "candidate_status": "REJECTED",
+      "failure_type": null,
+      "reason": "NAME_MISMATCH",
+      "next_strategy": ""
+    },
+    {
+      "attempt_id": "ATTEMPT_002",
+      "timestamp": "2026-08-17T14:14:30.780969",
+      "query": "Modafinil Generic European authentic packaging box",
+      "search_route": "LEVEL_5_PHARMA_OPEN_REGISTRIES: Wikimedia Commons EU",
+      "domain": "commons.wikimedia.org",
+      "resource_url": "https://commons.wikimedia.org/wiki/File:Modafinil-generic-aspendos.jpg",
+      "result_status": "SUCCESS",
+      "candidates_found": 1,
+      "candidate_status": "ACCEPTED",
+      "failure_type": null,
+      "reason": "Verified authentic European retail packaging box found",
+      "next_strategy": ""
+    }
+  ]
+}

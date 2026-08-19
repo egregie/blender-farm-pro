@@ -1,0 +1,71 @@
+{
+  "sku_id": "357-min.jpg",
+  "artifact_type": "design_passport",
+  "schema_version": "3.0",
+  "product_name": "Adderall",
+  "active_ingredient": "Amphetamine / Dextroamphetamine Salts",
+  "template_id": null,
+  "label_content": {
+    "brand_name_display": "Adderall",
+    "dosage_display": "30mg",
+    "unit_count_display": "30 pills"
+  },
+  "reference_images": [
+    "Adderall_front_face.png",
+    "Adderall_front_raw.jpg"
+  ],
+  "measurement_source": "scripts/measure_reference_face.py",
+  "status": "awaiting_front_face_corners",
+  "provenance_note": "label_content is the CATALOGUE's strings for this SKU, not a reading of the photograph. The reference is used for its DESIGN; type rows may not match and are allowed not to.",
+  "front_face_measurement": {
+    "source_image": "Adderall_front_face.png",
+    "order": "TL, TR, BR, BL - the order render_driver.py emits",
+    "method": "set by hand against a coordinate overlay, then verified by rectifying and inspecting the result",
+    "corner_quality": "unset",
+    "corner_note": "the source is a bottle label, not a carton. The owner named its printed panel as the front face; it is cropped from Adderall_front_raw.jpg at (85, 105, 220, 278) and saved here, and the face is that crop in full."
+  },
+  "front_face_px": [
+    [
+      0,
+      0
+    ],
+    [
+      134,
+      0
+    ],
+    [
+      134,
+      172
+    ],
+    [
+      0,
+      172
+    ]
+  ],
+  "design_measurement": {
+    "source_image": "Adderall_front_face.png",
+    "rectified_px": [
+      1100,
+      1412
+    ],
+    "reference_aspect": 1.2836,
+    "catalogue_aspect": null,
+    "fields": {
+      "brand": {
+        "pct": 17.4,
+        "hex": "#167389"
+      },
+      "substrate": {
+        "pct": 34.5,
+        "hex": "#1F2F5F"
+      },
+      "highlight": {
+        "pct": 28.7,
+        "hex": "#F1F3FA"
+      },
+      "type": null
+    },
+    "method": "rectified with src/deskew.flatten_face from hand-set corners; type split by value < 0.35, remainder k-means k=3 labelled by saturation and value, not by hue",
+    "note": "shares are of the FRONT FACE. The `color_zones` block counts the whole photograph, background included, and the two are not comparable."
+  }
+}
