@@ -1,0 +1,364 @@
+{
+  "schema": "print_truth/1",
+  "sku": "74-min",
+  "source_image": "raw_viagra_front.png",
+  "front_face_px": [
+    [
+      402,
+      126
+    ],
+    [
+      962,
+      74
+    ],
+    [
+      962,
+      676
+    ],
+    [
+      410,
+      758
+    ]
+  ],
+  "rectified_px": [
+    1100,
+    1212
+  ],
+  "enumerate_min_frac": 0.001,
+  "residue_pct_by_role": {
+    "brand": 1.105,
+    "highlight": 0.887
+  },
+  "classes": [
+    "print",
+    "object",
+    "type",
+    "unrepresentable",
+    "unclassified"
+  ],
+  "components": [
+    {
+      "key": "brand#0",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 2.48,
+      "bbox_uv": [
+        0.84,
+        0.1287,
+        0.9991,
+        0.2838
+      ],
+      "centroid_uv": [
+        0.9195,
+        0.2066
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#1",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 1.286,
+      "bbox_uv": [
+        0.6382,
+        0.7228,
+        0.76,
+        0.9381
+      ],
+      "centroid_uv": [
+        0.6772,
+        0.8535
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#2",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 1.162,
+      "bbox_uv": [
+        0.7582,
+        0.7236,
+        0.87,
+        0.9389
+      ],
+      "centroid_uv": [
+        0.8342,
+        0.8102
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#3",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.462,
+      "bbox_uv": [
+        0.4709,
+        0.1304,
+        0.5855,
+        0.1947
+      ],
+      "centroid_uv": [
+        0.5243,
+        0.1593
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#4",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.462,
+      "bbox_uv": [
+        0.3336,
+        0.1279,
+        0.4655,
+        0.1955
+      ],
+      "centroid_uv": [
+        0.4001,
+        0.1637
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#5",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.401,
+      "bbox_uv": [
+        0.7155,
+        0.8135,
+        0.85,
+        0.9257
+      ],
+      "centroid_uv": [
+        0.7818,
+        0.8745
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#6",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.399,
+      "bbox_uv": [
+        0.5909,
+        0.1304,
+        0.7191,
+        0.1947
+      ],
+      "centroid_uv": [
+        0.6547,
+        0.1662
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#7",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.395,
+      "bbox_uv": [
+        0.2164,
+        0.1295,
+        0.3436,
+        0.1939
+      ],
+      "centroid_uv": [
+        0.2805,
+        0.1653
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#8",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.321,
+      "bbox_uv": [
+        0.0636,
+        0.1295,
+        0.1809,
+        0.1931
+      ],
+      "centroid_uv": [
+        0.1224,
+        0.159
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#9",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.239,
+      "bbox_uv": [
+        0.6736,
+        0.7409,
+        0.7791,
+        0.8424
+      ],
+      "centroid_uv": [
+        0.7201,
+        0.7881
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#10",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.18,
+      "bbox_uv": [
+        0.1827,
+        0.2384,
+        0.25,
+        0.2838
+      ],
+      "centroid_uv": [
+        0.2164,
+        0.2594
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#11",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.179,
+      "bbox_uv": [
+        0.2591,
+        0.2384,
+        0.3036,
+        0.3028
+      ],
+      "centroid_uv": [
+        0.283,
+        0.2697
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#12",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.171,
+      "bbox_uv": [
+        0.1855,
+        0.1295,
+        0.2118,
+        0.1939
+      ],
+      "centroid_uv": [
+        0.1986,
+        0.1614
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#13",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.17,
+      "bbox_uv": [
+        0.71,
+        0.7244,
+        0.8073,
+        0.8284
+      ],
+      "centroid_uv": [
+        0.7663,
+        0.7652
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#14",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.149,
+      "bbox_uv": [
+        0.1109,
+        0.2244,
+        0.1527,
+        0.2847
+      ],
+      "centroid_uv": [
+        0.1318,
+        0.2545
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#15",
+      "role": "brand",
+      "fill": "#34376D",
+      "area_pct": 0.137,
+      "bbox_uv": [
+        0.0627,
+        0.2244,
+        0.1045,
+        0.2847
+      ],
+      "centroid_uv": [
+        0.0843,
+        0.2546
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#0",
+      "role": "highlight",
+      "fill": "#97A9BC",
+      "area_pct": 1.378,
+      "bbox_uv": [
+        0.6455,
+        0.7219,
+        0.8709,
+        0.9398
+      ],
+      "centroid_uv": [
+        0.7559,
+        0.8315
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#1",
+      "role": "highlight",
+      "fill": "#97A9BC",
+      "area_pct": 0.621,
+      "bbox_uv": [
+        0.0,
+        0.0264,
+        0.01,
+        0.7863
+      ],
+      "centroid_uv": [
+        0.004,
+        0.3431
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#2",
+      "role": "highlight",
+      "fill": "#97A9BC",
+      "area_pct": 0.128,
+      "bbox_uv": [
+        0.0,
+        0.9785,
+        0.1582,
+        0.9992
+      ],
+      "centroid_uv": [
+        0.0636,
+        0.991
+      ],
+      "class": "unclassified"
+    }
+  ]
+}

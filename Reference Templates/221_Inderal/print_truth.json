@@ -1,0 +1,177 @@
+{
+  "schema": "print_truth/1",
+  "sku": "221-min",
+  "source_image": "Inderal_front_raw.webp",
+  "front_face_px": [
+    [
+      40,
+      170
+    ],
+    [
+      540,
+      150
+    ],
+    [
+      540,
+      470
+    ],
+    [
+      40,
+      480
+    ]
+  ],
+  "rectified_px": [
+    1100,
+    693
+  ],
+  "enumerate_min_frac": 0.001,
+  "residue_pct_by_role": {
+    "brand": 1.346,
+    "highlight": 1.997
+  },
+  "classes": [
+    "print",
+    "object",
+    "type",
+    "unrepresentable",
+    "unclassified"
+  ],
+  "components": [
+    {
+      "key": "brand#0",
+      "role": "brand",
+      "fill": "#4A235E",
+      "area_pct": 11.296,
+      "bbox_uv": [
+        0.0145,
+        0.0,
+        0.9991,
+        0.9986
+      ],
+      "centroid_uv": [
+        0.4964,
+        0.9106
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#1",
+      "role": "brand",
+      "fill": "#4A235E",
+      "area_pct": 0.118,
+      "bbox_uv": [
+        0.4309,
+        0.329,
+        0.4618,
+        0.3925
+      ],
+      "centroid_uv": [
+        0.4463,
+        0.3603
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "brand#2",
+      "role": "brand",
+      "fill": "#4A235E",
+      "area_pct": 0.107,
+      "bbox_uv": [
+        0.1009,
+        0.3117,
+        0.1309,
+        0.3737
+      ],
+      "centroid_uv": [
+        0.1129,
+        0.3366
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#0",
+      "role": "highlight",
+      "fill": "#F1897A",
+      "area_pct": 7.927,
+      "bbox_uv": [
+        0.0536,
+        0.0693,
+        0.5645,
+        0.3131
+      ],
+      "centroid_uv": [
+        0.3154,
+        0.1898
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#1",
+      "role": "highlight",
+      "fill": "#F1897A",
+      "area_pct": 4.429,
+      "bbox_uv": [
+        0.0545,
+        0.4574,
+        0.4455,
+        0.6104
+      ],
+      "centroid_uv": [
+        0.248,
+        0.5332
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#2",
+      "role": "highlight",
+      "fill": "#F1897A",
+      "area_pct": 1.618,
+      "bbox_uv": [
+        0.0,
+        0.0,
+        0.0627,
+        0.9928
+      ],
+      "centroid_uv": [
+        0.0087,
+        0.516
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#3",
+      "role": "highlight",
+      "fill": "#F1897A",
+      "area_pct": 0.376,
+      "bbox_uv": [
+        0.2173,
+        0.14,
+        0.2564,
+        0.2453
+      ],
+      "centroid_uv": [
+        0.235,
+        0.1933
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#4",
+      "role": "highlight",
+      "fill": "#F1897A",
+      "area_pct": 0.103,
+      "bbox_uv": [
+        0.3864,
+        0.0,
+        0.9927,
+        0.0375
+      ],
+      "centroid_uv": [
+        0.6943,
+        0.0186
+      ],
+      "class": "unclassified"
+    }
+  ]
+}

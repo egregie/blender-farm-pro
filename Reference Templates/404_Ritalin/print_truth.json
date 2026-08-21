@@ -1,0 +1,467 @@
+{
+  "schema": "print_truth/1",
+  "sku": "404-min",
+  "source_image": "Ritalin_front_raw.webp",
+  "front_face_px": [
+    [
+      148,
+      195
+    ],
+    [
+      888,
+      185
+    ],
+    [
+      888,
+      492
+    ],
+    [
+      155,
+      500
+    ]
+  ],
+  "rectified_px": [
+    1100,
+    457
+  ],
+  "enumerate_min_frac": 0.001,
+  "residue_pct_by_role": {
+    "brand": 2.39,
+    "highlight": 0.577,
+    "type": 2.225
+  },
+  "classes": [
+    "print",
+    "object",
+    "type",
+    "unrepresentable",
+    "unclassified"
+  ],
+  "components": [
+    {
+      "key": "brand#0",
+      "role": "brand",
+      "fill": "#726058",
+      "area_pct": 0.631,
+      "bbox_uv": [
+        0.0082,
+        0.9497,
+        0.8018,
+        0.9978
+      ],
+      "centroid_uv": [
+        0.3164,
+        0.9889
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#0",
+      "role": "highlight",
+      "fill": "#CCCEC4",
+      "area_pct": 39.092,
+      "bbox_uv": [
+        0.0673,
+        0.0,
+        0.5445,
+        0.9869
+      ],
+      "centroid_uv": [
+        0.32,
+        0.5103
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "highlight#1",
+      "role": "highlight",
+      "fill": "#CCCEC4",
+      "area_pct": 0.422,
+      "bbox_uv": [
+        0.0,
+        0.5405,
+        0.5336,
+        0.9978
+      ],
+      "centroid_uv": [
+        0.1386,
+        0.9381
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#0",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.337,
+      "bbox_uv": [
+        0.39,
+        0.105,
+        0.4336,
+        0.2144
+      ],
+      "centroid_uv": [
+        0.4114,
+        0.1571
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#1",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.319,
+      "bbox_uv": [
+        0.08,
+        0.0656,
+        0.1136,
+        0.2079
+      ],
+      "centroid_uv": [
+        0.0953,
+        0.1326
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#2",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.318,
+      "bbox_uv": [
+        0.3327,
+        0.0678,
+        0.3636,
+        0.2144
+      ],
+      "centroid_uv": [
+        0.3484,
+        0.1411
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#3",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.278,
+      "bbox_uv": [
+        0.4409,
+        0.1072,
+        0.4673,
+        0.2495
+      ],
+      "centroid_uv": [
+        0.4545,
+        0.1768
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#4",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.247,
+      "bbox_uv": [
+        0.1527,
+        0.2998,
+        0.1791,
+        0.4398
+      ],
+      "centroid_uv": [
+        0.1648,
+        0.3768
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#5",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.211,
+      "bbox_uv": [
+        0.2264,
+        0.1028,
+        0.2527,
+        0.2101
+      ],
+      "centroid_uv": [
+        0.2398,
+        0.1539
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#6",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.21,
+      "bbox_uv": [
+        0.3173,
+        0.337,
+        0.3436,
+        0.442
+      ],
+      "centroid_uv": [
+        0.3298,
+        0.3878
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#7",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.209,
+      "bbox_uv": [
+        0.1618,
+        0.1007,
+        0.1882,
+        0.2101
+      ],
+      "centroid_uv": [
+        0.1764,
+        0.1575
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#8",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.205,
+      "bbox_uv": [
+        0.2009,
+        0.3326,
+        0.2264,
+        0.442
+      ],
+      "centroid_uv": [
+        0.2131,
+        0.3868
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#9",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.204,
+      "bbox_uv": [
+        0.12,
+        0.3326,
+        0.1464,
+        0.4398
+      ],
+      "centroid_uv": [
+        0.1339,
+        0.388
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#10",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.203,
+      "bbox_uv": [
+        0.2855,
+        0.3348,
+        0.3109,
+        0.442
+      ],
+      "centroid_uv": [
+        0.2974,
+        0.3878
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#11",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.189,
+      "bbox_uv": [
+        0.0818,
+        0.2976,
+        0.1136,
+        0.4376
+      ],
+      "centroid_uv": [
+        0.098,
+        0.3533
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#12",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.164,
+      "bbox_uv": [
+        0.1355,
+        0.0656,
+        0.1555,
+        0.2079
+      ],
+      "centroid_uv": [
+        0.1451,
+        0.1369
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#13",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.157,
+      "bbox_uv": [
+        0.3091,
+        0.07,
+        0.3255,
+        0.2123
+      ],
+      "centroid_uv": [
+        0.3202,
+        0.1373
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#14",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.154,
+      "bbox_uv": [
+        0.2327,
+        0.2998,
+        0.2527,
+        0.4398
+      ],
+      "centroid_uv": [
+        0.2422,
+        0.3708
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#15",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.153,
+      "bbox_uv": [
+        0.2591,
+        0.2998,
+        0.2782,
+        0.442
+      ],
+      "centroid_uv": [
+        0.2684,
+        0.371
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#16",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.145,
+      "bbox_uv": [
+        0.1555,
+        0.9519,
+        0.2418,
+        0.9891
+      ],
+      "centroid_uv": [
+        0.1904,
+        0.9726
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#17",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.142,
+      "bbox_uv": [
+        0.1955,
+        0.0656,
+        0.2045,
+        0.2101
+      ],
+      "centroid_uv": [
+        0.2001,
+        0.1367
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#18",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.133,
+      "bbox_uv": [
+        0.1855,
+        0.2998,
+        0.1945,
+        0.4398
+      ],
+      "centroid_uv": [
+        0.1899,
+        0.3704
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#19",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.115,
+      "bbox_uv": [
+        0.5564,
+        0.0722,
+        0.5773,
+        0.2079
+      ],
+      "centroid_uv": [
+        0.5657,
+        0.1417
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#20",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.106,
+      "bbox_uv": [
+        0.7018,
+        0.1247,
+        0.7382,
+        0.2079
+      ],
+      "centroid_uv": [
+        0.7202,
+        0.1653
+      ],
+      "class": "unclassified"
+    },
+    {
+      "key": "type#21",
+      "role": "type",
+      "fill": "#0B081D",
+      "area_pct": 0.101,
+      "bbox_uv": [
+        0.5409,
+        0.9912,
+        0.8509,
+        0.9978
+      ],
+      "centroid_uv": [
+        0.6819,
+        0.9944
+      ],
+      "class": "unclassified"
+    }
+  ]
+}
