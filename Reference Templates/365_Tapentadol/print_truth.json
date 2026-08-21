@@ -190,7 +190,8 @@
         0.5563,
         0.601
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "antialiased rim of the Tydol block"
     },
     {
       "key": "highlight#2",

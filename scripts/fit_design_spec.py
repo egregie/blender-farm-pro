@@ -38,6 +38,19 @@ from scripts.measure_reference_face import (  # noqa: E402
     TEMPLATES_DIR, _hex, segment,
 )
 
+#: Per-component ground truth, written by scripts/label_print.py. The name and
+#: the loader live in this module rather than in that one because label_print
+#: already imports `components` from here, and the reverse direction would be a
+#: circular import.
+TRUTH_NAME = "print_truth.json"
+
+
+def load_truth(folder: Path) -> dict | None:
+    """The hand-made classification for *folder*, or None if it has none."""
+    path = folder / TRUTH_NAME
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 # A field is a share of the FACE, not a pixel count: the rectified faces differ
 # in size and a fixed count means a different thing on each. 0.8% keeps the
 # Cialis dosage block (2.0% of its face) and drops every letterform, which is the
@@ -45,6 +58,11 @@ from scripts.measure_reference_face import (  # noqa: E402
 # its strokes land in a colour field and get traced as though they were design.
 # They are not: the renderer draws type from the manifest's strings, and a spec
 # carrying letter outlines would print the reference's words instead.
+#
+# SUPERSEDED BY THE LABEL as of Phase B, and kept because it names the reasoning
+# the label replaced. `fit()` now enumerates at the truth file's own floor, which
+# is coarser than nothing and finer than this: Imovane's only printed field is
+# 0.67% of its face and this threshold would drop it.
 MIN_REGION_FRAC = 0.008
 # A field has to be visibly different from the board it is printed on. Below this
 # distance in RGB it is not a design element -- it is the clustering splitting one
@@ -361,47 +379,71 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     # roles that were plainly present.
     emitted = []
     dropped = 0
-    dropped_flat = 0
-    dropped_ink = 0
-    dropped_mask = np.zeros((h, w), bool)
-    substrate_rgb = np.asarray(substrate["colour"], dtype=float)
+    dropped_by_class: dict[str, int] = {}
+    kept_mask = np.zeros((h, w), bool)
     tol = SIMPLIFY_TOLERANCE * w
-    min_region = int(MIN_REGION_FRAC * w * h)
+    # PHASE B. Where a folder carries `print_truth.json`, the hand-made label is
+    # the ONLY test, and every heuristic below it is bypassed.
+    #
+    # Those heuristics -- MIN_REGION_FRAC, MIN_FILL_CONTRAST, is_design_field's
+    # three escapes, the stricter ink test on `type` and `secondary_*` -- exist
+    # because nothing had ever stated, per component, what was printed on the
+    # carton and what was lying in front of it. Each is a proxy for that
+    # judgement, and each was measured failing: Kamagra's pouch entered through
+    # "runs off the face", Xanax Pfizer's shaded board through a 0.090 contrast,
+    # Provigil's box lid and the table under it through both.
+    #
+    # Size has to give way with the rest, and this is the case that proves it:
+    # Imovane's ONLY printed field is a blue rule covering 0.67% of its face,
+    # below MIN_REGION_FRAC's 0.8%. The threshold would keep that carton at zero
+    # fields while the label says exactly what is there. Letting a labelled
+    # component through is not tuning a threshold to chase a number -- it is a
+    # measurement overruling a proxy for it.
+    #
+    # Indices line up because `components()` filters then sorts by descending
+    # area, so the fitter's list is a PREFIX of the labeller's whenever its
+    # floor is coarser. Reading the floor out of the truth file removes even
+    # that: both sides enumerate identically, and a key the truth does not carry
+    # is a hard stop rather than a silent skip.
+    truth = load_truth(folder)
+    if truth is None:
+        raise SystemExit(
+            f"{folder.name}: print_truth.json is absent. Run "
+            f"scripts/label_print.py --folder {folder.name} --init, classify "
+            f"every component, and check with --verify. Falling back to the "
+            f"heuristics is what put a blister in this spec.")
+    if truth.get("front_face_px") != meta.get("front_face_px"):
+        raise SystemExit(
+            f"{folder.name}: print_truth.json was made against different face "
+            f"corners. Re-run --init and re-classify; a stale label puts the "
+            f"dropped object back in the spec with nothing in the log to say so.")
+    label_of = {c["key"]: c.get("class") for c in truth["components"]}
+    min_region = int(float(truth["enumerate_min_frac"]) * w * h)
+
     for role, j, g in order:
         mask = lab == j
-        if mask.sum() < min_region:
-            continue
-        if float(np.linalg.norm(np.asarray(g["colour"], float) - substrate_rgb)) < MIN_FILL_CONTRAST:
-            dropped_flat += 1
-            dropped_mask |= mask
-            continue
         parts = []
-        for part in components(mask, min_region):
+        for i, part in enumerate(components(mask, min_region)):
+            key = f"{role}#{i}"
+            if key not in label_of:
+                raise SystemExit(
+                    f"{folder.name}: {key} has no label. The partition has moved "
+                    f"under print_truth.json -- re-run --init.")
+            if label_of[key] != "print":
+                # Everything not printed design: an object in the photograph, a
+                # letterform, the board split off by a gradient, a logo the owner
+                # excluded, or something this vocabulary cannot hold. All of it
+                # leaves the spec, and all of it leaves the scored area too --
+                # `verify()` reads `~dropped_mask`, so a photograph is neither
+                # drawn nor counted as a miss.
+                dropped += 1
+                dropped_by_class[label_of[key]] = dropped_by_class.get(label_of[key], 0) + 1
+                continue
+            kept_mask |= part
             outline = trace_outline(part)
             if len(outline) < 8:
                 continue
             pts = simplify(outline, tol)
-            # The `type` cluster is printed INK by default -- the renderer draws
-            # every string from the manifest -- so a part of it earns a place in
-            # the spec only by being unmistakably structural: running off the
-            # face, like Valium's navy edge bar, or a filled block. It does not
-            # get the "large enough" escape the other roles have, because ink is
-            # exactly what accumulates area without being design.
-            # `type` and `secondary_*` are held to the same stricter test. A
-            # leftover surface that floats inside the face, touching no edge and
-            # not printed as a block, is far more likely a photographic artefact
-            # than design -- Cialis's leftover is the Lilly hologram, which the
-            # owner excluded outright, and it entered through the "large enough"
-            # escape at 7.5% of the face. Naming every cluster (which the Kamagra
-            # fix requires) must not become a way of drawing every cluster.
-            if (role == "type" or role.startswith("secondary"))                     and part_kind(pts) != "block" and not _runs_off_face(pts, w, h):
-                dropped_ink += 1
-                dropped_mask |= part
-                continue
-            if not is_design_field(pts, w, h, part):
-                dropped += 1
-                dropped_mask |= part
-                continue
             parts.append({
                 "kind": part_kind(pts),
                 "area_pct": round(100 * part.sum() / (w * h), 1),
@@ -418,6 +460,19 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             "parts": parts,
         })
 
+    # What `verify()` is entitled to score: the board, plus the components the
+    # label calls print. Everything else in a non-substrate cluster leaves --
+    # objects, letterforms, logos, photographs, the board split off by a
+    # gradient, AND the residue below the enumeration floor.
+    #
+    # The residue is why this is computed from `kept_mask` rather than
+    # accumulated as parts are dropped. `truth` in verify() marks a whole
+    # CLUSTER as its field, so any pixel of that cluster which is neither
+    # emitted nor explicitly dropped reads as "the spec should have drawn here"
+    # and never can be. Imovane is the case: its blue rule emits correctly and
+    # scored 0.145 against 2.7% of unenumerated highlight residue.
+    dropped_mask = (lab != substrate_label) & ~kept_mask
+
     spec = {
         "spec_version": "0.1",
         "sku": meta.get("sku_id"),
@@ -426,9 +481,14 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
         "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
         "substrate": _hex(substrate["colour"]),
         "fields": fields,
-        "glyph_components_dropped": dropped,
-        "flat_fields_dropped": dropped_flat,
-        "ink_components_dropped": dropped_ink,
+        # What the LABEL dropped, by class. This replaces the three counters the
+        # heuristics kept (`glyph_components_dropped`, `flat_fields_dropped`,
+        # `ink_components_dropped`); those counted which proxy fired, and no
+        # proxy fires any more. A spec written before Phase B still carries them,
+        # which is the point of keeping `design_spec.v01.json` beside it.
+        "components_dropped": dropped,
+        "dropped_by_class": dropped_by_class,
+        "truth": TRUTH_NAME,
         "excluded": ("manufacturer logos and holographic elements are not "
                      "represented: the owner's decision, so the substrate shows "
                      "through where they sit on the reference"),

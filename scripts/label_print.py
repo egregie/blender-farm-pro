@@ -44,14 +44,26 @@ CLASSES. Six, and the boundaries are what matter:
                      describes. Recorded WITH A REASON rather than traced into
                      noise or dropped in silence, so a blank area on the carton
                      is a statement instead of an omission.
-    substrate        the board itself, split off the substrate cluster by a
-                     lighting gradient rather than by any difference in ink.
-                     `fit_design_spec.MIN_FILL_CONTRAST` already drops these,
-                     and drops them for exactly this reason -- but it decides on
-                     an 0.08 colour distance, and Xanax Pfizer's shaded board
-                     sits at 0.090, so it is kept and traced as a field covering
-                     26.6% of the face. Counting it as print would overstate the
-                     ceiling by a quarter of that carton.
+    blend            not a design element of its own -- one printed surface
+                     split into two components by a gradient or by an
+                     antialiased edge. Two shapes, one cause:
+
+                     the BOARD, split off the substrate cluster by lighting.
+                     `MIN_FILL_CONTRAST` drops these at an 0.08 colour distance
+                     and Xanax Pfizer's shaded board sits at 0.090, so it is
+                     kept and traced as a field covering 26.6% of the face.
+
+                     a FIELD's own rim, the antialiased boundary between it and
+                     the board, which lands in a neighbouring cluster. Calling
+                     one of those `print` emits a second field with the same
+                     outline as the first, and since `rasterise()` paints in
+                     spec order the rim then ERASES the field it came from:
+                     Lexotanil's two hexagons scored IoU 0.0 that way, and
+                     Modalert's red rule, Tapentadol's block and Hydrocodone's
+                     panel all had the same duplicate.
+
+                     Either way it is the same surface twice, and counting it as
+                     print overstates the ceiling and breaks the spec.
     mark             a manufacturer logo, wordmark or holographic element.
                      Printed, and perfectly representable -- it is out by the
                      OWNER'S decision, not by any limit of the vocabulary, and
@@ -81,7 +93,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR  # noqa: E402
-from scripts.fit_design_spec import components  # noqa: E402
+from scripts.fit_design_spec import TRUTH_NAME, components, load_truth  # noqa: E402
 from scripts.measure_reference_face import _hex, segment  # noqa: E402
 
 #: folder name -> catalogue SKU stem. `FOLDER_BY_STEM` runs the other way and
@@ -94,7 +106,7 @@ STEM_BY_FOLDER = {folder: stem for stem, folder in FOLDER_BY_STEM.items()}
 #: against every other report in the project.
 FOLDERS = sorted(STEM_BY_FOLDER, key=lambda n: int(n.split("_")[0]))
 
-CLASSES = ("print", "object", "type", "unrepresentable", "mark", "substrate",
+CLASSES = ("print", "object", "type", "unrepresentable", "mark", "blend",
            "unclassified")
 
 #: Enumerate down to this share of the face. Deliberately below
@@ -111,7 +123,7 @@ FONT = PROJECT_ROOT / "05_assets" / "blender" / "fonts" / "DejaVuSans-Bold.ttf"
 #: One hue per class, for the aid only.
 TINT = {"print": (34, 139, 176), "object": (196, 84, 30), "type": (120, 116, 108),
         "unrepresentable": (150, 60, 150), "mark": (196, 150, 30),
-        "substrate": (150, 150, 150), "unclassified": (222, 60, 60)}
+        "blend": (150, 150, 150), "unclassified": (222, 60, 60)}
 
 
 def enumerate_components(folder: Path):
@@ -153,12 +165,7 @@ def enumerate_components(folder: Path):
 
 
 def truth_path(folder: Path) -> Path:
-    return folder / "print_truth.json"
-
-
-def load_truth(folder: Path) -> dict | None:
-    p = truth_path(folder)
-    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+    return folder / TRUTH_NAME
 
 
 def init(folder: Path) -> dict:
@@ -328,7 +335,7 @@ def ceiling(folders) -> list[dict]:
             "residue": round(residue, 2),
             # What the vocabulary is allowed to aim at: printed design, minus the
             # letterforms the renderer draws itself, minus what it cannot hold,
-            # minus what the owner put out of scope.
+            # minus what the owner put out of scope, minus a surface counted twice.
             "reachable": round(share["print"], 2),
         })
     return rows
@@ -391,13 +398,13 @@ def main() -> int:
     if args.ceiling:
         rows = ceiling(folders)
         print(f"{'folder':24s} {'print':>7s} {'object':>7s} {'type':>7s} "
-              f"{'unrepr':>7s} {'mark':>6s} {'board':>6s} {'unclass':>8s} {'residue':>8s}")
+              f"{'unrepr':>7s} {'mark':>6s} {'blend':>6s} {'unclass':>8s} {'residue':>8s}")
         for r in rows:
             if not r["labelled"]:
                 print(f"{r['folder']:24s} not labelled")
                 continue
             print(f"{r['folder']:24s} {r['print']:7.2f} {r['object']:7.2f} {r['type']:7.2f} "
-                  f"{r['unrepresentable']:7.2f} {r['mark']:6.2f} {r['substrate']:6.2f} "
+                  f"{r['unrepresentable']:7.2f} {r['mark']:6.2f} {r['blend']:6.2f} "
                   f"{r['unclassified']:8.2f} {r['residue']:8.2f}")
         done = [r for r in rows if r.get("labelled")]
         if done:
@@ -407,7 +414,7 @@ def main() -> int:
                   f"type {sum(r['type'] for r in done)/n:.2f}%  "
                   f"unrepresentable {sum(r['unrepresentable'] for r in done)/n:.2f}%  "
                   f"mark {sum(r['mark'] for r in done)/n:.2f}%  "
-                  f"board {sum(r['substrate'] for r in done)/n:.2f}%")
+                  f"blend {sum(r['blend'] for r in done)/n:.2f}%")
     return 0
 
 

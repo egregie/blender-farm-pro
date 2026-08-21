@@ -581,7 +581,8 @@
         0.7018,
         0.7908
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "the same white swoosh, split off by shading"
     },
     {
       "key": "secondary_1#1",

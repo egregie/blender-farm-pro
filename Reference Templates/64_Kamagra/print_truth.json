@@ -105,7 +105,8 @@
         0.8655,
         0.4211
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "one-pixel sliver of the wave's antialiased edge"
     },
     {
       "key": "highlight#0",

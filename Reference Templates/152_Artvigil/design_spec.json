@@ -175,15 +175,19 @@
       ]
     }
   ],
-  "glyph_components_dropped": 0,
-  "flat_fields_dropped": 0,
-  "ink_components_dropped": 0,
+  "components_dropped": 26,
+  "dropped_by_class": {
+    "type": 24,
+    "mark": 1,
+    "object": 1
+  },
+  "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.932,
-    "excluded_as_glyphs_pct": 0.0,
+    "pixel_agreement": 0.9921,
+    "excluded_as_glyphs_pct": 7.75,
     "iou_by_field": {
-      "brand": 0.706
+      "brand": 0.957
     },
     "vertices": 35
   }

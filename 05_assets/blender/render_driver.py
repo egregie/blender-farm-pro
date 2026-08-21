@@ -1000,9 +1000,15 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     # to honour where there is a measurement at all.
     substrate = (design or {}).get("substrate")
     for t, right_limit in grid_rows:
+        # The vertical fallback needs a floor, and it has two: the row beneath
+        # this one, and the face. Passed from here because only the caller knows
+        # the whole row set -- the same reason `_row_left_limit` is computed here.
+        floor = _row_floor_z(t, rows, BRAND_INGREDIENT_GAP_FRAC * face_h)
+        face_bottom = top_z - face_h
         _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
                          right_limit,
-                         _row_left_limit(t, rows, left_x, face_w))
+                         _row_left_limit(t, rows, left_x, face_w),
+                         face_bottom if floor is None else max(floor, face_bottom))
         # The band is derived from the row's own location, NOT from
         # `_bounds_in_frame`, and the difference is the whole bug this
         # replaced. Blender does not refresh an object's evaluated bounds
@@ -1170,7 +1176,7 @@ def _row_left_limit(t, rows, left_x, face_w):
 
 
 def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
-                     right_limit, left_limit=None):
+                     right_limit, left_limit=None, floor_z=None):
     """Indent a LEFT-set grid row until one ink can serve all of its capitals.
 
     A measured row never needs this: the reference puts a row where the real
@@ -1203,6 +1209,21 @@ def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
     Ink could never have fixed those: `59-min`'s cap band is 47.7% dark and
     52.3% light, and the hidden shares of the two inks sum to 100%, so the best
     single ink still hides 47.7% of the string. Placement is the lever.
+
+    AND WHEN THE FIELD SPANS THE WIDTH, the lever is the other axis. Indenting
+    assumes there is somewhere along the row's own baseline to go, which is true
+    of a swoosh and false of a rule. `344-min` is the case: Phase B put its red
+    top rule into the spec -- it is printed, `v 0.047-0.202` -- and the rule runs
+    `u 0.016-0.926`, so no x clears it. The brand's cap band lands `v
+    0.133-0.253`, 34.2% of it on the rule and 65.8% on the board, and
+    `_band_fill`'s majority therefore inks it DARK: a third of "Modafinil
+    Generic" printed dark on dark red, present and unreadable.
+
+    Tried only after x is exhausted, and the row goes back to where the grid put
+    it if neither axis serves, so a carton the horizontal pass already cleared
+    cannot move. Bounded by the row beneath it -- `_row_floor_z` -- because
+    lowering a row onto its neighbour is the failure `_clear_below` exists to
+    prevent, and by the face itself.
     """
     if not design or t.data.align_x not in ("LEFT", "RIGHT"):
         return t
@@ -1210,31 +1231,96 @@ def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
     if left_limit is None:
         left_limit = left_x
     width = _text_dimensions(t).x
-    cap_top = t.location.z - _cap_drop(t.data.font) * t.data.size
-    cap_bot = cap_top - _cap_ratio(t.data.font) * t.data.size
-    step = 0.005 * face_w
-    x = t.location.x
-    while True:
+    drop = _cap_drop(t.data.font) * t.data.size
+    cap_h = _cap_ratio(t.data.font) * t.data.size
+    home_x, home_z = t.location.x, t.location.z
+
+    def serves(x, z):
         # location.x is the row's LEFT edge when it is left-set and its
         # RIGHT edge when it is right-set; the band is the same either way.
         lo = x if rightward else x - width
         hi = x + width if rightward else x
+        cap_top = z - drop
         band = ((lo - left_x) / face_w, (hi - left_x) / face_w,
-                (top_z - cap_top) / face_h, (top_z - cap_bot) / face_h)
+                (top_z - cap_top) / face_h, (top_z - (cap_top - cap_h)) / face_h)
         # Reject cheaply, accept only on the full grid.
-        if (_one_ink_serves(design, substrate, *band,
-                            stride=_INK_COARSE_STRIDE)
-                and _one_ink_serves(design, substrate, *band)):
+        return (_one_ink_serves(design, substrate, *band,
+                               stride=_INK_COARSE_STRIDE)
+                and _one_ink_serves(design, substrate, *band))
+
+    step = 0.005 * face_w
+    x = home_x
+    while True:
+        if serves(x, home_z):
             t.location.x = x
             return t
+        lo = x if rightward else x - width
+        hi = x + width if rightward else x
         if rightward:
             if hi + step > right_limit:
-                return t
+                break
             x += step
         else:
             if lo - step < left_limit:
-                return t
+                break
             x -= step
+
+    # x is exhausted. Back to the grid's own column, then down.
+    t.location.x = home_x
+    if floor_z is None:
+        return t
+    z_step = 0.005 * face_h
+    z = home_z
+    while True:
+        if z - drop - cap_h - z_step < floor_z:
+            t.location.z = home_z
+            return t
+        z -= z_step
+        if serves(home_x, z):
+            t.location.z = z
+            return t
+
+
+def _row_span(o):
+    """(left, right, cap_bottom, cap_top) of a row, from its LOCATION.
+
+    Not from `_z_span`/`_x_span`, and the difference is a trap this file already
+    records once: Blender does not refresh an object's evaluated bounds when
+    `location` is assigned, so a row `_clear_of_design` has already moved still
+    reports where it USED to be. `_row_left_limit` computes from the location and
+    the font's own metrics for exactly that reason; anything that has to be
+    correct DURING the clearing pass has to do the same.
+    """
+    w = _text_dimensions(o).x
+    align = o.data.align_x
+    right = o.location.x + (w if align == "LEFT" else
+                            0.5 * w if align == "CENTER" else 0.0)
+    top = o.location.z - _cap_drop(o.data.font) * o.data.size
+    return right - w, right, top - _cap_ratio(o.data.font) * o.data.size, top
+
+
+def _row_floor_z(t, rows, gap):
+    """How far this row may descend before it reaches the row beneath it.
+
+    The mirror of `_row_left_limit`, and it shares that function's one real
+    rule: a row that does not overlap this one HORIZONTALLY is not in the way
+    whatever its height. `135-min` is why -- its measured dosage block sits at
+    the right of the same band the brand occupies at the left, they share their
+    whole height and touch nowhere, and dropping a row for an obstacle it never
+    meets is a wrong layout too, just a quieter one.
+    """
+    x_lo, x_hi, cap_bot, _cap_top = _row_span(t)
+    floor = None
+    for o in rows:
+        if o is t:
+            continue
+        o_x_lo, o_x_hi, _o_bot, o_top = _row_span(o)
+        if x_hi <= o_x_lo or x_lo >= o_x_hi:
+            continue                      # nothing shared horizontally
+        if o_top >= cap_bot:
+            continue                      # not beneath this row
+        floor = o_top + gap if floor is None else max(floor, o_top + gap)
+    return floor
 
 
 def _add_panel_text(name, body, font, cap_h, ink_mat, u, v, x, align="LEFT"):

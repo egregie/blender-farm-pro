@@ -205,7 +205,8 @@
         0.4715,
         0.1255
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "antialiased rim of the red top rule"
     },
     {
       "key": "highlight#1",

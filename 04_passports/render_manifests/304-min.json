@@ -27,7 +27,46 @@
     "spec_version": "0.1",
     "face_aspect": 0.6555,
     "substrate": "#E0E3EB",
-    "fields": [],
+    "fields": [
+      {
+        "role": "highlight",
+        "fill": "#8C848F",
+        "coverage_pct": 3.4,
+        "parts": [
+          {
+            "kind": "block",
+            "area_pct": 0.1,
+            "smoothness": 0.17,
+            "outline": [
+              [
+                0.9445,
+                0.1831
+              ],
+              [
+                0.9827,
+                0.1928
+              ],
+              [
+                0.9827,
+                0.2552
+              ],
+              [
+                0.9391,
+                0.2552
+              ],
+              [
+                0.9391,
+                0.1886
+              ],
+              [
+                0.9436,
+                0.1845
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "type_rows": {},
     "source_image": "Sonata_front_raw.jpg"
   },

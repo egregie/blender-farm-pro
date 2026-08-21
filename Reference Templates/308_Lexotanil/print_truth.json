@@ -155,7 +155,8 @@
         0.9079,
         0.6847
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "antialiased rim of the green hexagon"
     },
     {
       "key": "highlight#5",
@@ -189,7 +190,8 @@
         0.9097,
         0.4566
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "antialiased rim of the blue hexagon"
     },
     {
       "key": "highlight#7",

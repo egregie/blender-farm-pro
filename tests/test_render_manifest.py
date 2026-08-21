@@ -722,54 +722,91 @@ class TestDesignChannel(unittest.TestCase):
 
     # Parts that are neither off the face nor a block, i.e. admitted on the
     # strength of filling their own bounding box.
-    #
-    # Empty, and it tightened rather than drifted. The one exemption that ever
-    # existed was Xanax Pfizer's magenta panel, measured at 0.96 -- a clean
-    # rectangle carrying a one-pixel thread down the carton's edge that halved
-    # its polygon's fill. That folder left the design group when a
-    # re-acquisition replaced its photograph with a frame holding two cartons,
-    # so the exemption went with the spec it described. None of the six specs
-    # rebuilt on the new photography needs one.
-    BOX_FILL_EXEMPT = set()
-
-    def test_no_spec_field_is_the_reference_s_own_lettering(self):
+    def test_every_spec_field_is_a_component_a_person_called_print(self):
         """A spec carrying letter outlines prints the REFERENCE's words.
 
         Xanax shipped that way: "XANAX" clustered with the purple edge bar, its
         "XA" survived as one component covering 3.4% of the face, and the
-        renderer built it as geometry beside our own brand -- the D-7 reader
-        came back with "XAXa" off a carton printing "Xanax".
+        renderer built it as geometry beside our own brand -- the D-7 reader came
+        back with "XAXa" off a carton printing "Xanax".
 
-        Restated here rather than imported. A test that asks the fitter's own
-        predicate whether the fitter was right cannot answer the question.
+        WHAT THIS USED TO CHECK, AND WHY IT NO LONGER CAN. Until Phase B the
+        fitter admitted a component on geometry -- it runs off the face, it reads
+        as a block, or its pixels fill their own bounding box -- so this test
+        restated that geometry and kept a list of measured exemptions. The rule
+        has been replaced. `print_truth.json` now states, once per component and
+        by hand, whether it is printed design, an object lying in front of the
+        carton, a letterform, a logo, a photograph, or one surface counted twice;
+        `fit()` emits the `print` components and nothing else.
+
+        Re-asserting the old geometry would now flag ordinary design: fourteen
+        parts across nine cartons float inside the face without being blocks --
+        Modalert's red top rule, Lexotanil's two hexagons, Atarax's ring
+        segments, Valium Brand's blue hexagon. Filling the exemption list with
+        them would record that the admission rule changed while pretending it
+        had not, which is worse than dropping the check.
+
+        WHAT IS CHECKED INSTEAD, and it is stronger in the direction that
+        matters: the spec must be exactly the `print` set, both ways round. A
+        part with no matching component means the fitter drew something nobody
+        classified; a `print` component with no part means it dropped something
+        somebody did. Neither is reachable through the fitter's own predicate,
+        because the truth file is written by a different program from a
+        different source -- the photograph itself.
+
+        WHAT IS GIVEN UP, stated rather than glossed: a person could still call
+        a wordmark `print`, and no test can catch that. What catches it is
+        `scripts/label_print.py --aid`, which tints every component by its class
+        over the rectified face, so a wordmark labelled as design is visible at a
+        glance. The guarantee moved from a proxy to a judgement, and the judgement
+        is recorded per component with its area and its bounding box.
         """
         import json as _json
         from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
-        loose = set()
         for folder in sorted(TEMPLATE_SAMPLE):
-            spec = _json.loads(
-                (TEMPLATES_DIR / folder / "design_spec.json").read_text(encoding="utf-8"))
-            aspect = float(spec["face_aspect"])
-            # The fitter's margin is 0.01 of the face's LONGER side in pixels;
-            # these coordinates are normalised per axis, so it is not the same
-            # number on both.
-            margin_u = 0.01 * max(1.0, aspect)
-            margin_v = margin_u / aspect
-            for field in spec["fields"]:
-                for part in field["parts"]:
-                    us = [p[0] for p in part["outline"]]
-                    vs = [p[1] for p in part["outline"]]
-                    off = (min(us) <= margin_u or max(us) >= 1 - margin_u
-                           or min(vs) <= margin_v or max(vs) >= 1 - margin_v)
-                    if off or part["kind"] == "block":
-                        continue
-                    loose.add((folder, field["role"], part["area_pct"]))
-        self.assertEqual(
-            loose, self.BOX_FILL_EXEMPT,
-            "a spec field floats inside the face and is not a printed block, "
-            "which is what a traced wordmark looks like. Every exemption is "
-            "listed with the box-fill that earned it; a new one has to be "
-            "measured, not assumed.")
+            root = TEMPLATES_DIR / folder
+            spec = _json.loads((root / "design_spec.json").read_text(encoding="utf-8"))
+            truth = _json.loads((root / "print_truth.json").read_text(encoding="utf-8"))
+            printed = [c for c in truth["components"]
+                       if c.get("class") == "print" and not c.get("vanished")]
+            with self.subTest(folder=folder):
+                # Matched on the recorded area and bounding box rather than by
+                # re-running the segmentation: this reads what both sides wrote
+                # down, so it cannot agree with the fitter by sharing its code.
+                unmatched = []
+                by_role = {}
+                for c in printed:
+                    by_role.setdefault(c["role"], []).append(c)
+                for field in spec["fields"]:
+                    for part in field["parts"]:
+                        us = [p[0] for p in part["outline"]]
+                        vs = [p[1] for p in part["outline"]]
+                        hit = None
+                        for c in by_role.get(field["role"], []):
+                            if abs(c["area_pct"] - part["area_pct"]) > 0.06:
+                                continue
+                            u0, v0, u1, v1 = c["bbox_uv"]
+                            if (min(us) >= u0 - 0.02 and max(us) <= u1 + 0.02
+                                    and min(vs) >= v0 - 0.02 and max(vs) <= v1 + 0.02):
+                                hit = c
+                                break
+                        if hit is None:
+                            unmatched.append((field["role"], part["area_pct"]))
+                        else:
+                            by_role[field["role"]].remove(hit)
+                self.assertEqual(
+                    unmatched, [],
+                    f"{folder}: the spec draws a field no component was "
+                    f"classified `print`. Either the fitter emitted something "
+                    f"nobody looked at, or the partition moved under "
+                    f"print_truth.json -- re-run label_print.py --init.")
+                left = [(r, c["key"], c["area_pct"])
+                        for r, cs in by_role.items() for c in cs]
+                self.assertEqual(
+                    left, [],
+                    f"{folder}: a component classified `print` reached no field. "
+                    f"The spec is missing design the photograph carries and a "
+                    f"person confirmed.")
 
 
 class TestAnOutlineIsARegion(unittest.TestCase):

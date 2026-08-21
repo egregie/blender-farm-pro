@@ -172,7 +172,8 @@
         0.1992,
         0.9484
       ],
-      "class": "print"
+      "class": "unrepresentable",
+      "reason": "printed rule about 6px tall in the rectified face; Douglas-Peucker at 0.004 of the face width flattens it into a self-crossing ring the repair cannot restore"
     },
     {
       "key": "brand#8",

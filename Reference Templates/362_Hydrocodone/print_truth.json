@@ -1041,7 +1041,8 @@
         0.49,
         0.5964
       ],
-      "class": "print"
+      "class": "blend",
+      "reason": "antialiased rim of the dosage block"
     }
   ]
 }
