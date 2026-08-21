@@ -45,8 +45,29 @@ class TestTheCurveIsRead(unittest.TestCase):
 
 class TestTheChartStaysIndependentOfWhatItJudges(unittest.TestCase):
     def test_no_patch_is_a_colour_from_a_palette_it_will_be_used_on(self):
+        """The NEUTRAL ramp is exempt, and only the neutral ramp.
+
+        `230_Slimex`'s board is pure white and that is a measurement, not a
+        blown highlight: 48.4% of its rectified face is exactly (255,255,255)
+        on a flat studio shot of a white carton. So its substrate is
+        `#FFFFFF`, which is also the ramp's top anchor -- an anchor
+        `test_the_ramp_reaches_white` requires, since without it `np.interp`
+        clamps and reads Xanax Pfizer's `#F9F6F4` a quarter of a level dark.
+
+        The circularity this guards against is CHROMATIC: a chart carrying the
+        hues it will be asked to tell apart is a chart made of the answers. A
+        grey step carries no hue to lend, and it is the axis the transfer is
+        read ALONG rather than a candidate answer. `221-min` shows what the
+        bare hex test was actually measuring -- its board is `#FEFEFE` on a
+        visually identical white carton and collides with nothing, so two
+        identical cases were separated by one code level.
+
+        The twelve chromatic patches stay strictly excluded.
+        """
         from src.design_group import FOLDER_BY_STEM, load_design
-        chart = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in cr.PATCHES}
+        chart = {f"#{r:02X}{g:02X}{b:02X}"
+                 for r, g, b in cr.PATCHES if not r == g == b}
+        self.assertEqual(len(chart), 12, "the neutral ramp is 7 of 19 patches")
         for stem in FOLDER_BY_STEM:
             with self.subTest(sku=stem):
                 spec = load_design(stem)

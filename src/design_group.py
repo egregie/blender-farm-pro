@@ -1,4 +1,4 @@
-"""The eleven SKU rendered against real packaging, and their design specs.
+"""The 28 SKU rendered against real packaging, and their design specs.
 
 `Reference Templates/` holds a folder per product with reference photography, a
 measured `metadata.json` (D-1) and a `design_spec.json` (D-2). This module is the
@@ -36,21 +36,44 @@ TEMPLATES_DIR = PROJECT_ROOT / "Reference Templates"
 #: them rendering at all. Out of the map they take the generic art direction,
 #: which is the honest outcome for a carton nothing has measured.
 #:
+#: `107_Tramadol` left for a different reason and KEEPS its photography, so
+#: its absence is not implied by an empty folder the way theirs is.
+#: Its `highlight` cluster is speckle -- 107 connected components, the largest
+#: holding 60% of the mask -- and a boundary walk over a blob that pinched
+#: doubles back through the pinch: `trace_outline` returns a ring crossing
+#: itself 136 times BEFORE any simplification, so Douglas-Peucker is not the
+#: cause. The even-odd fill of that ring is THREE disjoint pieces, 74/14/10%,
+#: and a ring that does not cross itself has a simply-connected interior, so
+#: the best any repair can score against it is the largest piece. `simple_ring`
+#: scored 0.548 where all thirteen other tangled parts score 0.988 or better.
+#: The fitter had already written its own verdict into the spec: this field
+#: agrees with the photograph at 0.54, and `secondary_1` at 0.539.
+#:
+#: Four repairs were measured and none reached the region: ranking dropped
+#: vertices by IoU rather than area (0.559), splitting the ring at its
+#: crossings and keeping the larger loop (0.741, and it costs `59-min` 0.999
+#: -> 0.905), and cleaning the mask before tracing, which removes every tangle
+#: in the group but takes THIS field to an IoU of 0.0 and turns the test green
+#: by leaving it nothing to check. The spec stays on disk as measured; what
+#: leaves the group is the SKU, not the measurement.
+#:
 #: The folder's numeric prefix is its SKU's number, so the key now carries the
 #: value's number in it. The map stays explicit anyway: the number is the only
 #: part of a folder name that identifies a SKU, and deriving the map from the
 #: name would re-introduce exactly the matching this module refuses to do.
 #: Renamed from the old sequential prefixes (`02_Cialis` and the rest) after the
 #: rule was checked against every pair already in this map and reproduced all
-#: eleven. Note `58-min` is "Cialis Brand", a different SKU with no folder --
-#: `59-min` is the plain "Cialis" this one holds.
+#: eleven it then held. `64_Kamagra` and `74_Viagra` then shed a trailing
+#: `_Template_Reference`, the last two folders that still carried it, so the
+#: rule reads without exceptions: the numeric prefix is the SKU, the rest is
+#: the product. Note `58-min` is "Cialis Brand", a different SKU with no
+#: folder -- `59-min` is the plain "Cialis" this one holds.
 TEMPLATE_SAMPLE: dict[str, str] = {
     "59_Cialis":                       "59-min",
     "60_Cialis_Professional":          "60-min",
     "62_Cialis_Super_Active":          "62-min",
-    "64_Kamagra_Template_Reference":   "64-min",
-    "74_Viagra_Template_Reference":    "74-min",
-    "107_Tramadol":                    "107-min",
+    "64_Kamagra":                      "64-min",
+    "74_Viagra":                       "74-min",
     "133_Ambien":                      "133-min",
     "134_Atarax":                      "134-min",
     "135_Ativan":                      "135-min",
@@ -83,7 +106,7 @@ FOLDER_BY_STEM: dict[str, str] = {v: k for k, v in TEMPLATE_SAMPLE.items()}
 class MissingDesignSpec(RuntimeError):
     """A SKU in the design group has no spec on disk.
 
-    Loud on purpose. The design group's whole point is that these eleven are
+    Loud on purpose. The design group's whole point is that these 28 are
     rendered against real packaging; falling back to the generic art direction
     would produce a plausible carton in the wrong colours and call it done, which
     is the failure mode this project keeps finding in its own history.
@@ -157,7 +180,7 @@ def simple_ring(poly):
     100.0% recall and 75.2% precision -- our magenta strictly contained the
     spec's and was a third larger.
 
-    Eight parts across six of the eleven cartons are tangled this way.
+    13 parts across 8 of the 28 cartons are tangled this way.
 
     Repaired by dropping the fewest vertices that untangle it, preferring the
     removal that changes the enclosed area least. Only vertices belonging to a

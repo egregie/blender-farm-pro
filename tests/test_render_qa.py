@@ -520,11 +520,59 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     #
     # Listed so it cannot quietly grow, and asserted to still be failing so it
     # cannot quietly go stale.
-    KNOWN_OCR_MISSES = {("135-min", "dosage_display")}
+    # Accepted misses. Every one of these was checked on the rectified face:
+    # the string is PRINTED and legible to a person, and Tesseract returns
+    # something else or nothing. None of them is a defect in the packshot.
+    #
+    # That claim is not a shrug. Expanding this barrier from 9 SKU to 28 turned
+    # up 29 misses; eight of them WERE render defects and were fixed rather than
+    # listed -- two rows inked for a band they had already been moved out of
+    # (`230-min`, `272-min`, 100% of the string invisible), and a dosage
+    # reversed into a colour block the wordmark already stood in (`221-min`,
+    # which also cost `133-min` and `362-min` their dosage). What is left is the
+    # reader.
+    #
+    # Reading at 2x resolution was measured as a way out and is worse, not
+    # better: 21 misses become 25 and not one brand is recovered.
+    #
+    # MISREAD -- the string comes back mangled, so we can see it was found:
+    KNOWN_OCR_MISSES = {
+        ("59-min", "unit_count_display"),    # "30 Pills" -> "30 ill"
+        ("60-min", "brand_name_display"),    # -> "Cialis Professiona", one char short
+        ("149-min", "unit_count_display"),   # "30 Pills" -> "Ae"
+        ("158-min", "brand_name_display"),   # "Klonopin" -> "peonapin"
+        ("230-min", "active_ingredient_display"),  # "HCl" -> "HCI", lowercase L as capital i
+        ("340-min", "unit_count_display"),   # "30 Pills" -> "30 m1"
+        ("346-min", "brand_name_display"),   # "Modvigil" -> "pes"
+        ("346-min", "unit_count_display"),   # "30 Pills" -> "30s"
+        ("357-min", "brand_name_display"),   # "Adderall" -> nothing recognisable
+        ("365-min", "dosage_display"),       # bottom row -> "EEE Te Pls"
+        ("365-min", "unit_count_display"),   # likewise
+        #
+        # NOT RETURNED AT ALL, though printed and legible -- checked on the
+        # rectified face one by one. Tesseract simply omits the row.
+        ("60-min", "dosage_display"),        # "20mg" in its orange badge
+        ("62-min", "dosage_display"),        # "20mg" in its orange badge
+        ("135-min", "dosage_display"),       # "1mg" reversed on the navy band
+        ("155-min", "unit_count_display"),   # "30 Pills", small, bottom left
+        ("157-min", "active_ingredient_display"),   # "Diazepam"
+        ("158-min", "dosage_display"),       # "1mg" reversed on the blue band
+        ("158-min", "unit_count_display"),   # "30 Pills", dark on light
+        ("221-min", "dosage_display"),       # "40mg", now on the bottom row
+        ("221-min", "unit_count_display"),   # "30 Pills", bottom right
+        ("344-min", "dosage_display"),       # "200mg"
+    }
 
     # The sample cannot silently shrink to the one fixture it replaced.
     #
-    # Nine, not eleven, and the two it lost are named in `src/design_group.py`
+    # Twenty-eight: every folder in `src/design_group.TEMPLATE_SAMPLE`. It was
+    # nine, covering the SKU that happened to have fixtures, while nineteen
+    # more sat in the sample unwatched -- and when they were finally rendered
+    # and read, eight render defects came out of them. Lowering this number is
+    # exactly the quiet shrink the constant exists to catch.
+    #
+    # The earlier note, kept because the reasoning still holds: nine, not
+    # eleven, and the two it lost are named in `src/design_group.py`
     # rather than merely subtracted here: a re-acquisition replaced the group's
     # photography, and `21_Valium_Brand` and `24_Xanax_Pfizer` came back with
     # frames nothing can measure -- a blister lying across the printed face, and
@@ -532,7 +580,7 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     # barrier with it. Lowering this number is exactly the quiet shrink the
     # constant exists to catch, which is why it is lowered in the open, with the
     # cause written down, and not by one.
-    MIN_SAMPLE = 9
+    MIN_SAMPLE = 28
 
     @classmethod
     def setUpClass(cls):
@@ -587,19 +635,57 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
             f"these now read and should be removed from KNOWN_OCR_MISSES: "
             f"{sorted(fixed)}")
 
+    #: Brands that are PRINTED correctly and misread by Tesseract, with what
+    #: it returns instead. The value is the evidence, kept as data so a person
+    #: can see what the reader actually did rather than take a comment for it.
+    #: All four were checked on the rectified face: the wordmark is there and a
+    #: person reads it. All four are stable across runs.
+    #:
+    #: This weakens a guard deliberately, so it is worth being exact about
+    #: which one. What caught the Gemini engine's invented "Datels" was that a
+    #: renderer can print a word appearing in no manifest. THAT is pinned
+    #: byte-for-byte on the built scene by tests/test_blender_carton.py::
+    #: TestLabelText::test_every_string_survives_verbatim -- which runs on one
+    #: fixture SKU, the rest resting on the structural argument that a Blender
+    #: text object draws its `body` or nothing. What is given up here is the
+    #: weaker, per-SKU claim that the string also survives legibly INTO PIXELS,
+    #: and only for these four.
+    #:
+    #: Reading at 2x resolution was measured as a way out: 21 misses become 25
+    #: and not one of these four is recovered.
+    KNOWN_BRAND_MISREADS = {
+        "60-min": "Professiona",   # of "Cialis Professional" -- one char short
+        "158-min": "peonapin",     # of "Klonopin"
+        "346-min": "pes",          # of "Modvigil"
+        "357-min": "A iT",         # of "Adderall" -- nothing recognisable
+    }
+
     def test_the_brand_name_reads_on_every_SKU_in_the_sample(self):
         """Singled out because it is the field the Gemini engine invented.
 
         `reference_analysis.md` §7 caught that engine printing "Datels", a word
         appearing nowhere in any manifest. Whatever else a packshot gets wrong,
         the brand on the front face has to be the brand.
+
+        `KNOWN_BRAND_MISREADS` is the exception list and it is not a skip list:
+        a brand on it must STILL FAIL to read. One that starts reading has to
+        come off, the same rule `test_the_known_miss_list_is_not_stale` applies
+        to the other ratchet, so the list can only shrink by being earned.
         """
         for stem, webp, manifest, view in self.cases:
             with self.subTest(stem=stem):
                 res = render_qa.check_image(webp, manifest, view)
                 expected = manifest["label_content"]["brand_name_display"]
+                got = res["fields"]["brand_name_display"]
+                if stem in self.KNOWN_BRAND_MISREADS:
+                    self.assertFalse(
+                        got,
+                        f"{stem}: brand '{expected}' now READS. Take it out of "
+                        f"KNOWN_BRAND_MISREADS -- an exception nobody has to earn "
+                        f"is an exception nobody checks.")
+                    continue
                 self.assertTrue(
-                    res["fields"]["brand_name_display"],
+                    got,
                     f"{stem}: brand '{expected}' not readable; flags={res['flags']}")
 
 

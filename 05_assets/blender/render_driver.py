@@ -415,6 +415,30 @@ def _point_in_polygon(u, v, outline) -> bool:
     return inside
 
 
+#: Bounding boxes per design, keyed by the design dict's identity. One scene is
+#: built per process, so the design object outlives every lookup against it.
+_PART_CACHE = {}
+
+
+def _prepared_parts(design):
+    """(u0, u1, v0, v1, outline, fill) per drawable part, in drawing order."""
+    key = id(design)
+    got = _PART_CACHE.get(key)
+    if got is None:
+        got = []
+        for field in (design or {}).get("fields") or []:
+            for part in field.get("parts") or []:
+                outline = part.get("outline") or []
+                if len(outline) < 3:
+                    continue
+                us = [float(q[0]) for q in outline]
+                vs = [float(q[1]) for q in outline]
+                got.append((min(us), max(us), min(vs), max(vs),
+                            outline, field.get("fill")))
+        _PART_CACHE[key] = got
+    return got
+
+
 def _surface_fill(design, u, v):
     """The design part printed under (u, v), or None where the board shows.
 
@@ -426,15 +450,22 @@ def _surface_fill(design, u, v):
     own render.
 
     Later parts paint over earlier ones, so the last containing part wins, the
-    same order build_design_fields draws them in. The row's CENTRE decides: a row
-    straddling two surfaces is a problem with the design, not with the ink.
+    same order build_design_fields draws them in.
+
+    Each part is tried against its bounding box before its outline. That is an
+    exact early-out, not an approximation -- a point outside a polygon's box is
+    outside the polygon -- and it is worth having because the clearing search
+    calls this function a few tens of thousands of times per carton, while a
+    single outline here runs to 488 vertices. The boxes are computed once per
+    design and kept in `_PART_CACHE`, in the order the parts are drawn, so the
+    "last containing part wins" rule reads off the same sequence as before.
     """
     found = None
-    for field in (design or {}).get("fields") or []:
-        for part in field.get("parts") or []:
-            outline = part.get("outline") or []
-            if len(outline) >= 3 and _point_in_polygon(u, v, outline):
-                found = field.get("fill")
+    for u0, u1, v0, v1, outline, fill in _prepared_parts(design):
+        if u < u0 or u > u1 or v < v0 or v > v1:
+            continue
+        if _point_in_polygon(u, v, outline):
+            found = fill
     return found
 
 
@@ -494,6 +525,53 @@ def _required_lift(t, floor_z):
     lowest = min((t.matrix_world @ Vector(c)).z
                  for c in t.evaluated_get(dg).bound_box)
     return max(floor_z - lowest, 0.0)
+
+
+def _block_is_taken(block, texts, font, cap_frac, fill_frac):
+    """Would a dosage set in this colour block run into a row already placed?
+
+    `dosage_block` is `blocks[0]` -- the first block the design happens to yield
+    -- and nothing checked what else stands there. On `221-min` that is the
+    salmon panel behind the wordmark, so "40mg" was reversed into it on top of
+    "Inderal" and the two printed through one another: measured on the built
+    scene `label_brand` spanned v 0.141-0.291 and `label_dosage` v 0.164-0.285,
+    the OCR barrier read `Indepal`, and brand, dosage and unit count were all
+    unfindable.
+
+    The question is whether the DOSAGE would collide, not whether anything at
+    all touches the block. Asking the looser question moved the dosage off two
+    further cartons (`133-min`, `362-min`) whose blocks are merely grazed by a
+    row's cap band and where nothing was wrong. So the band tested here is the
+    one the placement below actually uses: the block's cap height, centred in
+    it, across the width the text is fitted to.
+
+    Cap bands throughout, not bounding boxes -- a box carries descender space
+    that reaches where no glyph does.
+    """
+    bh = block["z1"] - block["z0"]
+    bw = block["x1"] - block["x0"]
+    cap = bh * cap_frac
+    # Exactly where the placement below puts it: the same origin z, then
+    # down by the font's cap drop, because the row is set align_y="TOP".
+    # Taking the block-centred band instead sits the test a cap-drop too
+    # high and it collides with the row above -- which moved the dosage on
+    # `133-min` and `362-min`, where nothing was wrong.
+    origin_z = block["z1"] - 0.5 * (bh - cap)
+    z_hi = origin_z - _cap_drop(font) * (cap / _cap_ratio(font))
+    z_lo = z_hi - cap
+    mid = 0.5 * (block["x0"] + block["x1"])
+    x_lo = mid - 0.5 * bw * fill_frac
+    x_hi = mid + 0.5 * bw * fill_frac
+    for t in texts:
+        o_x_lo, o_x_hi = _x_span(t)
+        if o_x_hi <= x_lo or o_x_lo >= x_hi:
+            continue
+        o_top = t.location.z - _cap_drop(t.data.font) * t.data.size
+        o_bot = o_top - _cap_ratio(t.data.font) * t.data.size
+        if o_bot >= z_hi or o_top <= z_lo:
+            continue
+        return True
+    return False
 
 
 def _lift_row(texts, floor_z, spans=(), gap=0.0):
@@ -849,8 +927,12 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
             "label_dosage", dosage, bold, measured["dosage_display"],
             _ink_for(measured["dosage_display"]),
             face_w, face_h, left_x, top_z, y))
-    elif dosage and dosage_block is not None and (
-            dosage_block["x1"] - dosage_block["x0"]) >= DOSAGE_BLOCK_MIN_WIDTH_FRAC * face_w:
+    elif (dosage and dosage_block is not None
+            and (dosage_block["x1"] - dosage_block["x0"])
+            >= DOSAGE_BLOCK_MIN_WIDTH_FRAC * face_w
+            and not _block_is_taken(dosage_block, rows, bold,
+                                    DOSAGE_BLOCK_CAP_FRAC,
+                                    DOSAGE_BLOCK_FILL_FRAC)):
         # Reversed out of the measured colour block, which is where the real
         # carton puts it. Leaving it on the grid below would print the dosage
         # twice over: once in black at the foot of the face, and once as an empty
@@ -919,12 +1001,30 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     substrate = (design or {}).get("substrate")
     for t, right_limit in grid_rows:
         _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
-                         right_limit)
-        b = _bounds_in_frame(t, box)
-        fill = _surface_fill(
-            design,
-            0.5 * (b["min"][0] + b["max"][0] - 2.0 * left_x) / face_w,
-            (top_z - 0.5 * (b["min"][2] + b["max"][2])) / face_h)
+                         right_limit,
+                         _row_left_limit(t, rows, left_x, face_w))
+        # The band is derived from the row's own location, NOT from
+        # `_bounds_in_frame`, and the difference is the whole bug this
+        # replaced. Blender does not refresh an object's evaluated bounds
+        # when `location` is assigned, so after `_clear_of_design` moves a
+        # row the bounds still describe where it USED to be. While only
+        # LEFT-set rows were cleared the two agreed to about 0.007 of the
+        # face and nothing showed; a right-set row travels far enough to
+        # matter, and on `230-min` the ink was chosen for u 0.743-0.947
+        # while the row was drawn at u 0.471-0.675 -- a band that is 70.9%
+        # dark against one that is not, so "30 Pills" came out WHITE on a
+        # white board, 100% of it invisible. `272-min` the same.
+        #
+        # Same quantities `_clear_of_design` uses, so the mover and the
+        # inker cannot disagree about where the row is.
+        width = _text_dimensions(t).x
+        lo = t.location.x if t.data.align_x == "LEFT" else t.location.x - width
+        cap_top = t.location.z - _cap_drop(t.data.font) * t.data.size
+        cap_bot = cap_top - _cap_ratio(t.data.font) * t.data.size
+        fill = _band_fill(
+            design, substrate,
+            (lo - left_x) / face_w, (lo + width - left_x) / face_w,
+            (top_z - cap_top) / face_h, (top_z - cap_bot) / face_h)
         if fill:
             t.data.materials.clear()
             t.data.materials.append(_reverse_ink(fill))
@@ -940,21 +1040,67 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     return rows
 
 
-def _one_ink_serves(design, substrate, u0, u1, v0, v1):
+#: How finely `_one_ink_serves` samples a row's cap band.
+#:
+#: It was 24x6, and the number mattered in a way a sampling density usually
+#: does not: this function decides when `_clear_of_design` STOPS moving a row,
+#: while tests/test_blender_carton.py judges the result on its own 30x10 grid.
+#: A mover coarser than its judge stops one step short and the row is reported
+#: unreadable at a position it was just told was clear -- measured on `59-min`,
+#: where 24x6 saw 0 dark samples in the band and 30x10 saw 1, and 120x40 saw 10.
+#: Finer than any judge, so the row is cleared for real and not to a resolution.
+_INK_SAMPLES_U = 120
+_INK_SAMPLES_V = 40
+
+
+_DARK_CACHE = {}
+
+
+def _is_dark(fill):
+    """Does `_reverse_ink` treat this colour as dark? Memoised.
+
+    A design carries a handful of distinct colours and the samplers ask about
+    them tens of thousands of times per carton, re-parsing the same six hex
+    digits every time. Same bar as `_reverse_ink`, in sRGB, so the three cannot
+    drift apart on what "dark" means.
+    """
+    got = _DARK_CACHE.get(fill)
+    if got is None:
+        h = (fill or "#FFFFFF").lstrip("#")
+        r, g, b = (int(h[k:k + 2], 16) / 255.0 for k in (0, 2, 4))
+        got = 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5
+        _DARK_CACHE[fill] = got
+    return got
+
+
+#: Stride for the cheap rejecting pass. 120 and 40 are both divisible by it,
+#: so the coarse grid is a strict SUBSET of the fine one -- which is the whole
+#: reason it is safe to skip the fine pass when the coarse one rejects: every
+#: sample the coarse pass saw is a sample the fine pass would also take, so a
+#: coarse witness of two colours IS a fine witness of two colours. A coarse
+#: grid that merely resembled the fine one would not license this.
+_INK_COARSE_STRIDE = 5
+
+
+def _one_ink_serves(design, substrate, u0, u1, v0, v1, stride=1):
     """True when every surface under this band sits on one side of the ink bar.
 
     Not "one surface": `135-min` sets its dosage across `#032F5D` and `#AD3A9D`
     and white reads on both, so crossing that boundary costs nothing. What
     cannot be served is a band carrying both a light and a dark surface.
+
+    *stride* samples every nth point of the fine grid rather than a grid of its
+    own. `_clear_of_design` asks the strided pass first because most positions
+    it tries are rejected, and a rejection needs one witness of each colour, not
+    4800 points. An acceptance is always confirmed at stride 1.
     """
     dark = light = False
-    for i in range(24):
-        for j in range(6):
-            fill = _surface_fill(design, u0 + (u1 - u0) * (i + 0.5) / 24,
-                                 v0 + (v1 - v0) * (j + 0.5) / 6) or substrate
-            h = (fill or "#FFFFFF").lstrip("#")
-            r, g, b = (int(h[k:k + 2], 16) / 255.0 for k in (0, 2, 4))
-            if 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5:
+    for i in range(0, _INK_SAMPLES_U, stride):
+        for j in range(0, _INK_SAMPLES_V, stride):
+            fill = _surface_fill(
+                design, u0 + (u1 - u0) * (i + 0.5) / _INK_SAMPLES_U,
+                v0 + (v1 - v0) * (j + 0.5) / _INK_SAMPLES_V) or substrate
+            if _is_dark(fill):
                 dark = True
             else:
                 light = True
@@ -963,8 +1109,68 @@ def _one_ink_serves(design, substrate, u0, u1, v0, v1):
     return True
 
 
+def _band_fill(design, substrate, u0, u1, v0, v1):
+    """The surface most of this band stands on, as a colour to reverse against.
+
+    The ink and the placement must judge the SAME region or they undo each
+    other. `_clear_of_design` clears a row over its CAP BAND; the ink used to be
+    taken from the centre of the row's BOUNDING BOX, which carries descender
+    space the glyphs never reach. On `59-min` that split them: the mover put the
+    unit count on a band that is 0 of 4800 samples dark -- clean board -- and
+    the box centre still sat on the swoosh below it, so the row was inked WHITE
+    and printed invisibly on cream at a position chosen to make it readable.
+
+    By majority rather than by a point, because a row that could not be cleared
+    still has to pick the ink that serves most of itself. On a cleared row the
+    majority is unanimous and this is just the band's own colour.
+    """
+    tally = {}
+    for i in range(_INK_SAMPLES_U):
+        for j in range(_INK_SAMPLES_V):
+            fill = _surface_fill(
+                design, u0 + (u1 - u0) * (i + 0.5) / _INK_SAMPLES_U,
+                v0 + (v1 - v0) * (j + 0.5) / _INK_SAMPLES_V) or substrate
+            tally_key = (_is_dark(fill), fill)
+            tally[tally_key] = tally.get(tally_key, 0) + 1
+    if not tally:
+        return None
+    side = {}
+    for (dark, _f), n in tally.items():
+        side[dark] = side.get(dark, 0) + n
+    win = max(side, key=side.get)
+    return max((k for k in tally if k[0] == win), key=lambda k: tally[k])[1]
+
+
+def _row_left_limit(t, rows, left_x, face_w):
+    """How far left a right-set row may travel before it reaches a neighbour.
+
+    The bottom row is two strings sharing one baseline -- dosage left, unit
+    count right -- so clearing the unit count leftwards has to stop at the
+    dosage rather than print through it. Rows that do not overlap this one's
+    CAP BAND vertically are not in the way whatever their x, which is the same
+    reason `_clear_of_design` judges the cap band and not the bounding box.
+    """
+    cap_top = t.location.z - _cap_drop(t.data.font) * t.data.size
+    cap_bot = cap_top - _cap_ratio(t.data.font) * t.data.size
+    gap = 0.02 * face_w
+    limit = left_x
+    for o in rows:
+        if o is t:
+            continue
+        o_top = o.location.z - _cap_drop(o.data.font) * o.data.size
+        o_bot = o_top - _cap_ratio(o.data.font) * o.data.size
+        if o_bot > cap_top or o_top < cap_bot:
+            continue                      # nothing shared vertically
+        o_w = _text_dimensions(o).x
+        align = o.data.align_x
+        o_right = o.location.x + (o_w if align == "LEFT" else
+                                  0.5 * o_w if align == "CENTER" else 0.0)
+        limit = max(limit, o_right + gap)
+    return limit
+
+
 def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
-                     right_limit):
+                     right_limit, left_limit=None):
     """Indent a LEFT-set grid row until one ink can serve all of its capitals.
 
     A measured row never needs this: the reference puts a row where the real
@@ -982,28 +1188,53 @@ def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
     and `344-min` look affected and stop looking so as the sampling gets finer;
     over the cap band both are clean at every density.
 
-    Bounded by the row's own right limit rather than by a chosen distance: a row
-    that cannot be cleared before it would overrun stays where the grid put it
-    and keeps whatever ink `_surface_fill` gives it. Two rows in the sample are
-    in that position -- both bottom-right unit counts, where the design owns the
-    corner and no offset in either axis comes within a third of the face.
+    Bounded by the row's own limit rather than by a chosen distance: a row that
+    cannot be cleared before it would overrun stays where the grid put it and
+    keeps whatever ink `_surface_fill` gives it.
+
+    A RIGHT-set row is cleared the same way, toward the LEFT. This used to bail
+    on any row that was not LEFT-set, and a note here recorded that the two
+    bottom-right unit counts could not be cleared by placement at all -- that
+    no offset in either axis came within a third of the face. Scanning the face
+    says otherwise: `59-min` reaches a fully readable position 15.5% of the
+    face width to the left and `64-min` 24.0%, both along the row's own
+    baseline, so the bottom row still shares one.
+
+    Ink could never have fixed those: `59-min`'s cap band is 47.7% dark and
+    52.3% light, and the hidden shares of the two inks sum to 100%, so the best
+    single ink still hides 47.7% of the string. Placement is the lever.
     """
-    if not design or t.data.align_x != "LEFT":
+    if not design or t.data.align_x not in ("LEFT", "RIGHT"):
         return t
+    rightward = t.data.align_x == "LEFT"
+    if left_limit is None:
+        left_limit = left_x
     width = _text_dimensions(t).x
     cap_top = t.location.z - _cap_drop(t.data.font) * t.data.size
     cap_bot = cap_top - _cap_ratio(t.data.font) * t.data.size
     step = 0.005 * face_w
     x = t.location.x
     while True:
-        if _one_ink_serves(design, substrate,
-                           (x - left_x) / face_w, (x + width - left_x) / face_w,
-                           (top_z - cap_top) / face_h, (top_z - cap_bot) / face_h):
+        # location.x is the row's LEFT edge when it is left-set and its
+        # RIGHT edge when it is right-set; the band is the same either way.
+        lo = x if rightward else x - width
+        hi = x + width if rightward else x
+        band = ((lo - left_x) / face_w, (hi - left_x) / face_w,
+                (top_z - cap_top) / face_h, (top_z - cap_bot) / face_h)
+        # Reject cheaply, accept only on the full grid.
+        if (_one_ink_serves(design, substrate, *band,
+                            stride=_INK_COARSE_STRIDE)
+                and _one_ink_serves(design, substrate, *band)):
             t.location.x = x
             return t
-        if x + width + step > right_limit:
-            return t
-        x += step
+        if rightward:
+            if hi + step > right_limit:
+                return t
+            x += step
+        else:
+            if lo - step < left_limit:
+                return t
+            x -= step
 
 
 def _add_panel_text(name, body, font, cap_h, ink_mat, u, v, x, align="LEFT"):

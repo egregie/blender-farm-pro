@@ -428,7 +428,7 @@ was measured against, and drops the sliver; the driver hands the same points to 
 curve with `fill_mode = BOTH`, which tessellated them and **filled the triangle back to the
 panel — 1.33% of the face**. Our packshot carried a magenta wedge the real carton does not
 have, the field read 75.2% at 100.0% recall, and nothing said so: the renderer was obeying
-the contract and the contract was ambiguous. **Eight parts across six of the eleven cartons**
+the contract and the contract was ambiguous. **13 parts across 8 of the 28 cartons**
 are tangled this way.
 
 `simple_ring()` in `src/design_group.py` drops the fewest vertices that untangle the ring,
@@ -547,11 +547,16 @@ Valium or Xanax SR was measured on the previous photograph.** The reasoning thos
 record is why each instrument is built the way it is and still governs; the figures are a log,
 not a current reading. Cialis's, Kamagra's and Viagra's numbers are live.
 
-The same run also acquired photography for **seventeen further folders** that name no SKU, so
-`test_no_photographed_folder_is_missing_from_the_sample` fails by design until the group is
-either extended to them or they are removed. That failure is the acquisition's, not a regression.
+The same run also acquired photography for **seventeen further folders**, which for a time named
+no SKU and made `test_no_photographed_folder_is_missing_from_the_sample` fail by design. The group
+was extended to them instead of dropping them: `TEMPLATE_SAMPLE` now holds **28** folders.
+Two folders on disk are outside it and for different reasons: `input pp`, which holds no
+image at all and so is not a reference to anything, and `107_Tramadol`, which keeps its
+photography but whose highlight segmentation is speckle no outline can represent -- it is
+named in `UNMEASURABLE` in `tests/test_reference_templates.py`, so its absence is a
+statement rather than a gap.
 
-**Two of these constraints are now conditional, and which is which matters.** The **nine** SKU
+**Two of these constraints are now conditional, and which is which matters.** The **28** SKU
 in `src/design_group.py` are judged against *real packaging photography* instead — see
 [`00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md`](00_PROJECT_STATE/DESIGN_FIDELITY_PLAN.md). For
 them the measured design governs:

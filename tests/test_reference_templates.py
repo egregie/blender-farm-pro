@@ -157,18 +157,33 @@ class TestEveryPhotographedFolderIsInTheBarrier(unittest.TestCase):
     holds no photograph at all.
     """
 
+    #: Photographed, deliberately unmapped, and named here so the omission is
+    #: a statement rather than a gap. `21_Valium_Brand` and `24_Xanax_Pfizer`
+    #: needed no entry because their folders left the disk with them; these
+    #: keep their photography, so nothing else records that they are out.
+    UNMEASURABLE = {
+        # 107 components in the highlight cluster, largest holding 60% of the
+        # mask; the boundary walk crosses itself 136 times before any
+        # simplification, and the even-odd fill of that ring is three disjoint
+        # pieces (74/14/10%). No simple ring can represent it -- see the
+        # reason recorded beside TEMPLATE_SAMPLE in src/design_group.py.
+        "107_Tramadol",
+    }
+
     def test_no_photographed_folder_is_missing_from_the_sample(self):
         if not TEMPLATES_DIR.exists():
             self.skipTest(f"{TEMPLATES_DIR.name}/ is not in this checkout")
         from scripts.make_ocr_fixtures import TEMPLATE_SAMPLE
 
         photographed = {d.name for d in _template_dirs() if _images_in(d)}
-        unmapped = sorted(photographed - set(TEMPLATE_SAMPLE))
+        unmapped = sorted(photographed - set(TEMPLATE_SAMPLE)
+                          - self.UNMEASURABLE)
         self.assertFalse(
             unmapped,
             f"these folders hold reference photography but name no SKU: "
             f"{unmapped}. Add them to TEMPLATE_SAMPLE and rebuild the fixtures, "
-            f"or the barrier silently keeps its old coverage.")
+            f"or name them in UNMEASURABLE with the measurement that puts them "
+            f"there; otherwise the barrier silently keeps its old coverage.")
 
     def test_the_sample_names_no_folder_without_a_photograph(self):
         if not TEMPLATES_DIR.exists():

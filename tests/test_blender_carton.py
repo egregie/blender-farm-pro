@@ -1790,11 +1790,17 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
             "label_ingredient": "active_ingredient_display",
             "label_dosage": "dosage_display",
             "label_unit_count": "unit_count_display"}
-    # (sku, row) -> why placement cannot clear it.
-    KNOWN_STRADDLING = {
-        ("59-min", "label_unit_count"),   # design owns the bottom-right corner
-        ("64-min", "label_unit_count"),   # likewise
-    }
+    # Empty, and it took a measurement to empty it. The entries here said
+    # placement could not clear these two rows; scanning the face says
+    # otherwise. Shifting the row LEFT along its own baseline reaches a
+    # fully readable position at 15.5% of face width on `59-min` and 24.0%
+    # on `64-min` -- both inside the third of a face the note claimed to
+    # have searched, and both without moving the row off its baseline.
+    #
+    # Ink was never going to do it: the cap band on `59-min` is 47.7% dark
+    # and 52.3% light, and the two must sum to 100%, so the best any single
+    # ink can do is hide 47.7% of the string.
+    KNOWN_STRADDLING = set()
 
     @classmethod
     def setUpClass(cls):
