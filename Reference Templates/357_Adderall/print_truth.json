@@ -53,7 +53,7 @@
         0.4894,
         0.9224
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -70,7 +70,7 @@
         0.2522,
         0.6098
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -87,7 +87,7 @@
         0.7669,
         0.7488
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -104,7 +104,7 @@
         0.2909,
         0.4025
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -121,7 +121,7 @@
         0.2473,
         0.323
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -138,7 +138,7 @@
         0.7221,
         0.2692
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -155,7 +155,7 @@
         0.7408,
         0.0813
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -172,7 +172,7 @@
         0.5336,
         0.1868
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -189,7 +189,7 @@
         0.6921,
         0.4046
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -206,7 +206,7 @@
         0.5711,
         0.3207
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -223,7 +223,7 @@
         0.1423,
         0.2686
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -240,7 +240,7 @@
         0.1855,
         0.1846
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -257,7 +257,7 @@
         0.5802,
         0.0816
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -274,7 +274,7 @@
         0.7987,
         0.5279
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#14",
@@ -291,7 +291,7 @@
         0.8079,
         0.183
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#15",
@@ -308,7 +308,7 @@
         0.326,
         0.2677
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -325,7 +325,7 @@
         0.5033,
         0.5168
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -342,7 +342,7 @@
         0.806,
         0.1791
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#2",
@@ -359,7 +359,8 @@
         0.4086,
         0.995
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "label artwork margin below the printed panel"
     },
     {
       "key": "highlight#3",
@@ -376,7 +377,7 @@
         0.4242,
         0.1809
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -393,7 +394,7 @@
         0.2676,
         0.1826
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -410,7 +411,7 @@
         0.1867,
         0.1826
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -427,7 +428,7 @@
         0.3425,
         0.1828
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -444,7 +445,7 @@
         0.5064,
         0.1858
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -461,7 +462,7 @@
         0.1075,
         0.1856
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#9",
@@ -478,7 +479,7 @@
         0.349,
         0.6552
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#10",
@@ -495,7 +496,7 @@
         0.5723,
         0.1883
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#11",
@@ -512,7 +513,7 @@
         0.2608,
         0.644
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#12",
@@ -529,7 +530,7 @@
         0.6406,
         0.1881
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#13",
@@ -546,7 +547,7 @@
         0.1502,
         0.6404
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#14",
@@ -563,7 +564,7 @@
         0.0905,
         0.6407
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#0",
@@ -580,7 +581,7 @@
         0.7018,
         0.7908
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "secondary_1#1",
@@ -597,7 +598,7 @@
         0.2995,
         0.4051
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#2",
@@ -614,7 +615,7 @@
         0.253,
         0.3213
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#3",
@@ -631,7 +632,7 @@
         0.7127,
         0.2687
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#4",
@@ -648,7 +649,7 @@
         0.8257,
         0.5223
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#5",
@@ -665,7 +666,7 @@
         0.5872,
         0.3201
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#6",
@@ -682,7 +683,7 @@
         0.5627,
         0.8298
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#7",
@@ -699,7 +700,7 @@
         0.6512,
         0.406
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#8",
@@ -716,7 +717,7 @@
         0.8077,
         0.1785
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#9",
@@ -733,7 +734,7 @@
         0.1122,
         0.642
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#10",
@@ -750,7 +751,7 @@
         0.3232,
         0.2681
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#11",
@@ -767,7 +768,7 @@
         0.2606,
         0.6475
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#12",
@@ -784,7 +785,7 @@
         0.8427,
         0.1775
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#13",
@@ -801,7 +802,7 @@
         0.7728,
         0.4052
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#14",
@@ -818,7 +819,7 @@
         0.1957,
         0.2695
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#15",
@@ -835,7 +836,7 @@
         0.6047,
         0.593
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#16",
@@ -852,7 +853,7 @@
         0.3466,
         0.6611
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

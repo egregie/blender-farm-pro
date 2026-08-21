@@ -52,7 +52,7 @@
         0.4665,
         0.1237
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.502,
         0.8082
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.9636,
         0.161
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#3",
@@ -103,7 +103,7 @@
         0.1876,
         0.4848
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +120,7 @@
         0.5884,
         0.7875
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +137,7 @@
         0.2991,
         0.5023
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +154,7 @@
         0.8267,
         0.4923
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +171,7 @@
         0.3468,
         0.518
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -188,7 +188,7 @@
         0.7382,
         0.8357
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -205,7 +205,7 @@
         0.4715,
         0.1255
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -222,7 +222,7 @@
         0.1878,
         0.4906
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

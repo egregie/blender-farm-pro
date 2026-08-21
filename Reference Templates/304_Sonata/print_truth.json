@@ -52,7 +52,7 @@
         0.3806,
         0.6942
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.4598,
         0.6985
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.7436,
         0.7134
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -103,7 +103,7 @@
         0.5301,
         0.7072
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +120,7 @@
         0.6269,
         0.712
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +137,7 @@
         0.3109,
         0.6913
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +154,7 @@
         0.6855,
         0.7175
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +171,7 @@
         0.5791,
         0.686
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -188,7 +188,7 @@
         0.7413,
         0.7105
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#1",
@@ -205,7 +205,7 @@
         0.9608,
         0.2237
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#2",
@@ -222,7 +222,7 @@
         0.506,
         0.9547
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#3",
@@ -239,7 +239,7 @@
         0.4601,
         0.6987
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -256,7 +256,7 @@
         0.5298,
         0.3342
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -273,7 +273,7 @@
         0.6152,
         0.504
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -290,7 +290,7 @@
         0.5232,
         0.4748
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -307,7 +307,7 @@
         0.3754,
         0.325
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -324,7 +324,7 @@
         0.2974,
         0.4706
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

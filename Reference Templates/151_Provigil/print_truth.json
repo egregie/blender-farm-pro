@@ -53,7 +53,8 @@
         0.5137,
         0.8912
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "stock-agency watermark added by the photo source, not printed on the carton"
     },
     {
       "key": "brand#1",
@@ -70,7 +71,7 @@
         0.7353,
         0.2443
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#2",
@@ -87,7 +88,7 @@
         0.3713,
         0.318
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -104,7 +105,7 @@
         0.3612,
         0.2333
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -121,7 +122,7 @@
         0.1343,
         0.2527
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -138,7 +139,8 @@
         0.0169,
         0.4383
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton left edge in shadow"
     },
     {
       "key": "brand#6",
@@ -155,7 +157,7 @@
         0.3608,
         0.13
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -172,7 +174,7 @@
         0.1996,
         0.1823
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -189,7 +191,7 @@
         0.0824,
         0.1127
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -206,7 +208,7 @@
         0.2447,
         0.1471
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -223,7 +225,7 @@
         0.9006,
         0.8322
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -240,7 +242,8 @@
         0.368,
         0.9808
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "table below the carton"
     },
     {
       "key": "highlight#1",
@@ -257,7 +260,7 @@
         0.1482,
         0.3429
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#2",
@@ -274,7 +277,7 @@
         0.3301,
         0.2209
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#3",
@@ -291,7 +294,7 @@
         0.3439,
         0.2945
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -308,7 +311,7 @@
         0.8178,
         0.25
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -325,7 +328,7 @@
         0.9003,
         0.2632
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -342,7 +345,7 @@
         0.0463,
         0.1868
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -359,7 +362,7 @@
         0.6276,
         0.2318
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -376,7 +379,7 @@
         0.6996,
         0.237
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#9",
@@ -393,7 +396,7 @@
         0.1692,
         0.284
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#10",
@@ -410,7 +413,7 @@
         0.556,
         0.2309
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#11",
@@ -427,7 +430,7 @@
         0.1077,
         0.284
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#12",
@@ -444,7 +447,7 @@
         0.2666,
         0.2941
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#13",
@@ -461,7 +464,7 @@
         0.0477,
         0.2656
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#14",
@@ -478,7 +481,7 @@
         0.4219,
         0.3049
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#15",
@@ -495,7 +498,7 @@
         0.4878,
         0.3081
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#16",
@@ -512,7 +515,7 @@
         0.1619,
         0.2068
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#17",
@@ -529,7 +532,7 @@
         0.2214,
         0.2091
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#18",
@@ -546,7 +549,7 @@
         0.0788,
         0.1148
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#19",
@@ -563,7 +566,7 @@
         0.4061,
         0.1379
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#20",
@@ -580,7 +583,7 @@
         0.2661,
         0.2071
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#21",
@@ -597,7 +600,7 @@
         0.3967,
         0.2158
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#0",
@@ -614,7 +617,8 @@
         0.5714,
         0.0405
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "box lid above the printed face"
     },
     {
       "key": "secondary_1#1",
@@ -631,7 +635,7 @@
         0.2981,
         0.2941
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#2",
@@ -648,7 +652,7 @@
         0.2163,
         0.2079
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#3",
@@ -665,7 +669,7 @@
         0.4093,
         0.9064
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#4",
@@ -682,7 +686,7 @@
         0.2463,
         0.129
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#5",
@@ -699,7 +703,7 @@
         0.1648,
         0.3447
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#6",
@@ -716,7 +720,7 @@
         0.4978,
         0.9671
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#7",
@@ -733,7 +737,7 @@
         0.8582,
         0.2569
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#8",
@@ -750,7 +754,7 @@
         0.1395,
         0.8925
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#9",
@@ -767,7 +771,7 @@
         0.6668,
         0.2354
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#10",
@@ -784,7 +788,7 @@
         0.5673,
         0.9149
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#11",
@@ -801,7 +805,7 @@
         0.2543,
         0.8993
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#12",
@@ -818,7 +822,7 @@
         0.0609,
         0.1139
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#13",
@@ -835,7 +839,7 @@
         0.4058,
         0.1382
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

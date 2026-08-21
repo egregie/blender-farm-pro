@@ -52,7 +52,7 @@
         0.156,
         0.1718
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.2806,
         0.1764
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.5455,
         0.1735
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -103,7 +103,7 @@
         0.4563,
         0.1812
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +120,7 @@
         0.293,
         0.3881
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +137,7 @@
         0.6318,
         0.1747
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +154,7 @@
         0.0479,
         0.1519
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +171,7 @@
         0.3675,
         0.1701
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -188,7 +188,7 @@
         0.373,
         0.4044
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -205,7 +205,7 @@
         0.5585,
         0.3726
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -222,7 +222,7 @@
         0.1792,
         0.3751
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -239,7 +239,7 @@
         0.0757,
         0.359
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -256,7 +256,7 @@
         0.5022,
         0.3894
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -273,7 +273,7 @@
         0.6517,
         0.3812
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#14",
@@ -290,7 +290,7 @@
         0.609,
         0.3621
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#15",
@@ -307,7 +307,7 @@
         0.4503,
         0.3772
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#16",
@@ -324,7 +324,7 @@
         0.6999,
         0.3726
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -341,7 +341,7 @@
         0.4253,
         0.9501
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -358,7 +358,7 @@
         0.1542,
         0.1694
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#2",
@@ -375,7 +375,8 @@
         0.86,
         0.9618
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "sanofi aventis wordmark"
     },
     {
       "key": "highlight#3",
@@ -392,7 +393,7 @@
         0.5462,
         0.1807
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -409,7 +410,7 @@
         0.1876,
         0.528
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -426,7 +427,7 @@
         0.2503,
         0.728
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -443,7 +444,7 @@
         0.372,
         0.1608
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -460,7 +461,7 @@
         0.0474,
         0.1519
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

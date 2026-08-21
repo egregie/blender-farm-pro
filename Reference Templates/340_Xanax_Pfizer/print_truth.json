@@ -53,7 +53,7 @@
         0.8737,
         0.4579
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -70,7 +70,7 @@
         0.9771,
         0.795
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#2",
@@ -87,7 +87,7 @@
         0.4126,
         0.6044
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -104,7 +104,7 @@
         0.469,
         0.6111
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -121,7 +121,7 @@
         0.3341,
         0.6092
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -138,7 +138,7 @@
         0.2899,
         0.6239
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -155,7 +155,7 @@
         0.2218,
         0.6372
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -172,7 +172,8 @@
         0.9728,
         0.2839
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "brand#8",
@@ -189,7 +190,8 @@
         0.9592,
         0.6576
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "highlight#0",
@@ -206,7 +208,8 @@
         0.6087,
         0.7529
       ],
-      "class": "unclassified"
+      "class": "substrate",
+      "reason": "board split off by the lighting gradient, 0.090 from the substrate colour"
     },
     {
       "key": "highlight#1",
@@ -223,7 +226,7 @@
         0.6256,
         0.2677
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#2",
@@ -240,7 +243,8 @@
         0.9318,
         0.2852
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "highlight#3",
@@ -257,7 +261,8 @@
         0.9797,
         0.2502
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "highlight#4",
@@ -274,7 +279,8 @@
         0.9941,
         0.8325
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "highlight#5",
@@ -291,7 +297,7 @@
         0.4399,
         0.7994
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -308,7 +314,8 @@
         0.1501,
         0.9544
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom-left edge"
     },
     {
       "key": "highlight#7",
@@ -325,7 +332,7 @@
         0.5235,
         0.3408
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -342,7 +349,7 @@
         0.9025,
         0.1755
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#0",
@@ -359,7 +366,8 @@
         0.0489,
         0.5329
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "a second carton standing to the left in the same photograph"
     },
     {
       "key": "secondary_1#1",
@@ -376,7 +384,7 @@
         0.3057,
         0.3859
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#2",
@@ -393,7 +401,7 @@
         0.4636,
         0.338
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#3",
@@ -410,7 +418,8 @@
         0.9545,
         0.1691
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "secondary_1#4",
@@ -427,7 +436,7 @@
         0.5717,
         0.3245
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#5",
@@ -444,7 +453,7 @@
         0.6794,
         0.2864
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#6",
@@ -461,7 +470,8 @@
         0.9619,
         0.7961
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister of pills at the right"
     },
     {
       "key": "secondary_1#7",
@@ -478,7 +488,7 @@
         0.5517,
         0.7707
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

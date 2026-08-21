@@ -29,7 +29,7 @@ moved -- silently re-using a stale label would put the blister back in the spec
 with nothing in the log to say so, which is the failure mode this whole phase
 exists to remove.
 
-CLASSES. Exactly four, and the boundaries are what matter:
+CLASSES. Six, and the boundaries are what matter:
 
     print            ink on the carton. Goes into the spec.
     object           a thing in the photograph that is not the printed face:
@@ -44,6 +44,22 @@ CLASSES. Exactly four, and the boundaries are what matter:
                      describes. Recorded WITH A REASON rather than traced into
                      noise or dropped in silence, so a blank area on the carton
                      is a statement instead of an omission.
+    substrate        the board itself, split off the substrate cluster by a
+                     lighting gradient rather than by any difference in ink.
+                     `fit_design_spec.MIN_FILL_CONTRAST` already drops these,
+                     and drops them for exactly this reason -- but it decides on
+                     an 0.08 colour distance, and Xanax Pfizer's shaded board
+                     sits at 0.090, so it is kept and traced as a field covering
+                     26.6% of the face. Counting it as print would overstate the
+                     ceiling by a quarter of that carton.
+    mark             a manufacturer logo, wordmark or holographic element.
+                     Printed, and perfectly representable -- it is out by the
+                     OWNER'S decision, not by any limit of the vocabulary, and
+                     those are different facts about a blank area. Kept apart
+                     from `unrepresentable` because Phase G's `design.marks[]`
+                     needs exactly this set, and re-deriving it later from a
+                     reason string would be the second implementation this
+                     project keeps paying for. Requires a reason naming it.
 
 Reads only, except for `--init`, which writes `print_truth.json` into each folder
 and MERGES: an existing label is never overwritten, a component that has appeared
@@ -78,7 +94,8 @@ STEM_BY_FOLDER = {folder: stem for stem, folder in FOLDER_BY_STEM.items()}
 #: against every other report in the project.
 FOLDERS = sorted(STEM_BY_FOLDER, key=lambda n: int(n.split("_")[0]))
 
-CLASSES = ("print", "object", "type", "unrepresentable", "unclassified")
+CLASSES = ("print", "object", "type", "unrepresentable", "mark", "substrate",
+           "unclassified")
 
 #: Enumerate down to this share of the face. Deliberately below
 #: `fit_design_spec.MIN_REGION_FRAC` (0.008), so the labelling covers components
@@ -93,7 +110,8 @@ FONT = PROJECT_ROOT / "05_assets" / "blender" / "fonts" / "DejaVuSans-Bold.ttf"
 
 #: One hue per class, for the aid only.
 TINT = {"print": (34, 139, 176), "object": (196, 84, 30), "type": (120, 116, 108),
-        "unrepresentable": (150, 60, 150), "unclassified": (222, 60, 60)}
+        "unrepresentable": (150, 60, 150), "mark": (196, 150, 30),
+        "substrate": (150, 150, 150), "unclassified": (222, 60, 60)}
 
 
 def enumerate_components(folder: Path):
@@ -186,6 +204,49 @@ def init(folder: Path) -> dict:
     return doc
 
 
+def set_classes(folder: Path, assignments: dict, rest: str | None) -> dict:
+    """Classify components. `assignments` maps key -> "class" or "class:reason".
+
+    Bulk, because the group holds 664 components and most of them are one thing:
+    on a carton whose face is mostly white type, naming the four exceptions and
+    sweeping the rest is the difference between a command and an afternoon. The
+    sweep is explicit -- `--rest` has no default -- so nothing is classified by
+    omission.
+    """
+    doc = load_truth(folder)
+    if doc is None:
+        raise SystemExit(f"{folder.name}: run --init first")
+    by_key = {c["key"]: c for c in doc["components"]}
+    unknown = [k for k in assignments if k not in by_key]
+    if unknown:
+        raise SystemExit(f"{folder.name}: no such component(s): {' '.join(unknown)}")
+
+    for key, value in assignments.items():
+        cls, _, reason = value.partition(":")
+        if cls not in CLASSES[:-1]:
+            raise SystemExit(f"{folder.name}: {key}={cls} is not one of {CLASSES[:-1]}")
+        comp = by_key[key]
+        comp["class"] = cls
+        if reason:
+            comp["reason"] = reason
+        elif cls not in ("unrepresentable", "mark"):
+            comp.pop("reason", None)
+    if rest:
+        # Same "class:reason" form as --set, because the sweep lands on
+        # `unrepresentable` and `mark` too, and both require a reason.
+        rest_cls, _, rest_reason = rest.partition(":")
+        if rest_cls not in CLASSES[:-1]:
+            raise SystemExit(f"--rest {rest_cls} is not one of {CLASSES[:-1]}")
+        for comp in doc["components"]:
+            if not comp.get("vanished") and comp.get("class") == "unclassified":
+                comp["class"] = rest_cls
+                if rest_reason:
+                    comp["reason"] = rest_reason
+    truth_path(folder).write_text(
+        json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return doc
+
+
 def verify(folder: Path) -> tuple[bool, str]:
     """Is this folder's truth usable — present, complete, and made against these corners?"""
     doc = load_truth(folder)
@@ -199,9 +260,9 @@ def verify(folder: Path) -> tuple[bool, str]:
     if bad:
         return False, f"{len(bad)} component(s) still unclassified: {' '.join(bad[:6])}"
     missing = [c["key"] for c in doc["components"]
-               if c.get("class") == "unrepresentable" and not c.get("reason")]
+               if c.get("class") in ("unrepresentable", "mark") and not c.get("reason")]
     if missing:
-        return False, f"unrepresentable without a reason: {' '.join(missing)}"
+        return False, f"unrepresentable/mark without a reason: {' '.join(missing)}"
     return True, "ok"
 
 
@@ -266,7 +327,8 @@ def ceiling(folders) -> list[dict]:
             **{k: round(v, 2) for k, v in share.items()},
             "residue": round(residue, 2),
             # What the vocabulary is allowed to aim at: printed design, minus the
-            # letterforms the renderer draws itself, minus what it cannot hold.
+            # letterforms the renderer draws itself, minus what it cannot hold,
+            # minus what the owner put out of scope.
             "reachable": round(share["print"], 2),
         })
     return rows
@@ -279,13 +341,31 @@ def main() -> int:
     p.add_argument("--aid", metavar="DIR", help="write the labelling aid images here")
     p.add_argument("--init", action="store_true", help="write/merge print_truth.json")
     p.add_argument("--ceiling", action="store_true", help="report the class shares")
+    p.add_argument("--set", action="append", metavar="KEY=CLASS[:REASON]",
+                   help="classify one component; repeatable")
+    p.add_argument("--rest", metavar="CLASS",
+                   help="classify every component still unclassified")
     p.add_argument("--verify", action="store_true", help="is every component classified?")
     args = p.parse_args()
 
     names = args.folder or FOLDERS
     folders = [TEMPLATES_DIR / n for n in names]
-    if not (args.aid or args.init or args.ceiling or args.verify):
-        p.error("pass --aid DIR, --init, --ceiling or --verify")
+    if not (args.aid or args.init or args.ceiling or args.verify
+            or args.set or args.rest):
+        p.error("pass --aid DIR, --init, --set, --rest, --ceiling or --verify")
+
+    if args.set or args.rest:
+        if len(folders) != 1:
+            p.error("--set/--rest need exactly one --folder")
+        pairs = dict(a.split("=", 1) for a in (args.set or []))
+        doc = set_classes(folders[0], pairs, args.rest)
+        left = sum(1 for c in doc["components"]
+                   if not c.get("vanished") and c.get("class") == "unclassified")
+        counts = {}
+        for c in doc["components"]:
+            if not c.get("vanished"):
+                counts[c["class"]] = counts.get(c["class"], 0) + 1
+        print(f"{folders[0].name:24s} {counts}  unclassified left: {left}")
 
     if args.init:
         for folder in folders:
@@ -311,20 +391,23 @@ def main() -> int:
     if args.ceiling:
         rows = ceiling(folders)
         print(f"{'folder':24s} {'print':>7s} {'object':>7s} {'type':>7s} "
-              f"{'unrepr':>7s} {'unclass':>8s} {'residue':>8s}")
+              f"{'unrepr':>7s} {'mark':>6s} {'board':>6s} {'unclass':>8s} {'residue':>8s}")
         for r in rows:
             if not r["labelled"]:
                 print(f"{r['folder']:24s} not labelled")
                 continue
             print(f"{r['folder']:24s} {r['print']:7.2f} {r['object']:7.2f} {r['type']:7.2f} "
-                  f"{r['unrepresentable']:7.2f} {r['unclassified']:8.2f} {r['residue']:8.2f}")
+                  f"{r['unrepresentable']:7.2f} {r['mark']:6.2f} {r['substrate']:6.2f} "
+                  f"{r['unclassified']:8.2f} {r['residue']:8.2f}")
         done = [r for r in rows if r.get("labelled")]
         if done:
             n = len(done)
             print(f"\nmean over {n}: print {sum(r['print'] for r in done)/n:.2f}%  "
                   f"object {sum(r['object'] for r in done)/n:.2f}%  "
                   f"type {sum(r['type'] for r in done)/n:.2f}%  "
-                  f"unrepresentable {sum(r['unrepresentable'] for r in done)/n:.2f}%")
+                  f"unrepresentable {sum(r['unrepresentable'] for r in done)/n:.2f}%  "
+                  f"mark {sum(r['mark'] for r in done)/n:.2f}%  "
+                  f"board {sum(r['substrate'] for r in done)/n:.2f}%")
     return 0
 
 

@@ -52,7 +52,7 @@
         0.5096,
         0.7735
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#0",
@@ -69,7 +69,7 @@
         0.0349,
         0.2968
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -86,7 +86,8 @@
         0.8272,
         0.287
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "red do-not-substitute pictogram merged into the green cluster; one fill per cluster cannot carry it"
     },
     {
       "key": "highlight#2",
@@ -103,7 +104,7 @@
         0.1387,
         0.2074
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#3",
@@ -120,7 +121,7 @@
         0.3845,
         0.238
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -137,7 +138,7 @@
         0.564,
         0.4044
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -154,7 +155,7 @@
         0.4527,
         0.4183
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -171,7 +172,7 @@
         0.334,
         0.2289
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -188,7 +189,7 @@
         0.2229,
         0.2246
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -205,7 +206,7 @@
         0.4642,
         0.2307
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#9",
@@ -222,7 +223,7 @@
         0.2781,
         0.2218
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#10",
@@ -239,7 +240,7 @@
         0.1318,
         0.3961
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#11",
@@ -256,7 +257,7 @@
         0.2142,
         0.4101
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#12",
@@ -273,7 +274,7 @@
         0.3187,
         0.4138
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#13",
@@ -290,7 +291,7 @@
         0.4052,
         0.4094
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#14",
@@ -307,7 +308,7 @@
         0.5048,
         0.4139
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#15",
@@ -324,7 +325,7 @@
         0.2666,
         0.4045
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#16",
@@ -341,7 +342,7 @@
         0.3621,
         0.4108
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#17",
@@ -358,7 +359,7 @@
         0.1857,
         0.2099
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

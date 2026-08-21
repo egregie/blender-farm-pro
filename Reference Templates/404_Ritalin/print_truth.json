@@ -53,7 +53,8 @@
         0.3164,
         0.9889
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge in shadow"
     },
     {
       "key": "highlight#0",
@@ -70,7 +71,7 @@
         0.32,
         0.5103
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -87,7 +88,7 @@
         0.1386,
         0.9381
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "type#0",
@@ -104,7 +105,7 @@
         0.4114,
         0.1571
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#1",
@@ -121,7 +122,7 @@
         0.0953,
         0.1326
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#2",
@@ -138,7 +139,7 @@
         0.3484,
         0.1411
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#3",
@@ -155,7 +156,7 @@
         0.4545,
         0.1768
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#4",
@@ -172,7 +173,7 @@
         0.1648,
         0.3768
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#5",
@@ -189,7 +190,7 @@
         0.2398,
         0.1539
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#6",
@@ -206,7 +207,7 @@
         0.3298,
         0.3878
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#7",
@@ -223,7 +224,7 @@
         0.1764,
         0.1575
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#8",
@@ -240,7 +241,7 @@
         0.2131,
         0.3868
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#9",
@@ -257,7 +258,7 @@
         0.1339,
         0.388
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#10",
@@ -274,7 +275,7 @@
         0.2974,
         0.3878
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#11",
@@ -291,7 +292,7 @@
         0.098,
         0.3533
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#12",
@@ -308,7 +309,7 @@
         0.1451,
         0.1369
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#13",
@@ -325,7 +326,7 @@
         0.3202,
         0.1373
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#14",
@@ -342,7 +343,7 @@
         0.2422,
         0.3708
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#15",
@@ -359,7 +360,7 @@
         0.2684,
         0.371
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#16",
@@ -376,7 +377,7 @@
         0.1904,
         0.9726
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "type#17",
@@ -393,7 +394,7 @@
         0.2001,
         0.1367
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#18",
@@ -410,7 +411,7 @@
         0.1899,
         0.3704
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#19",
@@ -427,7 +428,8 @@
         0.5657,
         0.1417
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Novartis wordmark"
     },
     {
       "key": "type#20",
@@ -444,7 +446,8 @@
         0.7202,
         0.1653
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Novartis wordmark"
     },
     {
       "key": "type#21",
@@ -461,7 +464,8 @@
         0.6819,
         0.9944
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge in shadow"
     }
   ]
 }

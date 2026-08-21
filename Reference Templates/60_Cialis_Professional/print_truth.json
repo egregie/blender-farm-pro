@@ -52,7 +52,7 @@
         0.5871,
         0.5945
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,8 @@
         0.7476,
         0.9729
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "loose tablet lying in front of the carton"
     },
     {
       "key": "brand#2",
@@ -86,7 +87,8 @@
         0.1475,
         0.1467
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Cialis e-swoosh device"
     },
     {
       "key": "brand#3",
@@ -103,7 +105,7 @@
         0.3712,
         0.5926
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -120,7 +122,7 @@
         0.9489,
         0.2265
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -137,7 +139,7 @@
         0.9109,
         0.7149
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#2",
@@ -154,7 +156,8 @@
         0.1506,
         0.223
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Cialis e-swoosh device"
     },
     {
       "key": "highlight#3",
@@ -171,7 +174,7 @@
         0.3232,
         0.2108
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -188,7 +191,7 @@
         0.5267,
         0.2452
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -205,7 +208,7 @@
         0.7161,
         0.2439
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -222,7 +225,7 @@
         0.6031,
         0.219
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -239,7 +242,7 @@
         0.4448,
         0.239
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#8",
@@ -256,7 +259,7 @@
         0.652,
         0.243
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#9",
@@ -273,7 +276,7 @@
         0.3708,
         0.5924
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#10",
@@ -290,7 +293,7 @@
         0.3127,
         0.5945
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#11",
@@ -307,7 +310,7 @@
         0.4575,
         0.6012
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#12",
@@ -324,7 +327,7 @@
         0.3016,
         0.9455
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#13",
@@ -341,7 +344,7 @@
         0.5161,
         0.6112
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#14",
@@ -358,7 +361,7 @@
         0.2912,
         0.3544
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#15",
@@ -375,7 +378,8 @@
         0.9063,
         0.8551
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Lilly script"
     },
     {
       "key": "highlight#16",
@@ -392,7 +396,7 @@
         0.7146,
         0.3712
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#17",
@@ -409,7 +413,7 @@
         0.3774,
         0.3693
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#18",
@@ -426,7 +430,7 @@
         0.6119,
         0.3706
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#19",
@@ -443,7 +447,7 @@
         0.4568,
         0.369
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

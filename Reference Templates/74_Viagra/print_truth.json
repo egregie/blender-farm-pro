@@ -52,7 +52,7 @@
         0.9195,
         0.2066
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,8 @@
         0.6772,
         0.8535
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "holographic security label"
     },
     {
       "key": "brand#2",
@@ -86,7 +87,8 @@
         0.8342,
         0.8102
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "holographic security label"
     },
     {
       "key": "brand#3",
@@ -103,7 +105,7 @@
         0.5243,
         0.1593
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +122,7 @@
         0.4001,
         0.1637
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +139,8 @@
         0.7818,
         0.8745
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "holographic security label"
     },
     {
       "key": "brand#6",
@@ -154,7 +157,7 @@
         0.6547,
         0.1662
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +174,7 @@
         0.2805,
         0.1653
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -188,7 +191,7 @@
         0.1224,
         0.159
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -205,7 +208,8 @@
         0.7201,
         0.7881
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "holographic security label"
     },
     {
       "key": "brand#10",
@@ -222,7 +226,7 @@
         0.2164,
         0.2594
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -239,7 +243,7 @@
         0.283,
         0.2697
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -256,7 +260,7 @@
         0.1986,
         0.1614
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -273,7 +277,8 @@
         0.7663,
         0.7652
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "holographic security label"
     },
     {
       "key": "brand#14",
@@ -290,7 +295,7 @@
         0.1318,
         0.2545
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#15",
@@ -307,7 +312,7 @@
         0.0843,
         0.2546
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -324,7 +329,8 @@
         0.7559,
         0.8315
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "silver holographic security label"
     },
     {
       "key": "highlight#1",
@@ -341,7 +347,8 @@
         0.004,
         0.3431
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton left edge"
     },
     {
       "key": "highlight#2",
@@ -358,7 +365,8 @@
         0.0636,
         0.991
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge"
     }
   ]
 }

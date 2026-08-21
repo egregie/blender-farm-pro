@@ -52,7 +52,7 @@
         0.9236,
         0.3312
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.8258,
         0.6216
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.0418,
         0.4919
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#3",
@@ -103,7 +103,7 @@
         0.1613,
         0.5321
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +120,7 @@
         0.3379,
         0.5403
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +137,7 @@
         0.1099,
         0.5394
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +154,7 @@
         0.5684,
         0.5446
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +171,7 @@
         0.1986,
         0.235
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -188,7 +188,7 @@
         0.525,
         0.5423
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -205,7 +205,7 @@
         0.2606,
         0.5324
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -222,7 +222,7 @@
         0.4818,
         0.5447
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -239,7 +239,7 @@
         0.1095,
         0.2273
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -256,7 +256,7 @@
         0.18,
         0.3783
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -273,7 +273,7 @@
         0.3007,
         0.2362
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#14",
@@ -290,7 +290,7 @@
         0.2102,
         0.5218
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#15",
@@ -307,7 +307,7 @@
         0.4078,
         0.5517
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#16",
@@ -324,7 +324,7 @@
         0.1407,
         0.3857
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#17",
@@ -341,7 +341,7 @@
         0.2423,
         0.3866
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#18",
@@ -358,7 +358,7 @@
         0.2544,
         0.2413
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#19",
@@ -375,7 +375,7 @@
         0.341,
         0.2459
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#20",
@@ -392,7 +392,7 @@
         0.1048,
         0.3547
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#21",
@@ -409,7 +409,7 @@
         0.4235,
         0.2437
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#22",
@@ -426,7 +426,7 @@
         0.3065,
         0.3896
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#23",
@@ -443,7 +443,7 @@
         0.2986,
         0.5378
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#24",
@@ -460,7 +460,7 @@
         0.3778,
         0.54
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#25",
@@ -477,7 +477,7 @@
         0.3725,
         0.2248
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#26",
@@ -494,7 +494,8 @@
         0.1314,
         0.8158
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Signature script logo"
     },
     {
       "key": "brand#27",
@@ -511,7 +512,7 @@
         0.2753,
         0.3779
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -528,7 +529,8 @@
         0.45,
         0.9886
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge and shadow"
     }
   ]
 }

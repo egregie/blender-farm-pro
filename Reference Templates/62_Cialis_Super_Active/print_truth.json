@@ -52,7 +52,7 @@
         0.1427,
         0.5952
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.9058,
         0.9027
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.684,
         0.4296
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "type#0",
@@ -103,7 +103,8 @@
         0.5872,
         0.0087
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "box lid and top edge above the printed face"
     },
     {
       "key": "type#1",
@@ -120,7 +121,7 @@
         0.2887,
         0.4058
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#2",
@@ -137,7 +138,7 @@
         0.421,
         0.4295
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#3",
@@ -154,7 +155,7 @@
         0.5696,
         0.4231
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#4",
@@ -171,7 +172,7 @@
         0.4782,
         0.3997
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#5",
@@ -188,7 +189,7 @@
         0.5193,
         0.4191
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#6",
@@ -205,7 +206,7 @@
         0.3611,
         0.4209
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

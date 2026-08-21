@@ -53,7 +53,8 @@
         0.8529,
         0.4308
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#1",
@@ -70,7 +71,8 @@
         0.6176,
         0.8352
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#2",
@@ -87,7 +89,8 @@
         0.6732,
         0.6123
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#3",
@@ -104,7 +107,8 @@
         0.7509,
         0.9482
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#4",
@@ -121,7 +125,8 @@
         0.5431,
         0.7555
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#5",
@@ -138,7 +143,8 @@
         0.3696,
         0.9711
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "brand#6",
@@ -155,7 +161,8 @@
         0.6924,
         0.8502
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#0",
@@ -172,7 +179,8 @@
         0.1092,
         0.2005
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#1",
@@ -189,7 +197,8 @@
         0.8484,
         0.8605
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#2",
@@ -206,7 +215,8 @@
         0.451,
         0.8647
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#3",
@@ -223,7 +233,8 @@
         0.6662,
         0.3872
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#4",
@@ -240,7 +251,8 @@
         0.6092,
         0.938
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#5",
@@ -257,7 +269,8 @@
         0.8971,
         0.0798
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#6",
@@ -274,7 +287,8 @@
         0.7914,
         0.1371
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#7",
@@ -291,7 +305,8 @@
         0.9383,
         0.6872
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "highlight#8",
@@ -308,7 +323,8 @@
         0.6522,
         0.7498
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a surfer in a wave"
     },
     {
       "key": "type#0",
@@ -325,7 +341,7 @@
         0.6272,
         0.6386
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#1",
@@ -342,7 +358,7 @@
         0.6814,
         0.9254
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#2",
@@ -359,7 +375,7 @@
         0.0612,
         0.3262
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#3",
@@ -376,7 +392,7 @@
         0.0534,
         0.1503
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#4",
@@ -393,7 +409,7 @@
         0.9744,
         0.1838
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#5",
@@ -410,7 +426,7 @@
         0.539,
         0.9392
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#6",
@@ -427,7 +443,7 @@
         0.5585,
         0.1735
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#7",
@@ -444,7 +460,7 @@
         0.4156,
         0.3448
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#8",
@@ -461,7 +477,7 @@
         0.1443,
         0.3381
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#9",
@@ -478,7 +494,7 @@
         0.3795,
         0.3431
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#10",
@@ -495,7 +511,7 @@
         0.1275,
         0.1638
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#11",
@@ -512,7 +528,7 @@
         0.6456,
         0.1856
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#12",
@@ -529,7 +545,7 @@
         0.6772,
         0.1875
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#13",
@@ -546,7 +562,7 @@
         0.7516,
         0.2184
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#14",
@@ -563,7 +579,7 @@
         0.3852,
         0.1769
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#15",
@@ -580,7 +596,7 @@
         0.2356,
         0.3591
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#16",
@@ -597,7 +613,7 @@
         0.3435,
         0.3422
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#17",
@@ -614,7 +630,7 @@
         0.3219,
         0.1618
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#18",
@@ -631,7 +647,7 @@
         0.6139,
         0.1848
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#19",
@@ -648,7 +664,7 @@
         0.2307,
         0.1781
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#20",
@@ -665,7 +681,7 @@
         0.1045,
         0.345
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#21",
@@ -682,7 +698,7 @@
         0.0922,
         0.1715
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#22",
@@ -699,7 +715,7 @@
         0.1588,
         0.1763
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#23",
@@ -716,7 +732,7 @@
         0.3529,
         0.1864
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#24",
@@ -733,7 +749,7 @@
         0.5269,
         0.1783
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#25",
@@ -750,7 +766,7 @@
         0.2878,
         0.3385
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#26",
@@ -767,7 +783,7 @@
         0.5384,
         0.7376
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#27",
@@ -784,7 +800,7 @@
         0.1868,
         0.1601
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#28",
@@ -801,7 +817,7 @@
         0.2774,
         0.1656
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#29",
@@ -818,7 +834,7 @@
         0.4126,
         0.1725
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#30",
@@ -835,7 +851,7 @@
         0.4343,
         0.187
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

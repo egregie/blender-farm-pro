@@ -52,7 +52,7 @@
         0.109,
         0.5136
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.906,
         0.2757
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,8 @@
         0.3745,
         0.8288
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#3",
@@ -103,7 +104,8 @@
         0.3074,
         0.849
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm monogram"
     },
     {
       "key": "brand#4",
@@ -120,7 +122,8 @@
         0.4477,
         0.8514
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#5",
@@ -137,7 +140,8 @@
         0.5973,
         0.8504
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#6",
@@ -154,7 +158,8 @@
         0.2807,
         0.8341
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#7",
@@ -171,7 +176,8 @@
         0.5085,
         0.8279
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#8",
@@ -188,7 +194,8 @@
         0.4857,
         0.8511
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "brand#9",
@@ -205,7 +212,8 @@
         0.5344,
         0.8597
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Hemofarm wordmark"
     },
     {
       "key": "type#0",
@@ -222,7 +230,7 @@
         0.4739,
         0.2704
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#1",
@@ -239,7 +247,7 @@
         0.3798,
         0.264
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#2",
@@ -256,7 +264,7 @@
         0.5588,
         0.26
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#3",
@@ -273,7 +281,7 @@
         0.7383,
         0.2688
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#4",
@@ -290,7 +298,7 @@
         0.6675,
         0.2728
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#5",
@@ -307,7 +315,7 @@
         0.6155,
         0.2746
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#6",
@@ -324,7 +332,7 @@
         0.6216,
         0.4609
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#7",
@@ -341,7 +349,7 @@
         0.3824,
         0.454
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#8",
@@ -358,7 +366,7 @@
         0.5351,
         0.4605
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#9",
@@ -375,7 +383,7 @@
         0.4766,
         0.4752
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#10",
@@ -392,7 +400,7 @@
         0.5718,
         0.4669
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#11",
@@ -409,7 +417,7 @@
         0.914,
         0.2722
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#12",
@@ -426,7 +434,7 @@
         0.9505,
         0.2828
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#13",
@@ -443,7 +451,7 @@
         0.4227,
         0.469
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "type#14",
@@ -460,7 +468,7 @@
         0.8794,
         0.2645
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

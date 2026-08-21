@@ -53,7 +53,7 @@
         0.135,
         0.5709
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -70,7 +70,7 @@
         0.9116,
         0.8747
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#2",
@@ -87,7 +87,7 @@
         0.7063,
         0.3624
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#3",
@@ -104,7 +104,7 @@
         0.3981,
         0.3519
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -121,7 +121,7 @@
         0.2465,
         0.3296
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -138,7 +138,7 @@
         0.5636,
         0.3428
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -155,7 +155,7 @@
         0.4608,
         0.3224
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -172,7 +172,7 @@
         0.3314,
         0.3524
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -189,7 +189,7 @@
         0.5083,
         0.347
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -206,7 +206,8 @@
         0.739,
         0.7977
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Lilly script inside the holographic oval"
     },
     {
       "key": "brand#10",
@@ -223,7 +224,7 @@
         0.3323,
         0.2337
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -240,7 +241,7 @@
         0.5094,
         0.2263
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -257,7 +258,7 @@
         0.364,
         0.7409
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#1",
@@ -274,7 +275,7 @@
         0.9015,
         0.6543
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#2",
@@ -291,7 +292,7 @@
         0.0474,
         0.358
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#3",
@@ -308,7 +309,7 @@
         0.0633,
         0.0468
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#4",
@@ -325,7 +326,7 @@
         0.2571,
         0.355
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -342,7 +343,8 @@
         0.8321,
         0.9378
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom-right edge in shadow"
     },
     {
       "key": "secondary_1#0",
@@ -359,7 +361,8 @@
         0.7392,
         0.7809
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Lilly holographic oval, excluded by the owner"
     },
     {
       "key": "secondary_1#1",
@@ -376,7 +379,8 @@
         0.7045,
         0.9758
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge in shadow"
     },
     {
       "key": "secondary_1#2",
@@ -393,7 +397,8 @@
         0.8738,
         0.9867
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton bottom edge in shadow"
     },
     {
       "key": "secondary_1#3",
@@ -410,7 +415,7 @@
         0.7226,
         0.3604
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#4",
@@ -427,7 +432,7 @@
         0.7657,
         0.3718
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "secondary_1#5",
@@ -444,7 +449,7 @@
         0.6659,
         0.3552
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

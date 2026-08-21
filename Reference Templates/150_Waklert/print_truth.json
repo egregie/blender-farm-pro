@@ -53,7 +53,7 @@
         0.4683,
         0.052
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -70,7 +70,8 @@
         0.5102,
         0.6646
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "teal Waklert badge merged into the orange cluster; one fill per cluster cannot carry it"
     },
     {
       "key": "brand#2",
@@ -87,7 +88,8 @@
         0.7779,
         0.9508
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister below the carton"
     },
     {
       "key": "brand#3",
@@ -104,7 +106,7 @@
         0.5074,
         0.7811
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#4",
@@ -121,7 +123,8 @@
         0.9265,
         0.6806
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "SUN Pharma logo"
     },
     {
       "key": "brand#5",
@@ -138,7 +141,8 @@
         0.0037,
         0.8446
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton left edge"
     },
     {
       "key": "brand#6",
@@ -155,7 +159,7 @@
         0.2171,
         0.4027
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -172,7 +176,7 @@
         0.111,
         0.4045
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -189,7 +193,7 @@
         0.3544,
         0.4021
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -206,7 +210,7 @@
         0.7357,
         0.3809
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -223,7 +227,7 @@
         0.4101,
         0.4142
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -240,7 +244,7 @@
         0.6838,
         0.3995
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -257,7 +261,7 @@
         0.2918,
         0.4153
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -274,7 +278,7 @@
         0.8154,
         0.3869
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#14",
@@ -291,7 +295,7 @@
         0.8974,
         0.3837
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#15",
@@ -308,7 +312,7 @@
         0.5138,
         0.3898
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#16",
@@ -325,7 +329,7 @@
         0.6385,
         0.3313
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -342,7 +346,7 @@
         0.2122,
         0.4092
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#1",
@@ -359,7 +363,7 @@
         0.4734,
         0.1005
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "highlight#2",
@@ -376,7 +380,8 @@
         0.7822,
         0.9403
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister below the carton"
     },
     {
       "key": "highlight#3",
@@ -393,7 +398,7 @@
         0.8003,
         0.3843
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#4",
@@ -410,7 +415,7 @@
         0.8889,
         0.3774
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#5",
@@ -427,7 +432,7 @@
         0.4593,
         0.3765
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#6",
@@ -444,7 +449,7 @@
         0.5115,
         0.3944
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#7",
@@ -461,7 +466,8 @@
         0.0069,
         0.6912
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton left edge"
     },
     {
       "key": "highlight#8",
@@ -478,7 +484,7 @@
         0.3937,
         0.4071
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#9",
@@ -495,7 +501,7 @@
         0.7352,
         0.3752
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#10",
@@ -512,7 +518,7 @@
         0.6381,
         0.338
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#11",
@@ -529,7 +535,7 @@
         0.6846,
         0.3912
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#12",
@@ -546,7 +552,7 @@
         0.5728,
         0.3707
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#13",
@@ -563,7 +569,7 @@
         0.7409,
         0.391
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#14",
@@ -580,7 +586,7 @@
         0.3501,
         0.4145
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#15",
@@ -597,7 +603,7 @@
         0.2916,
         0.4161
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#16",
@@ -614,7 +620,7 @@
         0.5525,
         0.3973
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#17",
@@ -631,7 +637,7 @@
         0.1103,
         0.3827
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#18",
@@ -648,7 +654,7 @@
         0.4187,
         0.3781
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#19",
@@ -665,7 +671,7 @@
         0.8525,
         0.3675
       ],
-      "class": "unclassified"
+      "class": "type"
     }
   ]
 }

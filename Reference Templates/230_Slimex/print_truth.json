@@ -52,7 +52,7 @@
         0.3483,
         0.3325
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,7 @@
         0.4262,
         0.3335
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#2",
@@ -86,7 +86,7 @@
         0.1659,
         0.3328
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -103,7 +103,7 @@
         0.5007,
         0.3342
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +120,7 @@
         0.2243,
         0.3503
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +137,7 @@
         0.2839,
         0.3325
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +154,8 @@
         0.6571,
         0.781
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a person"
     },
     {
       "key": "brand#7",
@@ -171,7 +172,7 @@
         0.1992,
         0.9484
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#8",
@@ -188,7 +189,8 @@
         0.0693,
         0.7861
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Neptune Laboratories logo"
     },
     {
       "key": "brand#9",
@@ -205,7 +207,8 @@
         0.0859,
         0.7797
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Neptune Laboratories logo"
     },
     {
       "key": "highlight#0",
@@ -222,7 +225,8 @@
         0.7779,
         0.465
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a person"
     },
     {
       "key": "highlight#1",
@@ -239,7 +243,8 @@
         0.6338,
         0.8623
       ],
-      "class": "unclassified"
+      "class": "unrepresentable",
+      "reason": "photographic insert of a person"
     }
   ]
 }

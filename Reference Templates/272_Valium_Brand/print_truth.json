@@ -52,7 +52,7 @@
         0.8695,
         0.2551
       ],
-      "class": "unclassified"
+      "class": "print"
     },
     {
       "key": "brand#1",
@@ -69,7 +69,8 @@
         0.905,
         0.5177
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Roche hexagon logo"
     },
     {
       "key": "brand#2",
@@ -86,7 +87,7 @@
         0.3696,
         0.3317
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#3",
@@ -103,7 +104,7 @@
         0.0702,
         0.4314
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#4",
@@ -120,7 +121,7 @@
         0.257,
         0.2091
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#5",
@@ -137,7 +138,7 @@
         0.2656,
         0.3825
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#6",
@@ -154,7 +155,7 @@
         0.0712,
         0.2686
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#7",
@@ -171,7 +172,7 @@
         0.3143,
         0.3594
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#8",
@@ -188,7 +189,7 @@
         0.1412,
         0.4228
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#9",
@@ -205,7 +206,7 @@
         0.2205,
         0.3902
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#10",
@@ -222,7 +223,7 @@
         0.2009,
         0.2378
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#11",
@@ -239,7 +240,7 @@
         0.117,
         0.2685
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#12",
@@ -256,7 +257,7 @@
         0.1804,
         0.406
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "brand#13",
@@ -273,7 +274,8 @@
         0.8578,
         0.5288
       ],
-      "class": "unclassified"
+      "class": "mark",
+      "reason": "Roche hexagon logo"
     },
     {
       "key": "brand#14",
@@ -290,7 +292,7 @@
         0.1746,
         0.5681
       ],
-      "class": "unclassified"
+      "class": "type"
     },
     {
       "key": "highlight#0",
@@ -307,7 +309,8 @@
         0.7518,
         0.9144
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "blister lying in front of the carton"
     },
     {
       "key": "highlight#1",
@@ -324,7 +327,8 @@
         0.98,
         0.0953
       ],
-      "class": "unclassified"
+      "class": "object",
+      "reason": "carton right edge"
     }
   ]
 }
