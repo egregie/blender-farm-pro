@@ -1,6 +1,6 @@
 {
   "spec_version": "0.1",
-  "sku": "14_T1_Imovane",
+  "sku": "155-min.jpg",
   "source_image": "Imovane_front_raw.jpg",
   "face_aspect": 0.7636,
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",

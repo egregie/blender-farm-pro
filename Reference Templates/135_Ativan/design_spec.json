@@ -1,6 +1,6 @@
 {
   "spec_version": "0.1",
-  "sku": "08_T1_Ativan",
+  "sku": "135-min.jpg",
   "source_image": "Ativan_front_raw.webp",
   "face_aspect": 1.54,
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",

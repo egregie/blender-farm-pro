@@ -1,5 +1,5 @@
 {
-  "sku_id": "32_T1_Viagra",
+  "sku_id": "74-min.jpg",
   "artifact_type": "reverse_engineering_passport",
   "schema_version": "2.0",
   "product_name": "Viagra",
@@ -48,7 +48,9 @@
     "unit_count_display": "4 film-coated tablets"
   },
   "reference_images": [
-    "raw_viagra_front.png"
+    "raw_viagra_front.png",
+    "back.webp",
+    "blister.webp"
   ],
   "quality_gate": {
     "reverse_engineering_passport_present": true,

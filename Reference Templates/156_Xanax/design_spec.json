@@ -1,6 +1,6 @@
 {
   "spec_version": "0.1",
-  "sku": "15_T1_Xanax",
+  "sku": "156-min.jpg",
   "source_image": "Xanax_front_raw.jpg",
   "face_aspect": 0.6891,
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
