@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "404-min.jpg",
   "product_code": "404-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "highlight",
+        "z": 0,
         "fill": "#CCCEC4",
         "coverage_pct": 40.1,
         "parts": [
@@ -151,6 +152,7 @@
       },
       {
         "role": "type",
+        "z": 1,
         "fill": "#0B081D",
         "coverage_pct": 6.5,
         "parts": [

@@ -8,6 +8,7 @@
   "fields": [
     {
       "role": "highlight",
+      "z": 0,
       "fill": "#9D92BC",
       "coverage_pct": 4.4,
       "parts": [

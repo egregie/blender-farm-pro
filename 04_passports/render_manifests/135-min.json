@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "135-min.jpg",
   "product_code": "135-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#032F5D",
         "coverage_pct": 15.3,
         "parts": [
@@ -68,6 +69,7 @@
       },
       {
         "role": "highlight",
+        "z": 1,
         "fill": "#AD3A9D",
         "coverage_pct": 7.9,
         "parts": [

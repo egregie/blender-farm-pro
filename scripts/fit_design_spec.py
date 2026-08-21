@@ -455,6 +455,16 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
         emitted.append((role, j, g))
         fields.append({
             "role": role,
+            # Paint order, made explicit. The list has always BEEN ordered --
+            # `rasterise()` fills it front to back and every `pixel_agreement`
+            # was measured against that -- but the contract never said so, and
+            # the driver read the same list into ONE plane where no order
+            # exists. Two readings of one record, which is how Adderall's teal
+            # block came to be erased in the target and to z-fight in the
+            # render. Emitted as the index it already has, so nothing moves;
+            # what changes is that the order is now a value the driver can obey
+            # rather than a convention it cannot see.
+            "z": len(fields),
             "fill": _hex(g["colour"]),
             "coverage_pct": round(100 * mask.sum() / (w * h), 1),
             "parts": parts,

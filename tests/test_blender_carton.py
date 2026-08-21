@@ -1888,3 +1888,119 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
             "the row can be moved clear -- which is what the real carton does "
             "-- or it belongs in KNOWN_STRADDLING with the measurement that "
             "shows placement cannot clear it.")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestPaintOrderIsGeometry(unittest.TestCase):
+    """Contract 1.7: `z` decides which field covers which, in the scene.
+
+    Two readings of one record. `fit_design_spec.rasterise()` fills the field
+    list front to back, and every `verification.pixel_agreement` and every
+    `design_qa` target was measured against that. `build_design_fields()` read
+    the same list into ONE plane -- `location = (0, front_y, 0)` for every part
+    -- where nothing is on top of anything and Cycles resolves an overlap
+    however it likes. On `357-min` the teal block was erased outright in the
+    target and z-fought in the render; `362-min` the same.
+
+    Asserted off the scene rather than the pixels, for the reason the whole
+    file exists: a render can look right for the wrong reason, and z-fighting
+    in particular is stable enough per build to pass a pixel check once.
+
+    Three cartons rather than all twelve with more than one field. The
+    property is structural, each `build_scene` is a Blender launch, and the
+    catalogue sweep is what covers breadth. `357-min` is the only carton where
+    the order decides anything -- 2.09% of its face against under 0.1%
+    everywhere else -- and it is included for that reason, not as a sample.
+    """
+
+    SKU = ("357-min", "59-min", "404-min")
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.jobs, cls.scenes = {}, {}
+        for stem in cls.SKU:
+            cls.jobs[stem] = json.loads(
+                (manifests / f"{stem}.json").read_text(encoding="utf-8"))
+            cls.scenes[stem] = build_scene(cls.jobs[stem])
+
+    def _by_field(self, stem):
+        """{z: [part bounds]} for the built design, keyed by the field's own z."""
+        fields = self.jobs[stem]["design"]["fields"]
+        z_of_role = {f["role"]: int(f["z"]) for f in fields}
+        out = {}
+        for obj in self.scenes[stem]["design_fields"]:
+            # `design_{role}_{part index}`; the role may itself contain "_"
+            # (`secondary_1`), so strip the known affixes rather than split.
+            role = obj["name"][len("design_"):].rsplit("_", 1)[0]
+            self.assertIn(role, z_of_role,
+                          f"{stem}: built object {obj['name']!r} belongs to no "
+                          f"field in the manifest")
+            out.setdefault(z_of_role[role], []).append(obj["bounds_in_carton_frame"])
+        return out
+
+    def test_a_higher_z_is_built_nearer_the_camera(self):
+        """The camera looks along +Y and the front face is at min(Y).
+
+        So "in front of" is a SMALLER Y, and a field the raster paints later has
+        to be built there. Strict, not merely non-overlapping: two fields on one
+        plane is exactly the state this contract removes.
+        """
+        for stem in self.SKU:
+            by_z = self._by_field(stem)
+            with self.subTest(sku=stem):
+                self.assertGreater(len(by_z), 1,
+                                   f"{stem} has one field; it cannot show an order")
+                depths = {z: min(b["min"][1] for b in bs) for z, bs in by_z.items()}
+                order = [depths[z] for z in sorted(depths)]
+                for a, b in zip(order, order[1:]):
+                    self.assertGreater(
+                        a, b,
+                        f"{stem}: a field with a higher z is not in front. Built "
+                        f"depths by z: {depths}. Coplanar fields are what "
+                        f"contract 1.7 exists to stop.")
+
+    def test_the_stack_stays_thinner_than_the_ink_it_is_made_of(self):
+        """Separated, but still ink on board rather than tiles above it.
+
+        Each part is a slab of 2 * half_thick straddling its own plane, so the
+        whole stack has to spread over less than that or the frontmost field
+        stops touching the face. It also has to stay behind the label rows,
+        which sit at `front_y - 2 * half_thick`.
+        """
+        for stem in self.SKU:
+            by_z = self._by_field(stem)
+            with self.subTest(sku=stem):
+                bs = [b for parts in by_z.values() for b in parts]
+                half = min(b["max"][1] - b["min"][1] for b in bs) / 2.0
+                spread = max(b["min"][1] for b in bs) - min(b["min"][1] for b in bs)
+                self.assertLess(
+                    spread, half,
+                    f"{stem}: the field stack spreads {spread:.6f} against a "
+                    f"half-thickness of {half:.6f}; printed fields would read as "
+                    f"applied tiles")
+                front_y = self.scenes[stem]["carton"]["self_bounds"]["min"][1]
+                self.assertGreater(
+                    min(b["min"][1] for b in bs), front_y - 2.0 * half,
+                    f"{stem}: the frontmost field has reached the label plane")
+
+    def test_the_scene_agrees_with_the_raster_about_who_covers_whom(self):
+        """The one carton where the order decides anything.
+
+        `357-min`'s two fields overlap over 2.09% of its face -- everywhere else
+        in the group the figure is under 0.1%. The raster paints `highlight`
+        after `brand`, so the scene must build `highlight` in front of it.
+        """
+        stem = "357-min"
+        fields = self.jobs[stem]["design"]["fields"]
+        z_of_role = {f["role"]: int(f["z"]) for f in fields}
+        self.assertLess(z_of_role["brand"], z_of_role["highlight"],
+                        "the fixture no longer has brand painted before highlight")
+        by_z = self._by_field(stem)
+        brand = min(b["min"][1] for b in by_z[z_of_role["brand"]])
+        highlight = min(b["min"][1] for b in by_z[z_of_role["highlight"]])
+        self.assertLess(
+            highlight, brand,
+            "the raster covers brand with highlight and the scene does not, "
+            "which is the disagreement contract 1.7 was written to end")

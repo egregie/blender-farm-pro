@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "357-min.jpg",
   "product_code": "357-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#167389",
         "coverage_pct": 17.4,
         "parts": [
@@ -195,6 +196,7 @@
       },
       {
         "role": "highlight",
+        "z": 1,
         "fill": "#F1F3FA",
         "coverage_pct": 28.7,
         "parts": [

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "59-min.jpg",
   "product_code": "59-min",
   "template_id": "T1_SMALL",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#3F5A0A",
         "coverage_pct": 29.7,
         "parts": [
@@ -350,6 +351,7 @@
       },
       {
         "role": "highlight",
+        "z": 1,
         "fill": "#DCDBD2",
         "coverage_pct": 24.2,
         "parts": [

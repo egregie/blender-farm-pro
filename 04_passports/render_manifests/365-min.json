@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "365-min.jpg",
   "product_code": "365-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#FD7902",
         "coverage_pct": 12.2,
         "parts": [
@@ -103,6 +104,7 @@
       },
       {
         "role": "secondary_1",
+        "z": 1,
         "fill": "#384B36",
         "coverage_pct": 3.4,
         "parts": [

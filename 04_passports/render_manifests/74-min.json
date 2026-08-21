@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "74-min.jpg",
   "product_code": "74-min",
   "template_id": "T1_SMALL",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#34376D",
         "coverage_pct": 9.7,
         "parts": [

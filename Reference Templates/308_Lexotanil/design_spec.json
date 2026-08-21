@@ -8,6 +8,7 @@
   "fields": [
     {
       "role": "brand",
+      "z": 0,
       "fill": "#01898F",
       "coverage_pct": 3.6,
       "parts": [

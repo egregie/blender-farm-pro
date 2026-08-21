@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "150-min.jpg",
   "product_code": "150-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#AE6335",
         "coverage_pct": 20.9,
         "parts": [
@@ -103,6 +104,7 @@
       },
       {
         "role": "highlight",
+        "z": 1,
         "fill": "#EFDACD",
         "coverage_pct": 7.8,
         "parts": [

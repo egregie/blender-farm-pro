@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.7",
   "sku_id": "158-min.jpg",
   "product_code": "158-min",
   "template_id": "T1",
@@ -30,6 +30,7 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#3569D6",
         "coverage_pct": 17.3,
         "parts": [
@@ -72,6 +73,7 @@
       },
       {
         "role": "highlight",
+        "z": 1,
         "fill": "#52C147",
         "coverage_pct": 7.5,
         "parts": [
