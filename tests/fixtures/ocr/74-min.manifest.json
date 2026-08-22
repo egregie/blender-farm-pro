@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.6",
+  "manifest_version": "1.8",
   "sku_id": "74-min.jpg",
   "product_code": "74-min",
   "template_id": "T1_SMALL",
@@ -30,13 +30,14 @@
     "fields": [
       {
         "role": "brand",
+        "z": 0,
         "fill": "#34376D",
         "coverage_pct": 9.7,
         "parts": [
           {
             "kind": "block",
             "area_pct": 2.5,
-            "smoothness": 0.0,
+            "smoothness": 0.14,
             "outline": [
               [
                 0.9973,
@@ -44,7 +45,15 @@
               ],
               [
                 0.9991,
+                0.1287
+              ],
+              [
+                0.9991,
                 0.2822
+              ],
+              [
+                0.9727,
+                0.2838
               ],
               [
                 0.84,
@@ -58,7 +67,8 @@
                 0.9964,
                 0.1295
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

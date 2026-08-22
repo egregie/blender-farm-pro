@@ -38,6 +38,21 @@ from src.design_group import TEMPLATE_SAMPLE  # noqa: E402,F401
 FIXTURE_DIR = PROJECT_ROOT / "tests" / "fixtures" / "ocr"
 WEBP_QUALITY = 92
 
+#: The 29th fixture, and it is here because it was NOT and drifted.
+#: `TestOCRBarrier` reads `1-min` -- the single-SKU barrier the sample was built
+#: to widen -- and nothing rebuilt it, so while the 28 were regenerated at
+#: contract 1.6 that one stayed at **1.3**: three contracts back, from before
+#: `product_code` existed, showing a carton with an image filename printed under
+#: its barcode. A fixture maintained by hand is a fixture nobody maintains.
+EXTRA_STEMS = ("1-min",)
+
+#: Kept as PNG rather than WEBP because `TestOCRBarrier` skips itself unless
+#: `1-min.png` exists, and the skip would be silent. It costs 3 MB against the
+#: 28 sample fixtures' 2 MB together, which is the argument in this module's
+#: docstring pointing the other way -- so it is a deliberate exception, not an
+#: oversight, and converting it means changing that test's fixture name too.
+PNG_STEMS = frozenset({"1-min"})
+
 _CFG = load_config()
 RENDER_DIR = resolve_path(_CFG["blender"]["output_dir"])
 MANIFEST_DIR = resolve_path(_CFG["paths"]["passports_manifests"])
@@ -46,6 +61,17 @@ MANIFEST_DIR = resolve_path(_CFG["paths"]["passports_manifests"])
 def sample_stems() -> list[str]:
     """The sample's SKU stems, in catalogue order."""
     return sorted(set(TEMPLATE_SAMPLE.values()),
+                  key=lambda s: int(s.split("-")[0]))
+
+
+def all_stems() -> list[str]:
+    """Every stem this module owns: the sample plus `1-min`.
+
+    Kept separate from `sample_stems()` because the barrier tests index the
+    SAMPLE by it and `1-min` is not in the sample -- it is the SKU the sample was
+    built to widen past.
+    """
+    return sorted(set(sample_stems()) | set(EXTRA_STEMS),
                   key=lambda s: int(s.split("-")[0]))
 
 
@@ -59,12 +85,16 @@ def build(stem: str, check_only: bool) -> str:
         if not required.exists():
             return f"MISSING {required}"
 
-    webp_out = FIXTURE_DIR / f"{stem}.webp"
+    as_png = stem in PNG_STEMS
+    webp_out = FIXTURE_DIR / (f"{stem}.png" if as_png else f"{stem}.webp")
     if check_only:
         return "present" if webp_out.exists() else "ABSENT"
 
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
-    Image.open(png).save(webp_out, "WEBP", quality=WEBP_QUALITY, method=6)
+    if as_png:
+        shutil.copy2(png, webp_out)
+    else:
+        Image.open(png).save(webp_out, "WEBP", quality=WEBP_QUALITY, method=6)
     shutil.copy2(view, FIXTURE_DIR / f"{stem}.view.json")
     # The manifest travels WITH the fixture rather than being read from
     # 04_passports/: the barrier's subject is whether these pixels show the
@@ -81,8 +111,9 @@ def main() -> int:
                    help="report which fixtures exist; write nothing")
     args = p.parse_args()
 
-    stems = sample_stems()
-    print(f"[fixtures] {len(stems)} SKU from {len(TEMPLATE_SAMPLE)} template folders")
+    stems = all_stems()
+    print(f"[fixtures] {len(stems)} SKU: {len(sample_stems())} from "
+          f"{len(TEMPLATE_SAMPLE)} template folders plus {len(EXTRA_STEMS)}")
     total = 0
     for stem in stems:
         note = build(stem, args.check)

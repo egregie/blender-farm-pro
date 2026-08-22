@@ -960,9 +960,25 @@ linear, and estimating from it gives ~2.0, which still clips the T1 front face.
 `python -m unittest discover -s tests` asserts the rig's invariants (directions, key:fill
 ratio, energy-vs-size law) from `--dump-scene`, without rendering. Two gates are opt-in
 because each renders real packshots: the pixel-level calibration gate, and
-`tests.test_render_qa.TestOCRAgainstAFreshRender`, which re-renders the fixture SKU
-(`1-min`) and re-runs the OCR barrier against it so the committed fixture under
-`tests/fixtures/ocr/` cannot silently drift from what the renderer actually produces:
+`tests.test_render_qa.TestOCRAgainstAFreshRender`, which re-renders **the whole 28-SKU
+sample** (and `1-min` beside it) and re-runs the OCR barrier against the new pixels, so the
+committed fixtures under `tests/fixtures/ocr/` cannot silently drift from what the renderer
+actually produces.
+
+**That gate is the only thing that noticed the fixtures had gone four contract phases
+stale**, and it noticed it late because nobody ran it. The standard suite stayed green
+throughout: it reads the fixtures, and a stale fixture set is perfectly self-consistent with
+itself. When the set was finally rebuilt at contract 1.8, six rows had started missing
+unnoticed and **ten rows that used to miss had started reading** — the renderer had got
+better and worse in places, and neither was being watched. Run this gate in any phase that
+changes what the renderer draws, and rebuild with `python scripts/make_ocr_fixtures.py`
+rather than editing a fixture.
+
+`KNOWN_OCR_MISSES` and `ROWS_THE_RENDER_HIDES` are deliberately two lists. The first is the
+reader: the string is printed and legible to a person and Tesseract returns something else.
+The second is the RENDER: a glyph is not legible. Filing one as the other is exactly how a
+fixture regeneration hides a regression, and the two are told apart by looking at the
+rectified face — not by the OCR return:
 
 ```bash
 PHARMAGEN_SLOW_TESTS=1 python -m unittest tests.test_blender_carton
