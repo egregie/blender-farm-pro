@@ -857,6 +857,105 @@ class TestAnOutlineIsARegion(unittest.TestCase):
             validate_manifest(manifest)
         self.assertIn("crosses itself", str(ctx.exception))
 
+    # The exact outline that showed the repair was scoring itself on the wrong
+    # quantity. Ritalin's `highlight#1`, simplified at a 0.001 face width: a
+    # 22-vertex ring crossing itself six times, its two long edges running the
+    # full width of the face a thousandth apart. Kept here rather than
+    # regenerated because it is evidence, and the tolerance it came from is not
+    # the committed one.
+    RITALIN_TANGLE = [
+        [0.0, 0.5405], [0.0036, 0.9628], [0.0055, 0.9672], [0.0082, 0.9628],
+        [0.01, 0.965], [0.0109, 0.9737], [0.0082, 0.9759], [0.0073, 0.9825],
+        [0.0109, 0.9912], [0.0682, 0.9956], [0.0782, 0.9912], [0.1464, 0.9912],
+        [0.1645, 0.9978], [0.1809, 0.9934], [0.1873, 0.9978], [0.1973, 0.9934],
+        [0.2073, 0.9978], [0.2191, 0.9978], [0.2218, 0.9934], [0.5336, 0.9978],
+        [0.0, 0.9978], [0.0, 0.5427],
+    ]
+
+    def test_the_index_finds_exactly_what_testing_every_pair_finds(self):
+        """`ring_crossings` is indexed by a grid; an index that misses a crossing
+        would let a tangled ring reach the driver as a region.
+
+        Checked against the full pairwise scan on every ring the group carries
+        AND on 300 deterministic random rings, because the group's rings are all
+        traced round printed shapes and share a shape of their own.
+        """
+        import random
+        from src.design_group import _crosses, ring_crossings, spec_path
+
+        def brute(poly):
+            n, out = len(poly), []
+            for i in range(n):
+                for j in range(i + 1, n):
+                    if (j + 1) % n == i or (i + 1) % n == j:
+                        continue
+                    if _crosses(poly[i], poly[(i + 1) % n],
+                                poly[j], poly[(j + 1) % n]):
+                        out.append((i, j))
+            return out
+
+        rings = [[(float(a), float(b)) for a, b in self.RITALIN_TANGLE]]
+        for stem in self._design_stems():
+            path = spec_path(stem)
+            if path is None or not path.exists():
+                continue
+            spec = json.loads(path.read_text(encoding="utf-8"))
+            for field in spec.get("fields") or []:
+                for part in field.get("parts") or []:
+                    o = [(float(a), float(b)) for a, b in part["outline"]]
+                    if len(o) >= 4:
+                        rings.append(o)
+        rng = random.Random(7)
+        for _ in range(300):
+            rings.append([(rng.random(), rng.random())
+                          for _ in range(rng.randint(4, 40))])
+        for n, ring in enumerate(rings):
+            with self.subTest(ring=n, verts=len(ring)):
+                self.assertEqual(ring_crossings(ring), brute(ring))
+
+    def test_a_repair_that_cannot_keep_the_region_raises(self):
+        """The repair used to choose by the SHOELACE area, which on a ring that
+        crosses itself is a signed cancellation and not what an even-odd fill
+        covers. On this outline it dropped two vertices and turned 0.36% of the
+        face into 11.87% -- it did not lose the region, it invented one
+        thirty-three times larger and put it on the carton. Nothing failed.
+
+        Now it either keeps the region or says it cannot.
+        """
+        from src.design_group import RingRepairFailed, simple_ring
+        with self.assertRaises(RingRepairFailed) as ctx:
+            simple_ring(self.RITALIN_TANGLE)
+        self.assertIn("kept only", str(ctx.exception))
+
+    def test_the_objective_is_the_fill_and_not_the_shoelace_sum(self):
+        """A figure eight is the case that separates them: its lobes cancel in
+        the shoelace sum and both are covered by an even-odd fill. A repair
+        judged on the first is judged on a number unrelated to what is painted.
+        """
+        try:
+            import numpy as np
+            from PIL import Image, ImageDraw
+        except ImportError as e:  # pragma: no cover - environment, not logic
+            self.skipTest(f"Pillow/numpy unavailable: {e}")
+        eight = [(0.1, 0.1), (0.5, 0.1), (0.1, 0.9), (0.5, 0.9)]
+        n = len(eight)
+        shoelace = abs(sum(eight[i][0] * eight[(i + 1) % n][1]
+                           - eight[(i + 1) % n][0] * eight[i][1]
+                           for i in range(n))) / 2
+
+        def fill(poly, size=400):
+            im = Image.new("L", (size, size), 0)
+            ImageDraw.Draw(im).polygon(
+                [(u * size, v * size) for u, v in poly], fill=255)
+            return (np.asarray(im) > 0)
+
+        covered = float(fill(eight).mean())
+        self.assertLess(shoelace, 1e-9,
+                        "this ring no longer cancels; pick another figure eight")
+        self.assertGreater(covered, 0.05,
+                           "an even-odd fill covers both lobes, so the two "
+                           "measures must disagree for this test to mean anything")
+
     def test_the_repair_keeps_the_region_that_was_verified(self):
         """Dropping vertices must not redraw the field. Measured against the
         original's even-odd raster, the eight repaired rings score 0.972-0.9999."""

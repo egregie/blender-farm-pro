@@ -143,23 +143,155 @@ def _crosses(p1, p2, p3, p4) -> bool:
             and _orientation(p3, p4, p1) != _orientation(p3, p4, p2))
 
 
+def _pair_crosses(poly, n, i, j) -> bool:
+    if (j + 1) % n == i or (i + 1) % n == j:
+        return False
+    return _crosses(poly[i], poly[(i + 1) % n], poly[j], poly[(j + 1) % n])
+
+
+#: An edge spanning more than this many grid cells is tested against everything
+#: rather than indexed. Without it a single long edge across a finely divided
+#: ring is inserted into thousands of cells and the index costs more than the
+#: quadratic loop it replaces.
+_GRID_SPAN_CAP = 16
+
+
 def ring_crossings(poly) -> list:
-    """Which pairs of this closed ring's edges cross each other."""
-    n, out = len(poly), []
-    for i in range(n):
-        for j in range(i + 1, n):
-            if (j + 1) % n == i or (i + 1) % n == j:
-                continue
-            if _crosses(poly[i], poly[(i + 1) % n], poly[j], poly[(j + 1) % n]):
-                out.append((i, j))
-    return out
+    """Which pairs of this closed ring's edges cross each other.
 
+    Same answer as testing every pair, reached through a uniform grid over the
+    ring's own bounding box so that only edges sharing a cell are compared.
 
-def _ring_area(poly) -> float:
+    The index is not an optimisation for its own sake. `simple_ring` re-runs
+    this once per candidate vertex per iteration, so a quadratic scan is paid
+    tens of times per tangled ring: measured across the group at a 0.001 face
+    width, `load_design` took 61.6s, nearly all of it here. Rings traced round a
+    printed shape are spatially local, which is exactly the case a grid serves.
+
+    Falls back to the full scan when the index would not be cheaper -- a ring
+    whose edges nearly all share cells gains nothing, and paying for the index
+    as well would be strictly worse.
+    """
     n = len(poly)
-    return abs(sum(poly[i][0] * poly[(i + 1) % n][1]
-                   - poly[(i + 1) % n][0] * poly[i][1]
-                   for i in range(n))) / 2
+    if n < 4:
+        return []
+    xs = [p[0] for p in poly]
+    ys = [p[1] for p in poly]
+    w = max(xs) - min(xs)
+    h = max(ys) - min(ys)
+    side = max(w, h)
+    if side <= 0:
+        return []
+    import math
+    div = max(1, int(math.sqrt(n)))
+    cell = side / div
+    x0, y0 = min(xs), min(ys)
+
+    cells: dict = {}
+    long_edges = []
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        cx0, cx1 = sorted((int((a[0] - x0) / cell), int((b[0] - x0) / cell)))
+        cy0, cy1 = sorted((int((a[1] - y0) / cell), int((b[1] - y0) / cell)))
+        if (cx1 - cx0 + 1) * (cy1 - cy0 + 1) > _GRID_SPAN_CAP:
+            long_edges.append(i)
+            continue
+        for cx in range(cx0, cx1 + 1):
+            for cy in range(cy0, cy1 + 1):
+                cells.setdefault((cx, cy), []).append(i)
+
+    if len(long_edges) * 4 > n:            # the index would not pay
+        out = []
+        for i in range(n):
+            for j in range(i + 1, n):
+                if _pair_crosses(poly, n, i, j):
+                    out.append((i, j))
+        return out
+
+    seen = set()
+    for bucket in cells.values():
+        for a in range(len(bucket)):
+            for b in range(a + 1, len(bucket)):
+                i, j = bucket[a], bucket[b]
+                if i > j:
+                    i, j = j, i
+                if (i, j) in seen:
+                    continue
+                seen.add((i, j))
+    for i in long_edges:                   # a long edge may cross anything
+        for j in range(n):
+            if i == j:
+                continue
+            seen.add((min(i, j), max(i, j)))
+    return sorted((i, j) for i, j in seen if _pair_crosses(poly, n, i, j))
+
+
+def _filled(poly, size: int = 192):
+    """The ring's EVEN-ODD fill, rasterised inside its own bounding box.
+
+    The quantity `simple_ring` has to preserve, and the one it used to ignore.
+    Rasterised in the ring's own box rather than in face coordinates so a sliver
+    covering a thousandth of the face still gets a few hundred pixels to be
+    judged on.
+
+    A raster quantises, and on rings that were already fine the tie-break is
+    therefore slightly noisier than the exact-but-wrong sum it replaced: of the
+    nine tangled rings in the group, two now drop a different vertex, and their
+    fidelity to the raw trace moves by 0.0001 -- Inderal 0.9996 to 0.9996,
+    Kamagra 0.9999 to 0.9998. That is the price of measuring the right quantity
+    approximately instead of the wrong one exactly, and it is paid where it
+    cannot matter: among candidates that are all but identical, either will do.
+    """
+    from PIL import Image, ImageDraw
+
+    xs = [p[0] for p in poly]
+    ys = [p[1] for p in poly]
+    w = max(xs) - min(xs)
+    h = max(ys) - min(ys)
+    if w <= 0 or h <= 0 or len(poly) < 3:
+        return None
+    img = Image.new("1", (size, size), 0)
+    ImageDraw.Draw(img).polygon(
+        [((p[0] - min(xs)) / w * (size - 1), (p[1] - min(ys)) / h * (size - 1))
+         for p in poly], fill=1)
+    return img
+
+
+def _fill_iou(a_img, b_poly, box) -> float:
+    """How much of the original region a candidate ring still describes."""
+    from PIL import Image, ImageDraw
+
+    x0, y0, w, h = box
+    size = a_img.size[0]
+    img = Image.new("1", (size, size), 0)
+    ImageDraw.Draw(img).polygon(
+        [((p[0] - x0) / w * (size - 1), (p[1] - y0) / h * (size - 1))
+         for p in b_poly], fill=1)
+    a = a_img.tobytes()
+    b = img.tobytes()
+    inter = union = 0
+    for byte_a, byte_b in zip(a, b):
+        inter += bin(byte_a & byte_b).count("1")
+        union += bin(byte_a | byte_b).count("1")
+    return inter / union if union else 0.0
+
+
+class RingRepairFailed(RuntimeError):
+    """A tangled outline could not be untangled without redrawing its region.
+
+    Loud on purpose, and the precedent is `107_Tramadol`: where a repair cannot
+    reach the region, the honest outcome is that the SKU leaves the group, not
+    that a shape nobody measured is printed on a carton.
+    """
+
+
+#: How much of the original fill a repair must keep. The nine tangled rings in
+#: the group today score 0.987 to 1.000, so this refuses only a catastrophe --
+#: and one exists: at a 0.001 face width Ritalin's `highlight#1` repaired from
+#: 0.36% of the face to 11.87%, an IoU of 0.005, because the objective below
+#: used to be the SHOELACE area, which on a self-crossing ring is a signed
+#: cancellation and not what an even-odd fill covers.
+RING_REPAIR_MIN_IOU = 0.90
 
 
 def simple_ring(poly):
@@ -183,15 +315,37 @@ def simple_ring(poly):
     13 parts across 8 of the 28 cartons are tangled this way.
 
     Repaired by dropping the fewest vertices that untangle it, preferring the
-    removal that changes the enclosed area least. Only vertices belonging to a
-    crossing edge are candidates, which is what keeps this cheap. Against the
-    original's even-odd raster the repaired rings score 0.972 to 0.9999 IoU, so
-    this preserves the region that was verified rather than redrawing it.
+    removal that keeps the most of the ORIGINAL EVEN-ODD FILL. Only vertices
+    belonging to a crossing edge are candidates, which is what keeps this cheap.
+
+    THE OBJECTIVE USED TO BE THE SHOELACE AREA, and that was the wrong quantity
+    for exactly the rings this function exists for. On a ring that crosses
+    itself the shoelace sum is a signed cancellation: the two lobes of a figure
+    eight subtract. An even-odd fill covers both. So the repair was scoring
+    itself on a number that has no relation to what gets painted, and the two
+    agreed only because the group's tangles happened to be mild.
+
+    They do not stay mild. At a 0.001 face width -- three times finer than the
+    committed 0.004 -- Ritalin's `highlight#1` repaired from 0.36% of the face
+    to 11.87%, an IoU of 0.005 against the original. The repair did not lose the
+    region, it INVENTED one thirty-three times larger and put it on the carton.
+    Nothing failed; it showed up as that SKU dropping 6.68 points.
+
+    A repair that cannot keep `RING_REPAIR_MIN_IOU` of the fill raises rather
+    than returning a shape nobody measured.
 
     Done at LOAD, not on disk: the spec file is a measurement of a photograph
     and stays as traced. What every consumer receives is a region.
     """
     poly = [(float(p[0]), float(p[1])) for p in poly]
+    if not ring_crossings(poly):
+        return poly
+
+    target = _filled(poly)
+    xs = [p[0] for p in poly]
+    ys = [p[1] for p in poly]
+    box = (min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys))
+
     while len(poly) > 3:
         hits = ring_crossings(poly)
         if not hits:
@@ -199,14 +353,25 @@ def simple_ring(poly):
         n = len(poly)
         candidates = sorted({k % n for i, j in hits
                              for k in (i, i + 1, j, j + 1)})
-        before = _ring_area(poly)
         best = None
         for i in candidates:
             cand = poly[:i] + poly[i + 1:]
-            key = (len(ring_crossings(cand)), abs(_ring_area(cand) - before))
+            # Crossings first, because the repair has to terminate; the fill is
+            # what decides between the removals that make equal progress.
+            iou = 0.0 if target is None else _fill_iou(target, cand, box)
+            key = (len(ring_crossings(cand)), -iou)
             if best is None or key < best[0]:
                 best = (key, cand)
         poly = best[1]
+
+    if target is not None:
+        kept = _fill_iou(target, poly, box)
+        if kept < RING_REPAIR_MIN_IOU:
+            raise RingRepairFailed(
+                f"untangling this outline kept only {kept:.3f} of the region it "
+                f"described ({len(poly)} vertices left). Drawing it would print "
+                f"a shape nobody measured; the outline needs re-tracing, or the "
+                f"SKU needs to leave the design group the way 107_Tramadol did.")
     return poly
 
 
