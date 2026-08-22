@@ -12,6 +12,7 @@
     "unrepresentable": 4,
     "mark": 2
   },
+  "holes_filled_by_class": {},
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {

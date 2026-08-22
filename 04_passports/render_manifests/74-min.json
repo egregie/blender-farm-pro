@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "74-min.jpg",
   "product_code": "74-min",
   "template_id": "T1_SMALL",
@@ -67,7 +67,8 @@
                 0.9964,
                 0.1295
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

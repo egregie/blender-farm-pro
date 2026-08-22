@@ -201,7 +201,8 @@
               0.0145,
               0.0287
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "field",
@@ -300,7 +301,8 @@
               0.8836,
               0.166
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     }
@@ -309,6 +311,10 @@
   "dropped_by_class": {
     "mark": 8,
     "type": 15
+  },
+  "holes_filled_by_class": {
+    "blend": 3,
+    "lettering": 4
   },
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",

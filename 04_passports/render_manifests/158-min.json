@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "158-min.jpg",
   "product_code": "158-min",
   "template_id": "T1",
@@ -147,7 +147,8 @@
                 0.9727,
                 0.6739
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       },
@@ -210,7 +211,8 @@
                 0.0,
                 0.0018
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

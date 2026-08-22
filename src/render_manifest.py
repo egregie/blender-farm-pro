@@ -43,7 +43,7 @@ from pathlib import Path
 from src.design_group import load_design, reshape_to_design
 from src.utils import product_code
 
-MANIFEST_VERSION = "1.7"
+MANIFEST_VERSION = "1.8"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -278,18 +278,26 @@ def _reject_tangled_outlines(manifest: dict) -> None:
 
     for field in ((manifest.get("design") or {}).get("fields") or []):
         for i, part in enumerate(field.get("parts") or []):
-            outline = part.get("outline") or []
-            if len(outline) < 4:
-                continue
-            hits = ring_crossings([(float(p[0]), float(p[1])) for p in outline])
-            if hits:
-                raise ValueError(
-                    f"{manifest.get('sku_id')}: design field "
-                    f"{field.get('role')!r} part {i} has an outline that "
-                    f"crosses itself at {hits[:3]} -- that is not a region, and "
-                    f"the driver and the QA raster would fill different areas. "
-                    f"Regenerate the manifest; src.design_group.simple_ring "
-                    f"repairs it at load.")
+            # Contract 1.8: the holes are checked on the same footing as the
+            # outline. A part is its outline minus its holes, so a tangled hole
+            # is a tangled region boundary -- and it reaches the render the same
+            # way, since the driver hands both to Blender as splines of one
+            # curve.
+            rings = [("outline", part.get("outline") or [])]
+            rings += [(f"hole {k}", ring)
+                      for k, ring in enumerate(part.get("holes") or [])]
+            for what, ring in rings:
+                if len(ring) < 4:
+                    continue
+                hits = ring_crossings([(float(p[0]), float(p[1])) for p in ring])
+                if hits:
+                    raise ValueError(
+                        f"{manifest.get('sku_id')}: design field "
+                        f"{field.get('role')!r} part {i} has an {what} that "
+                        f"crosses itself at {hits[:3]} -- that is not a region, "
+                        f"and the driver and the QA raster would fill different "
+                        f"areas. Regenerate the manifest; "
+                        f"src.design_group.simple_ring repairs it at load.")
 
 
 # ── carton resolution ────────────────────────────────────────────────────────

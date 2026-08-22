@@ -1610,8 +1610,17 @@ class TestMeasuredTypeStandsWhereItWasMeasured(unittest.TestCase):
                 fill = None
                 for field in design.get("fields") or []:
                     for part in field.get("parts") or []:
-                        if len(part["outline"]) >= 3 and self._covers(u, v, part["outline"]):
-                            fill = field["fill"]
+                        if len(part["outline"]) < 3 or not self._covers(u, v, part["outline"]):
+                            continue
+                        # Contract 1.8: a hole is not part of the part, so the
+                        # row is printed on whatever shows through it. `64-min`
+                        # is the case -- its measured dosage sits wholly inside
+                        # the window the teal field leaves for the salmon badge,
+                        # and the real carton prints it dark there.
+                        if any(len(r) >= 3 and self._covers(u, v, r)
+                               for r in (part.get("holes") or [])):
+                            continue
+                        fill = field["fill"]
                 if fill is None:
                     continue
                 h = fill.lstrip("#")
@@ -1717,13 +1726,24 @@ class TestLabelInkFollowsTheSurfaceUnderIt(unittest.TestCase):
 
     @classmethod
     def _fill_under(cls, job, u, v):
-        """The design fill printed under (u, v); later parts paint over earlier."""
+        """The design fill printed under (u, v); later parts paint over earlier.
+
+        Contract 1.8: inside a hole is not inside the part, so the board shows --
+        or whatever earlier part reached here, which is why the hole `continue`s
+        rather than clearing `found`. Written out again rather than imported from
+        the driver on purpose: this is the second implementation, and two that
+        agree is the whole value of it.
+        """
         found = None
         for field in ((job.get("design") or {}).get("fields") or []):
             for part in field.get("parts") or []:
                 outline = part.get("outline") or []
-                if len(outline) >= 3 and cls._inside(u, v, outline):
-                    found = field.get("fill")
+                if len(outline) < 3 or not cls._inside(u, v, outline):
+                    continue
+                if any(len(ring) >= 3 and cls._inside(u, v, ring)
+                       for ring in (part.get("holes") or [])):
+                    continue
+                found = field.get("fill")
         return found
 
     def test_no_label_row_is_printed_in_ink_its_surface_hides(self):
@@ -1824,12 +1844,17 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
 
     @classmethod
     def _fill_at(cls, fields, u, v):
+        """Contract 1.8: a point inside a hole is on whatever shows through it."""
         found = None
         for f in fields:
             for p in f.get("parts") or []:
                 o = p.get("outline") or []
-                if len(o) >= 3 and cls._inside(u, v, o):
-                    found = f.get("fill")
+                if len(o) < 3 or not cls._inside(u, v, o):
+                    continue
+                if any(len(r) >= 3 and cls._inside(u, v, r)
+                       for r in (p.get("holes") or [])):
+                    continue
+                found = f.get("fill")
         return found
 
     @staticmethod
@@ -2004,3 +2029,93 @@ class TestPaintOrderIsGeometry(unittest.TestCase):
             highlight, brand,
             "the raster covers brand with highlight and the scene does not, "
             "which is the disagreement contract 1.7 was written to end")
+
+
+@unittest.skipUnless(Path(BLENDER_EXE).exists(),
+                     f"Blender not installed at {BLENDER_EXE}")
+class TestAHoleIsCutOutOfTheCurve(unittest.TestCase):
+    """Contract 1.8: a part is its outline MINUS its holes, in the scene.
+
+    A hole is another cyclic spline of the SAME curve, because Blender fills a
+    2D curve by nesting -- two objects would each fill and the hole would be
+    painted rather than cut. Nothing else in the dump can tell those apart: the
+    bounding box is identical whether the hole was removed or filled in, which
+    is exactly how the group rendered for as long as it did.
+
+    `357-min` is the case the contract exists for. Its `brand#1` is a thin
+    sprawling shape winding around a window that covers 44.4% of the face; with
+    the window filled the part enclosed 9.07 times its own ink and IoU 0.110
+    against the component it claims. `64-min` carries the other kind -- a window
+    the teal field leaves for the salmon dosage badge.
+    """
+
+    SKU = ("357-min", "64-min")
+
+    @classmethod
+    def setUpClass(cls):
+        manifests = Path(resolve_path("04_passports/render_manifests"))
+        cls.jobs, cls.scenes = {}, {}
+        for stem in cls.SKU:
+            cls.jobs[stem] = json.loads(
+                (manifests / f"{stem}.json").read_text(encoding="utf-8"))
+            cls.scenes[stem] = build_scene(cls.jobs[stem])
+
+    @staticmethod
+    def _ring_area(ring):
+        n = len(ring)
+        return abs(sum(ring[i][0] * ring[(i + 1) % n][1]
+                       - ring[(i + 1) % n][0] * ring[i][1]
+                       for i in range(n))) / 2.0
+
+    def _parts(self, stem):
+        """{object name: part} for every design part in the manifest."""
+        out = {}
+        for f in self.jobs[stem]["design"]["fields"]:
+            for i, part in enumerate(f["parts"]):
+                out[f"design_{f['role']}_{i}"] = part
+        return out
+
+    def test_a_part_builds_one_spline_for_its_outline_and_one_per_hole(self):
+        seen = 0
+        for stem in self.SKU:
+            parts = self._parts(stem)
+            for obj in self.scenes[stem]["design_fields"]:
+                part = parts.get(obj["name"])
+                self.assertIsNotNone(
+                    part, f"{stem}: built {obj['name']!r} matches no manifest part")
+                want = 1 + len([r for r in (part.get("holes") or []) if len(r) >= 3])
+                seen += want - 1
+                with self.subTest(sku=stem, obj=obj["name"]):
+                    self.assertEqual(
+                        obj["splines"], want,
+                        f"{stem} {obj['name']}: {obj['splines']} spline(s) built "
+                        f"for an outline and {want - 1} hole(s). A hole in its "
+                        f"own curve object is a second filled shape, not a hole.")
+        self.assertGreater(seen, 0, "no fixture carries a hole; this asserts nothing")
+
+    def test_the_filled_area_is_the_outline_minus_its_holes(self):
+        """The spline count alone would pass if Blender filled the holes in.
+
+        So the area is measured off the tessellation Cycles is handed. Shoelace
+        on the manifest's own rings for the target -- the two agree to the fifth
+        decimal on a carton 0.11m wide, which is far tighter than any hole in
+        the group.
+        """
+        for stem in self.SKU:
+            parts = self._parts(stem)
+            b = self.scenes[stem]["carton"]["self_bounds"]
+            face_w = b["max"][0] - b["min"][0]
+            face_h = b["max"][2] - b["min"][2]
+            for obj in self.scenes[stem]["design_fields"]:
+                part = parts[obj["name"]]
+                want = self._ring_area(part["outline"])
+                want -= sum(self._ring_area(r) for r in (part.get("holes") or [])
+                            if len(r) >= 3)
+                want *= face_w * face_h
+                with self.subTest(sku=stem, obj=obj["name"]):
+                    self.assertAlmostEqual(
+                        obj["fill_area_m2"], want, delta=max(0.02 * want, 1e-7),
+                        msg=f"{stem} {obj['name']}: Blender filled "
+                            f"{obj['fill_area_m2']:.8f} m2 where outline minus "
+                            f"holes is {want:.8f}. A hole that is drawn but not "
+                            f"cut renders as ink the carton does not have.")

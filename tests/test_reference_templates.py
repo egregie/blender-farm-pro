@@ -233,7 +233,7 @@ class TestARowBoxedAsItsBlock(unittest.TestCase):
                "v0": 20 / 100, "v1": 80 / 100, "cap_frac": 0.6,
                "words": [{"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
                           "v0": 20 / 100, "v1": 80 / 100}]}
-        got = ink_within(self._face(), row, [("#204020", self._block_outline())])
+        got = ink_within(self._face(), row, [("#204020", self._block_outline(), [])])
         self.assertAlmostEqual(got["u0"], 0.300, delta=0.02)
         self.assertAlmostEqual(got["u1"], 0.700, delta=0.02)
         self.assertAlmostEqual(got["v0"], 0.350, delta=0.02)
@@ -252,7 +252,7 @@ class TestARowBoxedAsItsBlock(unittest.TestCase):
                "v0": 20 / 100, "v1": 80 / 100, "cap_frac": 0.6,
                "words": [{"text": "20mg", "u0": 40 / 200, "u1": 160 / 200,
                           "v0": 20 / 100, "v1": 80 / 100}]}
-        got = ink_within(self._face(), row, [("#204020", self._block_outline())])
+        got = ink_within(self._face(), row, [("#204020", self._block_outline(), [])])
         self.assertEqual(len(got["words"]), 1)
         for key in ("u0", "u1", "v0", "v1"):
             self.assertEqual(got["words"][0][key], got[key])
@@ -262,9 +262,82 @@ class TestARowBoxedAsItsBlock(unittest.TestCase):
         row = {"text": "Tadalafil", "u0": 0.30, "u1": 0.70,
                "v0": 0.35, "v1": 0.65, "cap_frac": 0.30, "words": []}
         self.assertEqual(
-            ink_within(self._face(), row, [("#204020", self._block_outline())]),
+            ink_within(self._face(), row, [("#204020", self._block_outline(), [])]),
             row, "a row whose box is not the shape must be returned unchanged")
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestAPartIsItsOutlineMinusItsHoles(unittest.TestCase):
+    """Contract 1.8, on the measuring side.
+
+    `part_region` is the one implementation of what a part covers, and every
+    figure the design group is judged by reads it: the spec's own raster, the
+    QA target `design_qa` compares a render against, and `design_coverage`'s
+    agreement. A second idea of it is how this project has twice been bitten,
+    and a hole existing in one of them and not the others is the same defect
+    wearing a new coat.
+
+    Synthetic, for the reason the block test above is: the property is about a
+    shape with a window in it, and twenty lines of pixels state it more clearly
+    than a fixture does.
+    """
+
+    SQUARE = [[0.2, 0.2], [0.8, 0.2], [0.8, 0.8], [0.2, 0.8]]
+    WINDOW = [[0.4, 0.4], [0.6, 0.4], [0.6, 0.6], [0.4, 0.6]]
+
+    def _covered(self, part):
+        import numpy as np
+        from scripts.fit_design_spec import part_region
+        return np.asarray(part_region(part, 100, 100))
+
+    def test_a_hole_is_removed_from_what_the_part_covers(self):
+        solid = self._covered({"outline": self.SQUARE, "holes": []})
+        holed = self._covered({"outline": self.SQUARE, "holes": [self.WINDOW]})
+        # PIL fills the boundary, so a 0.2-0.8 square on a 100px grid is 61x61
+        # and its 0.4-0.6 window 21x21. The point of stating both is that the
+        # difference is the window and nothing else.
+        self.assertAlmostEqual(solid.mean(), 0.3721, delta=0.002)
+        self.assertAlmostEqual(holed.mean(), 0.3721 - 0.0441, delta=0.002)
+        self.assertFalse(holed[50, 50], "the middle of the window is still covered")
+        self.assertTrue(holed[25, 50], "the part outside its window was dropped")
+
+    def test_a_missing_or_empty_holes_key_covers_the_whole_outline(self):
+        """The key is required by the contract; the raster must not guess at it.
+
+        Refusing here as well would put the contract's enforcement in two places
+        and this one cannot say which manifest it is reading. The schema rejects
+        the missing key on write and on load, and the driver raises SystemExit
+        rather than build the part -- that is where it is caught.
+        """
+        for holes in ([], None):
+            part = {"outline": self.SQUARE}
+            if holes is not None:
+                part["holes"] = holes
+            self.assertAlmostEqual(self._covered(part).mean(), 0.3721, delta=0.002)
+
+    def test_ink_inside_a_hole_is_not_the_shapes_own(self):
+        """`ink_within` measures the glyphs inside a filled shape, so the shape
+        it measures inside has to be the region, not the ring."""
+        from PIL import Image, ImageDraw
+        from scripts.measure_type_rows import ink_within
+        img = Image.new("RGB", (200, 100), "#E0DCD0")
+        d = ImageDraw.Draw(img)
+        d.rectangle([40, 20, 159, 79], fill="#204020")      # the block
+        d.rectangle([60, 35, 139, 64], fill="#FFFFFF")      # type reversed out
+        d.rectangle([20, 20, 39, 79], fill="#FFFFFF")       # a window beside it
+        outline = [[20 / 200, 20 / 100], [160 / 200, 20 / 100],
+                   [160 / 200, 80 / 100], [20 / 200, 80 / 100]]
+        window = [[20 / 200, 20 / 100], [40 / 200, 20 / 100],
+                  [40 / 200, 80 / 100], [20 / 200, 80 / 100]]
+        row = {"text": "20mg", "u0": 20 / 200, "u1": 160 / 200,
+               "v0": 20 / 100, "v1": 80 / 100, "cap_frac": 0.6,
+               "words": [{"text": "20mg", "u0": 20 / 200, "u1": 160 / 200,
+                          "v0": 20 / 100, "v1": 80 / 100}]}
+        got = ink_within(img, row, [("#204020", outline, [window])])
+        self.assertGreater(
+            got["u0"], 0.25,
+            "the window's white counted as the row's ink, so the box was pulled "
+            "left onto board the shape does not cover")

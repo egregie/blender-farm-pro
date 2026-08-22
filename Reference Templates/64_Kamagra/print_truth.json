@@ -34,6 +34,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -488,6 +490,111 @@
       ],
       "class": "mark",
       "reason": "Kamagra family device"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#0/hole#0",
+      "of": "brand#0",
+      "area_pct": 2.623,
+      "bbox_uv": [
+        0.7236,
+        0.4961,
+        0.9045,
+        0.6438
+      ],
+      "centroid_uv": [
+        0.8141,
+        0.5696
+      ],
+      "class": "window"
+    },
+    {
+      "key": "brand#0/hole#1",
+      "of": "brand#0",
+      "area_pct": 0.042,
+      "bbox_uv": [
+        0.01,
+        0.7299,
+        0.0127,
+        0.989
+      ],
+      "centroid_uv": [
+        0.0105,
+        0.8614
+      ],
+      "class": "blend"
+    },
+    {
+      "key": "highlight#3/hole#0",
+      "of": "highlight#3",
+      "area_pct": 0.053,
+      "bbox_uv": [
+        0.8445,
+        0.3595,
+        0.9636,
+        0.3659
+      ],
+      "centroid_uv": [
+        0.9161,
+        0.3629
+      ],
+      "class": "window"
+    },
+    {
+      "key": "highlight#4/hole#0",
+      "of": "highlight#4",
+      "area_pct": 0.071,
+      "bbox_uv": [
+        0.8036,
+        0.3782,
+        0.9636,
+        0.3854
+      ],
+      "centroid_uv": [
+        0.9014,
+        0.3818
+      ],
+      "class": "window"
+    },
+    {
+      "key": "highlight#5/hole#0",
+      "of": "highlight#5",
+      "area_pct": 0.105,
+      "bbox_uv": [
+        0.6964,
+        0.3977,
+        0.9636,
+        0.4054
+      ],
+      "centroid_uv": [
+        0.8708,
+        0.4016
+      ],
+      "class": "window"
+    },
+    {
+      "key": "highlight#6/hole#0",
+      "of": "highlight#6",
+      "area_pct": 0.12,
+      "bbox_uv": [
+        0.6982,
+        0.4171,
+        0.9636,
+        0.4249
+      ],
+      "centroid_uv": [
+        0.8662,
+        0.421
+      ],
+      "class": "window"
     }
   ]
 }

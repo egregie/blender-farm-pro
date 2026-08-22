@@ -111,11 +111,68 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.6`.** Bumps up to 1.3 and again at 1.5 and 1.6 added or repurposed
-*required* fields — deliberately not additive-optional changes, so a manifest written before
-them fails validation loudly instead of quietly producing a packshot with something missing.
-`manifest_version` is pinned by `const` in the schema, so stale files on disk are rejected
-until Stage 1 regenerates them.
+**Contract version is `1.8`.** Bumps up to 1.3 and again at 1.5, 1.6, 1.7 and 1.8 added or
+repurposed *required* fields — deliberately not additive-optional changes, so a manifest
+written before them fails validation loudly instead of quietly producing a packshot with
+something missing. `manifest_version` is pinned by `const` in the schema, so stale files on
+disk are rejected until Stage 1 regenerates them.
+
+- `1.8` — **`design.fields[].parts[].holes`, because a part is a REGION and not a ring.**
+  A Moore-neighbour trace of a shape with holes in it is a correct boundary and a wrong
+  region. Measured over the group's 74 printed parts, the traced rings enclose **1.192 times
+  the ink they describe**; `357_Adderall`'s `brand#1` encloses **9.07 times** its own, filling
+  53.48% of a face it inks 5.90% of, at an IoU of 0.110 against the component it claims.
+  Subtracting *every* hole takes the group to 0.999 and 0.9817 — that is the geometry of the
+  primitive, not what ships; see below for which holes are actually cut and why. Required and
+  possibly empty: a 1.7 part carries no such key, and read as 1.8 it is not a part with no
+  holes but a part whose holes are unknown.
+
+  **Only ten of the group's 238 holes are cut, and which ten is a hand-made judgement.** A
+  hole in a printed field is board, and there are exactly two reasons for that: the carton
+  leaves it unprinted, or the carton reverses its own TYPE out of the field. Both are the
+  same pixels. Three instruments were built to separate them and all three were measured
+  failing — the share of the hole lying in a component already classified `type` separates 45
+  and misses Cialis's "1", one stroke of "10 mg" that lands in the never-enumerated substrate
+  cluster; the reference's own OCR word boxes cover 131 and read **nothing** on
+  `344_Modafinil_Generic`, whose ten holes spell "Modalert ® 200" reversed out of a purple
+  band; size is the escape this project already removed once. So `print_truth.json` gained a
+  second population with its own five-class vocabulary (`window` / `lettering` / `mark` /
+  `object` / `blend`), `label_print.py --aid --holes` draws it, and **`window` is the only
+  class the fitter cuts**.
+
+  The stake is the invariant rather than the number. `59-min` is a 20 mg Cialis whose
+  photograph is a 10 mg pack; `344-min` is Modafinil Generic whose photograph is Modalert 200;
+  `404_Ritalin`'s 72 holes are "Ritalin® 10 mg Tabletten" and "50 Tabletten/N2". Cutting them
+  shows board through our field in the shape of another package's brand and dose — the same
+  act as printing a plausible LOT, which the driver already refuses. Declining costs **0.12
+  points** of `truth_agreement`, because letterform holes fall outside the scored area anyway.
+
+  `truth_agreement` over the group goes **90.62% → 94.20%** with nothing regressing on any
+  carton: Adderall +44.72, Sonata +38.16, Kamagra +5.15, Valium +1.40, the other 21 unchanged.
+  The holes that matter are few and large.
+
+  **Blender cuts a hole by NESTING, so a hole is another cyclic spline of the same curve.**
+  Measured on 5.1.2: a unit square with a 0.5 inner square fills 0.7500 whichever way either
+  ring is wound, and the extrude walls the hole too. Two objects would each fill and the hole
+  would be painted rather than cut. `--dump-scene` reports `splines` and `fill_area_m2` per
+  design part because the bounding box is identical whether a hole was cut or filled in, and
+  a test compares that area against the shoelace of outline-minus-holes.
+
+  1.7 and 1.8 compose in that order, and had to: a hole is a window onto whatever is BEHIND
+  the part, so it shows the right thing only once the fields stand at different depths.
+  `_surface_fill` follows — a measured row inside a hole is printed against what shows
+  through, which is what took `64-min`'s dosage from white-on-teal to dark on the board window
+  the real carton leaves for its salmon badge.
+
+- `1.7` — **`design.fields[].z`, the paint order, which the contract never stated.** The field
+  list has always BEEN ordered — `rasterise()` fills it front to back and every
+  `verification.pixel_agreement` was measured against that — but `build_design_fields()` read
+  the same list into ONE plane, `location = (0, front_y, 0)` for every part, where nothing is
+  on top of anything and Cycles resolves an overlap arbitrarily. Two readings of one record:
+  on `357-min` the teal block was erased outright in the target and z-fought in the render.
+  Emitted as the index the list already has, so nothing moves; what changes is that the order
+  is a value the driver can obey rather than a convention it cannot see. The driver raises
+  `SystemExit` on a field without one.
 
 - `1.6` — **`product_code`, separating what is PRINTED from what KEYS the row.**
   `SKU.csv`'s first column is named `picture` and holds the source image's filename. That
@@ -167,14 +224,39 @@ until Stage 1 regenerates them.
   raised. The fitter now carries the block forward and a test compares each manifest's
   `type_rows` against its spec's.
 
-  **A component enters the spec by running off the face, reading as a block, or filling
-  its own bounding box with hairlines removed — never by being large.** The size escape
-  was removed because it could not be repaired by size: Xanax's traced "XA" covers 3.4%
-  of its face and Xanax Pfizer's genuine magenta panel 3.2%. They separate on box fill,
-  0.49 against 0.96, and the panel needs the despeckle because a ONE-PIXEL thread down
-  the carton edge stretches its bounding box and halves the ratio. Keep the block test in
-  the middle: the four references that reverse the dosage out of a filled block leave
-  letter-shaped holes, so Cialis's block fills 0.70 by pixels against 0.95 by outline.
+  **A component enters the spec because a PERSON classified it `print`, and every geometric
+  admission rule has been removed.** This paragraph used to describe them — runs off the
+  face, reads as a block, fills its own bounding box with hairlines removed — and each was
+  a proxy for a judgement nobody had made, and each was measured failing: Kamagra's pouch
+  entered through "runs off the face", Xanax Pfizer's shaded board through a 0.090 contrast,
+  Provigil's box lid and the table under it through both. Size had to go with them, and
+  Imovane is the case that proves it — its ONLY printed field is a blue rule covering 0.67%
+  of its face, below the old 0.8% floor, so the threshold kept that carton at zero fields
+  while a person could see exactly what was there.
+
+  `Reference Templates/*/print_truth.json` now states, once per component, whether it is
+  printed design, an object lying in front of the carton, a letterform, a logo, something
+  this vocabulary cannot hold, or one surface counted twice — **664 components across the
+  28 folders, and since contract 1.8 a second population of 238 holes.**
+  `scripts/label_print.py` enumerates, draws the aid, records the labels and verifies that
+  none is missing; `fit()` hard-fails without a truth file or against stale face corners, and
+  emits the `print` set and nothing else. A label is only valid for the corners it was made
+  against, and `verify()` refuses when they have moved.
+
+  What is given up, stated rather than glossed: a person could still call a wordmark `print`,
+  and no test catches that. What catches it is `label_print.py --aid`, which tints every
+  component by its class over the rectified face, so a wordmark labelled as design is visible
+  at a glance. The guarantee moved from a proxy to a judgement, and the judgement is recorded
+  per component with its area and its bounding box.
+
+  **`scripts/design_coverage.py` is the figure to read, and `verification.pixel_agreement` is
+  not.** That field scores the whole face, and the substrate covers 87–96% of these cartons,
+  so it is very nearly a statement about the BOARD: `155-min`, `304-min` and `308-min` each
+  scored a perfect 1.0000 while carrying zero fields against photographs whose printed design
+  covers 7.0% to 11.6% of the face. `truth_agreement` scores the union of "the reference
+  prints something here" and "the spec draws something here", over what a person classified,
+  and `spec_off_print_pct` reports what the spec draws where the reference prints nothing.
+  Both are added BESIDE the old field, never in place of it — other records cite it.
 
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the

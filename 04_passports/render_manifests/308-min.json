@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "308-min.jpg",
   "product_code": "308-min",
   "template_id": "T1",
@@ -139,7 +139,8 @@
                 0.9427,
                 0.3584
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -226,7 +227,8 @@
                 0.9391,
                 0.5868
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

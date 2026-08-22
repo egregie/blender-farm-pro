@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "60-min.jpg",
   "product_code": "60-min",
   "template_id": "T1_SMALL",
@@ -179,7 +179,8 @@
                 0.2509,
                 0.5455
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       },
@@ -443,6 +444,7 @@
                 0.0055
               ]
             ],
+            "holes": [],
             "simplified_from": 63
           },
           {
@@ -555,6 +557,7 @@
                 0.5573
               ]
             ],
+            "holes": [],
             "simplified_from": 27
           },
           {
@@ -634,7 +637,8 @@
                 0.5455,
                 0.9382
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

@@ -142,3 +142,23 @@ def _design_stems():
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTheChartSpeaksTheCurrentContract(unittest.TestCase):
+    """The chart is a design like any other and the driver validates it as one.
+
+    It is only ever built inside a Blender render, so a contract bump that the
+    chart does not follow fails where nothing is watching: `chart_manifest` went
+    on emitting fields with no `z` from contract 1.7 until 1.8, and the driver
+    had been refusing the whole run with SystemExit the entire time. Validating
+    the job against the schema costs a millisecond and would have caught it the
+    day it happened.
+    """
+
+    def test_the_chart_job_validates_against_the_manifest_schema(self):
+        from src.design_group import FOLDER_BY_STEM
+        from src.render_manifest import validate_manifest
+        for stem in sorted(FOLDER_BY_STEM, key=lambda s: int(s.split("-")[0]))[:3]:
+            with self.subTest(sku=stem):
+                job, _fills = cr.chart_manifest(stem)
+                validate_manifest(job)

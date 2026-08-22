@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "404-min.jpg",
   "product_code": "404-min",
   "template_id": "T1",
@@ -139,7 +139,8 @@
                 0.0673,
                 0.0022
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -183,7 +184,8 @@
                 0.0,
                 0.5427
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       },
@@ -303,6 +305,7 @@
                 0.954
               ]
             ],
+            "holes": [],
             "simplified_from": 27
           }
         ]

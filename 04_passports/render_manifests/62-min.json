@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "62-min.jpg",
   "product_code": "62-min",
   "template_id": "T1_SMALL",
@@ -604,6 +604,7 @@
                 0.0637
               ]
             ],
+            "holes": [],
             "simplified_from": 143
           },
           {
@@ -703,7 +704,8 @@
                 0.9982,
                 0.6874
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "block",
@@ -738,7 +740,8 @@
                 0.72,
                 0.3748
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

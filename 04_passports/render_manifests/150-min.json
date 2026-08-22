@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "150-min.jpg",
   "product_code": "150-min",
   "template_id": "T1",
@@ -63,7 +63,8 @@
                 0.1927,
                 0.0019
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -130,7 +131,8 @@
                 0.7145,
                 0.7635
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       },
@@ -490,6 +492,7 @@
                 0.0019
               ]
             ],
+            "holes": [],
             "simplified_from": 88
           }
         ]

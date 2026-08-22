@@ -18,8 +18,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "Contract version. Consumers must reject a major version they do not know. Additive optional fields keep the version; removing or repurposing a field requires a bump. 1.1 added label_content.active_ingredient_display as REQUIRED, which is deliberately not an additive-optional change: a manifest written before it exists must fail validation and be regenerated rather than silently produce a packshot with a missing label row. 1.2 added carton.features and carton.material for the same reason - the side panel is drawn from them, and a stale manifest would render a panel missing its declared zones. 1.3 REPURPOSES carton.width_mm/height_mm/depth_mm: they are now art-directed scene geometry rather than the carton's real size, and the real size moved to carton.passport_dimensions. That is the one change a consumer must never miss - a 1.2 manifest read as 1.3 would print invented measurements on pharmaceutical packaging - so the version is pinned and a 1.2 file fails validation until Stage 1 regenerates it. 1.6 adds product_code as REQUIRED, and it is a separation rather than an addition: sku_id is the catalogue's KEY and comes from SKU.csv's first column, which is named `picture` and holds the source image's filename. The side panel prints the identifier under the barcode and encodes it into the Code 128, so all 391 cartons carried `.jpg` on them as a scannable product code. A 1.5 manifest read as 1.6 would print a filename on pharmaceutical packaging, which is why the version is pinned rather than the field made optional. 1.7 adds design.fields[].z as REQUIRED: the paint order, which the contract never stated. The field list has always been ordered -- fit_design_spec.rasterise() fills it front to back and every verification.pixel_agreement was measured against that -- but render_driver.build_design_fields() read the same list into a SINGLE plane, where nothing is on top of anything. On 357_Adderall the teal block was erased outright in the target and z-fought in the render, and 362_Hydrocodone the same. A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted.",
-      "const": "1.7"
+      "description": "A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted. 1.8 adds design.fields[].parts[].holes as REQUIRED, possibly empty: a part is its outline MINUS its holes, and until now it was the ring alone. A boundary trace of a shape with holes in it is a correct trace and a wrong region -- measured over the group's 74 printed parts, the traced rings enclose 1.192 times the ink they describe, and 357_Adderall's brand#1 encloses 9.07 times its own, filling 53.48% of a face it inks 5.90% of. A 1.7 manifest read as 1.8 would fill every hole in silence, which is exactly the packshot the group has been rendering, so the version is pinned rather than the field defaulted to empty.",
+      "const": "1.8"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into 03_knowledge_graph/SKU.csv. Never parse as a number, and never PRINT it: it carries the source image's file extension. Print product_code.",
@@ -237,7 +237,8 @@
                 "items": {
                   "type": "object",
                   "required": [
-                    "outline"
+                    "outline",
+                    "holes"
                   ],
                   "properties": {
                     "area_pct": {
@@ -258,6 +259,22 @@
                         "maxItems": 2,
                         "items": {
                           "type": "number"
+                        }
+                      }
+                    },
+                    "holes": {
+                      "type": "array",
+                      "description": "Enclosed background this part does NOT cover, one ring per hole, in the outline's own coordinates. Required and may be empty: a part is its outline MINUS its holes, so a spec that omits the key is not a part with no holes but a part whose holes are unknown, and filling them is how Adderall's brand came to cover 53.48% of a face it inks 5.90% of.",
+                      "items": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number"
+                          }
                         }
                       }
                     }

@@ -34,6 +34,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -469,6 +471,127 @@
         0.2645
       ],
       "class": "type"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#0/hole#0",
+      "of": "brand#0",
+      "area_pct": 0.219,
+      "bbox_uv": [
+        0.0127,
+        0.2848,
+        0.0182,
+        0.7295
+      ],
+      "centroid_uv": [
+        0.0154,
+        0.5195
+      ],
+      "class": "blend"
+    },
+    {
+      "key": "brand#0/hole#1",
+      "of": "brand#0",
+      "area_pct": 0.013,
+      "bbox_uv": [
+        0.0173,
+        0.7439,
+        0.0182,
+        0.8197
+      ],
+      "centroid_uv": [
+        0.0178,
+        0.7781
+      ],
+      "class": "blend"
+    },
+    {
+      "key": "brand#0/hole#2",
+      "of": "brand#0",
+      "area_pct": 0.01,
+      "bbox_uv": [
+        0.0145,
+        0.127,
+        0.0164,
+        0.209
+      ],
+      "centroid_uv": [
+        0.0152,
+        0.1632
+      ],
+      "class": "blend"
+    },
+    {
+      "key": "brand#1/hole#0",
+      "of": "brand#1",
+      "area_pct": 0.172,
+      "bbox_uv": [
+        0.9382,
+        0.2418,
+        0.9627,
+        0.3217
+      ],
+      "centroid_uv": [
+        0.9504,
+        0.2819
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#1",
+      "of": "brand#1",
+      "area_pct": 0.145,
+      "bbox_uv": [
+        0.8682,
+        0.2254,
+        0.89,
+        0.3012
+      ],
+      "centroid_uv": [
+        0.8794,
+        0.2641
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#2",
+      "of": "brand#1",
+      "area_pct": 0.129,
+      "bbox_uv": [
+        0.8964,
+        0.2439,
+        0.9327,
+        0.3053
+      ],
+      "centroid_uv": [
+        0.9141,
+        0.2727
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#3",
+      "of": "brand#1",
+      "area_pct": 0.075,
+      "bbox_uv": [
+        0.8455,
+        0.2295,
+        0.8609,
+        0.3033
+      ],
+      "centroid_uv": [
+        0.8558,
+        0.2624
+      ],
+      "class": "lettering"
     }
   ]
 }

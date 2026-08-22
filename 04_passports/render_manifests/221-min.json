@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "221-min.jpg",
   "product_code": "221-min",
   "template_id": "T1",
@@ -124,6 +124,7 @@
                 0.0
               ]
             ],
+            "holes": [],
             "simplified_from": 22
           }
         ]
@@ -211,7 +212,8 @@
                 0.0718,
                 0.0707
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -274,7 +276,8 @@
                 0.0645,
                 0.4589
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -358,6 +361,7 @@
                 0.0014
               ]
             ],
+            "holes": [],
             "simplified_from": 21
           }
         ]

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "156-min.jpg",
   "product_code": "156-min",
   "template_id": "T1",
@@ -107,7 +107,8 @@
                 0.0,
                 0.0013
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -194,7 +195,8 @@
                 0.8645,
                 0.2322
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       }

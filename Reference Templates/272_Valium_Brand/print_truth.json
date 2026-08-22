@@ -34,6 +34,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -330,5 +332,13 @@
       "class": "object",
       "reason": "carton right edge"
     }
-  ]
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": []
 }

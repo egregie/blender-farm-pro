@@ -400,14 +400,31 @@ def load_design(sku_id: str) -> dict | None:
     for field in spec.get("fields") or []:
         for part in field.get("parts") or []:
             outline = part.get("outline") or []
-            if len(outline) < 4:
-                continue
-            fixed = simple_ring(outline)
-            if len(fixed) != len(outline):
-                part["outline"] = [list(p) for p in fixed]
-                # Recorded rather than done quietly: a repaired outline is not
-                # what the tracer measured, and the manifest carries this.
-                part["simplified_from"] = len(outline)
+            if len(outline) >= 4:
+                fixed = simple_ring(outline)
+                if len(fixed) != len(outline):
+                    part["outline"] = [list(p) for p in fixed]
+                    # Recorded rather than done quietly: a repaired outline is
+                    # not what the tracer measured, and the manifest carries
+                    # this.
+                    part["simplified_from"] = len(outline)
+            # Contract 1.8: a part is a region, its outline minus its holes, and
+            # a hole that crosses itself is no more a region than an outline
+            # that does. Same repair, same place -- the boundary -- and the spec
+            # on disk stays as traced.
+            holes, repaired = [], []
+            for i, ring in enumerate(part.get("holes") or []):
+                if len(ring) >= 4:
+                    fixed = simple_ring(ring)
+                    if len(fixed) != len(ring):
+                        repaired.append([i, len(ring)])
+                        holes.append([list(q) for q in fixed])
+                        continue
+                holes.append([list(q) for q in ring])
+            if part.get("holes") is not None:
+                part["holes"] = holes
+            if repaired:
+                part["holes_simplified_from"] = repaired
     return spec
 
 

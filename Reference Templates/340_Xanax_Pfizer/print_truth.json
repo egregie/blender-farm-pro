@@ -35,6 +35,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -489,6 +491,207 @@
         0.7707
       ],
       "class": "type"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#0/hole#0",
+      "of": "brand#0",
+      "area_pct": 0.141,
+      "bbox_uv": [
+        0.9109,
+        0.4768,
+        0.9418,
+        0.6131
+      ],
+      "centroid_uv": [
+        0.9265,
+        0.5334
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#1",
+      "of": "brand#0",
+      "area_pct": 0.1,
+      "bbox_uv": [
+        0.9245,
+        0.4332,
+        0.9618,
+        0.5014
+      ],
+      "centroid_uv": [
+        0.9418,
+        0.4669
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#2",
+      "of": "brand#0",
+      "area_pct": 0.054,
+      "bbox_uv": [
+        0.9373,
+        0.5259,
+        0.9645,
+        0.6213
+      ],
+      "centroid_uv": [
+        0.9506,
+        0.5604
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#3",
+      "of": "brand#0",
+      "area_pct": 0.051,
+      "bbox_uv": [
+        0.9336,
+        0.5586,
+        0.9627,
+        0.6567
+      ],
+      "centroid_uv": [
+        0.9486,
+        0.6067
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#4",
+      "of": "brand#0",
+      "area_pct": 0.042,
+      "bbox_uv": [
+        0.9164,
+        0.5695,
+        0.9345,
+        0.6458
+      ],
+      "centroid_uv": [
+        0.9259,
+        0.6106
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#5",
+      "of": "brand#0",
+      "area_pct": 0.034,
+      "bbox_uv": [
+        0.9509,
+        0.485,
+        0.9636,
+        0.5204
+      ],
+      "centroid_uv": [
+        0.9571,
+        0.5032
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#6",
+      "of": "brand#0",
+      "area_pct": 0.031,
+      "bbox_uv": [
+        0.98,
+        0.5286,
+        0.99,
+        0.5749
+      ],
+      "centroid_uv": [
+        0.9854,
+        0.5547
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#7",
+      "of": "brand#0",
+      "area_pct": 0.026,
+      "bbox_uv": [
+        0.9082,
+        0.4169,
+        0.92,
+        0.4768
+      ],
+      "centroid_uv": [
+        0.914,
+        0.4439
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#8",
+      "of": "brand#0",
+      "area_pct": 0.025,
+      "bbox_uv": [
+        0.9364,
+        0.5123,
+        0.95,
+        0.5613
+      ],
+      "centroid_uv": [
+        0.9438,
+        0.537
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#9",
+      "of": "brand#0",
+      "area_pct": 0.015,
+      "bbox_uv": [
+        0.9273,
+        0.6049,
+        0.9355,
+        0.6403
+      ],
+      "centroid_uv": [
+        0.9321,
+        0.6248
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#10",
+      "of": "brand#0",
+      "area_pct": 0.011,
+      "bbox_uv": [
+        0.9182,
+        0.1008,
+        0.9236,
+        0.1253
+      ],
+      "centroid_uv": [
+        0.921,
+        0.1125
+      ],
+      "class": "object"
+    },
+    {
+      "key": "brand#0/hole#11",
+      "of": "brand#0",
+      "area_pct": 0.011,
+      "bbox_uv": [
+        0.9364,
+        0.4114,
+        0.9455,
+        0.4305
+      ],
+      "centroid_uv": [
+        0.9417,
+        0.4213
+      ],
+      "class": "object"
     }
   ]
 }

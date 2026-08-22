@@ -809,6 +809,97 @@ class TestDesignChannel(unittest.TestCase):
                     f"person confirmed.")
 
 
+    def test_every_hole_the_spec_cuts_is_one_a_person_called_a_window(self):
+        """Cutting the wrong hole prints another package's dosage on our carton.
+
+        A hole in a printed field is board, and there are two reasons for that
+        and only two: the carton leaves it unprinted, or the carton reverses its
+        own TYPE out of the field. Both are the same pixels, so nothing in the
+        segmentation separates them -- three instruments were tried and all
+        three were measured failing, which is why `print_truth.json` carries a
+        class per hole and `fit()` cuts `window` and nothing else.
+
+        The stake is the invariant this project holds hardest. `59-min` is a
+        20 mg Cialis whose reference photograph is a 10 mg pack; `344-min` is
+        Modafinil Generic whose photograph is Modalert 200; `404-min`'s 72 holes
+        spell "Ritalin 10 mg Tabletten" and "50 Tabletten/N2". Cut those and the
+        board shows through our field in the shape of the other package's brand
+        and dose -- the same act as printing a plausible LOT, which the driver
+        already refuses.
+
+        Checked both ways round and off the RECORDED numbers, so it shares no
+        code with the fitter: a ring the truth has no window for means something
+        was cut that nobody looked at, and a window with no ring means a real
+        hole was filled in.
+        """
+        import json as _json
+        from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
+        cut = 0
+        for folder in sorted(TEMPLATE_SAMPLE):
+            root = TEMPLATES_DIR / folder
+            spec = _json.loads((root / "design_spec.json").read_text(encoding="utf-8"))
+            truth = _json.loads((root / "print_truth.json").read_text(encoding="utf-8"))
+            windows = [h for h in truth.get("holes", [])
+                       if h.get("class") == "window" and not h.get("vanished")]
+            with self.subTest(folder=folder):
+                unmatched = []
+                for field in spec["fields"]:
+                    for part in field["parts"]:
+                        for ring in part.get("holes") or []:
+                            us = [q[0] for q in ring]
+                            vs = [q[1] for q in ring]
+                            hit = None
+                            for hole in windows:
+                                u0, v0, u1, v1 = hole["bbox_uv"]
+                                if (min(us) >= u0 - 0.01 and max(us) <= u1 + 0.01
+                                        and min(vs) >= v0 - 0.01
+                                        and max(vs) <= v1 + 0.01):
+                                    hit = hole
+                                    break
+                            if hit is None:
+                                unmatched.append((field["role"], round(min(us), 3),
+                                                  round(min(vs), 3)))
+                            else:
+                                windows.remove(hit)
+                                cut += 1
+                self.assertEqual(
+                    unmatched, [],
+                    f"{folder}: the spec cuts a hole nobody classified as a "
+                    f"window. If it is the reference's own lettering, our field "
+                    f"will show board in the shape of another package's words.")
+                self.assertEqual(
+                    [h["key"] for h in windows], [],
+                    f"{folder}: a hole a person called a window reached no ring. "
+                    f"The spec fills a region the carton leaves open -- which is "
+                    f"how one Adderall field came to enclose 9.07 times its ink.")
+        self.assertGreaterEqual(
+            cut, 5, "no spec cuts a hole, so this test asserts nothing")
+
+    def test_a_hole_is_only_ever_asked_about_inside_a_printed_component(self):
+        """The truth enumerates holes of `print` components and of nothing else.
+
+        A hole in a component the label already dropped is not a question anyone
+        has to answer: the component is not in the spec, so neither is its
+        interior. Keeping the two populations aligned this way is what lets a
+        hole be named off its component's own key rather than by a second
+        enumeration that could drift from the first.
+        """
+        import json as _json
+        from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
+        for folder in sorted(TEMPLATE_SAMPLE):
+            truth = _json.loads(
+                (TEMPLATES_DIR / folder / "print_truth.json").read_text(encoding="utf-8"))
+            printed = {c["key"] for c in truth["components"]
+                       if c.get("class") == "print" and not c.get("vanished")}
+            stray = sorted({h["of"] for h in truth.get("holes", [])
+                            if not h.get("vanished")} - printed)
+            with self.subTest(folder=folder):
+                self.assertEqual(
+                    stray, [],
+                    f"{folder}: holes are enumerated inside components that are "
+                    f"not `print`. Re-run label_print.py --init.")
+
+
 class TestAnOutlineIsARegion(unittest.TestCase):
     """A self-intersecting ring means different things under different fill rules.
 
@@ -856,6 +947,41 @@ class TestAnOutlineIsARegion(unittest.TestCase):
         with self.assertRaises(ValueError) as ctx:
             validate_manifest(manifest)
         self.assertIn("crosses itself", str(ctx.exception))
+
+    def test_the_contract_rejects_a_tangled_hole_and_says_which(self):
+        """Contract 1.8 checks the holes on the same footing as the outline.
+
+        A part is its outline minus its holes, so a hole that crosses itself is
+        a tangled region boundary and reaches the render the same way -- the
+        driver hands both to Blender as cyclic splines of one curve, where the
+        tessellation and PIL's even-odd scanline disagree exactly as they did on
+        `340-min`.
+        """
+        stem = self._design_stems()[0]
+        manifest = json.loads(
+            (self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+        part = manifest["design"]["fields"][0]["parts"][0]
+        part["holes"] = [[[0.2, 0.2], [0.4, 0.4], [0.4, 0.2], [0.2, 0.4]]]
+        with self.assertRaises(ValueError) as ctx:
+            validate_manifest(manifest)
+        self.assertIn("hole 0", str(ctx.exception))
+        self.assertIn("crosses itself", str(ctx.exception))
+
+    def test_a_part_that_does_not_say_whether_it_has_holes_is_refused(self):
+        """`holes` is required and may be empty, and the difference matters.
+
+        A 1.7 part carries no such key. Read as 1.8 it is not a part with no
+        holes, it is a part whose holes are unknown -- and filling them in
+        silence is the packshot this group had been rendering: Adderall's brand
+        enclosing 9.07 times its own ink, 53.48% of a face it inks 5.90% of.
+        """
+        from jsonschema import ValidationError
+        stem = self._design_stems()[0]
+        manifest = json.loads(
+            (self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+        manifest["design"]["fields"][0]["parts"][0].pop("holes")
+        with self.assertRaises(ValidationError):
+            validate_manifest(manifest)
 
     # The exact outline that showed the repair was scoring itself on the wrong
     # quantity. Ritalin's `highlight#1`, simplified at a 0.001 face width: a

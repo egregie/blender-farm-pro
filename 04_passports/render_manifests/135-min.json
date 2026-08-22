@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "135-min.jpg",
   "product_code": "135-min",
   "template_id": "T1",
@@ -123,7 +123,8 @@
                 0.0082,
                 0.0006
               ]
-            ]
+            ],
+            "holes": []
           }
         ]
       },
@@ -318,7 +319,8 @@
                 0.5291,
                 0.4298
               ]
-            ]
+            ],
+            "holes": []
           },
           {
             "kind": "field",
@@ -434,6 +436,7 @@
                 0.0165
               ]
             ],
+            "holes": [],
             "simplified_from": 39
           }
         ]

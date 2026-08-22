@@ -116,6 +116,69 @@ SMOOTH_TURN_DEG = 25.0      # a vertex turning less than this reads as a curve
 # into a region. See `_simplify_to_a_region`.
 SIMPLIFY_BACKOFF_MAX = 0.02
 
+# The smallest enclosed background a part carries as a HOLE, as a fraction of
+# the face. Below it, an island in a printed region is segmentation noise rather
+# than something the carton leaves unprinted.
+#
+# CONTRACT 1.8, and the constant is the cheap half of it. What matters is that a
+# part is a REGION -- its outer ring minus its holes -- and not a ring: measured
+# over the group's 74 printed parts, the traced ring encloses 1.192 times the
+# ink it describes, and subtracting the holes takes that to 0.999. Adderall's
+# `brand#1` is the case that shows what kind of error this is: 5.90% of the face
+# in ink, 53.48% once its outer ring is filled, IoU 0.110 against its own
+# component. It is not a tolerance problem and no tolerance repairs it -- the
+# ring is a correct boundary trace of a shape that has holes in it.
+#
+# What the floor actually decides is HOW MANY HOLES A PERSON MUST CLASSIFY, not
+# how well the group scores. Since only `window` holes are cut and the group has
+# ten of them, accuracy is flat across every floor tried; the enumeration count
+# is not, running 569 / 397 / 282 / 238 / 179 at 0 / 0.00002 / 0.00005 / this /
+# 0.0003. The smallest window in the group is Kamagra's 0.053%, twenty times
+# this floor, so nothing that matters is near the edge.
+#
+# It is ten times finer than the component floor the labeller enumerates at,
+# which is the same relation `label_print.ENUMERATE_MIN_FRAC` has to the
+# fitter's own. Changing it changes the partition and invalidates every hole
+# label, which is why `fit()` compares it against the value recorded in
+# `print_truth.json` and stops rather than enumerating differently from the
+# person who did the looking.
+MIN_HOLE_FRAC = 0.0001
+
+# A hole is CUT only where a person called it a window, and that is a
+# conclusion, not a preference. Three automatic tests were built and all three
+# were measured failing on real cartons:
+#
+#   the share of the hole lying in a component already classified `type`
+#     separates 45 of 238 and no more. Cialis's "1" is one stroke of "10 mg" and
+#     lands in the SUBSTRATE cluster, which is never enumerated, so it reads as
+#     0.000 type.
+#   the reference's own OCR word boxes
+#     cover 131 and read NOTHING on `344_Modafinil_Generic`, whose ten holes
+#     spell "Modalert (R) 200" reversed out of a purple band. Any threshold low
+#     enough to catch them also takes Adderall's genuine window, which sits at
+#     0.388.
+#   size
+#     is the escape this project already removed once, and it fails the same way
+#     here: Ritalin's 72 letterform holes and Kamagra's 5 windows overlap in area.
+#
+# Both populations are BOARD. Nothing in the segmentation tells them apart,
+# because there is nothing there to tell apart -- a letter reversed out of a
+# field and a window onto the board are the same pixels. The difference is what
+# the carton MEANS by them, and that is a question for a person, which is the
+# same conclusion Phase B reached about components and for the same reason.
+#
+# The stake is the invariant rather than the metric, and the metric agrees: the
+# letterform holes lie outside the scored area, so declining to cut them costs
+# 0.12 points. `59-min` is a 20 mg Cialis whose photograph is a 10 mg pack;
+# `344-min` is Modafinil Generic whose photograph is Modalert 200; `404-min`'s
+# 72 holes are "Ritalin 10 mg Tabletten / 50 Tabletten/N2". Cutting those prints
+# another package's brand and dosage on our carton, in board, in the shape the
+# photograph has -- the same act as printing a plausible LOT, which this driver
+# already refuses.
+#
+# Ten of the group's 238 holes are windows. They carry almost all of the area.
+HOLE_CUT_CLASS = "window"
+
 
 def _neighbours(y, x):
     #  Moore neighbourhood, clockwise from the west. Order matters: the tracer
@@ -218,6 +281,102 @@ def components(mask: np.ndarray, min_px: int) -> list[np.ndarray]:
     keep = [m for m in out.values() if m.sum() >= min_px]
     keep.sort(key=lambda m: -m.sum())
     return keep
+
+
+def enclosed_background(mask: np.ndarray) -> list[np.ndarray]:
+    """The holes in *mask*: enclosed background regions, largest first.
+
+    Background is 8-connected here while `components` makes the foreground
+    4-connected, which is the standard pairing -- under one connectivity on both
+    sides a diagonally pinched hole is simultaneously enclosed and outside.
+
+    The region touching the 1px pad is the outside; everything else is a hole.
+    Written out for the same reason `trace_outline` and `components` are: adding
+    a compiled package to find a hole would put an install in front of a
+    measurement.
+    """
+    h, w = mask.shape
+    padded = np.zeros((h + 2, w + 2), bool)
+    padded[1:-1, 1:-1] = mask
+    bg = ~padded
+    parent: dict[int, int] = {}
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+
+    runs_by_row: list[list[tuple[int, int, int]]] = []
+    next_id = 0
+    for y in range(bg.shape[0]):
+        row = bg[y]
+        idx = np.flatnonzero(np.diff(np.concatenate(([0], row.view(np.int8), [0]))))
+        runs = []
+        for x0, x1 in zip(idx[::2], idx[1::2]):
+            parent[next_id] = next_id
+            runs.append((int(x0), int(x1), next_id))
+            next_id += 1
+        if y:
+            for x0, x1, rid in runs:
+                for px0, px1, pid in runs_by_row[-1]:
+                    if px0 <= x1 and x0 <= px1:      # touching or diagonal => 8-connected
+                        union(rid, pid)
+        runs_by_row.append(runs)
+
+    out: dict[int, np.ndarray] = {}
+    for y, runs in enumerate(runs_by_row):
+        for x0, x1, rid in runs:
+            r = find(rid)
+            m = out.get(r)
+            if m is None:
+                m = out[r] = np.zeros(bg.shape, bool)
+            m[y, x0:x1] = True
+
+    holes = [m[1:-1, 1:-1] for m in out.values()
+             if not (m[0].any() or m[-1].any() or m[:, 0].any() or m[:, -1].any())]
+    holes.sort(key=lambda m: -m.sum())
+    return holes
+
+
+def trace_holes(part: np.ndarray, w: int, h: int, min_px: int, key: str,
+                class_of: dict) -> tuple[list[list], dict]:
+    """A part's windows as simplified rings, and a tally of what was not cut.
+
+    Each ring is traced and simplified exactly as the outer one is, and through
+    the same `_simplify_to_a_region`, because a hole that crosses itself is no
+    more a region than an outline that does.
+
+    `class_of` maps `role#i/hole#j` to the hand-made class. Only `window` is cut
+    -- see HOLE_CUT_CLASS. A hole the truth does not carry is a hard stop rather
+    than a silent cut, the same rule the components follow.
+    """
+    rings, kept = [], {}
+    for j, hole in enumerate(enclosed_background(part)):
+        if hole.sum() < min_px:
+            continue
+        hkey = f"{key}/hole#{j}"
+        cls = class_of.get(hkey)
+        if cls is None:
+            raise SystemExit(
+                f"{hkey} has no label. Run scripts/label_print.py --init and "
+                f"classify it; cutting an unlabelled hole is how the reference's "
+                f"own dosage gets printed on our carton.")
+        if cls != HOLE_CUT_CLASS:
+            kept[cls] = kept.get(cls, 0) + 1
+            continue
+        outline = trace_outline(hole)
+        if len(outline) < 8:
+            continue
+        pts, _used = _simplify_to_a_region(outline, w, h, SIMPLIFY_TOLERANCE)
+        if len(pts) >= 3:
+            rings.append(pts)
+    return rings, kept
 
 
 def _perp(pt, a, b) -> float:
@@ -379,7 +538,7 @@ def is_design_field(outline, w, h, mask=None) -> bool:
     return mask is not None and fills_its_box(mask) >= BOX_FILL_MIN
 
 
-def part_kind(outline) -> str:
+def part_kind(outline, holes=()) -> str:
     """`block` for a printed colour block, `field` for everything else.
 
     Named in the spec rather than re-derived by the renderer. The driver runs
@@ -390,13 +549,18 @@ def part_kind(outline) -> str:
     The distinction earns its keep: four of the eleven references reverse the
     dosage out of a filled block (Cialis, Ativan, Imovane, Lexotanil). A block is
     a place to put type; a field is not.
+
+    Holes count against the fill, and must: contract 1.8 makes a part a region
+    rather than a ring, and a rectangle with a window cut out of it is no longer
+    somewhere a string can be reversed out. Passed in the outline's own units.
     """
     xs = [p[0] for p in outline]
     ys = [p[1] for p in outline]
     bbox = (max(xs) - min(xs)) * (max(ys) - min(ys))
     if bbox <= 0 or len(outline) > 12:
         return "field"
-    return "block" if _area(outline) / bbox >= 0.85 else "field"
+    solid = _area(outline) - sum(_area(ring) for ring in holes)
+    return "block" if solid / bbox >= 0.85 else "field"
 
 
 def _smoothness(points) -> float:
@@ -482,11 +646,34 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             f"dropped object back in the spec with nothing in the log to say so.")
     label_of = {c["key"]: c.get("class") for c in truth["components"]}
     min_region = int(float(truth["enumerate_min_frac"]) * w * h)
+    min_hole = int(MIN_HOLE_FRAC * w * h)
 
+    # Enumerated once and read twice. The second reader is the lettering map
+    # below, and re-running `components` for it would be both slow and a second
+    # chance for the two enumerations to drift apart -- the defect this fitter
+    # has already been bitten by, when verify()'s ground truth was indexed by a
+    # different list from the fields it scored.
+    parts_by_role = {role: components(lab == j, min_region) for role, j, _g in order}
+
+    # Which holes the label calls windows. Everything else stays filled.
+    hole_class = {c["key"]: c.get("class") for c in (truth.get("holes") or [])}
+    if "holes" not in truth:
+        raise SystemExit(
+            f"{folder.name}: print_truth.json carries no `holes` section. That "
+            f"is contract 1.8 -- run scripts/label_print.py --folder "
+            f"{folder.name} --init and classify them. Cutting every hole prints "
+            f"the reference's own lettering through our field.")
+    hole_min = float(truth.get("hole_min_frac", MIN_HOLE_FRAC))
+    if abs(hole_min - MIN_HOLE_FRAC) > 1e-12:
+        raise SystemExit(
+            f"{folder.name}: labelled at hole_min_frac {hole_min} against this "
+            f"fitter's {MIN_HOLE_FRAC}; the two sides would enumerate different "
+            f"holes. Re-run --init.")
+
+    holes_kept: dict[str, int] = {}
     for role, j, g in order:
-        mask = lab == j
         parts = []
-        for i, part in enumerate(components(mask, min_region)):
+        for i, part in enumerate(parts_by_role[role]):
             key = f"{role}#{i}"
             if key not in label_of:
                 raise SystemExit(
@@ -507,13 +694,21 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             if len(outline) < 8:
                 continue
             pts, used = _simplify_to_a_region(outline, w, h, SIMPLIFY_TOLERANCE)
+            holes, kept = trace_holes(part, w, h, min_hole, key, hole_class)
+            for cls, n in kept.items():
+                holes_kept[cls] = holes_kept.get(cls, 0) + n
             parts.append({
-                "kind": part_kind(pts),
+                "kind": part_kind(pts, holes),
                 **({"simplify_tolerance": round(used, 5)}
                    if used != SIMPLIFY_TOLERANCE else {}),
                 "area_pct": round(100 * part.sum() / (w * h), 1),
                 "smoothness": round(_smoothness(pts), 2),
                 "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in pts],
+                # Always present, empty where the part has none: contract 1.8
+                # makes this required so a spec written before it fails loudly
+                # rather than filling a shape's holes in silence.
+                "holes": [[[round(x / w, 4), round(y / h, 4)] for x, y in ring]
+                          for ring in holes],
             })
         if not parts:
             continue
@@ -531,7 +726,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             # rather than a convention it cannot see.
             "z": len(fields),
             "fill": _hex(g["colour"]),
-            "coverage_pct": round(100 * mask.sum() / (w * h), 1),
+            "coverage_pct": round(100 * (lab == j).sum() / (w * h), 1),
             "parts": parts,
         })
 
@@ -563,6 +758,11 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
         # which is the point of keeping `design_spec.v01.json` beside it.
         "components_dropped": dropped,
         "dropped_by_class": dropped_by_class,
+        # Not silent, for the same reason `dropped_by_class` is not: a hole the
+        # fitter declined to cut is a place where the spec deliberately draws
+        # over the reference, and the reader is entitled to see how often and
+        # on what grounds.
+        "holes_filled_by_class": holes_kept,
         "truth": TRUTH_NAME,
         "excluded": ("manufacturer logos and holographic elements are not "
                      "represented: the owner's decision, so the substrate shows "
@@ -594,15 +794,40 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     return spec
 
 
+def part_region(part: dict, w: int, h: int) -> Image.Image | None:
+    """The pixels a part covers: its outline MINUS its holes.
+
+    Contract 1.8. One place, because the alternative is what this project has
+    already paid for twice -- the spec's own raster, the QA target, the coverage
+    instrument and the driver each deciding for themselves what a part covers,
+    and a hole existing in some of them.
+
+    Returned as a 1-bit mask rather than drawn straight into the caller's image
+    so the fields can be composited in z order: a hole is a window onto whatever
+    was painted before it, which on these cartons is the board and on Adderall
+    another field.
+    """
+    poly = [(u * w, v * h) for u, v in (part.get("outline") or [])]
+    if len(poly) < 3:
+        return None
+    region = Image.new("1", (w, h), 0)
+    d = ImageDraw.Draw(region)
+    d.polygon(poly, fill=1)
+    for ring in part.get("holes") or []:
+        hole = [(u * w, v * h) for u, v in ring]
+        if len(hole) >= 3:
+            d.polygon(hole, fill=0)
+    return region
+
+
 def rasterise(spec: dict, w: int, h: int) -> Image.Image:
     """Draw the spec back out. This is what makes the spec checkable."""
     img = Image.new("RGB", (w, h), spec["substrate"])
-    d = ImageDraw.Draw(img)
     for f in spec["fields"]:
         for part in f["parts"]:
-            poly = [(u * w, v * h) for u, v in part["outline"]]
-            if len(poly) >= 3:
-                d.polygon(poly, fill=f["fill"])
+            region = part_region(part, w, h)
+            if region is not None:
+                img.paste(f["fill"], (0, 0), region)
     return img
 
 
@@ -615,14 +840,12 @@ def verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
     so a field whose fill happens to resemble its neighbour cannot score as a
     match it did not earn.
     """
-    idx = Image.new("I", (w, h), 255)
-    d = ImageDraw.Draw(idx)
+    spec_idx = np.full((h, w), 255, dtype=int)
     for n, f in enumerate(spec["fields"]):
         for part in f["parts"]:
-            poly = [(u * w, v * h) for u, v in part["outline"]]
-            if len(poly) >= 3:
-                d.polygon(poly, fill=n)
-    spec_idx = np.asarray(idx)
+            region = part_region(part, w, h)
+            if region is not None:
+                spec_idx[np.asarray(region)] = n
 
     truth = np.full((h, w), 255, dtype=int)
     for n, (role, j, _g) in enumerate(emitted):
@@ -649,7 +872,8 @@ def verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
             "excluded_as_glyphs_pct": (round(100 * float(dropped_mask.mean()), 2)
                                        if dropped_mask is not None else 0.0),
             "iou_by_field": per_field,
-            "vertices": sum(len(p["outline"]) for f in spec["fields"] for p in f["parts"])}
+            "vertices": sum(len(p["outline"]) + sum(len(r) for r in (p.get("holes") or []))
+                            for f in spec["fields"] for p in f["parts"])}
 
 
 def main() -> int:

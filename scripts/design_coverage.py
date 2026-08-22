@@ -97,7 +97,9 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.design_group import (  # noqa: E402
     FOLDER_BY_STEM, TEMPLATES_DIR, load_design, simple_ring,
 )
-from scripts.fit_design_spec import TRUTH_NAME, components, load_truth  # noqa: E402
+from scripts.fit_design_spec import (  # noqa: E402
+    TRUTH_NAME, components, load_truth, part_region,
+)
 from scripts.measure_reference_face import _hex, segment  # noqa: E402
 
 #: folder name -> catalogue SKU stem, the direction this script asks in.
@@ -109,19 +111,21 @@ SUBSTRATE = 255   # the index rasterise()/verify() leave wherever no field is dr
 def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     """Which field the spec draws at each pixel; `SUBSTRATE` where none.
 
-    The same even-odd polygon fill `fit_design_spec.verify()` scores against.
+    The same region fill `fit_design_spec.verify()` scores against -- outline
+    minus holes, even-odd within each ring, painted in the field list's order.
     Drawn as an INDEX rather than in colours because two fields may share a
     fill, and a colour match a field did not earn is precisely the error this
     whole exercise is about.
     """
-    idx = Image.new("I", (w, h), SUBSTRATE)
-    draw = ImageDraw.Draw(idx)
+    idx = np.full((h, w), SUBSTRATE, dtype=int)
     for n, field in enumerate(spec.get("fields") or []):
         for part in field.get("parts") or []:
-            poly = [(u * w, v * h) for u, v in part["outline"]]
-            if len(poly) >= 3:
-                draw.polygon(poly, fill=n)
-    return np.asarray(idx).astype(int)
+            # `part_region` and not a polygon fill, so this instrument and the
+            # spec's own raster cut holes the same way. Contract 1.8.
+            region = part_region(part, w, h)
+            if region is not None:
+                idx[np.asarray(region)] = n
+    return idx
 
 
 def truth_index(lab: np.ndarray, named: dict, roles: list):
@@ -221,12 +225,14 @@ def read_spec(folder: Path, name: str) -> dict:
     for field in spec.get("fields") or []:
         for part in field.get("parts") or []:
             outline = part.get("outline") or []
-            if len(outline) < 4:
-                continue
-            fixed = simple_ring(outline)
-            if len(fixed) != len(outline):
-                part["outline"] = [list(q) for q in fixed]
-                part["simplified_from"] = len(outline)
+            if len(outline) >= 4:
+                fixed = simple_ring(outline)
+                if len(fixed) != len(outline):
+                    part["outline"] = [list(q) for q in fixed]
+                    part["simplified_from"] = len(outline)
+            part["holes"] = [
+                [list(q) for q in (simple_ring(ring) if len(ring) >= 4 else ring)]
+                for ring in (part.get("holes") or [])]
     return spec
 
 

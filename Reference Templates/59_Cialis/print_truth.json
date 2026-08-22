@@ -35,6 +35,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -450,6 +452,143 @@
         0.3552
       ],
       "class": "type"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#2/hole#0",
+      "of": "brand#2",
+      "area_pct": 0.221,
+      "bbox_uv": [
+        0.65,
+        0.3165,
+        0.6818,
+        0.396
+      ],
+      "centroid_uv": [
+        0.6662,
+        0.3556
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#2/hole#1",
+      "of": "brand#2",
+      "area_pct": 0.165,
+      "bbox_uv": [
+        0.7509,
+        0.3309,
+        0.78,
+        0.4118
+      ],
+      "centroid_uv": [
+        0.7655,
+        0.3693
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#2/hole#2",
+      "of": "brand#2",
+      "area_pct": 0.147,
+      "bbox_uv": [
+        0.6991,
+        0.3353,
+        0.7464,
+        0.3916
+      ],
+      "centroid_uv": [
+        0.7226,
+        0.3604
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#2/hole#3",
+      "of": "brand#2",
+      "area_pct": 0.07,
+      "bbox_uv": [
+        0.6291,
+        0.3179,
+        0.6473,
+        0.396
+      ],
+      "centroid_uv": [
+        0.6391,
+        0.3556
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "highlight#0/hole#0",
+      "of": "highlight#0",
+      "area_pct": 0.029,
+      "bbox_uv": [
+        0.2864,
+        0.4538,
+        0.3064,
+        0.513
+      ],
+      "centroid_uv": [
+        0.2956,
+        0.4755
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "highlight#0/hole#1",
+      "of": "highlight#0",
+      "area_pct": 0.02,
+      "bbox_uv": [
+        0.3109,
+        0.4523,
+        0.3145,
+        0.5116
+      ],
+      "centroid_uv": [
+        0.3128,
+        0.4819
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "highlight#0/hole#2",
+      "of": "highlight#0",
+      "area_pct": 0.014,
+      "bbox_uv": [
+        0.3027,
+        0.4697,
+        0.3064,
+        0.5116
+      ],
+      "centroid_uv": [
+        0.3046,
+        0.4902
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "highlight#0/hole#3",
+      "of": "highlight#0",
+      "area_pct": 0.013,
+      "bbox_uv": [
+        0.2036,
+        0.2471,
+        0.2164,
+        0.2775
+      ],
+      "centroid_uv": [
+        0.2108,
+        0.2619
+      ],
+      "class": "blend"
     }
   ]
 }

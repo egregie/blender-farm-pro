@@ -101,7 +101,8 @@
               0.0164,
               0.0493
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "block",
@@ -144,7 +145,8 @@
               0.25,
               0.6948
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "block",
@@ -175,7 +177,8 @@
               0.9445,
               0.1103
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     }
@@ -184,6 +187,9 @@
   "dropped_by_class": {
     "type": 7,
     "blend": 1
+  },
+  "holes_filled_by_class": {
+    "lettering": 11
   },
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",

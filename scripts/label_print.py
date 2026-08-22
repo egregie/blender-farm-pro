@@ -93,7 +93,9 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR  # noqa: E402
-from scripts.fit_design_spec import TRUTH_NAME, components, load_truth  # noqa: E402
+from scripts.fit_design_spec import (  # noqa: E402
+    MIN_HOLE_FRAC, TRUTH_NAME, components, enclosed_background, load_truth,
+)
 from scripts.measure_reference_face import _hex, segment  # noqa: E402
 
 #: folder name -> catalogue SKU stem. `FOLDER_BY_STEM` runs the other way and
@@ -108,6 +110,57 @@ FOLDERS = sorted(STEM_BY_FOLDER, key=lambda n: int(n.split("_")[0]))
 
 CLASSES = ("print", "object", "type", "unrepresentable", "mark", "blend",
            "unclassified")
+
+#: The second population, added for contract 1.8: the HOLES inside a component
+#: classified `print`. Two classes, and they are told apart by looking:
+#:
+#:     window     the field is not there. Board, or another printed field: the
+#:                statement is about THIS field's absence, and what shows through
+#:                is whatever the paint order puts behind it. Adderall's brand
+#:                winds around a window covering 44.4% of the face, and filling
+#:                it is what made that one part enclose 9.07 times its own ink;
+#:                Kamagra's teal has a window where the salmon dosage badge sits.
+#:                The only class that is CUT.
+#:     lettering  the reference's own type, reversed out of the field. Board
+#:                shows through it on the photograph for the same reason it shows
+#:                through a window, and NOTHING in the segmentation tells them
+#:                apart -- both are board.
+#:     mark       a manufacturer's logo or a regulatory symbol sitting in the
+#:                field. Not cut either, and separate from `lettering` for the
+#:                same reason the component vocabulary keeps `mark` apart from
+#:                `type`: the owner excluded logos by decision, not because a
+#:                renderer draws them from a string. Ativan's Pfizer oval,
+#:                Adderall's C-II, Inderal's LCI roundel.
+#:     object     something lying in front of the carton, enclosed by a component
+#:                that reached around it. Not cut: the field continues underneath,
+#:                and what the photograph shows there is not the carton. All
+#:                twelve of `340_Xanax_Pfizer`'s holes are blister foil, reached
+#:                by the one-pixel thread that panel is already known for.
+#:     blend      an edge or a gradient, not a feature: the lit top edge of a
+#:                filled box, a hairline at the carton's own boundary. Not cut,
+#:                for the same reason the component class of that name exists.
+#:
+#: A person, because three instruments were tried and all three failed on real
+#: cartons. The share of the hole lying in a component already classified `type`
+#: separates 45 of 238 and misses the rest: Cialis's "1" is one stroke of "10 mg"
+#: and lands in the SUBSTRATE cluster, which is never enumerated. The reference's
+#: own OCR word boxes cover 131 and read NOTHING on `344_Modafinil_Generic`,
+#: whose ten holes spell "Modalert (R) 200" reversed out of a purple band. Size
+#: is the escape this project already removed once.
+#:
+#: The stake is the invariant, not the metric. `59-min` is a 20 mg Cialis and its
+#: reference photograph is a 10 mg pack; `344-min` is Modafinil Generic and its
+#: photograph is Modalert 200. Cutting those holes prints the other package's
+#: dosage and brand on our carton, in board, in the shape the photograph has --
+#: which is the same act as printing a plausible LOT, and this driver already
+#: refuses that.
+HOLE_CLASSES = ("window", "lettering", "mark", "object", "blend",
+                "unclassified")
+
+#: One hue per hole class, for the aid only.
+HOLE_TINT = {"window": (40, 170, 90), "lettering": (220, 90, 40),
+             "mark": (196, 150, 30), "object": (196, 84, 30),
+             "blend": (150, 150, 150), "unclassified": (222, 60, 60)}
 
 #: Enumerate down to this share of the face. Deliberately below
 #: `fit_design_spec.MIN_REGION_FRAC` (0.008), so the labelling covers components
@@ -164,6 +217,38 @@ def enumerate_components(folder: Path):
     return flat, records, residue, named, meta, source
 
 
+def enumerate_holes(folder: Path, records, known: dict):
+    """Every hole of every component classified `print`, largest first.
+
+    A hole in a component the label already dropped is not a question anyone has
+    to answer -- the component is not in the spec, so neither is its interior.
+    Keyed `role#i/hole#j` off the component's own key, so a hole is named by
+    something already stable rather than by a second enumeration of its own.
+    """
+    out = []
+    for r in records:
+        if known.get(r["key"]) != "print":
+            continue
+        part = r["_mask"]
+        h, w = part.shape
+        total = float(w * h)
+        min_px = int(MIN_HOLE_FRAC * total)
+        for j, hole in enumerate(enclosed_background(part)):
+            if hole.sum() < min_px:
+                continue
+            ys, xs = np.nonzero(hole)
+            out.append({
+                "key": f'{r["key"]}/hole#{j}',
+                "of": r["key"],
+                "area_pct": round(100.0 * float(hole.sum()) / total, 3),
+                "bbox_uv": [round(float(xs.min()) / w, 4), round(float(ys.min()) / h, 4),
+                            round(float(xs.max()) / w, 4), round(float(ys.max()) / h, 4)],
+                "centroid_uv": [round(float(xs.mean()) / w, 4), round(float(ys.mean()) / h, 4)],
+                "_mask": hole,
+            })
+    return out
+
+
 def truth_path(folder: Path) -> Path:
     return folder / TRUTH_NAME
 
@@ -185,6 +270,24 @@ def init(folder: Path) -> dict:
             **({"reason": prior["reason"]} if prior.get("reason") else {}),
             **({"note": prior["note"]} if prior.get("note") else {}),
         })
+    known = {c["key"]: c.get("class", "unclassified") for c in out}
+    holes_old = {c["key"]: c for c in previous.get("holes", [])}
+    holes = []
+    for r in enumerate_holes(folder, records, known):
+        prior = holes_old.get(r["key"], {})
+        holes.append({
+            "key": r["key"], "of": r["of"], "area_pct": r["area_pct"],
+            "bbox_uv": r["bbox_uv"], "centroid_uv": r["centroid_uv"],
+            "class": prior.get("class", "unclassified"),
+            **({"reason": prior["reason"]} if prior.get("reason") else {}),
+        })
+    hseen = {r["key"] for r in holes}
+    for key, prior in holes_old.items():
+        if key not in hseen:
+            prior = dict(prior)
+            prior["vanished"] = True
+            holes.append(prior)
+
     seen = {r["key"] for r in records}
     # A label whose component is gone is KEPT and flagged. Deleting it would erase
     # the evidence that the partition moved under it.
@@ -205,6 +308,13 @@ def init(folder: Path) -> dict:
         "residue_pct_by_role": residue,
         "classes": list(CLASSES),
         "components": out,
+        # Contract 1.8's second population. `hole_min_frac` travels with it for
+        # the same reason `enumerate_min_frac` does: both sides have to
+        # enumerate identically, and a floor read out of the truth file cannot
+        # drift from the one the labelling was made at.
+        "hole_classes": list(HOLE_CLASSES),
+        "hole_min_frac": MIN_HOLE_FRAC,
+        "holes": holes,
     }
     truth_path(folder).write_text(
         json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -224,12 +334,26 @@ def set_classes(folder: Path, assignments: dict, rest: str | None) -> dict:
     if doc is None:
         raise SystemExit(f"{folder.name}: run --init first")
     by_key = {c["key"]: c for c in doc["components"]}
-    unknown = [k for k in assignments if k not in by_key]
+    # Holes are keyed `role#i/hole#j` and cannot collide with a component key,
+    # so one dict serves both populations and the caller never has to say which
+    # it means. Their vocabulary is different, and the check below reads the
+    # vocabulary off the key.
+    holes_by_key = {c["key"]: c for c in doc.get("holes", [])}
+    unknown = [k for k in assignments if k not in by_key and k not in holes_by_key]
     if unknown:
         raise SystemExit(f"{folder.name}: no such component(s): {' '.join(unknown)}")
 
     for key, value in assignments.items():
         cls, _, reason = value.partition(":")
+        if key in holes_by_key:
+            if cls not in HOLE_CLASSES[:-1]:
+                raise SystemExit(
+                    f"{folder.name}: {key}={cls} is not one of {HOLE_CLASSES[:-1]}")
+            hole = holes_by_key[key]
+            hole["class"] = cls
+            if reason:
+                hole["reason"] = reason
+            continue
         if cls not in CLASSES[:-1]:
             raise SystemExit(f"{folder.name}: {key}={cls} is not one of {CLASSES[:-1]}")
         comp = by_key[key]
@@ -242,9 +366,12 @@ def set_classes(folder: Path, assignments: dict, rest: str | None) -> dict:
         # Same "class:reason" form as --set, because the sweep lands on
         # `unrepresentable` and `mark` too, and both require a reason.
         rest_cls, _, rest_reason = rest.partition(":")
-        if rest_cls not in CLASSES[:-1]:
-            raise SystemExit(f"--rest {rest_cls} is not one of {CLASSES[:-1]}")
-        for comp in doc["components"]:
+        pool = (doc.get("holes", []) if rest_cls in HOLE_CLASSES[:-1]
+                else doc["components"])
+        if rest_cls not in CLASSES[:-1] and rest_cls not in HOLE_CLASSES[:-1]:
+            raise SystemExit(f"--rest {rest_cls} is not one of "
+                             f"{CLASSES[:-1]} or {HOLE_CLASSES[:-1]}")
+        for comp in pool:
             if not comp.get("vanished") and comp.get("class") == "unclassified":
                 comp["class"] = rest_cls
                 if rest_reason:
@@ -270,21 +397,40 @@ def verify(folder: Path) -> tuple[bool, str]:
                if c.get("class") in ("unrepresentable", "mark") and not c.get("reason")]
     if missing:
         return False, f"unrepresentable/mark without a reason: {' '.join(missing)}"
+    if "holes" not in doc:
+        return False, "no `holes` section — re-run --init for contract 1.8"
+    bad = [c["key"] for c in doc.get("holes", [])
+           if not c.get("vanished") and c.get("class") not in HOLE_CLASSES[:-1]]
+    if bad:
+        return False, f"{len(bad)} hole(s) still unclassified: {' '.join(bad[:6])}"
     return True, "ok"
 
 
-def aid(folder: Path, out_dir: Path) -> Path:
-    """Draw the face, and the face with every component tinted and named."""
+def aid(folder: Path, out_dir: Path, holes_only: bool = False) -> Path:
+    """Draw the face, and the face with every component tinted and named.
+
+    `holes_only` draws the second population instead: the holes inside the
+    components already called `print`, tinted and named in their own vocabulary.
+    A hole is told from a window BY LOOKING -- the two are the same pixels to
+    every instrument tried -- so it has to be legible at the size a letter is.
+    """
     flat, records, residue, _named, _meta, _source = enumerate_components(folder)
     doc = load_truth(folder) or {}
     known = {c["key"]: c.get("class", "unclassified") for c in doc.get("components", [])}
     w, h = flat.width, flat.height
 
+    if holes_only:
+        records = enumerate_holes(folder, records, known)
+        known = {c["key"]: c.get("class", "unclassified") for c in doc.get("holes", [])}
+        palette = HOLE_TINT
+    else:
+        palette = TINT
+
     over = flat.convert("RGB").copy()
     tint = np.asarray(over).astype(float)
     for r in records:
-        col = np.array(TINT.get(known.get(r["key"], "unclassified"), TINT["unclassified"]),
-                       dtype=float)
+        col = np.array(palette.get(known.get(r["key"], "unclassified"),
+                                   palette["unclassified"]), dtype=float)
         m = r["_mask"]
         tint[m] = 0.45 * tint[m] + 0.55 * col
     over = Image.fromarray(tint.astype("uint8"))
@@ -305,12 +451,12 @@ def aid(folder: Path, out_dir: Path) -> Path:
     card = Image.new("RGB", (w + 2 * pad, head + h * 2 + pad * 3), (250, 250, 248))
     cd = ImageDraw.Draw(card)
     cd.text((pad, 12), f"{folder.name}   ({STEM_BY_FOLDER.get(folder.name)})   "
-                       f"{len(records)} component(s)",
+                       f"{len(records)} {'hole' if holes_only else 'component'}(s)",
             font=ImageFont.truetype(str(FONT), 26), fill=(18, 18, 22))
     card.paste(flat.convert("RGB"), (pad, head))
     card.paste(over, (pad, head + h + pad))
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"{folder.name}.label.png"
+    path = out_dir / f"{folder.name}.{'holes' if holes_only else 'label'}.png"
     card.save(path)
     return path
 
@@ -346,6 +492,8 @@ def main() -> int:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--folder", action="append", help="one folder name; repeatable")
     p.add_argument("--aid", metavar="DIR", help="write the labelling aid images here")
+    p.add_argument("--holes", action="store_true",
+                   help="with --aid, draw the HOLES inside the print components")
     p.add_argument("--init", action="store_true", help="write/merge print_truth.json")
     p.add_argument("--ceiling", action="store_true", help="report the class shares")
     p.add_argument("--set", action="append", metavar="KEY=CLASS[:REASON]",
@@ -384,7 +532,7 @@ def main() -> int:
     if args.aid:
         out = Path(args.aid)
         for folder in folders:
-            print(f"{folder.name:24s} -> {aid(folder, out).name}")
+            print(f"{folder.name:24s} -> {aid(folder, out, args.holes).name}")
 
     if args.verify:
         bad = 0

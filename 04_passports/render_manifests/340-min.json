@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.7",
+  "manifest_version": "1.8",
   "sku_id": "340-min.jpg",
   "product_code": "340-min",
   "template_id": "T1",
@@ -996,6 +996,7 @@
                 0.0245
               ]
             ],
+            "holes": [],
             "simplified_from": 241
           }
         ]

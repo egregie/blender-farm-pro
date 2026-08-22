@@ -34,6 +34,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -448,6 +450,79 @@
         0.369
       ],
       "class": "type"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#0/hole#0",
+      "of": "brand#0",
+      "area_pct": 0.305,
+      "bbox_uv": [
+        0.3445,
+        0.5582,
+        0.3973,
+        0.6273
+      ],
+      "centroid_uv": [
+        0.371,
+        0.5925
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#0/hole#1",
+      "of": "brand#0",
+      "area_pct": 0.188,
+      "bbox_uv": [
+        0.4955,
+        0.5809,
+        0.5382,
+        0.6409
+      ],
+      "centroid_uv": [
+        0.5159,
+        0.6113
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#0/hole#2",
+      "of": "brand#0",
+      "area_pct": 0.181,
+      "bbox_uv": [
+        0.2882,
+        0.5582,
+        0.3364,
+        0.6264
+      ],
+      "centroid_uv": [
+        0.3127,
+        0.5945
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#0/hole#3",
+      "of": "brand#0",
+      "area_pct": 0.162,
+      "bbox_uv": [
+        0.4264,
+        0.5809,
+        0.4891,
+        0.6255
+      ],
+      "centroid_uv": [
+        0.4575,
+        0.6012
+      ],
+      "class": "lettering"
     }
   ]
 }

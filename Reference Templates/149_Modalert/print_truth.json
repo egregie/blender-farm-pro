@@ -34,6 +34,8 @@
     "object",
     "type",
     "unrepresentable",
+    "mark",
+    "blend",
     "unclassified"
   ],
   "components": [
@@ -224,6 +226,191 @@
         0.4906
       ],
       "class": "type"
+    }
+  ],
+  "hole_classes": [
+    "window",
+    "lettering",
+    "mark",
+    "unclassified"
+  ],
+  "hole_min_frac": 0.0001,
+  "holes": [
+    {
+      "key": "brand#1/hole#0",
+      "of": "brand#1",
+      "area_pct": 0.537,
+      "bbox_uv": [
+        0.2445,
+        0.7606,
+        0.3145,
+        0.8944
+      ],
+      "centroid_uv": [
+        0.2803,
+        0.8248
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#1",
+      "of": "brand#1",
+      "area_pct": 0.432,
+      "bbox_uv": [
+        0.6736,
+        0.77,
+        0.7145,
+        0.9014
+      ],
+      "centroid_uv": [
+        0.694,
+        0.8359
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#2",
+      "of": "brand#1",
+      "area_pct": 0.426,
+      "bbox_uv": [
+        0.7182,
+        0.77,
+        0.7582,
+        0.9014
+      ],
+      "centroid_uv": [
+        0.738,
+        0.836
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#3",
+      "of": "brand#1",
+      "area_pct": 0.378,
+      "bbox_uv": [
+        0.3591,
+        0.7606,
+        0.4018,
+        0.8967
+      ],
+      "centroid_uv": [
+        0.3822,
+        0.8403
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#4",
+      "of": "brand#1",
+      "area_pct": 0.33,
+      "bbox_uv": [
+        0.6255,
+        0.77,
+        0.67,
+        0.8991
+      ],
+      "centroid_uv": [
+        0.6491,
+        0.8378
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#5",
+      "of": "brand#1",
+      "area_pct": 0.321,
+      "bbox_uv": [
+        0.5691,
+        0.7347,
+        0.6082,
+        0.8333
+      ],
+      "centroid_uv": [
+        0.5884,
+        0.7854
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#6",
+      "of": "brand#1",
+      "area_pct": 0.315,
+      "bbox_uv": [
+        0.5045,
+        0.7864,
+        0.5591,
+        0.8991
+      ],
+      "centroid_uv": [
+        0.5324,
+        0.8481
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#7",
+      "of": "brand#1",
+      "area_pct": 0.304,
+      "bbox_uv": [
+        0.3145,
+        0.8052,
+        0.3555,
+        0.8967
+      ],
+      "centroid_uv": [
+        0.3348,
+        0.8514
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#8",
+      "of": "brand#1",
+      "area_pct": 0.279,
+      "bbox_uv": [
+        0.4018,
+        0.8075,
+        0.44,
+        0.8967
+      ],
+      "centroid_uv": [
+        0.4211,
+        0.8535
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#9",
+      "of": "brand#1",
+      "area_pct": 0.231,
+      "bbox_uv": [
+        0.4655,
+        0.8099,
+        0.5018,
+        0.8991
+      ],
+      "centroid_uv": [
+        0.4827,
+        0.8527
+      ],
+      "class": "lettering"
+    },
+    {
+      "key": "brand#1/hole#10",
+      "of": "brand#1",
+      "area_pct": 0.196,
+      "bbox_uv": [
+        0.4427,
+        0.7629,
+        0.4645,
+        0.8991
+      ],
+      "centroid_uv": [
+        0.4534,
+        0.8298
+      ],
+      "class": "lettering"
     }
   ]
 }

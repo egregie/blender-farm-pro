@@ -509,7 +509,8 @@
               0.3291,
               0.0101
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "field",
@@ -1104,7 +1105,8 @@
               0.9982,
               0.6777
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "block",
@@ -1151,7 +1153,8 @@
               0.7627,
               0.2962
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     },
@@ -2830,7 +2833,8 @@
               0.2273,
               0.2139
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "field",
@@ -3229,7 +3233,8 @@
               0.8855,
               0.5506
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "field",
@@ -3420,7 +3425,8 @@
               0.1,
               0.1272
             ]
-          ]
+          ],
+          "holes": []
         },
         {
           "kind": "field",
@@ -3667,7 +3673,8 @@
               0.0,
               0.0014
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     }
@@ -3677,6 +3684,10 @@
     "type": 12,
     "mark": 2,
     "object": 3
+  },
+  "holes_filled_by_class": {
+    "lettering": 7,
+    "blend": 1
   },
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",

@@ -125,7 +125,8 @@
               0.9727,
               0.6739
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     },
@@ -188,7 +189,8 @@
               0.0,
               0.0018
             ]
-          ]
+          ],
+          "holes": []
         }
       ]
     }
@@ -197,6 +199,9 @@
   "dropped_by_class": {
     "unrepresentable": 1,
     "type": 16
+  },
+  "holes_filled_by_class": {
+    "lettering": 3
   },
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
