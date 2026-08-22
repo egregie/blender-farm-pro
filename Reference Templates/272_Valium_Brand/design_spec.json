@@ -15,10 +15,14 @@
         {
           "kind": "field",
           "area_pct": 3.1,
-          "smoothness": 0.0,
+          "smoothness": 0.43,
           "outline": [
             [
               0.8945,
+              0.137
+            ],
+            [
+              0.9027,
               0.137
             ],
             [
@@ -26,8 +30,24 @@
               0.2215
             ],
             [
+              0.9609,
+              0.2329
+            ],
+            [
+              0.9436,
+              0.2991
+            ],
+            [
               0.9355,
               0.3379
+            ],
+            [
+              0.9245,
+              0.3447
+            ],
+            [
+              0.9091,
+              0.347
             ],
             [
               0.8355,
@@ -38,8 +58,16 @@
               0.2854
             ],
             [
+              0.8036,
+              0.1804
+            ],
+            [
               0.8082,
               0.1689
+            ],
+            [
+              0.8464,
+              0.153
             ],
             [
               0.8936,
@@ -59,11 +87,11 @@
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.9988,
+    "pixel_agreement": 0.9992,
     "excluded_as_glyphs_pct": 15.28,
     "iou_by_field": {
-      "brand": 0.966
+      "brand": 0.978
     },
-    "vertices": 7
+    "vertices": 14
   }
 }

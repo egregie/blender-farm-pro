@@ -15,11 +15,15 @@
         {
           "kind": "block",
           "area_pct": 0.1,
-          "smoothness": 0.17,
+          "smoothness": 0.1,
           "outline": [
             [
               0.9445,
               0.1831
+            ],
+            [
+              0.9791,
+              0.1886
             ],
             [
               0.9827,
@@ -30,12 +34,24 @@
               0.2552
             ],
             [
+              0.9782,
+              0.2607
+            ],
+            [
+              0.9436,
+              0.258
+            ],
+            [
               0.9391,
               0.2552
             ],
             [
               0.9391,
               0.1886
+            ],
+            [
+              0.94,
+              0.1859
             ],
             [
               0.9436,
@@ -53,11 +69,11 @@
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.9981,
+    "pixel_agreement": 0.9984,
     "excluded_as_glyphs_pct": 6.9,
     "iou_by_field": {
-      "highlight": 0.333
+      "highlight": 0.422
     },
-    "vertices": 6
+    "vertices": 10
   }
 }

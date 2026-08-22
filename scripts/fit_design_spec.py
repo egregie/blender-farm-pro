@@ -34,6 +34,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.design_group import RingRepairFailed, simple_ring  # noqa: E402
 from scripts.measure_reference_face import (  # noqa: E402
     TEMPLATES_DIR, _hex, segment,
 )
@@ -90,8 +91,30 @@ MIN_FILL_CONTRAST = 0.08
 # its face and Xanax Pfizer's magenta panel 3.2%. They separate on this ratio at
 # 0.49 against 0.96.
 BOX_FILL_MIN = 0.85
-SIMPLIFY_TOLERANCE = 0.004  # Douglas-Peucker, in face widths
+# Douglas-Peucker, in face widths, and the value is measured rather than chosen.
+# Against the raw trace the simplification loses, area-weighted over the group's
+# 74 printed parts: 2.316% at 0.004, 1.354% at 0.002, 0.891% at 0.001, 0.148% at
+# 0.0005. It is the dominant error in the spec's geometry -- larger than anything
+# the vocabulary itself costs -- and it is paid for in vertices: 1479, 2550,
+# 4721, 15501.
+#
+# 0.001 is where the two curves cross for this project. It removes 62% of the
+# loss for 3.2x the vertices; 0.0005 removes 94% for 10.5x, and at that size the
+# ring repair starts costing seconds per `load_design`.
+#
+# NOT a curve problem, which is what this was expected to be. A cubic fit was
+# built and measured against the same traces: it needs 3.5x MORE control points
+# than the polyline at WORSE and unstable accuracy (Kamagra 3007 points at 0.995
+# against 1172 at 1.000; Adderall between 0.216 and 0.787 depending on
+# pre-smoothing). These outlines are boundaries of RASTER regions -- long
+# near-straight runs carrying pixel noise -- which is Douglas-Peucker's home
+# ground and a cubic's worst case.
+SIMPLIFY_TOLERANCE = 0.001
 SMOOTH_TURN_DEG = 25.0      # a vertex turning less than this reads as a curve
+
+# How far the tolerance may be relaxed for a part whose ring will not simplify
+# into a region. See `_simplify_to_a_region`.
+SIMPLIFY_BACKOFF_MAX = 0.02
 
 
 def _neighbours(y, x):
@@ -227,6 +250,47 @@ def simplify(points, tol):
             stack.append((i, wi))
             stack.append((wi, j))
     return [p for p, k in zip(points, keep) if k]
+
+
+def _simplify_to_a_region(outline, w, h, start):
+    """Simplify as finely as this shape allows, and say when that was not finely.
+
+    A tolerance FINER than a part is thick starts resolving the two sides of a
+    strip separately, and they interleave: Ritalin's `highlight#1` is 2.7px wide
+    and simplifies at 0.004 into a clean 7-vertex ring, while at 0.001 it becomes
+    22 vertices crossing themselves six times -- a ring that describes no region
+    at all. Coarser is SAFER for a strip, which is the opposite of the intuition
+    a tolerance usually carries.
+
+    There is no single tolerance that serves both: flooring it at each part's own
+    width (2*area/perimeter) destroys the large fields, which have a large
+    inradius -- measured, 16.567% of the printed area against 0.891%. The two
+    requirements pull apart because a closed outline is the wrong primitive for a
+    strip, and no choice of constant repairs that.
+
+    So the tolerance is per part: start where the group is best served and back
+    off, doubling, until the ring is a region. Across the 74 printed parts
+    exactly ONE backs off -- Ritalin's strip, to 0.002 -- so this is a named
+    exception rather than a policy of giving up.
+
+    Returns (points, tolerance_used).
+    """
+    frac = start
+    while True:
+        pts = simplify(outline, frac * w)
+        ring = [(x / w, y / h) for x, y in pts]
+        if len(ring) < 4:
+            return pts, frac
+        try:
+            simple_ring(ring)
+            return pts, frac
+        except RingRepairFailed:
+            frac *= 2
+            if frac > SIMPLIFY_BACKOFF_MAX:
+                # Out of room. Return it anyway: `validate_manifest` rejects a
+                # tangled outline by name on write, which is a better place to
+                # stop than a silent shrug here.
+                return pts, frac
 
 
 def _area(points) -> float:
@@ -381,7 +445,6 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     dropped = 0
     dropped_by_class: dict[str, int] = {}
     kept_mask = np.zeros((h, w), bool)
-    tol = SIMPLIFY_TOLERANCE * w
     # PHASE B. Where a folder carries `print_truth.json`, the hand-made label is
     # the ONLY test, and every heuristic below it is bypassed.
     #
@@ -443,9 +506,11 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             outline = trace_outline(part)
             if len(outline) < 8:
                 continue
-            pts = simplify(outline, tol)
+            pts, used = _simplify_to_a_region(outline, w, h, SIMPLIFY_TOLERANCE)
             parts.append({
                 "kind": part_kind(pts),
+                **({"simplify_tolerance": round(used, 5)}
+                   if used != SIMPLIFY_TOLERANCE else {}),
                 "area_pct": round(100 * part.sum() / (w * h), 1),
                 "smoothness": round(_smoothness(pts), 2),
                 "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in pts],
