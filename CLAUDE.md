@@ -288,18 +288,54 @@ disk are rejected until Stage 1 regenerates them.
   throws vertices away deliberately, and to `_despeckle`; it is not the storage's, and this
   change neither repairs nor disturbs it.
 
-  **It is `snap_to_trace=True` on the one caller, and DEFAULT OFF, deliberately.**
-  `rasterise()` and `verify()` read the same function, so switching every caller moves the
-  `verification.pixel_agreement` a future fit would write (+0.00 to +0.42 points, monotone
-  up, mean +0.14) and the target `design_qa` scores a render against. That second figure is
-  very nearly blind to the defect by construction — its seam exclusion already discards one
-  pixel either side of every region boundary, which is exactly where these pixels are: of
-  the 0.268% of a face that moves, **0.0% survives that band on 25 of the 28 cartons**,
-  31.4% on `365-min` and 8.9% on `404-min`. Moving those two figures means re-rendering and
-  re-publishing them, which is separate work from repairing the instrument that reads them.
-  A test pins the default so it cannot drift, and another pins that the snap is an INVERSE
-  rather than a general improvement: handed a shape whose corners really do fall between
-  pixels, it displaces them.
+  **It ships for all three readers, and the switch that let them differ is gone.** It landed
+  first on `design_coverage` alone, with `rasterise()` and `verify()` left on the old
+  reconstruction so that two published figures would not move inside a commit about a third.
+  Both were then retaken deliberately. A default that rebuilds a region somewhere other than
+  where it was measured is not a default anyone should be able to take by accident, and a
+  reader holding its own idea of what a part covers is the defect `part_region` exists to
+  prevent.
+
+  **A re-fit was measured before it was run, and it changes the `verification` block and
+  nothing else.** `fit()` rewrites `design_spec.json` wholesale, which is how
+  `measure_type_rows`' work was once silently deleted, so the dry run compared every key of
+  a fresh spec against the one on disk across all 28: outlines, holes, fields, `type_rows`,
+  `face_aspect`, `substrate` — identical on every carton, with only `pixel_agreement` and
+  `iou_by_field` moving. The real run then changed 62 lines in 25 files and no others.
+  `pixel_agreement` +0.00 to +0.38, mean +0.131, monotone up, group **99.10% → 99.23%**;
+  the three cartons with no field were already at 1.0000 and stay there.
+
+  This is the one place the rule "never rewrite `verification.pixel_agreement`" is set
+  aside, and the reason is that the rule protects a RECORD OF A MEASUREMENT — while what
+  stood in those 25 files was the record of a broken one. `iou_by_field` mattered more than
+  the headline: `design_coverage.print_iou` is built from it, so that figure was being
+  computed from displaced regions too, and it moved on **every one of the 25**, group
+  **67.08% → 67.96%**, nothing regressing — `304-min` +5.09, `134-min` +2.90, `155-min`
+  +2.54.
+
+  **`design_qa` moved least of the three, and the one carton it cost was named in advance.**
+  Its figures were retaken twice over the SAME renders — once with the old reconstruction
+  restored — because `design_qa.json` was written on 2026-08-19 and five driver commits, a
+  re-measured calibration curve and this re-fit all landed after it, so a single fresh report
+  attributes nothing. Holding the pixels fixed, the reconstruction is worth a mean of +0.06
+  on `render~spec`, +0.34 on `field_iou_worst` and +0.03 on `render~ref`, and it costs
+  `365-min` **1.30 points** of its worst field, 0.996 → 0.983. That is the carton the
+  seam-band measurement had already picked out: of the pixels a face moves, 0.0% survive
+  `design_qa`'s own exclusion on 25 of the 28, 31.4% on `365-min` and 8.9% on `404-min` —
+  and `404-min` came out at +0.00 on every field, so the prediction was right about which
+  cartons were exposed and pessimistic about the second. `59-min` gains 2.60 and 6.30 on its
+  two fields, `304-min` 1.60, `150-min` 1.00.
+
+  **`spec_vs_reference` is not a `design_qa` computation at all** and moves by exactly zero
+  here: it is the stored `verification.pixel_agreement` read back off the spec, so it
+  carries the re-fit's number and never touches `part_region`. Worth stating because the
+  column sits in the same table as three figures that do.
+
+  And the rest of what a fresh report shows is NOT this change: `357-min` gains 80.30 points
+  of worst field and `362-min` 88.10 against the August file, which is the clearing search
+  and contract 1.8 becoming visible in a report that had not been run since before either.
+  The two runs separate the reconstruction from everything else; they do not separate the
+  driver from the curve from the re-fit, and nothing here claims they do.
 
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the
@@ -466,9 +502,15 @@ The Blender roadmap exists only in `06_docs/experiments/`, despite a stale cross
 `NEXT_STEPS.md` claiming otherwise.
 
 **`design_qa`'s headline agreement is area-weighted, and a substrate is 55–99.9% of these
-faces. Read `field_iou_worst`.** Ranked by agreement, Ritalin is the best carton in the
-group at 99.9%; ranked by its fields it is seventh, and Cialis — the worst agreement — is
-second. Agreement is largely a statement about the board.
+faces. Read `field_iou_worst`.** **Thirteen of the 25 cartons that carry a field round to
+100.0% agreement**, and their worst fields run from 93.3% to 100.0%: `155-min` reads 99.96%
+while the field it matches worst reaches 93.3%, twentieth of the 25. Agreement is largely a
+statement about the board.
+
+(Illustrated until 2026-08-23 with Ritalin the best carton by agreement and Cialis the
+worst, measured on the eleven-carton group and the previous photography. Neither survives
+the move to 28 cartons: Ritalin now ranks nineteenth by agreement and Cialis twenty-third,
+and the worst is `357-min` at 93.1%. The reading the paragraph exists for is unchanged.)
 
 **Every figure reads `scored_mask()`, and adding a fourth caller was the fix.** The dark
 cut drops any pixel under 0.30 so printed TYPE stays out — our render prints it, the spec

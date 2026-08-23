@@ -304,11 +304,11 @@
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.9957,
+    "pixel_agreement": 0.9982,
     "excluded_as_glyphs_pct": 9.98,
     "iou_by_field": {
-      "highlight": 0.99,
-      "type": 0.904
+      "highlight": 0.996,
+      "type": 0.907
     },
     "vertices": 61
   },

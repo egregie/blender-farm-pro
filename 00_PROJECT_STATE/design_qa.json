@@ -7,54 +7,54 @@
       "separable": true,
       "palette_on_line": 0.0636,
       "palette_on_line_who": "substrate on brand-highlight",
-      "edge_dropped": 0.0454,
+      "edge_dropped": 0.0503,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0999,
-        "blur": 0.0732
+        "plane": 0.0968,
+        "blur": 0.0754
       },
       "render_vs_spec": {
-        "agreement": 0.9848,
+        "agreement": 0.9904,
         "iou": {
-          "0": 0.988,
-          "1": 0.957,
-          "2": 0.94
+          "0": 0.994,
+          "1": 0.968,
+          "2": 0.963
         }
       },
-      "field_iou_worst": 0.94,
-      "agreement_spread": 0.0131,
+      "field_iou_worst": 0.963,
+      "agreement_spread": 0.0173,
       "colour_error_by_region": {
-        "0": 0.1585,
-        "1": 0.1572,
-        "2": 0.1168
+        "0": 0.1627,
+        "1": 0.1414,
+        "2": 0.1116
       },
-      "colour_error_worst": 0.1585,
+      "colour_error_worst": 0.1627,
       "response": {
         "gain": [
-          1.287,
-          1.294,
-          1.398
+          1.256,
+          1.252,
+          1.367
         ],
         "lift": [
-          -0.14,
-          -0.144,
-          -0.21
+          -0.116,
+          -0.113,
+          -0.189
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0455,
-        "1": 0.0076,
-        "2": 0.0384
+        "0": 0.0499,
+        "1": 0.0085,
+        "2": 0.0419
       },
-      "colour_residual_worst": 0.0455,
-      "spec_vs_reference": 0.8819,
-      "field_kept_min": 0.8455,
+      "colour_residual_worst": 0.0499,
+      "spec_vs_reference": 0.9877,
+      "field_kept_min": 0.9113,
       "render_vs_reference": {
-        "agreement": 0.811,
+        "agreement": 0.823,
         "iou": {
-          "0": 0.681,
-          "1": 0.835,
-          "2": 0.566
+          "0": 0.688,
+          "1": 0.867,
+          "2": 0.576
         }
       }
     },
@@ -65,54 +65,54 @@
       "separable": true,
       "palette_on_line": 0.5125,
       "palette_on_line_who": "brand on substrate-highlight",
-      "edge_dropped": 0.0196,
+      "edge_dropped": 0.0207,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0961,
-        "blur": 0.0791
+        "plane": 0.0846,
+        "blur": 0.0842
       },
       "render_vs_spec": {
-        "agreement": 0.9991,
+        "agreement": 0.9993,
         "iou": {
           "0": 0.999,
-          "1": 0.995,
-          "2": 0.99
+          "1": 1.0,
+          "2": 0.989
         }
       },
-      "field_iou_worst": 0.99,
+      "field_iou_worst": 0.989,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1865,
-        "1": 0.1458,
-        "2": 0.057
+        "0": 0.188,
+        "1": 0.1282,
+        "2": 0.0504
       },
-      "colour_error_worst": 0.1865,
+      "colour_error_worst": 0.188,
       "response": {
         "gain": [
-          1.266,
-          1.212,
-          1.222
+          1.242,
+          1.192,
+          1.221
         ],
         "lift": [
-          -0.096,
-          -0.055,
-          -0.073
+          -0.085,
+          -0.045,
+          -0.072
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0128,
-        "1": 0.0197,
-        "2": 0.011
+        "0": 0.0015,
+        "1": 0.0047,
+        "2": 0.0041
       },
-      "colour_residual_worst": 0.0197,
-      "spec_vs_reference": 0.9167,
-      "field_kept_min": 0.9017,
+      "colour_residual_worst": 0.0047,
+      "spec_vs_reference": 0.9984,
+      "field_kept_min": 0.9444,
       "render_vs_reference": {
-        "agreement": 0.9663,
+        "agreement": 0.9471,
         "iou": {
-          "0": 0.962,
-          "1": 0.85,
-          "2": 0.743
+          "0": 0.94,
+          "1": 0.693,
+          "2": 0.718
         }
       }
     },
@@ -121,218 +121,123 @@
       "folder": "62_Cialis_Super_Active",
       "palette_closest_pair": 0.631,
       "separable": true,
-      "palette_on_line": 0.403,
-      "palette_on_line_who": "brand on substrate-type",
-      "edge_dropped": 0.0331,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0274,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0866,
-        "blur": 0.0853
+        "plane": 0.069,
+        "blur": 0.064
       },
       "render_vs_spec": {
-        "agreement": 0.9996,
+        "agreement": 0.9988,
         "iou": {
-          "0": 1.0,
-          "1": 0.998,
-          "2": 0.996
+          "0": 0.998,
+          "1": 0.995
         }
       },
-      "field_iou_worst": 0.996,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": 0.995,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1331,
-        "1": 0.0667,
-        "2": 0.0544
+        "0": 0.1295,
+        "1": 0.0721
       },
-      "colour_error_worst": 0.1331,
-      "response": {
-        "gain": [
-          1.151,
-          1.179,
-          1.179
-        ],
-        "lift": [
-          -0.063,
-          -0.078,
-          -0.071
-        ]
-      },
-      "colour_residual_by_region": {
-        "0": 0.0118,
-        "1": 0.0138,
-        "2": 0.0053
-      },
-      "colour_residual_worst": 0.0138,
-      "spec_vs_reference": 0.9435,
-      "field_kept_min": 0.863,
+      "colour_error_worst": 0.1295,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.998,
+      "field_kept_min": 0.8888,
       "render_vs_reference": {
-        "agreement": 0.9681,
+        "agreement": 0.9678,
         "iou": {
           "0": 0.957,
-          "1": 0.909,
-          "2": 0.631
+          "1": 0.884
         }
       }
     },
     {
       "sku": "64-min",
-      "folder": "64_Kamagra_Template_Reference",
+      "folder": "64_Kamagra",
       "palette_closest_pair": 0.1221,
       "separable": true,
       "palette_on_line": 0.0842,
       "palette_on_line_who": "brand on substrate-highlight",
-      "edge_dropped": 0.03,
+      "edge_dropped": 0.0327,
       "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.0708,
-        "blur": 0.098
+        "plane": 0.071,
+        "blur": 0.0993
       },
       "render_vs_spec": {
-        "agreement": 0.9881,
+        "agreement": 0.9914,
         "iou": {
-          "0": 0.985,
-          "1": 0.977,
-          "2": 0.951
+          "0": 0.991,
+          "1": 0.975,
+          "2": 0.959
         }
       },
-      "field_iou_worst": 0.951,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": 0.959,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1722,
-        "1": 0.1283,
-        "2": 0.1515
+        "0": 0.1744,
+        "1": 0.131,
+        "2": 0.1371
       },
-      "colour_error_worst": 0.1722,
+      "colour_error_worst": 0.1744,
       "response": {
         "gain": [
-          1.367,
-          1.228,
-          1.249
+          1.362,
+          1.22,
+          1.241
         ],
         "lift": [
-          -0.183,
-          -0.071,
-          -0.082
+          -0.177,
+          -0.064,
+          -0.076
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0018,
-        "1": 0.0221,
-        "2": 0.0204
+        "0": 0.0012,
+        "1": 0.011,
+        "2": 0.0098
       },
-      "colour_residual_worst": 0.0221,
-      "spec_vs_reference": 0.9047,
-      "field_kept_min": 0.9301,
-      "render_vs_reference": {
-        "agreement": 0.8654,
-        "iou": {
-          "0": 0.907,
-          "1": 0.729,
-          "2": 0.456
-        }
-      }
+      "colour_residual_worst": 0.011,
+      "spec_vs_reference": 0.9951,
+      "field_kept_min": 0.8705
     },
     {
       "sku": "74-min",
-      "folder": "74_Viagra_Template_Reference",
+      "folder": "74_Viagra",
       "palette_closest_pair": 1.0293,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0068,
+      "edge_dropped": 0.0066,
       "illumination": "blur",
       "illumination_residual": {
         "plane": 0.0598,
-        "blur": 0.0542
+        "blur": 0.054
       },
       "render_vs_spec": {
-        "agreement": 1.0,
+        "agreement": 0.9999,
         "iou": {
           "0": 1.0,
-          "1": 0.999
+          "1": 0.994
         }
       },
-      "field_iou_worst": 0.999,
+      "field_iou_worst": 0.994,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.1883,
-        "1": 0.0486
+        "1": 0.0484
       },
       "colour_error_worst": 0.1883,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9499,
-      "field_kept_min": 0.9793,
-      "render_vs_reference": {
-        "agreement": 0.944,
-        "iou": {
-          "0": 0.943,
-          "1": 0.31
-        }
-      }
-    },
-    {
-      "sku": "107-min",
-      "folder": "107_Tramadol",
-      "palette_closest_pair": 0.3342,
-      "separable": true,
-      "palette_on_line": 0.1231,
-      "palette_on_line_who": "highlight on substrate-secondary_1",
-      "edge_dropped": 0.0355,
-      "illumination": "blur",
-      "illumination_residual": {
-        "plane": 0.085,
-        "blur": 0.0777
-      },
-      "render_vs_spec": {
-        "agreement": 0.9554,
-        "iou": {
-          "0": 0.932,
-          "1": 0.889,
-          "2": 0.896,
-          "3": 0.906
-        }
-      },
-      "field_iou_worst": 0.889,
-      "agreement_spread": 0.0,
-      "colour_error_by_region": {
-        "0": 0.1248,
-        "1": 0.0903,
-        "2": 0.0432,
-        "3": 0.1037
-      },
-      "colour_error_worst": 0.1248,
-      "response": {
-        "gain": [
-          1.105,
-          1.167,
-          1.183
-        ],
-        "lift": [
-          -0.027,
-          -0.079,
-          -0.093
-        ]
-      },
-      "colour_residual_by_region": {
-        "0": 0.0198,
-        "1": 0.0989,
-        "2": 0.0174,
-        "3": 0.0934
-      },
-      "colour_residual_worst": 0.0989,
-      "spec_vs_reference": 0.9067,
-      "field_kept_min": 0.8442,
-      "render_vs_reference": {
-        "agreement": 0.8559,
-        "iou": {
-          "0": 0.793,
-          "1": 0.853,
-          "2": 0.403,
-          "3": 0.535
-        }
-      }
+      "spec_vs_reference": 1.0,
+      "field_kept_min": 0.9836
     },
     {
       "sku": "133-min",
@@ -341,11 +246,11 @@
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0189,
+      "edge_dropped": 0.0192,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0569,
-        "blur": 0.0509
+        "plane": 0.0602,
+        "blur": 0.0523
       },
       "render_vs_spec": {
         "agreement": 0.9998,
@@ -357,20 +262,20 @@
       "field_iou_worst": 0.999,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1023,
-        "1": 0.0592
+        "0": 0.1044,
+        "1": 0.0537
       },
-      "colour_error_worst": 0.1023,
+      "colour_error_worst": 0.1044,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9723,
-      "field_kept_min": 0.8729,
+      "spec_vs_reference": 0.9967,
+      "field_kept_min": 0.8837,
       "render_vs_reference": {
-        "agreement": 0.9732,
+        "agreement": 0.9741,
         "iou": {
-          "0": 0.965,
-          "1": 0.894
+          "0": 0.966,
+          "1": 0.899
         }
       }
     },
@@ -379,38 +284,56 @@
       "folder": "134_Atarax",
       "palette_closest_pair": 0.3731,
       "separable": true,
-      "palette_on_line": null,
-      "palette_on_line_who": null,
-      "edge_dropped": 0.0161,
+      "palette_on_line": 0.1322,
+      "palette_on_line_who": "brand on substrate-type",
+      "edge_dropped": 0.024,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.094,
-        "blur": 0.0808
+        "plane": 0.0966,
+        "blur": 0.0825
       },
       "render_vs_spec": {
         "agreement": 0.9994,
         "iou": {
           "0": 0.999,
-          "1": 0.976
+          "1": 0.988,
+          "2": 0.999
         }
       },
-      "field_iou_worst": 0.976,
-      "agreement_spread": 0.0,
+      "field_iou_worst": 0.988,
+      "agreement_spread": 0.0001,
       "colour_error_by_region": {
-        "0": 0.129,
-        "1": 0.0312
+        "0": 0.1297,
+        "1": 0.0475,
+        "2": 0.1131
       },
-      "colour_error_worst": 0.129,
-      "response": null,
-      "colour_residual_by_region": {},
-      "colour_residual_worst": null,
-      "spec_vs_reference": 0.9742,
-      "field_kept_min": 0.9249,
+      "colour_error_worst": 0.1297,
+      "response": {
+        "gain": [
+          1.194,
+          1.182,
+          1.176
+        ],
+        "lift": [
+          -0.099,
+          -0.098,
+          -0.094
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.017,
+        "1": 0.0199,
+        "2": 0.0031
+      },
+      "colour_residual_worst": 0.0199,
+      "spec_vs_reference": 0.9977,
+      "field_kept_min": 0.8937,
       "render_vs_reference": {
-        "agreement": 0.9567,
+        "agreement": 0.9863,
         "iou": {
-          "0": 0.956,
-          "1": 0.378
+          "0": 0.985,
+          "1": 0.787,
+          "2": 0.983
         }
       }
     },
@@ -421,54 +344,54 @@
       "separable": true,
       "palette_on_line": 0.3893,
       "palette_on_line_who": "highlight on substrate-brand",
-      "edge_dropped": 0.0116,
-      "illumination": "blur",
+      "edge_dropped": 0.0111,
+      "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.0713,
-        "blur": 0.0653
+        "plane": 0.0768,
+        "blur": 0.0779
       },
       "render_vs_spec": {
-        "agreement": 0.989,
+        "agreement": 0.9996,
         "iou": {
-          "0": 0.987,
-          "1": 0.918,
-          "2": 0.985
+          "0": 1.0,
+          "1": 0.999,
+          "2": 0.995
         }
       },
-      "field_iou_worst": 0.918,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": 0.995,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1677,
-        "1": 0.217,
-        "2": 0.0772
+        "0": 0.1659,
+        "1": 0.1413,
+        "2": 0.0778
       },
-      "colour_error_worst": 0.217,
+      "colour_error_worst": 0.1659,
       "response": {
         "gain": [
-          1.525,
-          1.279,
-          1.316
+          1.372,
+          1.218,
+          1.179
         ],
         "lift": [
-          -0.297,
-          -0.127,
-          -0.144
+          -0.187,
+          -0.077,
+          -0.047
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.02,
-        "1": 0.0405,
-        "2": 0.0477
+        "0": 0.0098,
+        "1": 0.0064,
+        "2": 0.0145
       },
-      "colour_residual_worst": 0.0477,
-      "spec_vs_reference": 0.9423,
-      "field_kept_min": 0.9714,
+      "colour_residual_worst": 0.0145,
+      "spec_vs_reference": 0.9845,
+      "field_kept_min": 0.973,
       "render_vs_reference": {
-        "agreement": 0.9502,
+        "agreement": 0.9618,
         "iou": {
-          "0": 0.941,
-          "1": 0.763,
-          "2": 0.808
+          "0": 0.954,
+          "1": 0.84,
+          "2": 0.82
         }
       }
     },
@@ -479,36 +402,36 @@
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.02,
+      "edge_dropped": 0.0304,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0819,
-        "blur": 0.0706
+        "plane": 0.0973,
+        "blur": 0.0782
       },
       "render_vs_spec": {
-        "agreement": 0.984,
+        "agreement": 0.9834,
         "iou": {
-          "0": 0.982,
-          "1": 0.88
+          "0": 0.979,
+          "1": 0.93
         }
       },
-      "field_iou_worst": 0.88,
+      "field_iou_worst": 0.93,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1004,
-        "1": 0.1022
+        "0": 0.1018,
+        "1": 0.0709
       },
-      "colour_error_worst": 0.1022,
+      "colour_error_worst": 0.1018,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9373,
-      "field_kept_min": 0.9665,
+      "spec_vs_reference": 0.9683,
+      "field_kept_min": 0.9635,
       "render_vs_reference": {
-        "agreement": 0.8251,
+        "agreement": 0.9326,
         "iou": {
-          "0": 0.808,
-          "1": 0.343
+          "0": 0.916,
+          "1": 0.743
         }
       }
     },
@@ -519,171 +442,69 @@
       "separable": true,
       "palette_on_line": 0.0874,
       "palette_on_line_who": "highlight on substrate-brand",
-      "edge_dropped": 0.0302,
+      "edge_dropped": 0.0315,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0989,
-        "blur": 0.0742
+        "plane": 0.0983,
+        "blur": 0.0751
       },
       "render_vs_spec": {
-        "agreement": 0.9998,
+        "agreement": 1.0,
         "iou": {
           "0": 1.0,
           "1": 1.0,
-          "2": 0.942
+          "2": 0.998
         }
       },
-      "field_iou_worst": 0.942,
+      "field_iou_worst": 0.998,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1128,
-        "1": 0.0435,
-        "2": 0.0443
+        "0": 0.1141,
+        "1": 0.0441,
+        "2": 0.0483
       },
-      "colour_error_worst": 0.1128,
+      "colour_error_worst": 0.1141,
       "response": {
         "gain": [
-          1.035,
-          1.112,
-          1.153
+          1.071,
+          1.125,
+          1.162
         ],
         "lift": [
-          0.01,
-          -0.046,
-          -0.076
+          -0.019,
+          -0.056,
+          -0.081
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.04,
-        "1": 0.0123,
-        "2": 0.0323
+        "0": 0.0403,
+        "1": 0.0131,
+        "2": 0.0318
       },
-      "colour_residual_worst": 0.04,
-      "spec_vs_reference": 0.888,
-      "field_kept_min": 0.4089,
+      "colour_residual_worst": 0.0403,
+      "spec_vs_reference": 0.9953,
+      "field_kept_min": 0.5206,
       "render_vs_reference": {
-        "agreement": 0.8083,
+        "agreement": 0.7963,
         "iou": {
-          "0": 0.781,
-          "1": 0.519,
-          "2": 0.039
+          "0": 0.771,
+          "1": 0.46,
+          "2": 0.063
         }
       }
     },
     {
       "sku": "151-min",
       "folder": "151_Provigil",
-      "palette_closest_pair": 0.1121,
-      "separable": true,
-      "palette_on_line": 0.0394,
-      "palette_on_line_who": "secondary_1 on substrate-highlight",
-      "edge_dropped": 0.0073,
-      "illumination": "blur",
-      "illumination_residual": {
-        "plane": 0.0531,
-        "blur": 0.0484
-      },
-      "render_vs_spec": {
-        "agreement": 0.93,
-        "iou": {
-          "0": 0.918,
-          "1": 0.649,
-          "2": 0.751,
-          "3": 0.971
-        }
-      },
-      "field_iou_worst": 0.649,
-      "agreement_spread": 0.0015,
-      "colour_error_by_region": {
-        "0": 0.1435,
-        "1": 0.127,
-        "2": 0.3489,
-        "3": 0.0476
-      },
-      "colour_error_worst": 0.3489,
-      "response": {
-        "gain": [
-          1.539,
-          1.492,
-          1.308
-        ],
-        "lift": [
-          -0.174,
-          -0.153,
-          -0.082
-        ]
-      },
-      "colour_residual_by_region": {
-        "0": 0.0178,
-        "1": 0.0295,
-        "2": 0.0643,
-        "3": 0.1012
-      },
-      "colour_residual_worst": 0.1012,
-      "spec_vs_reference": 0.8495,
-      "field_kept_min": 0.9812,
-      "render_vs_reference": {
-        "agreement": 0.69,
-        "iou": {
-          "0": 0.642,
-          "1": 0.366,
-          "2": 0.186,
-          "3": 0.592
-        }
-      }
-    },
-    {
-      "sku": "152-min",
-      "folder": "152_Artvigil",
-      "palette_closest_pair": 1.0947,
-      "separable": true,
-      "palette_on_line": null,
-      "palette_on_line_who": null,
-      "edge_dropped": 0.0241,
-      "illumination": "blur",
-      "illumination_residual": {
-        "plane": 0.1041,
-        "blur": 0.0831
-      },
-      "render_vs_spec": {
-        "agreement": 0.9973,
-        "iou": {
-          "0": 0.997,
-          "1": 0.985
-        }
-      },
-      "field_iou_worst": 0.985,
-      "agreement_spread": 0.0,
-      "colour_error_by_region": {
-        "0": 0.1042,
-        "1": 0.1584
-      },
-      "colour_error_worst": 0.1584,
-      "response": null,
-      "colour_residual_by_region": {},
-      "colour_residual_worst": null,
-      "spec_vs_reference": 0.932,
-      "field_kept_min": 0.9638,
-      "render_vs_reference": {
-        "agreement": 0.9801,
-        "iou": {
-          "0": 0.977,
-          "1": 0.858
-        }
-      }
-    },
-    {
-      "sku": "155-min",
-      "folder": "155_Imovane",
       "palette_closest_pair": 1.0,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0112,
-      "illumination": "blur",
+      "edge_dropped": 0.0,
+      "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.1017,
-        "blur": 0.0658
+        "plane": 0.165,
+        "blur": 0.1661
       },
       "render_vs_spec": {
         "agreement": 1.0,
@@ -694,9 +515,9 @@
       "field_iou_worst": null,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1256
+        "0": 0.1694
       },
-      "colour_error_worst": 0.1256,
+      "colour_error_worst": 0.1694,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
@@ -706,6 +527,86 @@
         "agreement": 1.0,
         "iou": {
           "0": 1.0
+        }
+      }
+    },
+    {
+      "sku": "152-min",
+      "folder": "152_Artvigil",
+      "palette_closest_pair": 1.0947,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0267,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1033,
+        "blur": 0.0897
+      },
+      "render_vs_spec": {
+        "agreement": 0.9999,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0001,
+      "colour_error_by_region": {
+        "0": 0.1068,
+        "1": 0.148
+      },
+      "colour_error_worst": 0.148,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9967,
+      "field_kept_min": 0.9629,
+      "render_vs_reference": {
+        "agreement": 0.9812,
+        "iou": {
+          "0": 0.979,
+          "1": 0.864
+        }
+      }
+    },
+    {
+      "sku": "155-min",
+      "folder": "155_Imovane",
+      "palette_closest_pair": 0.4097,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0165,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1021,
+        "blur": 0.067
+      },
+      "render_vs_spec": {
+        "agreement": 0.9996,
+        "iou": {
+          "0": 1.0,
+          "1": 0.933
+        }
+      },
+      "field_iou_worst": 0.933,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1247,
+        "1": 0.1482
+      },
+      "colour_error_worst": 0.1482,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9988,
+      "field_kept_min": 0.689,
+      "render_vs_reference": {
+        "agreement": 0.9149,
+        "iou": {
+          "0": 0.914,
+          "1": 0.065
         }
       }
     },
@@ -719,8 +620,8 @@
       "edge_dropped": 0.0186,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.1058,
-        "blur": 0.0998
+        "plane": 0.1059,
+        "blur": 0.0995
       },
       "render_vs_spec": {
         "agreement": 0.9999,
@@ -733,19 +634,19 @@
       "agreement_spread": 0.0,
       "colour_error_by_region": {
         "0": 0.1411,
-        "1": 0.0781
+        "1": 0.0777
       },
       "colour_error_worst": 0.1411,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9514,
-      "field_kept_min": 0.9826,
+      "spec_vs_reference": 0.9992,
+      "field_kept_min": 0.983,
       "render_vs_reference": {
-        "agreement": 0.9523,
+        "agreement": 0.9535,
         "iou": {
-          "0": 0.945,
-          "1": 0.735
+          "0": 0.946,
+          "1": 0.743
         }
       }
     },
@@ -756,54 +657,54 @@
       "separable": true,
       "palette_on_line": 0.3742,
       "palette_on_line_who": "brand on substrate-type",
-      "edge_dropped": 0.0131,
+      "edge_dropped": 0.0172,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0648,
-        "blur": 0.0585
+        "plane": 0.0745,
+        "blur": 0.065
       },
       "render_vs_spec": {
-        "agreement": 0.9946,
+        "agreement": 0.9999,
         "iou": {
-          "0": 0.993,
-          "1": 0.967,
-          "2": 0.994
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0
         }
       },
-      "field_iou_worst": 0.967,
+      "field_iou_worst": 1.0,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1048,
-        "1": 0.0691,
-        "2": 0.1696
+        "0": 0.1062,
+        "1": 0.0737,
+        "2": 0.1683
       },
-      "colour_error_worst": 0.1696,
+      "colour_error_worst": 0.1683,
       "response": {
         "gain": [
-          1.247,
-          1.335,
-          1.267
+          1.25,
+          1.321,
+          1.275
         ],
         "lift": [
           -0.128,
-          -0.166,
+          -0.152,
           -0.13
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0192,
-        "1": 0.0332,
-        "2": 0.0203
+        "0": 0.0208,
+        "1": 0.0464,
+        "2": 0.0308
       },
-      "colour_residual_worst": 0.0332,
-      "spec_vs_reference": 0.9409,
-      "field_kept_min": 0.9644,
+      "colour_residual_worst": 0.0464,
+      "spec_vs_reference": 0.9985,
+      "field_kept_min": 0.8982,
       "render_vs_reference": {
-        "agreement": 0.9886,
+        "agreement": 0.9949,
         "iou": {
-          "0": 0.986,
-          "1": 0.956,
-          "2": 0.669
+          "0": 0.994,
+          "1": 0.994,
+          "2": 0.699
         }
       }
     },
@@ -814,54 +715,54 @@
       "separable": true,
       "palette_on_line": 0.5965,
       "palette_on_line_who": "brand on substrate-highlight",
-      "edge_dropped": 0.0213,
+      "edge_dropped": 0.0233,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0995,
-        "blur": 0.075
+        "plane": 0.1088,
+        "blur": 0.0826
       },
       "render_vs_spec": {
-        "agreement": 0.9912,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.989,
-          "1": 0.954,
-          "2": 0.999
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0
         }
       },
-      "field_iou_worst": 0.954,
+      "field_iou_worst": 1.0,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1086,
-        "1": 0.0821,
-        "2": 0.0545
+        "0": 0.1142,
+        "1": 0.0636,
+        "2": 0.0544
       },
-      "colour_error_worst": 0.1086,
+      "colour_error_worst": 0.1142,
       "response": {
         "gain": [
-          1.213,
-          1.076,
-          1.216
+          1.177,
+          1.033,
+          1.214
         ],
         "lift": [
-          -0.108,
-          -0.037,
+          -0.079,
+          -0.001,
           -0.108
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0379,
-        "1": 0.0049,
-        "2": 0.0393
+        "0": 0.0399,
+        "1": 0.0135,
+        "2": 0.0445
       },
-      "colour_residual_worst": 0.0393,
-      "spec_vs_reference": 0.9487,
-      "field_kept_min": 0.9693,
+      "colour_residual_worst": 0.0445,
+      "spec_vs_reference": 0.9869,
+      "field_kept_min": 0.9797,
       "render_vs_reference": {
-        "agreement": 0.9669,
+        "agreement": 0.9783,
         "iou": {
-          "0": 0.958,
-          "1": 0.879,
-          "2": 0.825
+          "0": 0.972,
+          "1": 0.936,
+          "2": 0.832
         }
       }
     },
@@ -872,145 +773,142 @@
       "separable": true,
       "palette_on_line": 0.3625,
       "palette_on_line_who": "highlight on substrate-brand",
-      "edge_dropped": 0.0264,
+      "edge_dropped": 0.0266,
       "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.0416,
-        "blur": 0.0492
+        "plane": 0.0147,
+        "blur": 0.0317
       },
       "render_vs_spec": {
-        "agreement": 0.9981,
+        "agreement": 0.9863,
         "iou": {
-          "0": 0.999,
-          "1": 0.989,
-          "2": 0.986
+          "0": 0.985,
+          "1": 0.893,
+          "2": 0.983
         }
       },
-      "field_iou_worst": 0.986,
+      "field_iou_worst": 0.893,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1355,
-        "1": 0.051,
-        "2": 0.095
+        "0": 0.1349,
+        "1": 0.1371,
+        "2": 0.0838
       },
-      "colour_error_worst": 0.1355,
+      "colour_error_worst": 0.1371,
       "response": {
         "gain": [
-          1.147,
-          1.171,
-          1.121
+          1.251,
+          1.274,
+          1.185
         ],
         "lift": [
-          -0.05,
-          -0.07,
-          -0.032
+          -0.149,
+          -0.156,
+          -0.09
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0108,
-        "1": 0.0126,
-        "2": 0.0224
+        "0": 0.0188,
+        "1": 0.0395,
+        "2": 0.0561
       },
-      "colour_residual_worst": 0.0224,
-      "spec_vs_reference": 0.9138,
-      "field_kept_min": 0.6692,
+      "colour_residual_worst": 0.0561,
+      "spec_vs_reference": 0.9513,
+      "field_kept_min": 0.7201,
       "render_vs_reference": {
-        "agreement": 0.9385,
+        "agreement": 0.9328,
         "iou": {
-          "0": 0.929,
-          "1": 0.823,
-          "2": 0.721
+          "0": 0.92,
+          "1": 0.782,
+          "2": 0.73
         }
       }
     },
     {
       "sku": "230-min",
       "folder": "230_Slimex",
-      "palette_closest_pair": 1.5327,
+      "palette_closest_pair": 1.0,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0204,
+      "edge_dropped": 0.0145,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.098,
-        "blur": 0.0935
+        "plane": 0.0925,
+        "blur": 0.0902
       },
       "render_vs_spec": {
-        "agreement": 0.9957,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.995,
-          "1": 0.978
+          "0": 1.0
         }
       },
-      "field_iou_worst": 0.978,
+      "field_iou_worst": null,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1176,
-        "1": 0.14
+        "0": 0.1284
       },
-      "colour_error_worst": 0.14,
+      "colour_error_worst": 0.1284,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9786,
-      "field_kept_min": 0.9788,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": null,
       "render_vs_reference": {
-        "agreement": 0.9418,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.928,
-          "1": 0.771
+          "0": 1.0
         }
       }
     },
     {
       "sku": "272-min",
       "folder": "272_Valium_Brand",
-      "palette_closest_pair": 0.6657,
+      "palette_closest_pair": 1.0846,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0245,
+      "edge_dropped": 0.0206,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0985,
-        "blur": 0.0787
+        "plane": 0.0928,
+        "blur": 0.0822
       },
       "render_vs_spec": {
-        "agreement": 0.9922,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.991,
-          "1": 0.912
+          "0": 1.0,
+          "1": 1.0
         }
       },
-      "field_iou_worst": 0.912,
+      "field_iou_worst": 1.0,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.096,
-        "1": 0.0331
+        "0": 0.1043,
+        "1": 0.1086
       },
-      "colour_error_worst": 0.096,
+      "colour_error_worst": 0.1086,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9678,
-      "field_kept_min": 0.9462,
+      "spec_vs_reference": 0.9996,
+      "field_kept_min": 0.9585,
       "render_vs_reference": {
-        "agreement": 0.9194,
+        "agreement": 0.9145,
         "iou": {
           "0": 0.912,
-          "1": 0.5
+          "1": 0.279
         }
       }
     },
     {
       "sku": "304-min",
       "folder": "304_Sonata",
-      "palette_closest_pair": 1.0,
+      "palette_closest_pair": 0.6144,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0104,
+      "edge_dropped": 0.0115,
       "illumination": "blur",
       "illumination_residual": {
         "plane": 0.0777,
@@ -1019,123 +917,107 @@
       "render_vs_spec": {
         "agreement": 1.0,
         "iou": {
-          "0": 1.0
+          "0": 1.0,
+          "1": 1.0
         }
       },
-      "field_iou_worst": null,
+      "field_iou_worst": 1.0,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1515
+        "0": 0.1514,
+        "1": 0.1027
       },
-      "colour_error_worst": 0.1515,
+      "colour_error_worst": 0.1514,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 1.0,
-      "field_kept_min": null,
+      "spec_vs_reference": 0.9999,
+      "field_kept_min": 0.6021,
       "render_vs_reference": {
-        "agreement": 1.0,
+        "agreement": 0.9337,
         "iou": {
-          "0": 1.0
+          "0": 0.934,
+          "1": 0.0
         }
       }
     },
     {
       "sku": "308-min",
       "folder": "308_Lexotanil",
-      "palette_closest_pair": 1.0,
+      "palette_closest_pair": 0.8586,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0135,
+      "edge_dropped": 0.0174,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0775,
-        "blur": 0.058
+        "plane": 0.079,
+        "blur": 0.0595
       },
       "render_vs_spec": {
         "agreement": 1.0,
         "iou": {
-          "0": 1.0
+          "0": 1.0,
+          "1": 1.0
         }
       },
-      "field_iou_worst": null,
+      "field_iou_worst": 1.0,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.0912
+        "0": 0.0884,
+        "1": 0.1423
       },
-      "colour_error_worst": 0.0912,
+      "colour_error_worst": 0.1423,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 1.0,
-      "field_kept_min": null,
+      "spec_vs_reference": 0.9995,
+      "field_kept_min": 0.9487,
       "render_vs_reference": {
-        "agreement": 1.0,
+        "agreement": 0.9897,
         "iou": {
-          "0": 1.0
+          "0": 0.989,
+          "1": 0.779
         }
       }
     },
     {
       "sku": "340-min",
       "folder": "340_Xanax_Pfizer",
-      "palette_closest_pair": 0.0904,
+      "palette_closest_pair": 0.9366,
       "separable": true,
-      "palette_on_line": 0.0271,
-      "palette_on_line_who": "highlight on substrate-secondary_1",
-      "edge_dropped": 0.0559,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.032,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.1305,
-        "blur": 0.1197
+        "plane": 0.0986,
+        "blur": 0.0922
       },
       "render_vs_spec": {
-        "agreement": 0.9938,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.989,
-          "1": 0.993,
-          "2": 0.982,
-          "3": 0.993
+          "0": 1.0,
+          "1": 1.0
         }
       },
-      "field_iou_worst": 0.982,
-      "agreement_spread": 0.0042,
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.0982,
-        "1": 0.1275,
-        "2": 0.0969,
-        "3": 0.1354
+        "0": 0.0989,
+        "1": 0.1161
       },
-      "colour_error_worst": 0.1354,
-      "response": {
-        "gain": [
-          1.221,
-          1.227,
-          1.142
-        ],
-        "lift": [
-          -0.106,
-          -0.128,
-          -0.051
-        ]
-      },
-      "colour_residual_by_region": {
-        "0": 0.0236,
-        "1": 0.0577,
-        "2": 0.0129,
-        "3": 0.027
-      },
-      "colour_residual_worst": 0.0577,
-      "spec_vs_reference": 0.8701,
-      "field_kept_min": 0.9326,
+      "colour_error_worst": 0.1161,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9972,
+      "field_kept_min": 0.9399,
       "render_vs_reference": {
-        "agreement": 0.7245,
+        "agreement": 0.947,
         "iou": {
-          "0": 0.498,
-          "1": 0.651,
-          "2": 0.515,
-          "3": 0.882
+          "0": 0.94,
+          "1": 0.676
         }
       }
     },
@@ -1146,221 +1028,229 @@
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0231,
+      "edge_dropped": 0.0336,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0982,
-        "blur": 0.0835
+        "plane": 0.1178,
+        "blur": 0.0874
       },
       "render_vs_spec": {
-        "agreement": 0.9838,
+        "agreement": 0.9832,
         "iou": {
-          "0": 0.982,
-          "1": 0.881
+          "0": 0.978,
+          "1": 0.93
         }
       },
-      "field_iou_worst": 0.881,
+      "field_iou_worst": 0.93,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.0959,
-        "1": 0.0983
+        "0": 0.1019,
+        "1": 0.0699
       },
-      "colour_error_worst": 0.0983,
+      "colour_error_worst": 0.1019,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9373,
-      "field_kept_min": 0.9743,
+      "spec_vs_reference": 0.9683,
+      "field_kept_min": 0.9637,
       "render_vs_reference": {
-        "agreement": 0.8384,
+        "agreement": 0.9398,
         "iou": {
-          "0": 0.822,
-          "1": 0.366
+          "0": 0.925,
+          "1": 0.766
         }
       }
     },
     {
       "sku": "346-min",
       "folder": "346_Modvigil",
-      "palette_closest_pair": 0.4094,
+      "palette_closest_pair": 1.0,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0361,
+      "edge_dropped": 0.0148,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.1082,
-        "blur": 0.0794
+        "plane": 0.0989,
+        "blur": 0.0817
       },
       "render_vs_spec": {
-        "agreement": 0.9995,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.999,
-          "1": 0.997
+          "0": 1.0
         }
       },
-      "field_iou_worst": 0.997,
-      "agreement_spread": 0.0001,
+      "field_iou_worst": null,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1246,
-        "1": 0.0424
+        "0": 0.1172
       },
-      "colour_error_worst": 0.1246,
+      "colour_error_worst": 0.1172,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.9049,
-      "field_kept_min": 0.8582,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": null,
       "render_vs_reference": {
-        "agreement": 0.6901,
+        "agreement": 1.0,
         "iou": {
-          "0": 0.637,
-          "1": 0.32
+          "0": 1.0
         }
       }
     },
     {
       "sku": "357-min",
       "folder": "357_Adderall",
-      "palette_closest_pair": 0.0888,
+      "palette_closest_pair": 0.3154,
       "separable": true,
-      "palette_on_line": 0.0189,
-      "palette_on_line_who": "secondary_1 on substrate-highlight",
+      "palette_on_line": 0.2302,
+      "palette_on_line_who": "brand on substrate-highlight",
       "edge_dropped": 0.0276,
       "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.1614,
-        "blur": 0.1971
+        "plane": 0.2774,
+        "blur": 0.279
       },
       "render_vs_spec": {
-        "agreement": 0.5931,
+        "agreement": 0.9307,
         "iou": {
-          "0": 0.123,
-          "1": 0.0,
-          "2": 0.108,
-          "3": 0.574
+          "0": 0.895,
+          "1": 0.914,
+          "2": 0.804
         }
       },
-      "field_iou_worst": 0.0,
-      "agreement_spread": 0.0046,
+      "field_iou_worst": 0.804,
+      "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.0955,
-        "1": null,
-        "2": 0.2053,
-        "3": 0.2122
+        "0": 0.1504,
+        "1": 0.1086,
+        "2": 0.1812
       },
-      "colour_error_worst": 0.2122,
+      "colour_error_worst": 0.1812,
       "response": {
         "gain": [
-          1.338,
-          1.284,
-          1.202
+          1.345,
+          1.327,
+          1.283
         ],
         "lift": [
-          -0.146,
-          -0.113,
-          -0.049
+          -0.188,
+          -0.171,
+          -0.142
         ]
       },
       "colour_residual_by_region": {
-        "0": 0.0019,
-        "1": null,
-        "2": 0.0185,
-        "3": 0.0204
+        "0": 0.0163,
+        "1": 0.018,
+        "2": 0.0041
       },
-      "colour_residual_worst": 0.0204,
-      "spec_vs_reference": 0.4223,
-      "field_kept_min": 0.8925,
+      "colour_residual_worst": 0.018,
+      "spec_vs_reference": 0.9802,
+      "field_kept_min": 0.9498,
       "render_vs_reference": {
-        "agreement": 0.0309,
+        "agreement": 0.6955,
         "iou": {
-          "0": 0.031,
-          "1": 0.0,
-          "2": 0.0,
-          "3": 0.0
+          "0": 0.556,
+          "1": 0.497,
+          "2": 0.524
         }
       }
     },
     {
       "sku": "362-min",
       "folder": "362_Hydrocodone",
-      "palette_closest_pair": 0.3215,
+      "palette_closest_pair": 1.0876,
       "separable": true,
-      "palette_on_line": 0.0771,
-      "palette_on_line_who": "substrate on brand-highlight",
-      "edge_dropped": 0.0217,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0131,
       "illumination": "plane",
       "illumination_residual": {
-        "plane": Infinity,
-        "blur": Infinity
+        "plane": 0.0697,
+        "blur": 0.0743
       },
       "render_vs_spec": {
-        "agreement": 0.8801,
+        "agreement": 0.9831,
         "iou": {
-          "0": 0.0,
-          "1": 0.0,
-          "2": 0.88
+          "0": 0.981,
+          "1": 0.881
         }
       },
-      "field_iou_worst": 0.0,
+      "field_iou_worst": 0.881,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": null,
-        "1": null,
-        "2": 0.3153
+        "0": 0.1822,
+        "1": 0.2217
       },
-      "colour_error_worst": 0.3153,
+      "colour_error_worst": 0.2217,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 0.1876,
-      "field_kept_min": 0.8558,
+      "spec_vs_reference": 0.9913,
+      "field_kept_min": 0.9842,
       "render_vs_reference": {
-        "agreement": 0.3144,
+        "agreement": 0.942,
         "iou": {
-          "0": 0.006,
-          "1": 0.372,
-          "2": 0.275
+          "0": 0.934,
+          "1": 0.678
         }
       }
     },
     {
       "sku": "365-min",
       "folder": "365_Tapentadol",
-      "palette_closest_pair": 0.9422,
+      "palette_closest_pair": 0.8191,
       "separable": true,
-      "palette_on_line": null,
-      "palette_on_line_who": null,
-      "edge_dropped": 0.0279,
+      "palette_on_line": 0.6801,
+      "palette_on_line_who": "brand on substrate-secondary_1",
+      "edge_dropped": 0.0304,
       "illumination": "blur",
       "illumination_residual": {
-        "plane": 0.0957,
-        "blur": 0.0786
+        "plane": 0.0989,
+        "blur": 0.0829
       },
       "render_vs_spec": {
-        "agreement": 0.9999,
+        "agreement": 0.9981,
         "iou": {
-          "0": 1.0,
-          "1": 0.999
+          "0": 0.998,
+          "1": 0.983,
+          "2": 0.998
         }
       },
-      "field_iou_worst": 0.999,
+      "field_iou_worst": 0.983,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1022,
-        "1": 0.1628
+        "0": 0.1049,
+        "1": 0.1593,
+        "2": 0.0271
       },
-      "colour_error_worst": 0.1628,
-      "response": null,
-      "colour_residual_by_region": {},
-      "colour_residual_worst": null,
-      "spec_vs_reference": 0.9843,
-      "field_kept_min": 0.8975,
+      "colour_error_worst": 0.1593,
+      "response": {
+        "gain": [
+          1.153,
+          1.113,
+          1.229
+        ],
+        "lift": [
+          -0.055,
+          -0.03,
+          -0.118
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0136,
+        "1": 0.0404,
+        "2": 0.0451
+      },
+      "colour_residual_worst": 0.0451,
+      "spec_vs_reference": 0.9984,
+      "field_kept_min": 0.8282,
       "render_vs_reference": {
-        "agreement": 0.9723,
+        "agreement": 0.965,
         "iou": {
-          "0": 0.969,
-          "1": 0.802
+          "0": 0.96,
+          "1": 0.904,
+          "2": 0.379
         }
       }
     },
@@ -1369,38 +1259,56 @@
       "folder": "404_Ritalin",
       "palette_closest_pair": 0.7366,
       "separable": true,
-      "palette_on_line": null,
-      "palette_on_line_who": null,
-      "edge_dropped": 0.0169,
+      "palette_on_line": 0.537,
+      "palette_on_line_who": "substrate on highlight-type",
+      "edge_dropped": 0.021,
       "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.0128,
-        "blur": 0.0143
+        "plane": 0.0121,
+        "blur": 0.0144
       },
       "render_vs_spec": {
-        "agreement": 0.9989,
+        "agreement": 0.9991,
         "iou": {
           "0": 0.998,
-          "1": 0.998
+          "1": 0.998,
+          "2": 1.0
         }
       },
       "field_iou_worst": 0.998,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1097,
-        "1": 0.1165
+        "0": 0.1094,
+        "1": 0.1171,
+        "2": 0.1503
       },
-      "colour_error_worst": 0.1165,
-      "response": null,
-      "colour_residual_by_region": {},
-      "colour_residual_worst": null,
-      "spec_vs_reference": 0.926,
-      "field_kept_min": 0.9123,
+      "colour_error_worst": 0.1503,
+      "response": {
+        "gain": [
+          1.272,
+          1.293,
+          1.241
+        ],
+        "lift": [
+          -0.132,
+          -0.133,
+          -0.104
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0251,
+        "1": 0.0146,
+        "2": 0.0123
+      },
+      "colour_residual_worst": 0.0251,
+      "spec_vs_reference": 0.9982,
+      "field_kept_min": 0.6412,
       "render_vs_reference": {
-        "agreement": 0.993,
+        "agreement": 0.9965,
         "iou": {
-          "0": 0.988,
-          "1": 0.983
+          "0": 0.994,
+          "1": 0.997,
+          "2": 0.266
         }
       }
     }

@@ -344,15 +344,19 @@ class TestAPartIsItsOutlineMinusItsHoles(unittest.TestCase):
 
 
 class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
-    """`part_region(..., snap_to_trace=True)` is the inverse of the normalisation.
+    """`part_region` is the inverse of the normalisation, for every reader.
 
     The spec stores an integer pixel index as `round(x / w, 4)`. Multiplying it
     back gives a value up to 0.0826 px either side of that integer, and PIL
     TRUNCATES a float polygon coordinate -- so half of every ring in every spec
     was rebuilt a WHOLE pixel off the pixel it was traced from. The gap between
-    a fortieth of a pixel and a whole one is the entire defect, and these pin it
-    from both ends: that the snap removes it, and that the default still has it,
-    because three other readers are on that default.
+    a fortieth of a pixel and a whole one is the entire defect.
+
+    The old behaviour is reconstructed INSIDE these tests rather than left
+    reachable from the code, because the three readers of this function -- the
+    spec's own raster, the QA target and the coverage instrument -- must not be
+    able to disagree about what a part covers, which is the property the
+    function's docstring is built around.
 
     The grid is 1100x700 and not something round, deliberately. `x / 200` is
     exact in four decimals for every integer `x`, so on a tidy fixture the
@@ -371,76 +375,94 @@ class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
         """What `fit()` writes to disk for these vertices."""
         return [[round(x / self.W, 4), round(y / self.H, 4)] for x, y in pts]
 
-    def _mask(self, ring, **kw):
+    def _mask(self, ring):
         import numpy as np
         from scripts.fit_design_spec import part_region
         return np.asarray(part_region({"outline": ring, "holes": []},
-                                      self.W, self.H, **kw))
+                                      self.W, self.H))
 
-    def _drawn(self, pts):
-        """The polygon rasterised straight from its integer vertices."""
+    def _fill(self, pts):
+        """A polygon rasterised at the coordinates given, PIL's own way.
+
+        With integer vertices this is the polygon as traced. With the products
+        `u * w` it is what `part_region` used to build -- the defect, kept here
+        so it is stated somewhere rather than merely absent.
+        """
         import numpy as np
         from PIL import Image, ImageDraw
         im = Image.new("1", (self.W, self.H), 0)
         ImageDraw.Draw(im).polygon([tuple(q) for q in pts], fill=1)
         return np.asarray(im)
 
-    def test_the_snap_reproduces_the_traced_polygon_exactly(self):
-        got = self._mask(self._stored(self.TRACED), snap_to_trace=True)
-        want = self._drawn(self.TRACED)
+    def _unsnapped(self, ring):
+        return self._fill([(u * self.W, v * self.H) for u, v in ring])
+
+    def test_the_reconstruction_reproduces_the_traced_polygon_exactly(self):
+        got = self._mask(self._stored(self.TRACED))
+        want = self._fill(self.TRACED)
         self.assertTrue(
             (got == want).all(),
             f"{int((got != want).sum())} pixels differ from the polygon as "
             f"traced; the reconstruction is not the inverse of the storage")
 
-    def test_without_the_snap_the_edge_moves_a_whole_pixel(self):
+    def test_the_plain_product_moves_the_edge_a_whole_pixel(self):
         """The defect itself, so a revert cannot pass unnoticed.
 
         Stated as the edge rather than as an area: the shape keeps very nearly
         its size and MOVES, which is why it cost agreement without costing
-        coverage and so stayed invisible in every figure but this one.
+        coverage and so stayed invisible in every figure but the coverage one.
         """
         import numpy as np
-        plain = self._mask(self._stored(self.TRACED))
-        want = self._drawn(self.TRACED)
+        stored = self._stored(self.TRACED)
+        plain = self._unsnapped(stored)
+        want = self._fill(self.TRACED)
         self.assertFalse((plain == want).all(),
                          "expected the unsnapped reconstruction to be displaced")
         left_plain = int(np.nonzero(plain.any(0))[0].min())
         left_want = int(np.nonzero(want.any(0))[0].min())
         self.assertEqual(left_want - left_plain, 1,
                          "the displacement is one whole pixel, not a fraction")
+        self.assertTrue(np.array_equal(self._mask(stored), want),
+                        "and `part_region` must be on the corrected side of it")
 
-    def test_the_default_is_the_unsnapped_reconstruction(self):
-        """Pinned, because `rasterise()` and `verify()` are on this default.
+    def test_all_three_readers_get_the_same_region(self):
+        """One implementation, which is what the function exists to guarantee.
 
-        Turning the snap on for every caller moves the `pixel_agreement` a
-        future fit would write and the target `design_qa` scores a render
-        against. Both are published figures; moving them is a decision someone
-        has to take, not something a keyword default should take for them.
+        `rasterise()` is what `design_qa` scores a render against and what
+        `verify()` writes `pixel_agreement` from; `spec_index` is what
+        `design_coverage` reads. Before this they could not disagree because
+        they shared the defect. Now they cannot disagree because they share the
+        fix, and this is the test that says so.
         """
         import numpy as np
-        stored = self._stored(self.TRACED)
-        self.assertTrue(np.array_equal(self._mask(stored),
-                                       self._mask(stored, snap_to_trace=False)))
-        self.assertFalse(np.array_equal(self._mask(stored),
-                                        self._mask(stored, snap_to_trace=True)))
+        from scripts.design_coverage import SUBSTRATE, spec_index
+        from scripts.fit_design_spec import rasterise
+        spec = {"substrate": "#000000",
+                "fields": [{"role": "brand", "fill": "#FFFFFF", "z": 0,
+                            "parts": [{"outline": self._stored(self.TRACED),
+                                       "holes": []}]}]}
+        drawn = np.asarray(rasterise(spec, self.W, self.H))[:, :, 0] > 127
+        indexed = spec_index(spec, self.W, self.H) != SUBSTRATE
+        want = self._fill(self.TRACED)
+        self.assertTrue(np.array_equal(drawn, want), "rasterise() disagrees")
+        self.assertTrue(np.array_equal(indexed, want), "spec_index() disagrees")
 
-    def test_the_snap_is_an_inverse_and_not_a_general_improvement(self):
+    def test_rounding_is_an_inverse_and_not_a_general_improvement(self):
         """A vertex that genuinely sits between two pixels is MOVED by it.
 
-        The distinction the whole change rests on. Snapping is right here
+        The distinction the whole change rests on. Rounding is right here
         because the forward map's domain is the integers, so it removes a
         round-trip artefact. Handed a shape whose corners really do fall
-        between pixels it displaces them instead -- it is not a switch that can
-        be thrown anywhere to make a number go up.
+        between pixels it displaces them instead -- it is not a step that can
+        be added anywhere to make a number go up.
         """
         import numpy as np
         between = [(x + 0.7, y + 0.7) for x, y in self.TRACED]
         ring = [[x / self.W, y / self.H] for x, y in between]
         self.assertFalse(
-            np.array_equal(self._mask(ring), self._mask(ring, snap_to_trace=True)),
-            "a genuinely fractional outline must be moved by the snap, not left "
-            "alone -- otherwise the snap is not doing what it claims")
+            np.array_equal(self._mask(ring), self._unsnapped(ring)),
+            "a genuinely fractional outline must be moved, not left alone -- "
+            "otherwise the rounding is not doing what it claims")
 
     def test_the_rounding_rule_is_pinned_and_real_data_never_reaches_it(self):
         """Python rounds a tie to even. Named, and shown to be unreachable.
@@ -481,5 +503,5 @@ class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
         self.assertLess(
             worst, 0.25,
             f"a stored coordinate is {worst:.4f} px from the nearest pixel "
-            f"({worst_at}); the snap is the inverse of the trace only while "
+            f"({worst_at}); the rounding is the inverse of the trace only while "
             f"every vertex is unambiguously one pixel")

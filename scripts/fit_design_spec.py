@@ -169,10 +169,10 @@ MIN_HOLE_FRAC = 0.0001
 #
 # The stake is the invariant rather than the metric, and the metric agrees: the
 # letterform holes lie outside the scored area, so declining to cut them costs
-# 0.12 points -- measured before `part_region` was given `snap_to_trace`, and
-# the one figure of this phase that cannot be retaken, since only the `window`
-# rings are emitted and the other 228 exist nowhere but in a re-run of the
-# tracer. `59-min` is a 20 mg Cialis whose photograph is a 10 mg pack;
+# 0.12 points -- measured before `part_region` was made the inverse of the
+# normalisation, and the one figure of that phase that cannot be retaken, since
+# only the `window` rings are emitted and the other 228 exist nowhere but in a
+# re-run of the tracer. `59-min` is a 20 mg Cialis whose photograph is a 10 mg pack;
 # `344-min` is Modafinil Generic whose photograph is Modalert 200; `404-min`'s
 # 72 holes are "Ritalin 10 mg Tabletten / 50 Tabletten/N2". Cutting those prints
 # another package's brand and dosage on our carton, in board, in the shape the
@@ -797,8 +797,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     return spec
 
 
-def part_region(part: dict, w: int, h: int,
-                snap_to_trace: bool = False) -> Image.Image | None:
+def part_region(part: dict, w: int, h: int) -> Image.Image | None:
     """The pixels a part covers: its outline MINUS its holes.
 
     Contract 1.8. One place, because the alternative is what this project has
@@ -811,38 +810,36 @@ def part_region(part: dict, w: int, h: int,
     was painted before it, which on these cartons is the board and on Adderall
     another field.
 
-    `snap_to_trace` PUTS EVERY VERTEX BACK ON THE PIXEL IT WAS TRACED FROM.
-    Without it this reconstruction is not the inverse of the normalisation.
-    Every vertex in these specs is an integer pixel index out of
-    `trace_outline` -- Douglas-Peucker and `simple_ring` both DROP vertices
-    rather than move them -- stored as `round(x / w, 4)`, so `u * w` comes back
-    within 0.0826 px of that integer and lands on either side of it. And PIL
-    TRUNCATES a float polygon coordinate: measured on Pillow 12.2.0, a vertex at
-    x - 0.02 fills as though it were at x - 1. A fortieth of a pixel of storage
-    error therefore becomes a WHOLE pixel of displacement, signed differently
-    vertex by vertex, across 94.52% of the 9912 coordinates this group holds.
-    Rounding the product recovers the traced integer exactly, with 0.417 px of
-    margin before the choice could be ambiguous.
+    EVERY VERTEX GOES BACK ON THE PIXEL IT WAS TRACED FROM, because otherwise
+    this reconstruction is not the inverse of the normalisation. Every vertex in
+    these specs is an integer pixel index out of `trace_outline` --
+    Douglas-Peucker and `simple_ring` both DROP vertices rather than move them
+    -- stored as `round(x / w, 4)`, so `u * w` comes back within 0.0826 px of
+    that integer and lands on either side of it. And PIL TRUNCATES a float
+    polygon coordinate: measured on Pillow 12.2.0, a vertex at x - 0.02 fills as
+    though it were at x - 1. A fortieth of a pixel of storage error therefore
+    became a WHOLE pixel of displacement, signed differently vertex by vertex,
+    across 94.52% of the 9912 coordinates this group holds. Rounding the product
+    recovers the traced integer exactly, with 0.417 px of margin before the
+    choice could be ambiguous.
 
-    DEFAULT OFF, which is a decision with a measurement behind it rather than an
-    oversight. `rasterise()` and `verify()` read this too, so turning it on for
-    every caller moves the `verification.pixel_agreement` a future fit would
-    write (+0.00 to +0.42 points, monotone up, mean +0.14) and the target
-    `design_qa` scores a render against. That second figure is very nearly blind
-    to the defect by construction -- its seam exclusion already discards one
-    pixel either side of every region boundary, which is exactly where these
-    pixels are: of the 0.268% of a face that moves, **0.0% survives that band on
-    25 of the 28 cartons**, 31.4% on `365-min` and 8.9% on `404-min`. Moving
-    those figures means re-rendering and re-publishing them, which is separate
-    work from repairing the instrument that reads them.
+    It shipped for one reader first and for all three afterwards, and the second
+    step is why this is a plain function again rather than a function with a
+    switch. A default that reconstructs a region somewhere other than where it
+    was measured is not a default anyone should be able to take by accident, and
+    a reader choosing its own idea of what a part covers is the exact defect the
+    paragraph above this one exists to prevent.
+
+    What it is NOT: an exact copy of the component. Against the 37 printed fields
+    a person labelled, the reconstruction means an IoU of 0.9184 and none of the
+    37 reaches 1.0000. That residue belongs to Douglas-Peucker and `_despeckle`,
+    both deliberate, and nothing here touches it.
     """
     def at(coords):
         # Rounded AFTER the multiply, never before: `round(u * w) / w * w` can
         # come back a hair under the integer, and PIL would truncate that back
-        # down a whole pixel -- the defect this argument exists to remove.
-        if snap_to_trace:
-            return [(round(u * w), round(v * h)) for u, v in coords]
-        return [(u * w, v * h) for u, v in coords]
+        # down a whole pixel -- the very defect this removes.
+        return [(round(u * w), round(v * h)) for u, v in coords]
 
     poly = at(part.get("outline") or [])
     if len(poly) < 3:

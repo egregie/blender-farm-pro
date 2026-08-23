@@ -121,15 +121,10 @@ def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     for n, field in enumerate(spec.get("fields") or []):
         for part in field.get("parts") or []:
             # `part_region` and not a polygon fill, so this instrument and the
-            # spec's own raster cut holes the same way. Contract 1.8.
-            #
-            # `snap_to_trace` because the stored `u,v` is `round(x / w, 4)` of
-            # an integer pixel index and PIL truncates, so the plain product
-            # rebuilds half of every ring a WHOLE pixel off the pixel it was
-            # traced from. Worth 1.39 points of `truth_agreement` over the
-            # group, gained on all 25 cartons that have a field and lost on
-            # none. See `part_region` for why the default is the other way.
-            region = part_region(part, w, h, snap_to_trace=True)
+            # spec's own raster cut holes the same way. Contract 1.8. It also
+            # puts each vertex back on the pixel it was traced from, which is
+            # worth 1.39 points of `truth_agreement` here -- see `part_region`.
+            region = part_region(part, w, h)
             if region is not None:
                 idx[np.asarray(region)] = n
     return idx
