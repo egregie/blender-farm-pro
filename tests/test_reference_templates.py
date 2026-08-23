@@ -341,3 +341,145 @@ class TestAPartIsItsOutlineMinusItsHoles(unittest.TestCase):
             got["u0"], 0.25,
             "the window's white counted as the row's ink, so the box was pulled "
             "left onto board the shape does not cover")
+
+
+class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
+    """`part_region(..., snap_to_trace=True)` is the inverse of the normalisation.
+
+    The spec stores an integer pixel index as `round(x / w, 4)`. Multiplying it
+    back gives a value up to 0.0826 px either side of that integer, and PIL
+    TRUNCATES a float polygon coordinate -- so half of every ring in every spec
+    was rebuilt a WHOLE pixel off the pixel it was traced from. The gap between
+    a fortieth of a pixel and a whole one is the entire defect, and these pin it
+    from both ends: that the snap removes it, and that the default still has it,
+    because three other readers are on that default.
+
+    The grid is 1100x700 and not something round, deliberately. `x / 200` is
+    exact in four decimals for every integer `x`, so on a tidy fixture the
+    defect cannot appear at all -- the first draft of this class was written on
+    one and passed while the bug was live. 1100 is the width these faces are
+    actually rectified to.
+    """
+
+    W, H = 1100, 700
+    #: The traced polygon, in the pixel indices `trace_outline` returns. Three
+    #: of its four edges do not survive the round trip and y=91 does, which is
+    #: the point: the displacement is signed per coordinate, not a global shift.
+    TRACED = [(137, 91), (742, 91), (742, 508), (137, 508)]
+
+    def _stored(self, pts):
+        """What `fit()` writes to disk for these vertices."""
+        return [[round(x / self.W, 4), round(y / self.H, 4)] for x, y in pts]
+
+    def _mask(self, ring, **kw):
+        import numpy as np
+        from scripts.fit_design_spec import part_region
+        return np.asarray(part_region({"outline": ring, "holes": []},
+                                      self.W, self.H, **kw))
+
+    def _drawn(self, pts):
+        """The polygon rasterised straight from its integer vertices."""
+        import numpy as np
+        from PIL import Image, ImageDraw
+        im = Image.new("1", (self.W, self.H), 0)
+        ImageDraw.Draw(im).polygon([tuple(q) for q in pts], fill=1)
+        return np.asarray(im)
+
+    def test_the_snap_reproduces_the_traced_polygon_exactly(self):
+        got = self._mask(self._stored(self.TRACED), snap_to_trace=True)
+        want = self._drawn(self.TRACED)
+        self.assertTrue(
+            (got == want).all(),
+            f"{int((got != want).sum())} pixels differ from the polygon as "
+            f"traced; the reconstruction is not the inverse of the storage")
+
+    def test_without_the_snap_the_edge_moves_a_whole_pixel(self):
+        """The defect itself, so a revert cannot pass unnoticed.
+
+        Stated as the edge rather than as an area: the shape keeps very nearly
+        its size and MOVES, which is why it cost agreement without costing
+        coverage and so stayed invisible in every figure but this one.
+        """
+        import numpy as np
+        plain = self._mask(self._stored(self.TRACED))
+        want = self._drawn(self.TRACED)
+        self.assertFalse((plain == want).all(),
+                         "expected the unsnapped reconstruction to be displaced")
+        left_plain = int(np.nonzero(plain.any(0))[0].min())
+        left_want = int(np.nonzero(want.any(0))[0].min())
+        self.assertEqual(left_want - left_plain, 1,
+                         "the displacement is one whole pixel, not a fraction")
+
+    def test_the_default_is_the_unsnapped_reconstruction(self):
+        """Pinned, because `rasterise()` and `verify()` are on this default.
+
+        Turning the snap on for every caller moves the `pixel_agreement` a
+        future fit would write and the target `design_qa` scores a render
+        against. Both are published figures; moving them is a decision someone
+        has to take, not something a keyword default should take for them.
+        """
+        import numpy as np
+        stored = self._stored(self.TRACED)
+        self.assertTrue(np.array_equal(self._mask(stored),
+                                       self._mask(stored, snap_to_trace=False)))
+        self.assertFalse(np.array_equal(self._mask(stored),
+                                        self._mask(stored, snap_to_trace=True)))
+
+    def test_the_snap_is_an_inverse_and_not_a_general_improvement(self):
+        """A vertex that genuinely sits between two pixels is MOVED by it.
+
+        The distinction the whole change rests on. Snapping is right here
+        because the forward map's domain is the integers, so it removes a
+        round-trip artefact. Handed a shape whose corners really do fall
+        between pixels it displaces them instead -- it is not a switch that can
+        be thrown anywhere to make a number go up.
+        """
+        import numpy as np
+        between = [(x + 0.7, y + 0.7) for x, y in self.TRACED]
+        ring = [[x / self.W, y / self.H] for x, y in between]
+        self.assertFalse(
+            np.array_equal(self._mask(ring), self._mask(ring, snap_to_trace=True)),
+            "a genuinely fractional outline must be moved by the snap, not left "
+            "alone -- otherwise the snap is not doing what it claims")
+
+    def test_the_rounding_rule_is_pinned_and_real_data_never_reaches_it(self):
+        """Python rounds a tie to even. Named, and shown to be unreachable.
+
+        `round(0.5) == 0` where half-up would give 1. The rule only bites for a
+        vertex exactly between two pixels, and the storage puts every real one
+        within 0.0826 px of an integer -- so it is documented rather than
+        depended on.
+        """
+        self.assertEqual((round(0.5), round(1.5), round(2.5)), (0, 2, 2))
+
+    def test_every_vertex_the_group_stores_snaps_without_ambiguity(self):
+        """Real data: nothing in the 28 specs is anywhere near a tie.
+
+        Face width is `measure_reference_face.OUT_WIDTH`, height follows from
+        the spec's own `face_aspect`, so this reads the specs and no images.
+        """
+        from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR
+        from scripts.measure_reference_face import OUT_WIDTH
+        worst, worst_at, n = 0.0, None, 0
+        for stem, folder in FOLDER_BY_STEM.items():
+            spec = json.loads((TEMPLATES_DIR / folder / "design_spec.json")
+                              .read_text(encoding="utf-8"))
+            w = OUT_WIDTH
+            h = round(w * float(spec["face_aspect"]))
+            for field in spec.get("fields") or []:
+                for part in field.get("parts") or []:
+                    rings = [part.get("outline") or []]
+                    rings += list(part.get("holes") or [])
+                    for ring in rings:
+                        for u, v in ring:
+                            for val, size in ((u, w), (v, h)):
+                                d = abs(val * size - round(val * size))
+                                n += 1
+                                if d > worst:
+                                    worst, worst_at = d, (stem, val, size)
+        self.assertGreater(n, 5000, "the group's specs went missing")
+        self.assertLess(
+            worst, 0.25,
+            f"a stored coordinate is {worst:.4f} px from the nearest pixel "
+            f"({worst_at}); the snap is the inverse of the trace only while "
+            f"every vertex is unambiguously one pixel")

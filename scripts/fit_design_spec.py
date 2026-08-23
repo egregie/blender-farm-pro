@@ -794,7 +794,8 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     return spec
 
 
-def part_region(part: dict, w: int, h: int) -> Image.Image | None:
+def part_region(part: dict, w: int, h: int,
+                snap_to_trace: bool = False) -> Image.Image | None:
     """The pixels a part covers: its outline MINUS its holes.
 
     Contract 1.8. One place, because the alternative is what this project has
@@ -806,15 +807,48 @@ def part_region(part: dict, w: int, h: int) -> Image.Image | None:
     so the fields can be composited in z order: a hole is a window onto whatever
     was painted before it, which on these cartons is the board and on Adderall
     another field.
+
+    `snap_to_trace` PUTS EVERY VERTEX BACK ON THE PIXEL IT WAS TRACED FROM.
+    Without it this reconstruction is not the inverse of the normalisation.
+    Every vertex in these specs is an integer pixel index out of
+    `trace_outline` -- Douglas-Peucker and `simple_ring` both DROP vertices
+    rather than move them -- stored as `round(x / w, 4)`, so `u * w` comes back
+    within 0.0826 px of that integer and lands on either side of it. And PIL
+    TRUNCATES a float polygon coordinate: measured on Pillow 12.2.0, a vertex at
+    x - 0.02 fills as though it were at x - 1. A fortieth of a pixel of storage
+    error therefore becomes a WHOLE pixel of displacement, signed differently
+    vertex by vertex, across 94.52% of the 9912 coordinates this group holds.
+    Rounding the product recovers the traced integer exactly, with 0.417 px of
+    margin before the choice could be ambiguous.
+
+    DEFAULT OFF, which is a decision with a measurement behind it rather than an
+    oversight. `rasterise()` and `verify()` read this too, so turning it on for
+    every caller moves the `verification.pixel_agreement` a future fit would
+    write (+0.00 to +0.42 points, monotone up, mean +0.14) and the target
+    `design_qa` scores a render against. That second figure is very nearly blind
+    to the defect by construction -- its seam exclusion already discards one
+    pixel either side of every region boundary, which is exactly where these
+    pixels are: of the 0.268% of a face that moves, **0.0% survives that band on
+    25 of the 28 cartons**, 31.4% on `365-min` and 8.9% on `404-min`. Moving
+    those figures means re-rendering and re-publishing them, which is separate
+    work from repairing the instrument that reads them.
     """
-    poly = [(u * w, v * h) for u, v in (part.get("outline") or [])]
+    def at(coords):
+        # Rounded AFTER the multiply, never before: `round(u * w) / w * w` can
+        # come back a hair under the integer, and PIL would truncate that back
+        # down a whole pixel -- the defect this argument exists to remove.
+        if snap_to_trace:
+            return [(round(u * w), round(v * h)) for u, v in coords]
+        return [(u * w, v * h) for u, v in coords]
+
+    poly = at(part.get("outline") or [])
     if len(poly) < 3:
         return None
     region = Image.new("1", (w, h), 0)
     d = ImageDraw.Draw(region)
     d.polygon(poly, fill=1)
     for ring in part.get("holes") or []:
-        hole = [(u * w, v * h) for u, v in ring]
+        hole = at(ring)
         if len(hole) >= 3:
             d.polygon(hole, fill=0)
     return region
