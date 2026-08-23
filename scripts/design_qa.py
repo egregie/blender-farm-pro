@@ -595,9 +595,21 @@ def measure(stem: str, preview: bool = False) -> dict:
         if whole.sum() >= 200:
             kept.append(float((whole & scored).sum() / whole.sum()))
     result["field_kept_min"] = round(min(kept), 4) if kept else None
+    # Always present, null when the rectified photograph is not on disk. It
+    # used to be simply absent, and the report printed a missing figure as
+    # 0.0% -- so `64-min` and `74-min` read as a render matching its own
+    # photograph on nothing at all, for two days, because `aa28834` renamed
+    # their folders and orphaned a preview keyed by folder name. A figure that
+    # was never taken and a figure that came out zero must not print the same.
+    result["render_vs_reference"] = None
     if ref_idx is not None:
         result["render_vs_reference"] = _agreement(o_idx, ref_idx,
                                                    scored & ref_mask, len(palette))
+    else:
+        print(f"{folder.name}: {ref_path.name} is not in "
+              f"{PREVIEW_DIR.name}/, so render~ref cannot be measured. Run "
+              f"`python scripts/measure_reference_face.py --all --preview`.",
+              file=sys.stderr)
 
     if preview:
         PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
@@ -631,18 +643,24 @@ def main() -> int:
         flag = "" if r["separable"] else "  (palette not separable)"
         if r["palette_on_line"] is not None and r["palette_on_line"] < ON_LINE_MIN:
             flag += f"  ({r['palette_on_line_who']}, {r['palette_on_line']:.3f})"
-        # A dash, not a zero: too few regions to fit the picture's response is
-        # not the same as nothing left after fitting it.
+        # A dash, not a zero, in every column that can be absent. Too few
+        # regions to fit the picture's response is not the same as nothing left
+        # after fitting it; a carton with no field is not a carton whose worst
+        # field matches nothing; and a photograph that was never rectified is
+        # not a render that resembles it on no pixel. Four columns printed a
+        # zero for all of those, with the right idiom already on this line.
+        def pct(x):
+            return "--" if x is None else f"{100 * x:.1f}%"
+
         resid = r["colour_residual_worst"]
-        resid_txt = "--" if resid is None else f"{resid:.3f}"
-        fiw = r["field_iou_worst"]
+        cerr = r["colour_error_worst"]
         print(f"{stem:9s} {r['folder']:32s} "
-              f"{(100 * sr if sr else 0):8.1f}% "
+              f"{pct(sr):>9s} "
               f"{100 * r['render_vs_spec']['agreement']:11.1f}% "
-              f"{(100 * fiw if fiw is not None else 0):9.1f}% "
-              f"{100 * r.get('render_vs_reference', {}).get('agreement', 0):10.1f}% "
-              f"{(r['colour_error_worst'] if r['colour_error_worst'] is not None else 0):8.3f} "
-              f"{resid_txt:>8s} "
+              f"{pct(r['field_iou_worst']):>10s} "
+              f"{pct((r.get('render_vs_reference') or {}).get('agreement')):>11s} "
+              f"{('--' if cerr is None else f'{cerr:.3f}'):>9s} "
+              f"{('--' if resid is None else f'{resid:.3f}'):>8s} "
               f"+-{100 * r['agreement_spread']:4.1f}{flag}")
 
     out = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"

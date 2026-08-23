@@ -512,6 +512,37 @@ worst, measured on the eleven-carton group and the previous photography. Neither
 the move to 28 cartons: Ritalin now ranks nineteenth by agreement and Cialis twenty-third,
 and the worst is `357-min` at 93.1%. The reading the paragraph exists for is unchanged.)
 
+**A figure that was never taken must not print as a figure that came out zero.**
+`render_vs_reference` needs the rectified photograph on disk, and `design_qa` keys it by
+FOLDER NAME — so when `aa28834` renamed `64_Kamagra_Template_Reference` and
+`74_Viagra_Template_Reference`, two previews were orphaned and the report went on printing
+**0.0%** for both. A render matching its own photograph on no pixel at all is a startling
+number, and nothing was startled by it, because the same cell prints 0.0% whether the
+measurement failed or the file was never there. `64-min` reads **89.0%** and `74-min`
+**94.4%**.
+
+Four columns did this, with the right idiom already on the same line — `resid` has printed
+a dash for a missing residual since contract 1.5. `worst fld` was the other live one:
+`151-min`, `230-min` and `346-min` carry **no field at all**, and the report said their worst
+field matched 0.0%. All four print `--` now, `render_vs_reference` is always present and
+`null` when unmeasurable, and `design_qa` names the missing file on stderr instead of
+scoring it.
+
+**The preview directory had gone stale a second way, and that one had no name to lose.**
+Its files are keyed by folder and were all written on 2026-08-18 18:18; `304_Sonata`'s
+`metadata.json` was committed at 00:07 the following morning, so its rectified face had been
+six hours out of date ever since. Regenerating moved `304-min`'s `render~ref` 93.37% →
+93.80% and its second region's IoU 0.000 → 0.013, and moved **nothing else on the other 25**
+— so exactly one preview was silently stale, and nothing was watching that either.
+Segmentation is deterministic (`_kmeans` seeds from luminance quantiles), which is what makes
+that a clean statement: regenerated twice into different directories, all 56 files are
+byte-identical.
+
+`tests/test_design_qa.py` now reads the committed report and fails if any carton lacks
+`render_vs_reference`, if the report and `FOLDER_BY_STEM` disagree about who is in the group,
+or if an absent figure is recorded as 0.0 rather than null. The directory is gitignored, so
+the report is the only place this can be caught.
+
 **Every figure reads `scored_mask()`, and adding a fourth caller was the fix.** The dark
 cut drops any pixel under 0.30 so printed TYPE stays out — our render prints it, the spec
 does not carry it. Eight of eleven cartons have a *field* that dark, and the cut took those

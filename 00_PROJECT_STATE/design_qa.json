@@ -204,7 +204,15 @@
       },
       "colour_residual_worst": 0.011,
       "spec_vs_reference": 0.9951,
-      "field_kept_min": 0.8705
+      "field_kept_min": 0.8705,
+      "render_vs_reference": {
+        "agreement": 0.8897,
+        "iou": {
+          "0": 0.959,
+          "1": 0.773,
+          "2": 0.091
+        }
+      }
     },
     {
       "sku": "74-min",
@@ -237,7 +245,14 @@
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
       "spec_vs_reference": 1.0,
-      "field_kept_min": 0.9836
+      "field_kept_min": 0.9836,
+      "render_vs_reference": {
+        "agreement": 0.9441,
+        "iou": {
+          "0": 0.943,
+          "1": 0.312
+        }
+      }
     },
     {
       "sku": "133-min",
@@ -934,10 +949,10 @@
       "spec_vs_reference": 0.9999,
       "field_kept_min": 0.6021,
       "render_vs_reference": {
-        "agreement": 0.9337,
+        "agreement": 0.938,
         "iou": {
-          "0": 0.934,
-          "1": 0.0
+          "0": 0.938,
+          "1": 0.013
         }
       }
     },

@@ -15,11 +15,13 @@ honest arithmetic over the wrong set of pixels.
 These are synthetic: the properties are about masks and index maps, and stating
 them in pixels is clearer and faster than rendering a carton to demonstrate one.
 """
+import json
 import unittest
 
 import numpy as np
 
 from scripts.design_qa import DARK_V, LUMA, _agreement, scored_mask
+from src.utils import PROJECT_ROOT
 
 
 def _hex(h):
@@ -172,6 +174,59 @@ class TestTheTwoDarknessTestsAgreeInTheDirectionThatMatters(unittest.TestCase):
         self.assertTrue(cut.any(), "the sample must contain fills the cut reaches")
         self.assertTrue(((colours * LUMA).sum(1) < DARK_V)[cut].all())
 
+
+class TestTheDesignQAReportCarriesEveryFigureItClaims(unittest.TestCase):
+    """A figure that was never taken must not read as a figure that came out zero.
+
+    `render_vs_reference` needs the rectified photograph on disk, under the
+    folder's CURRENT name. `aa28834` renamed `64_Kamagra_Template_Reference` and
+    `74_Viagra_Template_Reference`, which orphaned two previews keyed by folder
+    name, and the report went on printing `0.0%` for both -- a render matching
+    its own photograph on nothing at all, which is a startling number that
+    nothing was startled by. The key is now always present and null when absent,
+    and this reads the committed report to make sure the null is not what got
+    committed.
+
+    Reads the artefact rather than re-running the instrument: `design_qa` renders
+    28 cartons, and the question here is whether the REPORT is complete.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        path = PROJECT_ROOT / "00_PROJECT_STATE" / "design_qa.json"
+        if not path.exists():
+            raise unittest.SkipTest("design_qa.json absent; run scripts/design_qa.py")
+        cls.rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+
+    def test_the_report_covers_the_whole_design_group(self):
+        from src.design_group import FOLDER_BY_STEM
+        self.assertEqual(sorted(r["sku"] for r in self.rows),
+                         sorted(FOLDER_BY_STEM),
+                         "the report and the design group disagree about who is in it")
+
+    def test_every_carton_was_measured_against_its_own_photograph(self):
+        missing = [r["sku"] for r in self.rows
+                   if (r.get("render_vs_reference") or {}).get("agreement") is None]
+        self.assertEqual(
+            missing, [],
+            f"no render~ref for {missing}: the rectified face is not in "
+            f"02_processing/reference_measurement/ under the folder's current "
+            f"name. Run `python scripts/measure_reference_face.py --all "
+            f"--preview`, then `python scripts/design_qa.py`.")
+
+    def test_a_missing_figure_is_null_and_never_zero(self):
+        """The shape of the record, not its contents.
+
+        Every optional figure has to be able to say 'not measured' in a way that
+        cannot be read as a measurement. `field_iou_worst` is the one that is
+        legitimately absent -- three cartons carry no field at all -- so it is
+        the one worth pinning: null, not 0.0.
+        """
+        no_field = [r for r in self.rows if r["field_iou_worst"] is None]
+        self.assertTrue(no_field, "expected some carton to carry no field")
+        for r in no_field:
+            self.assertIsNone(r["field_iou_worst"])
+            self.assertNotEqual(r["field_iou_worst"], 0.0)
 
 if __name__ == "__main__":
     unittest.main()
