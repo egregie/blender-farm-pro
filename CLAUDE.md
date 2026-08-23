@@ -528,20 +528,34 @@ field matched 0.0%. All four print `--` now, `render_vs_reference` is always pre
 `null` when unmeasurable, and `design_qa` names the missing file on stderr instead of
 scoring it.
 
-**The preview directory had gone stale a second way, and that one had no name to lose.**
-Its files are keyed by folder and were all written on 2026-08-18 18:18; `304_Sonata`'s
+**The same directory had gone stale a second way, and that one had no name to lose.** Its
+files are keyed by folder and were all written on 2026-08-18 18:18; `304_Sonata`'s
 `metadata.json` was committed at 00:07 the following morning, so its rectified face had been
 six hours out of date ever since. Regenerating moved `304-min`'s `render~ref` 93.37% →
 93.80% and its second region's IoU 0.000 → 0.013, and moved **nothing else on the other 25**
-— so exactly one preview was silently stale, and nothing was watching that either.
-Segmentation is deterministic (`_kmeans` seeds from luminance quantiles), which is what makes
-that a clean statement: regenerated twice into different directories, all 56 files are
-byte-identical.
+— exactly one preview was silently stale, and nothing was watching that either. It is the
+failure with no symptom: nothing looks wrong until someone regenerates and watches a number
+move.
 
-`tests/test_design_qa.py` now reads the committed report and fails if any carton lacks
-`render_vs_reference`, if the report and `FOLDER_BY_STEM` disagree about who is in the group,
-or if an absent figure is recorded as 0.0 rather than null. The directory is gitignored, so
-the report is the only place this can be caught.
+**So `design_qa` stopped reading the file.** `measure_reference_face.rectified_face()` is the
+rectification, `segment()` calls it, and `design_qa` calls it too — the face is a perspective
+warp of one JPEG (`flatten_face`, no k-means, nothing clustered) and there was never anything
+worth caching. Both ways of going stale are gone rather than guarded: a rename cannot orphan
+what is not stored, and a corner set at midnight is read the next time anything asks.
+`design_qa` produces its figures with `02_processing/reference_measurement/` deleted
+entirely, and the report is unchanged to the last digit by the switch. The project already
+argued this on the other side of the same comparison — `render_fresh` deletes and re-renders
+our own PNG every run because a stale one makes the comparison worthless.
+
+That the switch is safe rests on the segmentation being deterministic (`_kmeans` seeds from
+luminance quantiles, not random points): regenerated twice into different directories, all 56
+files come back byte-identical.
+
+`tests/test_design_qa.py` pins six things about this — that `segment` and `rectified_face`
+return the same pixels, that `design_qa` never reads a `.flat.png` again, that a folder with
+no corners is refused by name, and, over the committed report, that every carton carries
+`render_vs_reference`, that the report and `FOLDER_BY_STEM` agree about who is in the group,
+and that an absent figure is null rather than 0.0.
 
 **Every figure reads `scored_mask()`, and adding a fourth caller was the fix.** The dark
 cut drops any pixel under 0.30 so printed TYPE stays out — our render prints it, the spec

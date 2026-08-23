@@ -39,6 +39,7 @@ from src.deskew import flatten_face  # noqa: E402
 from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR, load_design  # noqa: E402
 from src.utils import load_config, resolve_path  # noqa: E402
 from scripts.calibrate_render import appearance, load_curve  # noqa: E402
+from scripts.measure_reference_face import rectified_face  # noqa: E402
 from scripts.fit_design_spec import rasterise  # noqa: E402
 from scripts.measure_reference_face import _flatten_illumination  # noqa: E402
 
@@ -533,17 +534,23 @@ def measure(stem: str, preview: bool = False) -> dict:
     colour_err = _colour_error(ours_flat, t_idx, palette, scored)
     response, colour_residual = _response(ours_flat, t_idx, palette, scored)
 
-    ref_path = PREVIEW_DIR / f"{folder.name}.flat.png"
-    ref_idx = ref_mask = None
-    if ref_path.exists():
-        ref = Image.open(ref_path).resize(size, Image.LANCZOS)
-        ref_idx, _bare = _classify(ref, palette, core)
-        # The photograph carries type too, and its glyph rims blend the same
-        # way. Same mask, same reason.
-        ref_mask = scored_mask(
-            _flatten_illumination(np.asarray(ref.convert("RGB")).astype(float) / 255.0,
-                                  FLATTEN_RADIUS_DIV),
-            palette, t_idx)
+    # Computed, not looked up. This used to read
+    # `{PREVIEW_DIR}/{folder.name}.flat.png`, a derived artefact keyed by folder
+    # name, and it went stale both ways it can: a rename orphaned two of them and
+    # the report printed 0.0% agreement rather than saying so, and one carton's
+    # corners were set after the directory was last written so its face was six
+    # hours out of date for five days. `rectified_face` is a perspective warp of
+    # one JPEG and costs nothing beside the render this function has already
+    # made -- and `render_fresh` re-renders OUR side every run for exactly this
+    # reason.
+    ref = rectified_face(folder)[0].resize(size, Image.LANCZOS)
+    ref_idx, _bare = _classify(ref, palette, core)
+    # The photograph carries type too, and its glyph rims blend the same way.
+    # Same mask, same reason.
+    ref_mask = scored_mask(
+        _flatten_illumination(np.asarray(ref.convert("RGB")).astype(float) / 255.0,
+                              FLATTEN_RADIUS_DIV),
+        palette, t_idx)
 
     result = {
         "sku": stem,
@@ -595,26 +602,20 @@ def measure(stem: str, preview: bool = False) -> dict:
         if whole.sum() >= 200:
             kept.append(float((whole & scored).sum() / whole.sum()))
     result["field_kept_min"] = round(min(kept), 4) if kept else None
-    # Always present, null when the rectified photograph is not on disk. It
-    # used to be simply absent, and the report printed a missing figure as
-    # 0.0% -- so `64-min` and `74-min` read as a render matching its own
-    # photograph on nothing at all, for two days, because `aa28834` renamed
-    # their folders and orphaned a preview keyed by folder name. A figure that
-    # was never taken and a figure that came out zero must not print the same.
+    # Always present, and null is now unreachable rather than merely unlikely:
+    # `rectified_face` raises rather than returning nothing. The key is kept
+    # optional in shape because the report is read by things that predate this,
+    # and because a figure that was never taken must never print as a figure
+    # that came out zero -- which is what an absent key did for two days.
     result["render_vs_reference"] = None
     if ref_idx is not None:
         result["render_vs_reference"] = _agreement(o_idx, ref_idx,
                                                    scored & ref_mask, len(palette))
-    else:
-        print(f"{folder.name}: {ref_path.name} is not in "
-              f"{PREVIEW_DIR.name}/, so render~ref cannot be measured. Run "
-              f"`python scripts/measure_reference_face.py --all --preview`.",
-              file=sys.stderr)
 
     if preview:
         PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
         strip = Image.new("RGB", (size[0], size[1] * 3 + 24), (255, 255, 255))
-        strip.paste(Image.open(ref_path).resize(size) if ref_path.exists() else target, (0, 0))
+        strip.paste(rectified_face(folder)[0].resize(size), (0, 0))
         strip.paste(target, (0, size[1] + 12))
         strip.paste(ours, (0, 2 * size[1] + 24))
         strip.save(PREVIEW_DIR / f"{folder.name}.qa.png")

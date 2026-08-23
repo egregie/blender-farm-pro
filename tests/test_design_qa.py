@@ -17,6 +17,7 @@ them in pixels is clearer and faster than rendering a carton to demonstrate one.
 """
 import json
 import unittest
+from pathlib import Path
 
 import numpy as np
 
@@ -227,6 +228,73 @@ class TestTheDesignQAReportCarriesEveryFigureItClaims(unittest.TestCase):
         for r in no_field:
             self.assertIsNone(r["field_iou_worst"])
             self.assertNotEqual(r["field_iou_worst"], 0.0)
+
+class TestTheReferenceFaceIsComputedAndNeverCached(unittest.TestCase):
+    """The rectified photograph is a warp of one JPEG, so nothing may cache it.
+
+    `design_qa` used to read it from
+    `02_processing/reference_measurement/{folder}.flat.png`, a derived artefact
+    keyed by folder name, and it went stale both ways such a thing can. A rename
+    orphaned two of them and the report printed 0.0% agreement for two cartons
+    rather than saying the file was gone. And `304_Sonata`'s corners were set six
+    hours after that directory was last written, so its face was quietly out of
+    date for five days with no name lost at all -- the failure that has no
+    symptom until someone regenerates and watches a number move.
+
+    `render_fresh` already applies this reasoning to our own side: it deletes and
+    re-renders every run because a stale PNG makes the comparison worthless. The
+    reference is the same comparison.
+    """
+
+    FOLDER = "133_Ambien"      # small face, so `segment` is quick
+
+    def test_one_implementation_of_the_rectified_face(self):
+        """`segment` and `rectified_face` must not drift apart.
+
+        Two implementations of "the same" rectification is the shape of defect
+        this project has been bitten by three times now, which is why `segment`
+        calls this rather than repeating it.
+        """
+        import numpy as np
+        from scripts.measure_reference_face import rectified_face, segment
+        from src.design_group import TEMPLATES_DIR
+        folder = TEMPLATES_DIR / self.FOLDER
+        if not (folder / "metadata.json").exists():
+            self.skipTest(f"{self.FOLDER} not on disk")
+        direct = rectified_face(folder)[0]
+        through_segment = segment(folder)[0]
+        self.assertEqual(direct.size, through_segment.size)
+        self.assertTrue(np.array_equal(np.asarray(direct),
+                                       np.asarray(through_segment)))
+
+    def test_design_qa_does_not_read_the_preview_directory(self):
+        """Stated against the source, because the alternative costs 28 renders.
+
+        A weak test on purpose, and it earns its place: what it forbids is the
+        exact line that was there, and no reading of a `.flat.png` can come back
+        without tripping it.
+        """
+        from scripts import design_qa
+        src = Path(design_qa.__file__).read_text(encoding="utf-8")
+        body = "\n".join(ln for ln in src.splitlines()
+                         if not ln.lstrip().startswith("#"))
+        self.assertNotIn(".flat.png", body,
+                         "design_qa is reading a cached rectified face again")
+        self.assertIn("rectified_face(folder)", body)
+
+    def test_a_folder_without_corners_is_refused_by_name(self):
+        """Loud, not absent. The whole defect was a missing input reading as 0.0%."""
+        import tempfile
+        from scripts.measure_reference_face import rectified_face
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "999_Nothing"
+            folder.mkdir()
+            (folder / "metadata.json").write_text(
+                json.dumps({"reference_images": []}), encoding="utf-8")
+            with self.assertRaises(SystemExit) as caught:
+                rectified_face(folder)
+            self.assertIn("999_Nothing", str(caught.exception))
+            self.assertIn("front_face_px", str(caught.exception))
 
 if __name__ == "__main__":
     unittest.main()
