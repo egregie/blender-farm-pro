@@ -145,11 +145,19 @@ disk are rejected until Stage 1 regenerates them.
   `404_Ritalin`'s 72 holes are "Ritalin® 10 mg Tabletten" and "50 Tabletten/N2". Cutting them
   shows board through our field in the shape of another package's brand and dose — the same
   act as printing a plausible LOT, which the driver already refuses. Declining costs **0.12
-  points** of `truth_agreement`, because letterform holes fall outside the scored area anyway.
+  points** of `truth_agreement`, because letterform holes fall outside the scored area anyway
+  — the one figure in this bullet still measured under the truncating reconstruction (see
+  the `design_coverage.py` note below), and the only one that cannot be retaken: the fitter
+  emits the ten `window` rings and no others, so the remaining 228 exist nowhere but in a
+  re-run of the tracer.
 
-  `truth_agreement` over the group goes **90.62% → 94.20%** with nothing regressing on any
-  carton: Adderall +44.72, Sonata +38.16, Kamagra +5.15, Valium +1.40, the other 21 unchanged.
-  The holes that matter are few and large.
+  `truth_agreement` over the group goes **91.70% → 95.59%** with nothing regressing on any
+  carton: Sonata +45.51, Adderall +45.11, Kamagra +5.22, Valium +1.49, the other 21 unchanged.
+  The holes that matter are few and large. (Recorded as 90.62% → 94.20% when 1.8 landed.
+  Both ends were retaken once the reconstruction was made an inverse, and the shape of the
+  answer — four cartons move, twenty-one do not, none regresses — is unchanged. The
+  geometric figures above survive it too: a filled ring gains 0.083% of its area across the
+  group's 74, and Adderall's `brand#1` reads 53.48% of the face either way.)
 
   **Blender cuts a hole by NESTING, so a hole is another cyclic spline of the same curve.**
   Measured on 5.1.2: a unit square with a 0.5 inner square fills 0.7500 whichever way either
@@ -257,6 +265,41 @@ disk are rejected until Stage 1 regenerates them.
   prints something here" and "the spec draws something here", over what a person classified,
   and `spec_off_print_pct` reports what the spec draws where the reference prints nothing.
   Both are added BESIDE the old field, never in place of it — other records cite it.
+
+  **The instrument was rebuilding half of every ring a WHOLE PIXEL off the pixel it was
+  traced from.** A spec stores an integer pixel index out of `trace_outline` as
+  `round(x / w, 4)` — Douglas-Peucker and `simple_ring` both DROP vertices rather than move
+  them, so every coordinate on disk is one — and `part_region` multiplied it back. That
+  lands within **0.0826 px** of the integer and falls on either side of it, and **PIL
+  truncates a float polygon coordinate**: measured on Pillow 12.2.0, a vertex at `x − 0.02`
+  fills as though it were at `x − 1`. A fortieth of a pixel of storage became a whole pixel
+  of displacement, signed differently vertex by vertex, across 94.52% of the 9912
+  coordinates this group holds. Rounding the product recovers the traced integer exactly,
+  with 0.417 px of margin before the choice could be ambiguous. The region keeps its size
+  while it moves, which is why this cost agreement without costing coverage and was
+  invisible in every other figure. `truth_agreement` 94.20% → **95.59%**, gained on all 25
+  cartons that carry a field and lost on none; `print_agreement` 50.46% → 50.84%;
+  `spec_off_print_pct` 0.79% → 0.75%.
+
+  **It recovers the TRACE and not the component**, and the difference is worth stating so
+  the fix is not read as more than it is. Against the 37 printed fields a person labelled,
+  the snapped reconstruction means an IoU of 0.9184 and **none of the 37 reaches 1.0000** —
+  worst `155-min`'s highlight at 0.678. That residue belongs to Douglas-Peucker, which
+  throws vertices away deliberately, and to `_despeckle`; it is not the storage's, and this
+  change neither repairs nor disturbs it.
+
+  **It is `snap_to_trace=True` on the one caller, and DEFAULT OFF, deliberately.**
+  `rasterise()` and `verify()` read the same function, so switching every caller moves the
+  `verification.pixel_agreement` a future fit would write (+0.00 to +0.42 points, monotone
+  up, mean +0.14) and the target `design_qa` scores a render against. That second figure is
+  very nearly blind to the defect by construction — its seam exclusion already discards one
+  pixel either side of every region boundary, which is exactly where these pixels are: of
+  the 0.268% of a face that moves, **0.0% survives that band on 25 of the 28 cartons**,
+  31.4% on `365-min` and 8.9% on `404-min`. Moving those two figures means re-rendering and
+  re-publishing them, which is separate work from repairing the instrument that reads them.
+  A test pins the default so it cannot drift, and another pins that the snap is an INVERSE
+  rather than a general improvement: handed a shape whose corners really do fall between
+  pixels, it displaces them.
 
 - `1.1` — `label_content.active_ingredient_display`. Also the one field the builder cannot
   read off the passport's `label_content` like its siblings: the passport keeps the

@@ -169,7 +169,10 @@ MIN_HOLE_FRAC = 0.0001
 #
 # The stake is the invariant rather than the metric, and the metric agrees: the
 # letterform holes lie outside the scored area, so declining to cut them costs
-# 0.12 points. `59-min` is a 20 mg Cialis whose photograph is a 10 mg pack;
+# 0.12 points -- measured before `part_region` was given `snap_to_trace`, and
+# the one figure of this phase that cannot be retaken, since only the `window`
+# rings are emitted and the other 228 exist nowhere but in a re-run of the
+# tracer. `59-min` is a 20 mg Cialis whose photograph is a 10 mg pack;
 # `344-min` is Modafinil Generic whose photograph is Modalert 200; `404-min`'s
 # 72 holes are "Ritalin 10 mg Tabletten / 50 Tabletten/N2". Cutting those prints
 # another package's brand and dosage on our carton, in board, in the shape the
