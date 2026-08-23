@@ -537,6 +537,26 @@ def _required_lift(t, floor_z):
     return max(floor_z - lowest, 0.0)
 
 
+def _line_breaks(t) -> int:
+    """How many line breaks this row carries, i.e. its line count minus one."""
+    return (t.data.body or "").count(chr(10))
+
+
+def _overlaps_block(t, block) -> bool:
+    """Does this built row's box stand over that colour block?
+
+    The BOX and not the cap band, and that is the whole point here: what runs
+    into a block is the row's descenders and the space its second line takes,
+    not its capitals. On `62-min` the brand's cap band clears the dosage's own
+    band inside the block by 0.1mm while its box covers 68.3% of the block, and
+    the render shows "Active" lying across the bar.
+    """
+    x_lo, x_hi = _x_span(t)
+    z_lo, z_hi = _z_span(t)
+    return not (x_hi <= block["x0"] or x_lo >= block["x1"]
+                or z_hi <= block["z0"] or z_lo >= block["z1"])
+
+
 def _block_is_taken(block, texts, font, cap_frac, fill_frac):
     """Would a dosage set in this colour block run into a row already placed?
 
@@ -577,7 +597,24 @@ def _block_is_taken(block, texts, font, cap_frac, fill_frac):
         if o_x_hi <= x_lo or o_x_lo >= x_hi:
             continue
         o_top = t.location.z - _cap_drop(t.data.font) * t.data.size
-        o_bot = o_top - _cap_ratio(t.data.font) * t.data.size
+        # EVERY line of the row, not the first. A wrapped brand reaches a whole
+        # line pitch further down for each line after the first, and testing
+        # only the first band declared `62-min`'s amber bar free: "Cialis Super
+        # Active" wraps, its second line descends to v 0.450, the bar sits at
+        # v 0.412-0.465, and "20mg" was reversed into it under the tail of the
+        # brand -- 2.64mm of overlap, which the catalogue sweep flags and
+        # nothing else did.
+        #
+        # `space_line` is a multiple of `size`, so the pitch in world units is
+        # the product. One carton in the group wraps its brand AND offers a
+        # block, which is why this had gone unseen.
+        o_bot = (o_top - _cap_ratio(t.data.font) * t.data.size
+                 - _line_breaks(t) * t.data.space_line * t.data.size)
+        if os.environ.get("PHARMAGEN_CLEAR_DEBUG"):
+            print(f"[block] {t.name} x {o_x_lo:.4f}..{o_x_hi:.4f} "
+                  f"band {o_bot:.4f}..{o_top:.4f} breaks={_line_breaks(t)} "
+                  f"vs block x {x_lo:.4f}..{x_hi:.4f} band {z_lo:.4f}..{z_hi:.4f}",
+                  flush=True)
         if o_bot >= z_hi or o_top <= z_lo:
             continue
         return True
@@ -895,6 +932,28 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         if measured_top_z is not None:
             floor = max(floor, measured_top_z + BRAND_INGREDIENT_GAP_FRAC * face_h)
         _fit_above(t, floor)
+        # A DESIGN's dosage block stops the brand for the same reason the badge
+        # does -- it is the thing standing in that column -- and on a design
+        # carton no generic badge is drawn, so `badge_left_x` is None and
+        # nothing stopped it. `62-min` is the case: "Cialis Super Active" wraps,
+        # its second line runs to u 0.801 and the amber bar the design sets the
+        # dosage in sits at u 0.634-0.734, so "Active" was printed across the
+        # bar with "20mg" reversed into what was left of it -- the brand's box
+        # covering 68.3% of the block. The reference shows what that column is
+        # for: "Cialis" on one line with "10 mg" in the bar BESIDE it.
+        #
+        # Corrected from the BUILT row rather than by narrowing `brand_right`
+        # up front, and the difference is a regression this already caused once:
+        # `brand_right` is also the clearing search's right limit, and narrowing
+        # it took away the +0.184 indent that lifts `59-min`'s brand out of its
+        # green swoosh -- 0.0% hidden back to 31.0%. Measured over the group, a
+        # built brand overlaps its carton's block on exactly one carton, and the
+        # two others whose rows touch a block at all touch 0.9% and 1.2% of it.
+        if dosage_block is not None and _overlaps_block(t, dosage_block):
+            _fit_width(t, max(dosage_block["x0"]
+                              - BRAND_BADGE_GAP_FRAC * face_w - left,
+                              0.1 * face_w))
+            _fit_above(t, floor)
         rows.append(t)
         grid_rows.append((t, brand_right))
 

@@ -567,6 +567,16 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
         #
         # NOT RETURNED AT ALL, though printed and legible -- checked on the
         # rectified face one by one. Tesseract simply omits the row.
+        ("62-min", "active_ingredient_display"),
+                                             # "Tadalafil", and the row did not
+                                             # move: it reads in every page mode
+                                             # from a crop of its own band and
+                                             # is lost only in the whole-face
+                                             # read, which changed when the
+                                             # brand beside it did. The brand
+                                             # used to lie across the dosage bar
+                                             # and no longer does; this is what
+                                             # that cost.
         ("62-min", "dosage_display"),        # "20mg" in its amber badge at v0.43
         ("64-min", "dosage_display"),        # "100mg" dark in the board window the
                                              # teal field leaves; crisp at any crop

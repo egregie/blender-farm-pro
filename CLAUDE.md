@@ -727,7 +727,13 @@ failure the nine curated templates did not show:
 - the small print is capped at 0.12 of face height so it cannot crowd a shallow T3;
 - a GRID row is moved until one ink can serve all of its capitals — `_clear_of_design`,
   which judges the CAP BAND rather than the bounding box, indents along the row's own
-  baseline first and then moves it up or down the face.
+  baseline first and then moves it up or down the face;
+- the brand is re-fitted where it stands over a design's dosage block, which is the same
+  rule as its right limit stopping at the badge — on a design carton no generic badge is
+  drawn, so nothing stopped it: `62-min`'s "Cialis Super Active" wrapped and its second line
+  lay across the amber bar the design sets "20mg" in, the brand's box covering **68.3%** of
+  the block. The reference shows what that column is for — "Cialis" on one line with "10 mg"
+  in the bar BESIDE it.
 
 Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
 the sweep is what finds the ones we don't.
@@ -747,6 +753,21 @@ rows, 20 carry one at home and they run from 0.250% to 49.729% with no gap anywh
 joint search over both axes, which is genuinely cheaper on a diagonal boundary (`357-min`'s
 dosage clears at dx +0.090, dz −0.005 against 0.115 straight up) but never fires once the
 axes are tried first.
+
+Two things about that correction are worth keeping. It is applied to the BUILT row and not
+by narrowing the brand's right limit up front, because that limit is also the clearing
+search's, and narrowing it took away the +0.184 indent that lifts `59-min`'s brand out of
+its green swoosh — 0.0% hidden straight back to 31.0%. And it is judged on the BOX rather
+than the cap band, which is the one place in this file where the box is the right instrument:
+what runs into a block is a row's descenders and the space its second line takes. On
+`62-min` the cap bands clear each other by **0.1mm** while the box covers two thirds of the
+block, and the render shows "Active" lying across the bar.
+
+**It cost an OCR row, and that is the honest price.** `62-min`'s "Tadalafil" did not move and
+did not change size, and it reads in every page-segmentation mode from a crop of its own
+band — but the whole-face read loses it now that the brand beside it is a different size.
+The row is in `KNOWN_OCR_MISSES` with that evidence. A packshot that no longer prints its
+brand across its dosage bar is worth one row the reader stops segmenting.
 
 **The guard for this covers every design SKU, not nine.** `TestNoGridRowIsPrintedInInkItsOwn
 BackgroundHides` had a hand-written list of nine and the three broken rows were all outside
