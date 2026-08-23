@@ -25,6 +25,7 @@ from pathlib import Path
 
 from src.utils import load_config, resolve_path
 from src.measure import _front_face_and_background
+from src.design_group import FOLDER_BY_STEM
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -1804,8 +1805,24 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
     quietly grow, and asserted to still fail so it cannot go stale.
     """
 
-    SKU = ("59-min", "64-min", "74-min", "135-min", "155-min", "156-min",
-           "308-min", "344-min", "404-min")
+    # EVERY SKU that can straddle, which is every SKU with a design block --
+    # the 363 on the generic art direction have a white body, one accent stripe
+    # and one badge, and the grid was fitted to clear them. It was nine, chosen
+    # for no reason anyone recorded, and the four cartons outside those nine
+    # were unwatched: `357-min` printed 10.0% of its ingredient row and 28.7%
+    # of its dosage in an ink those surfaces hide, and `149-min` 13.7% of its
+    # unit count, for as long as this list has existed. The OCR barrier found
+    # the first of them and only because its fixtures were finally rebuilt.
+    #
+    # Read from the same map Stage 1 reads rather than restated, so a SKU
+    # entering the design group enters this guard with it. 28 scenes is 28
+    # Blender launches -- measured at 2.8s each and 20s for `357-min`, whose
+    # design carries the group's largest polygons, so about two minutes.
+    SKU = tuple(sorted(FOLDER_BY_STEM, key=lambda s: int(s.split("-")[0])))
+
+    #: The count cannot quietly shrink, the same rule the OCR barrier's
+    #: MIN_SAMPLE enforces for the same reason.
+    MIN_SKU = 28
     ROLE = {"label_brand": "brand_name_display",
             "label_ingredient": "active_ingredient_display",
             "label_dosage": "dosage_display",
@@ -1903,6 +1920,18 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
                 if hidden:
                     out.add((stem, row["name"]))
         return out
+
+    def test_the_guard_covers_every_carton_that_can_straddle(self):
+        """A guard that quietly covers fewer cartons reports the same green."""
+        self.assertGreaterEqual(
+            len(self.SKU), self.MIN_SKU,
+            f"this guard covers {len(self.SKU)} SKU. It is meant to cover every "
+            f"design SKU; if the group shrank, say so where the group is "
+            f"defined and lower MIN_SKU in the open.")
+        self.assertEqual(
+            len(self.scenes), len(self.SKU),
+            "a scene failed to build; a SKU that cannot be built is not a SKU "
+            "this guard has checked.")
 
     def test_the_set_of_unreadable_rows_is_exactly_the_known_one(self):
         self.assertEqual(

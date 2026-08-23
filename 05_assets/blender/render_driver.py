@@ -24,6 +24,7 @@ framing — see 06_docs/DESIGN_RATIONALE.md.
 """
 import bpy
 import mathutils
+import os
 import sys
 import json
 import math
@@ -1012,12 +1013,14 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
         # The vertical fallback needs a floor, and it has two: the row beneath
         # this one, and the face. Passed from here because only the caller knows
         # the whole row set -- the same reason `_row_left_limit` is computed here.
-        floor = _row_floor_z(t, rows, BRAND_INGREDIENT_GAP_FRAC * face_h)
+        gap = BRAND_INGREDIENT_GAP_FRAC * face_h
+        floor = _row_floor_z(t, rows, gap)
         face_bottom = top_z - face_h
         _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
                          right_limit,
                          _row_left_limit(t, rows, left_x, face_w),
-                         face_bottom if floor is None else max(floor, face_bottom))
+                         face_bottom if floor is None else max(floor, face_bottom),
+                         _row_ceiling_z(t, rows, gap))
         # The band is derived from the row's own location, NOT from
         # `_bounds_in_frame`, and the difference is the whole bug this
         # replaced. Blender does not refresh an object's evaluated bounds
@@ -1096,6 +1099,12 @@ def _is_dark(fill):
 #: grid that merely resembled the fine one would not license this.
 _INK_COARSE_STRIDE = 5
 
+#: Step of the clearing search, as a fraction of the face. Unchanged -- it is
+#: the step the horizontal pass has always used.
+CLEAR_STEP_FRAC = 0.005
+
+
+
 
 def _one_ink_serves(design, substrate, u0, u1, v0, v1, stride=1):
     """True when every surface under this band sits on one side of the ink bar.
@@ -1122,6 +1131,28 @@ def _one_ink_serves(design, substrate, u0, u1, v0, v1, stride=1):
             if dark and light:
                 return False
     return True
+
+
+def _band_minority(design, substrate, u0, u1, v0, v1):
+    """The smaller of this band's two sides, as a share of it.
+
+    What `_one_ink_serves` answers yes/no, answered as a quantity. Not used to
+    DECIDE anything -- a tolerance was tried and the evidence refused it: across
+    the group's 81 grid rows, 20 carry a mixed band at home and they run from
+    0.250% to 49.729% with no gap anywhere, so there is no size at which one
+    stops being a defect. It is here because `PHARMAGEN_CLEAR_DEBUG` prints it,
+    and printing it is how two bugs in this search were found.
+    """
+    dark = 0
+    for i in range(_INK_SAMPLES_U):
+        for j in range(_INK_SAMPLES_V):
+            fill = _surface_fill(
+                design, u0 + (u1 - u0) * (i + 0.5) / _INK_SAMPLES_U,
+                v0 + (v1 - v0) * (j + 0.5) / _INK_SAMPLES_V) or substrate
+            if _is_dark(fill):
+                dark += 1
+    share = dark / float(_INK_SAMPLES_U * _INK_SAMPLES_V)
+    return min(share, 1.0 - share)
 
 
 def _band_fill(design, substrate, u0, u1, v0, v1):
@@ -1185,7 +1216,8 @@ def _row_left_limit(t, rows, left_x, face_w):
 
 
 def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
-                     right_limit, left_limit=None, floor_z=None):
+                     right_limit, left_limit=None, floor_z=None,
+                     ceiling_z=None):
     """Indent a LEFT-set grid row until one ink can serve all of its capitals.
 
     A measured row never needs this: the reference puts a row where the real
@@ -1228,11 +1260,44 @@ def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
     `_band_fill`'s majority therefore inks it DARK: a third of "Modafinil
     Generic" printed dark on dark red, present and unreadable.
 
-    Tried only after x is exhausted, and the row goes back to where the grid put
-    it if neither axis serves, so a carton the horizontal pass already cleared
-    cannot move. Bounded by the row beneath it -- `_row_floor_z` -- because
-    lowering a row onto its neighbour is the failure `_clear_below` exists to
-    prevent, and by the face itself.
+    AND UP AS WELL AS DOWN, which it did not until contract 1.8's fixture
+    rebuild found what the missing direction had been costing. The fallback
+    dropped a row and never raised one, and the group still carried three rows
+    printed in an ink their own surface hides -- every one of them clearable
+    only upward:
+
+      `357-min` ingredient  10.0% hidden   cleared by a rise of 0.015
+      `357-min` dosage      28.7% hidden   cleared by a rise of 0.115
+      `149-min` unit count  13.7% hidden   cleared by a rise of 0.235
+
+    The ingredient shows why the horizontal pass could not save them: it runs
+    88% of the face wide, so no x offset fits between the margins at all, and
+    every offset that serves lies UP the face -- 0.015 to 0.235 of it -- where
+    nothing ever looked. Its own field is BELOW the row, and a row escapes a
+    field by moving away from it.
+
+    Each direction is exhausted before the next is tried and the new one comes
+    last, so a carton the old search cleared is cleared by the identical move.
+
+    A JOINT search over both axes was built and measured and is not here. A
+    diagonal boundary is genuinely cheaper to cross in two axes -- `357-min`'s
+    dosage clears at (dx +0.090, dz -0.005), against 0.115 straight up -- but
+    with the axes tried first it never fires on any carton in the group, and
+    unreachable code that decides where type goes is worse than a move 0.020
+    larger than it had to be.
+
+    The row goes back to where the grid put it if nothing serves.
+
+    Bounded by the row beneath it -- `_row_floor_z` -- because lowering a row
+    onto its neighbour is the failure `_clear_below` exists to prevent, by the
+    row above it -- `_row_ceiling_z` -- for the same reason in the other
+    direction, and by the face itself.
+
+    One caution, measured: a candidate found on a coarse grid may not survive
+    the fine one. `357-min`'s dosage has a position at dx +0.160 that serves at
+    30x10 and does not at 120x40, where 0.29% of the band is still the other
+    colour. `serves()` confirms every acceptance at full density for that
+    reason.
     """
     if not design or t.data.align_x not in ("LEFT", "RIGHT"):
         return t
@@ -1244,50 +1309,107 @@ def _clear_of_design(t, design, substrate, left_x, top_z, face_w, face_h,
     cap_h = _cap_ratio(t.data.font) * t.data.size
     home_x, home_z = t.location.x, t.location.z
 
-    def serves(x, z):
+    def _band(x, z):
         # location.x is the row's LEFT edge when it is left-set and its
         # RIGHT edge when it is right-set; the band is the same either way.
         lo = x if rightward else x - width
         hi = x + width if rightward else x
         cap_top = z - drop
-        band = ((lo - left_x) / face_w, (hi - left_x) / face_w,
+        return ((lo - left_x) / face_w, (hi - left_x) / face_w,
                 (top_z - cap_top) / face_h, (top_z - (cap_top - cap_h)) / face_h)
+
+    def serves(x, z):
+        band = _band(x, z)
         # Reject cheaply, accept only on the full grid.
         return (_one_ink_serves(design, substrate, *band,
                                stride=_INK_COARSE_STRIDE)
                 and _one_ink_serves(design, substrate, *band))
 
-    step = 0.005 * face_w
-    x = home_x
-    while True:
-        if serves(x, home_z):
-            t.location.x = x
-            return t
-        lo = x if rightward else x - width
-        hi = x + width if rightward else x
-        if rightward:
-            if hi + step > right_limit:
-                break
-            x += step
-        else:
-            if lo - step < left_limit:
-                break
-            x -= step
+    sx, sz = CLEAR_STEP_FRAC * face_w, CLEAR_STEP_FRAC * face_h
 
-    # x is exhausted. Back to the grid's own column, then down.
-    t.location.x = home_x
-    if floor_z is None:
+    # The two limits are NOT symmetric and must not be treated as one window.
+    # `right_limit` bounds a LEFT-set row's travel toward its neighbour;
+    # `_row_left_limit` answers the same question for a RIGHT-set row and
+    # returns the neighbour on the row's OTHER side, so applying it to a
+    # left-set row rejects even the position the grid chose -- measured, it
+    # rejected every candidate for `357-min`'s dosage and the row never moved.
+    # A row may INDENT away from its margin and never past it. The grid sets
+    # rows between u 0.07 and u 0.95 and those margins are art direction, so
+    # the far side of a row's travel is its own home: measured, letting a
+    # LEFT-set row travel left took `60-min`'s brand to u 0.026 -- outside the
+    # label grid altogether -- on a carton that was already readable. The
+    # horizontal range is therefore exactly the one this function always had.
+    lo_bound = left_limit if not rightward else home_x
+    hi_bound = right_limit if rightward else home_x
+    top_bound = top_z if ceiling_z is None else min(top_z, ceiling_z)
+
+    def in_bounds(xi, zj):
+        # Each axis is bounded only when it MOVES. The old search checked the
+        # x limit in its x pass and the floor in its z pass, and never one in
+        # the other's; checking both on every candidate rejects a pure-z move
+        # for a row that is already wider than its own limit -- and the brand
+        # is, on every carton where it fills the face. Measured, that threw
+        # away the 0.100 drop the old code gave `357-min`'s brand and left it
+        # printing 22.4% of its cap band in an ink that surface hides.
+        x, z = home_x + xi * sx, home_z + zj * sz
+        if xi:
+            lo = x if rightward else x - width
+            hi = x + width if rightward else x
+            if lo < lo_bound or hi > hi_bound:
+                return False
+        if zj:
+            cap_top = z - drop
+            if cap_top > top_bound:
+                return False
+            if floor_z is not None and cap_top - cap_h < floor_z:
+                return False
+        return True
+
+    def take(xi, zj):
+        if (xi or zj) and not in_bounds(xi, zj):
+            # HOME is always admissible. The old search asked `serves` about it
+            # before it asked about any bound, and a row can start outside one:
+            # `357-min`'s brand fills 88% of the face and reaches its own right
+            # limit, so testing the bound first rejected the position the grid
+            # chose and sent a readable row up the carton.
+            return False
+        if not serves(home_x + xi * sx, home_z + zj * sz):
+            return False
+        t.location.x = home_x + xi * sx
+        t.location.z = home_z + zj * sz
+        return True
+
+    # Each direction is EXHAUSTED before the next is tried, and the newly
+    # opened one comes last, so a carton the old search cleared is cleared by
+    # the identical move. `64-min`'s unit count travels 0.240 of the face along
+    # its baseline and `59-min`'s 0.155; a travel cap fitted to the three rows
+    # THIS change repairs would have thrown both away.
+    # Each direction is EXHAUSTED before the new one is tried, not alternated
+    # with it. Alternating takes the nearest serving position, which sounds
+    # better and is not: it moved `158-min` and `221-min`, two cartons the old
+    # search had already cleared, onto different positions that are no more
+    # readable. The old direction goes first and goes all the way, so a carton
+    # that used to be cleared is cleared by the identical move.
+    reach = max(1, int(1.0 / CLEAR_STEP_FRAC))
+    ahead = 1 if rightward else -1              # the way this row used to look
+    if os.environ.get("PHARMAGEN_CLEAR_DEBUG"):
+        print(f"[clear] {t.name} home minority "
+              f"{_band_minority(design, substrate, *_band(home_x, home_z)):.5f}",
+              flush=True)
+    if take(0, 0):
         return t
-    z_step = 0.005 * face_h
-    z = home_z
-    while True:
-        if z - drop - cap_h - z_step < floor_z:
-            t.location.z = home_z
+    for xi in range(1, reach + 1):
+        if take(ahead * xi, 0):
             return t
-        z -= z_step
-        if serves(home_x, z):
-            t.location.z = z
+    for zj in range(1, reach + 1):
+        if take(0, -zj):                        # down, as it always was
             return t
+    for zj in range(1, reach + 1):
+        if take(0, zj):                         # up, which is new
+            return t
+
+    t.location.x, t.location.z = home_x, home_z
+    return t
 
 
 def _row_span(o):
@@ -1330,6 +1452,34 @@ def _row_floor_z(t, rows, gap):
             continue                      # not beneath this row
         floor = o_top + gap if floor is None else max(floor, o_top + gap)
     return floor
+
+
+def _row_ceiling_z(t, rows, gap):
+    """How far this row may RISE before it reaches the row above it.
+
+    The mirror of `_row_floor_z`, added because the clearing search now travels
+    upward as well as down, and for the same reason that one exists: a row that
+    does not overlap this one horizontally is not in the way whatever its
+    height.
+
+    Upward was missing outright until contract 1.8's fixture rebuild found
+    `357-min` printing "Amphetamine / Dextroamphetamine Salts" in white with
+    10.0% of its cap band on the white swoosh -- and the only offsets that clear
+    it lie UP the face, from 0.015 to 0.235 of it, because the field it has to
+    escape is below the row rather than above it.
+    """
+    x_lo, x_hi, _cap_bot, cap_top = _row_span(t)
+    ceiling = None
+    for o in rows:
+        if o is t:
+            continue
+        o_x_lo, o_x_hi, o_bot, _o_top = _row_span(o)
+        if x_hi <= o_x_lo or x_lo >= o_x_hi:
+            continue                      # nothing shared horizontally
+        if o_bot <= cap_top:
+            continue                      # not above this row
+        ceiling = o_bot - gap if ceiling is None else min(ceiling, o_bot - gap)
+    return ceiling
 
 
 def _add_panel_text(name, body, font, cap_h, ink_mat, u, v, x, align="LEFT"):

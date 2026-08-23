@@ -724,10 +724,35 @@ failure the nine curated templates did not show:
 - the bottom row rises as a unit to clear the accent stripe — lifting each string
   separately moves "40mg", which has a descender, further than "10 Pills", which has none,
   and they stop sharing a baseline;
-- the small print is capped at 0.12 of face height so it cannot crowd a shallow T3.
+- the small print is capped at 0.12 of face height so it cannot crowd a shallow T3;
+- a GRID row is moved until one ink can serve all of its capitals — `_clear_of_design`,
+  which judges the CAP BAND rather than the bounding box, indents along the row's own
+  baseline first and then moves it up or down the face.
 
 Re-run that sweep after touching the grid. The unit suite covers the cases we know about;
 the sweep is what finds the ones we don't.
+
+**That clearing search only ever moved a row DOWN, and three rows in the design group were
+unreadable for as long as it did.** Its own field is often BELOW the row, and a row escapes
+a field by moving away from it: `357-min` printed 10.0% of "Amphetamine / Dextroamphetamine
+Salts" and 28.7% of "30mg" in an ink those surfaces hide, and `149-min` 13.7% of its unit
+count. Every offset that serves any of the three lies UP the face — 0.015, 0.115 and 0.235
+of it. The ingredient shows why indenting could not save them: it runs 88% of the face wide,
+so no horizontal offset fits between the margins at all.
+
+Three things were measured and NOT shipped, each because the evidence refused it. A cap on
+total travel — it would have thrown away the 0.240 the search already uses to clear
+`64-min`. A tolerance below which a mixed band is not a defect — across the group's 81 grid
+rows, 20 carry one at home and they run from 0.250% to 49.729% with no gap anywhere. And a
+joint search over both axes, which is genuinely cheaper on a diagonal boundary (`357-min`'s
+dosage clears at dx +0.090, dz −0.005 against 0.115 straight up) but never fires once the
+axes are tried first.
+
+**The guard for this covers every design SKU, not nine.** `TestNoGridRowIsPrintedInInkItsOwn
+BackgroundHides` had a hand-written list of nine and the three broken rows were all outside
+it; it now reads `FOLDER_BY_STEM`, so a SKU entering the design group enters the guard with
+it, and `MIN_SKU` stops the count shrinking quietly. It costs about two minutes — 28 Blender
+launches at 2.8s, and 20s for `357-min`, whose design carries the group's largest polygons.
 
 **Where a design spec carries a measured row, that row overrides the grid — and it is set
 against its CAP LINE at both ends.** Two quantities were confused there at once, and both

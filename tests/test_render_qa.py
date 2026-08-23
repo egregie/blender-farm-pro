@@ -592,14 +592,16 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     #: TestNoGridRowIsPrintedInInkItsOwnBackgroundHides` uses -- which does NOT
     #: cover this SKU: its list is nine cartons and `357-min` is not one of them,
     #: so this barrier is the only thing that sees it.
-    ROWS_THE_RENDER_HIDES = {
-        ("357-min", "active_ingredient_display"):
-            "the row straddles the navy field and the white swoosh, and its ink "
-            "is white: 10.0% of its cap band is printed in a colour its own "
-            "surface hides. Tesseract degrades exactly there -- 'Amphetamine / "
-            "Dextroamphetapaiiugmtaa ts ie'. The same carton's dosage straddles "
-            "28.7% and still reads, so the figure is not a threshold.",
-    }
+    #: Empty, and it took a fix to empty it. It held one entry --
+    #: `357-min`'s ingredient row, 10.0% of its cap band printed in white where
+    #: the white swoosh rises into it, which Tesseract returned as 'Amphetamine
+    #: / Dextroamphetapaiiugmtaa ts ie'. The cause was that
+    #: `render_driver._clear_of_design` only ever moved a row DOWN, and every
+    #: offset that clears that row lies UP the face. It is cleared now by a rise
+    #: of 0.015, and the row reads. The same change cleared `357-min`'s dosage
+    #: at 28.7% and `149-min`'s unit count at 13.7%, neither of which this
+    #: barrier had ever noticed, because both still read while straddling.
+    ROWS_THE_RENDER_HIDES = {}
 
     # The sample cannot silently shrink to the one fixture it replaced.
     #
