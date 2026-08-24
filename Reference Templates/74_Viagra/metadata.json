@@ -88,20 +88,20 @@
   "market_evidence": "braille on the front face; \"film-coated tablets\"; pack of 4",
   "front_face_px": [
     [
-      402,
-      126
+      184,
+      153
     ],
     [
-      962,
-      74
+      958,
+      105
     ],
     [
-      962,
-      676
+      960,
+      656
     ],
     [
-      410,
-      758
+      223,
+      759
     ]
   ],
   "front_face_measurement": {
@@ -115,22 +115,22 @@
     "source_image": "raw_viagra_front.png",
     "rectified_px": [
       1100,
-      1212
+      819
     ],
-    "reference_aspect": 1.1018,
+    "reference_aspect": 0.7445,
     "catalogue_aspect": 0.4545,
     "fields": {
       "brand": {
-        "pct": 9.7,
-        "hex": "#34376D"
+        "pct": 25.2,
+        "hex": "#002957"
       },
       "substrate": {
-        "pct": 87.3,
-        "hex": "#DEDEDB"
+        "pct": 69.7,
+        "hex": "#DDDEDB"
       },
       "highlight": {
-        "pct": 3.0,
-        "hex": "#97A9BC"
+        "pct": 5.2,
+        "hex": "#636671"
       },
       "type": null
     },
