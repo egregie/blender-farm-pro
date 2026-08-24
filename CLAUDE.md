@@ -159,6 +159,46 @@ disk are rejected until Stage 1 regenerates them.
   geometric figures above survive it too: a filled ring gains 0.083% of its area across the
   group's 74, and Adderall's `brand#1` reads 53.48% of the face either way.)
 
+  **The 228 that stay filled were priced, and only two of them are worth anything.**
+  `scripts/measure_hole_payoff.py` cuts each hole ALONE and re-scores, without rendering:
+  `truth_agreement` is a spec-against-reference figure, so a hole costs one masked
+  substitution rather than a render. Full write-up in
+  [`00_PROJECT_STATE/HOLE_CEILING.md`](00_PROJECT_STATE/HOLE_CEILING.md).
+
+  By class, in points of group `truth_agreement`: `lettering` 199 holes **+44.433**,
+  `mark` 8 holes **+9.937**, `blend` 10 holes +0.847, `object` 12 holes +0.136. Excluding
+  lettering the total is +10.920, which passes any threshold worth setting — and **91% of
+  it is `mark`**, two holes carrying +5.290 and +3.865: Viagra's and Ativan's Pfizer ovals,
+  with Inderal's LCI roundel third at +0.631. Cutting a `mark` hole while drawing nothing
+  into it shows board through our field in the shape of another company's logo, which is
+  the same act as cutting Ritalin's lettering. **Outside every third party's branding the
+  reachable figure is +0.983 points over 22 holes, 23 of the 29 non-lettering holes worth
+  under 0.1 each** — below the threshold, so no re-classification pass was run and nothing
+  was reclassified.
+
+  What it does open is not an engineering decision: a `mark` hole and a `mark` component
+  are ONE decision. Cutting the hole *as part of drawing the mark* is coherent — the hole
+  is then a window onto the logo the carton actually prints — and the group's 27 `mark`
+  components are already labelled for `design.marks[]`. That path is worth the +9.937 and
+  is blocked on reproducing third-party trademarks, which is the owner's call.
+
+  Three counts that do not match, so nobody re-derives them: the truth files carry **242**
+  hole entries, the partition has **239**, and this file said 238 before the Viagra corner
+  fix. The difference is three `74_Viagra` holes flagged `"vanished": true` — labelled
+  against the corners `6d37b89` corrected, and KEPT rather than deleted so the
+  disappearance is visible. And "239" means holes above `MIN_HOLE_FRAC`: Kamagra's
+  `brand#0` mask holds 593 enclosed regions and six clear the floor.
+
+  **The face a spec is traced from is often very small, and that is now declared.**
+  `OUT_WIDTH` is 1100 whatever the photograph, so `357_Adderall`'s 134x172 face is enlarged
+  **8.21x** and `151_Provigil`'s 147x248 **7.48x**. `SIMPLIFY_TOLERANCE` is a thousandth of
+  the rectified width, which on Adderall is 0.13 of a SOURCE pixel — finer than the grid the
+  evidence is on. `scripts/measure_face_resolution.py` reports every folder;
+  `TestTheFaceResolutionCeilingIsDeclared` names the six below 350px and fails in both
+  directions. It is a declaration, not a gate — those folders keep their specs and go on
+  rendering; the threshold comes from the one real gap in the distribution, the 20% step
+  between 322 and 387 where every neighbouring step above is under 8%.
+
   **Blender cuts a hole by NESTING, so a hole is another cyclic spline of the same curve.**
   Measured on 5.1.2: a unit square with a 0.5 inner square fills 0.7500 whichever way either
   ring is wound, and the extrude walls the hole too. Two objects would each fill and the hole

@@ -505,3 +505,70 @@ class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
             f"a stored coordinate is {worst:.4f} px from the nearest pixel "
             f"({worst_at}); the rounding is the inverse of the trace only while "
             f"every vertex is unambiguously one pixel")
+
+
+class TestTheFaceResolutionCeilingIsDeclared(unittest.TestCase):
+    """How many real pixels each measurement had, stated instead of assumed.
+
+    `measure_reference_face.OUT_WIDTH` is 1100 for every folder whatever the
+    photograph, so a spec is traced from the face enlarged to that width. On
+    `357_Adderall` the face is 134x172 pixels in its source and the enlargement
+    is 8.2x; `SIMPLIFY_TOLERANCE`, a thousandth of the rectified width, is 0.13
+    of a source pixel there -- finer than the grid the evidence is on.
+
+    This test DECLARES that rather than forbidding it. A folder below the
+    threshold keeps its spec, stays in TEMPLATE_SAMPLE and goes on rendering;
+    what it may not do is be a surprise. The same idiom as UNMEASURABLE above,
+    for a different limit: `107_Tramadol` is out because no simple ring can
+    represent its segmentation, these six are in but measured from very little.
+
+    It fails in both directions on purpose. Better photography for one of these
+    should remove it from the set, and a folder that drops below the threshold
+    should be added -- either way by editing a list, which is a decision, rather
+    than by a figure quietly moving.
+    """
+
+    #: Threshold and membership both come from scripts/measure_face_resolution.py,
+    #: which states how the number was taken from the distribution rather than
+    #: chosen. Kept here as literals so this test is readable on its own and
+    #: fails loudly if the script's answer changes.
+    MIN_FACE_PX = 350
+    BELOW_THRESHOLD = {
+        "135_Ativan",        # 302x465, 3.64x
+        "151_Provigil",      # 147x248, 7.48x  -- and no `print` component at all
+        "156_Xanax",         # 260x179, 4.23x
+        "304_Sonata",        # 278x182, 3.96x
+        "357_Adderall",      # 134x172, 8.21x  -- the group's smallest face
+        "362_Hydrocodone",   # 322x406, 3.42x
+    }
+
+    def test_exactly_these_folders_are_measured_from_a_short_face(self):
+        if not TEMPLATES_DIR.exists():
+            self.skipTest(f"{TEMPLATES_DIR.name}/ is not in this checkout")
+        from scripts.measure_face_resolution import MIN_FACE_PX, face_size
+        from src.design_group import FOLDER_BY_STEM
+
+        self.assertEqual(
+            MIN_FACE_PX, self.MIN_FACE_PX,
+            "the threshold moved in measure_face_resolution.py; this list was "
+            "measured against the old one")
+
+        short = set()
+        seen = 0
+        for name in set(FOLDER_BY_STEM.values()):
+            md = TEMPLATES_DIR / name / "metadata.json"
+            if not md.exists():
+                continue
+            corners = json.loads(md.read_text(encoding="utf-8")).get("front_face_px")
+            if not corners or len(corners) != 4:
+                continue
+            seen += 1
+            if face_size(corners)[0] < MIN_FACE_PX:
+                short.add(name)
+
+        self.assertGreater(seen, 20, "the group's metadata went missing")
+        self.assertEqual(
+            short, self.BELOW_THRESHOLD,
+            f"the set of folders measured from a face narrower than {MIN_FACE_PX}px "
+            f"has changed: now {sorted(short)}. This is a declaration, not a gate -- "
+            f"update the list and say in the commit which photograph moved.")

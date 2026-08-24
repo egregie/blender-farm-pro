@@ -3,6 +3,52 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — The hole ceiling — 24 August 2026
+
+The tooling migration closed with the observation that the whole 6.8-point gap
+between "outer ring only" and "every hole cut" belongs to holes, and that ten of
+the group's holes are cut. This priced the rest. Nothing was reclassified; no
+spec, manifest or figure changed. Full write-up in
+[`00_PROJECT_STATE/HOLE_CEILING.md`](00_PROJECT_STATE/HOLE_CEILING.md).
+
+### Added
+- `scripts/measure_hole_payoff.py` — cuts each hole alone and re-scores
+  `truth_agreement`, which needs no render. `behind` is computed once per part
+  and each hole is then a masked substitution, so pricing all 239 costs one
+  `segment()` per folder. It answers what a cut would be WORTH and never whether
+  to make it: `tests/test_hole_payoff.py` pins by static scan that it writes only
+  its own report, opens nothing for writing, never imports `label_print`, and
+  that every class in the report is a join onto the hand-made labelling.
+- `scripts/measure_face_resolution.py` and
+  `TestTheFaceResolutionCeilingIsDeclared` — the real size of every reference
+  face, and the six folders below 350px named. A declaration, not a gate: they
+  keep their specs and go on rendering.
+
+### Measured, and no action taken
+- **The 228 filled holes are worth +10.920 points excluding `lettering`, and 91%
+  of that is `mark`.** Two holes carry +5.290 and +3.865 — Viagra's and Ativan's
+  Pfizer ovals — with Inderal's LCI roundel third. Cutting a `mark` hole while
+  drawing nothing into it shows board through our field in the shape of another
+  company's logo, which is the act contract 1.8 already refuses for another
+  company's lettering. **Outside every third party's branding the reachable
+  figure is +0.983 points over 22 holes**, 23 of the 29 non-lettering holes worth
+  under 0.1 each. Below the threshold set before measuring, so the
+  re-classification pass was not run.
+- What it opens is not an engineering decision: a `mark` hole and a `mark`
+  component are one decision, the 27 components are already labelled for
+  `design.marks[]`, and cutting the hole *as part of drawing the mark* is
+  coherent. Worth the +9.937, blocked on reproducing third-party trademarks.
+- **The face resolution ceiling.** `OUT_WIDTH` is 1100 whatever the photograph,
+  so `357_Adderall`'s 134x172 face is enlarged 8.21x and `SIMPLIFY_TOLERANCE`
+  works out at 0.13 of a source pixel there.
+
+### Fixed
+- Three counts of the group's holes disagreed — 242 entries in the truth files,
+  239 in the partition, 238 in `CLAUDE.md`. The difference is three `74_Viagra`
+  holes flagged `"vanished": true`, labelled against the corners `6d37b89`
+  corrected and kept rather than deleted so the disappearance stays visible.
+  Stated in the report and in `CLAUDE.md` instead of being re-derived next time.
+
 ## [Unreleased] — Tooling migration — 24 August 2026
 
 Four installed-but-unwired libraries were to be brought into the design-transfer
