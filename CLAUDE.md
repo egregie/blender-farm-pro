@@ -512,6 +512,69 @@ worst, measured on the eleven-carton group and the previous photography. Neither
 the move to 28 cartons: Ritalin now ranks nineteenth by agreement and Cialis twenty-third,
 and the worst is `357-min` at 93.1%. The reading the paragraph exists for is unchanged.)
 
+**The four hand-set corners are an INPUT nothing checks, and every figure below
+them inherits whatever they enclose.** `74_Viagra`'s `front_face_px` bounded the
+right two thirds of its front face — the navy Pfizer band, a quarter of the
+carton, fell outside — and the render came out a white box with a small square.
+Every instrument called it healthy: `truth_agreement` 99.47%, `spec~ref` 100.0%,
+`render~spec` 100.0%, `field_iou_worst` 99.4%. They all compare our render with
+what the corners produced; the corners themselves are compared with nothing.
+
+It reached that state twice over. The second time the corners followed the
+carton's physical edge, which put the CREASE inside the face: between the band
+and the edge lay a strip 0.95% of the face, 57.4% shading and 42.2% blown-out
+substrate, and the tracer walked round it — 75 of that ring's 110 segments under
+10px, every one on that edge. Moving the left corners in by the crease width
+(p90, 18px along the edge's own normal) took the outline to 34 vertices, and the
+`highlight` cluster stopped separating at all: it WAS the crease. The corners
+bound the printed FACE, not the box.
+
+**`truth_agreement` fell from 99.47% to 94.18% as that carton was fixed**, and
+that is the clearest statement of what it cannot see. It scores the union of
+"the reference prints here" and "the spec draws here" over what a person
+classified — so where the classification writes the design off, both sides agree
+on emptiness and the figure reads near-perfect. `print_agreement` moved the
+right way, 19.41% → 73.98%, and so did the ratio the report already prints
+side by side:
+
+    print% / truth%   12.71 / 2.48 = 5.1x   →   28.27 / 21.74 = 1.3x
+
+That ratio is the cheap screen for "the labelling wrote the design off", and
+across the group it ranked `340-min` worst at 8.2x. A second screen catches the
+corner error itself: the rectified face's aspect against the aspect our own
+carton is built to. Seven of the 28 sit at 2.20–3.70 and the other twenty-one at
+1.60 and below, with nothing in between — but it only screens. The photograph
+may legitimately show a different pack, and only the contact sheet decides which.
+
+**Two protections against a corner change are asymmetric, and the gap is what
+carried the stale rows.** `print_truth.json` records the corners it was made
+against and `verify()` refuses when they move. `type_rows` records nothing, and
+`fit()` deliberately carries it forward — the mechanism that stops
+`measure_type_rows`' work being silently deleted is exactly what carried
+`74_Viagra`'s four rows, measured on the old crop, onto the new face. Three of
+the four then printed in ink their own background hides, and
+`_clear_of_design` never touched them because it is grid-rows-only and these
+are measured. Re-measuring put all four right of the band, as the reference has
+them. Note also that `label_print --init` MERGES old classes onto new components
+while rewriting the corners it validates against; after a corner change every
+component has to be classified again by hand, not trusted to the merge.
+
+**A rule that straightens a ring segment lying on the face boundary was built,
+tested and discarded.** Three synthetic properties held — a notch is closed, a
+region with a clean margin does not move, a corner-only contact does not fill a
+whole side — and on real data it was both too weak and too strong: `74-min`
+unchanged, because the band does not reach the edge in the ragged region at all,
+and `150-min` 1.06% → 9.57%, filling the full width from contacts scattered
+across it. The raggedness was never the tracer's; it was the crease being inside
+the face.
+
+**Named and not fixed: the pale blue strip.** `74_Viagra` prints `#ADC5DE`
+between the band and the substrate, u 0.233–0.269, 3.6% of the face width. The
+segmentation is k-means at k=4 and all four clusters are spent on substrate,
+brand, highlight and type; a fourth printed colour does not fit the model. Raising
+k changes every published figure for all 28 cartons, so this is a decision rather
+than an oversight.
+
 **A figure that was never taken must not print as a figure that came out zero.**
 `render_vs_reference` needs the rectified photograph on disk, and `design_qa` keys it by
 FOLDER NAME — so when `aa28834` renamed `64_Kamagra_Template_Reference` and
