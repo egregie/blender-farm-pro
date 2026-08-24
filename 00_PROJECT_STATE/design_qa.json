@@ -217,40 +217,40 @@
     {
       "sku": "74-min",
       "folder": "74_Viagra",
-      "palette_closest_pair": 1.0293,
+      "palette_closest_pair": 1.2297,
       "separable": true,
       "palette_on_line": null,
       "palette_on_line_who": null,
-      "edge_dropped": 0.0066,
-      "illumination": "blur",
+      "edge_dropped": 0.01,
+      "illumination": "plane",
       "illumination_residual": {
-        "plane": 0.0598,
-        "blur": 0.054
+        "plane": 0.0631,
+        "blur": 0.0832
       },
       "render_vs_spec": {
-        "agreement": 0.9999,
+        "agreement": 0.9996,
         "iou": {
-          "0": 1.0,
-          "1": 0.994
+          "0": 0.999,
+          "1": 0.998
         }
       },
-      "field_iou_worst": 0.994,
+      "field_iou_worst": 0.998,
       "agreement_spread": 0.0,
       "colour_error_by_region": {
-        "0": 0.1883,
-        "1": 0.0484
+        "0": 0.1594,
+        "1": 0.141
       },
-      "colour_error_worst": 0.1883,
+      "colour_error_worst": 0.1594,
       "response": null,
       "colour_residual_by_region": {},
       "colour_residual_worst": null,
-      "spec_vs_reference": 1.0,
-      "field_kept_min": 0.9836,
+      "spec_vs_reference": 0.9857,
+      "field_kept_min": 0.9924,
       "render_vs_reference": {
-        "agreement": 0.9441,
+        "agreement": 0.9451,
         "iou": {
-          "0": 0.943,
-          "1": 0.312
+          "0": 0.929,
+          "1": 0.806
         }
       }
     },

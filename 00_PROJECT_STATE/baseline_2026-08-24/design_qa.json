@@ -1,0 +1,1331 @@
+{
+  "rows": [
+    {
+      "sku": "59-min",
+      "folder": "59_Cialis",
+      "palette_closest_pair": 0.1057,
+      "separable": true,
+      "palette_on_line": 0.0636,
+      "palette_on_line_who": "substrate on brand-highlight",
+      "edge_dropped": 0.0503,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0968,
+        "blur": 0.0754
+      },
+      "render_vs_spec": {
+        "agreement": 0.9904,
+        "iou": {
+          "0": 0.994,
+          "1": 0.968,
+          "2": 0.963
+        }
+      },
+      "field_iou_worst": 0.963,
+      "agreement_spread": 0.0173,
+      "colour_error_by_region": {
+        "0": 0.1627,
+        "1": 0.1414,
+        "2": 0.1116
+      },
+      "colour_error_worst": 0.1627,
+      "response": {
+        "gain": [
+          1.256,
+          1.252,
+          1.367
+        ],
+        "lift": [
+          -0.116,
+          -0.113,
+          -0.189
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0499,
+        "1": 0.0085,
+        "2": 0.0419
+      },
+      "colour_residual_worst": 0.0499,
+      "spec_vs_reference": 0.9877,
+      "field_kept_min": 0.9113,
+      "render_vs_reference": {
+        "agreement": 0.823,
+        "iou": {
+          "0": 0.688,
+          "1": 0.867,
+          "2": 0.576
+        }
+      }
+    },
+    {
+      "sku": "60-min",
+      "folder": "60_Cialis_Professional",
+      "palette_closest_pair": 0.782,
+      "separable": true,
+      "palette_on_line": 0.5125,
+      "palette_on_line_who": "brand on substrate-highlight",
+      "edge_dropped": 0.0207,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0846,
+        "blur": 0.0842
+      },
+      "render_vs_spec": {
+        "agreement": 0.9993,
+        "iou": {
+          "0": 0.999,
+          "1": 1.0,
+          "2": 0.989
+        }
+      },
+      "field_iou_worst": 0.989,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.188,
+        "1": 0.1282,
+        "2": 0.0504
+      },
+      "colour_error_worst": 0.188,
+      "response": {
+        "gain": [
+          1.242,
+          1.192,
+          1.221
+        ],
+        "lift": [
+          -0.085,
+          -0.045,
+          -0.072
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0015,
+        "1": 0.0047,
+        "2": 0.0041
+      },
+      "colour_residual_worst": 0.0047,
+      "spec_vs_reference": 0.9984,
+      "field_kept_min": 0.9444,
+      "render_vs_reference": {
+        "agreement": 0.9471,
+        "iou": {
+          "0": 0.94,
+          "1": 0.693,
+          "2": 0.718
+        }
+      }
+    },
+    {
+      "sku": "62-min",
+      "folder": "62_Cialis_Super_Active",
+      "palette_closest_pair": 0.631,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0274,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.069,
+        "blur": 0.064
+      },
+      "render_vs_spec": {
+        "agreement": 0.9988,
+        "iou": {
+          "0": 0.998,
+          "1": 0.995
+        }
+      },
+      "field_iou_worst": 0.995,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1295,
+        "1": 0.0721
+      },
+      "colour_error_worst": 0.1295,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.998,
+      "field_kept_min": 0.8888,
+      "render_vs_reference": {
+        "agreement": 0.9678,
+        "iou": {
+          "0": 0.957,
+          "1": 0.884
+        }
+      }
+    },
+    {
+      "sku": "64-min",
+      "folder": "64_Kamagra",
+      "palette_closest_pair": 0.1221,
+      "separable": true,
+      "palette_on_line": 0.0842,
+      "palette_on_line_who": "brand on substrate-highlight",
+      "edge_dropped": 0.0327,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.071,
+        "blur": 0.0993
+      },
+      "render_vs_spec": {
+        "agreement": 0.9914,
+        "iou": {
+          "0": 0.991,
+          "1": 0.975,
+          "2": 0.959
+        }
+      },
+      "field_iou_worst": 0.959,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1744,
+        "1": 0.131,
+        "2": 0.1371
+      },
+      "colour_error_worst": 0.1744,
+      "response": {
+        "gain": [
+          1.362,
+          1.22,
+          1.241
+        ],
+        "lift": [
+          -0.177,
+          -0.064,
+          -0.076
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0012,
+        "1": 0.011,
+        "2": 0.0098
+      },
+      "colour_residual_worst": 0.011,
+      "spec_vs_reference": 0.9951,
+      "field_kept_min": 0.8705,
+      "render_vs_reference": {
+        "agreement": 0.8897,
+        "iou": {
+          "0": 0.959,
+          "1": 0.773,
+          "2": 0.091
+        }
+      }
+    },
+    {
+      "sku": "74-min",
+      "folder": "74_Viagra",
+      "palette_closest_pair": 1.0293,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0066,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0598,
+        "blur": 0.054
+      },
+      "render_vs_spec": {
+        "agreement": 0.9999,
+        "iou": {
+          "0": 1.0,
+          "1": 0.994
+        }
+      },
+      "field_iou_worst": 0.994,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1883,
+        "1": 0.0484
+      },
+      "colour_error_worst": 0.1883,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": 0.9836,
+      "render_vs_reference": {
+        "agreement": 0.9441,
+        "iou": {
+          "0": 0.943,
+          "1": 0.312
+        }
+      }
+    },
+    {
+      "sku": "133-min",
+      "folder": "133_Ambien",
+      "palette_closest_pair": 0.6167,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0192,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0602,
+        "blur": 0.0523
+      },
+      "render_vs_spec": {
+        "agreement": 0.9998,
+        "iou": {
+          "0": 1.0,
+          "1": 0.999
+        }
+      },
+      "field_iou_worst": 0.999,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1044,
+        "1": 0.0537
+      },
+      "colour_error_worst": 0.1044,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9967,
+      "field_kept_min": 0.8837,
+      "render_vs_reference": {
+        "agreement": 0.9741,
+        "iou": {
+          "0": 0.966,
+          "1": 0.899
+        }
+      }
+    },
+    {
+      "sku": "134-min",
+      "folder": "134_Atarax",
+      "palette_closest_pair": 0.3731,
+      "separable": true,
+      "palette_on_line": 0.1322,
+      "palette_on_line_who": "brand on substrate-type",
+      "edge_dropped": 0.024,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0966,
+        "blur": 0.0825
+      },
+      "render_vs_spec": {
+        "agreement": 0.9994,
+        "iou": {
+          "0": 0.999,
+          "1": 0.988,
+          "2": 0.999
+        }
+      },
+      "field_iou_worst": 0.988,
+      "agreement_spread": 0.0001,
+      "colour_error_by_region": {
+        "0": 0.1297,
+        "1": 0.0475,
+        "2": 0.1131
+      },
+      "colour_error_worst": 0.1297,
+      "response": {
+        "gain": [
+          1.194,
+          1.182,
+          1.176
+        ],
+        "lift": [
+          -0.099,
+          -0.098,
+          -0.094
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.017,
+        "1": 0.0199,
+        "2": 0.0031
+      },
+      "colour_residual_worst": 0.0199,
+      "spec_vs_reference": 0.9977,
+      "field_kept_min": 0.8937,
+      "render_vs_reference": {
+        "agreement": 0.9863,
+        "iou": {
+          "0": 0.985,
+          "1": 0.787,
+          "2": 0.983
+        }
+      }
+    },
+    {
+      "sku": "135-min",
+      "folder": "135_Ativan",
+      "palette_closest_pair": 0.7137,
+      "separable": true,
+      "palette_on_line": 0.3893,
+      "palette_on_line_who": "highlight on substrate-brand",
+      "edge_dropped": 0.0111,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.0768,
+        "blur": 0.0779
+      },
+      "render_vs_spec": {
+        "agreement": 0.9996,
+        "iou": {
+          "0": 1.0,
+          "1": 0.999,
+          "2": 0.995
+        }
+      },
+      "field_iou_worst": 0.995,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1659,
+        "1": 0.1413,
+        "2": 0.0778
+      },
+      "colour_error_worst": 0.1659,
+      "response": {
+        "gain": [
+          1.372,
+          1.218,
+          1.179
+        ],
+        "lift": [
+          -0.187,
+          -0.077,
+          -0.047
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0098,
+        "1": 0.0064,
+        "2": 0.0145
+      },
+      "colour_residual_worst": 0.0145,
+      "spec_vs_reference": 0.9845,
+      "field_kept_min": 0.973,
+      "render_vs_reference": {
+        "agreement": 0.9618,
+        "iou": {
+          "0": 0.954,
+          "1": 0.84,
+          "2": 0.82
+        }
+      }
+    },
+    {
+      "sku": "149-min",
+      "folder": "149_Modalert",
+      "palette_closest_pair": 0.7485,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0304,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0973,
+        "blur": 0.0782
+      },
+      "render_vs_spec": {
+        "agreement": 0.9834,
+        "iou": {
+          "0": 0.979,
+          "1": 0.93
+        }
+      },
+      "field_iou_worst": 0.93,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1018,
+        "1": 0.0709
+      },
+      "colour_error_worst": 0.1018,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9683,
+      "field_kept_min": 0.9635,
+      "render_vs_reference": {
+        "agreement": 0.9326,
+        "iou": {
+          "0": 0.916,
+          "1": 0.743
+        }
+      }
+    },
+    {
+      "sku": "150-min",
+      "folder": "150_Waklert",
+      "palette_closest_pair": 0.0929,
+      "separable": true,
+      "palette_on_line": 0.0874,
+      "palette_on_line_who": "highlight on substrate-brand",
+      "edge_dropped": 0.0315,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0983,
+        "blur": 0.0751
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 0.998
+        }
+      },
+      "field_iou_worst": 0.998,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1141,
+        "1": 0.0441,
+        "2": 0.0483
+      },
+      "colour_error_worst": 0.1141,
+      "response": {
+        "gain": [
+          1.071,
+          1.125,
+          1.162
+        ],
+        "lift": [
+          -0.019,
+          -0.056,
+          -0.081
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0403,
+        "1": 0.0131,
+        "2": 0.0318
+      },
+      "colour_residual_worst": 0.0403,
+      "spec_vs_reference": 0.9953,
+      "field_kept_min": 0.5206,
+      "render_vs_reference": {
+        "agreement": 0.7963,
+        "iou": {
+          "0": 0.771,
+          "1": 0.46,
+          "2": 0.063
+        }
+      }
+    },
+    {
+      "sku": "151-min",
+      "folder": "151_Provigil",
+      "palette_closest_pair": 1.0,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.165,
+        "blur": 0.1661
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      },
+      "field_iou_worst": null,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1694
+      },
+      "colour_error_worst": 0.1694,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": null,
+      "render_vs_reference": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      }
+    },
+    {
+      "sku": "152-min",
+      "folder": "152_Artvigil",
+      "palette_closest_pair": 1.0947,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0267,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1033,
+        "blur": 0.0897
+      },
+      "render_vs_spec": {
+        "agreement": 0.9999,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0001,
+      "colour_error_by_region": {
+        "0": 0.1068,
+        "1": 0.148
+      },
+      "colour_error_worst": 0.148,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9967,
+      "field_kept_min": 0.9629,
+      "render_vs_reference": {
+        "agreement": 0.9812,
+        "iou": {
+          "0": 0.979,
+          "1": 0.864
+        }
+      }
+    },
+    {
+      "sku": "155-min",
+      "folder": "155_Imovane",
+      "palette_closest_pair": 0.4097,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0165,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1021,
+        "blur": 0.067
+      },
+      "render_vs_spec": {
+        "agreement": 0.9996,
+        "iou": {
+          "0": 1.0,
+          "1": 0.933
+        }
+      },
+      "field_iou_worst": 0.933,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1247,
+        "1": 0.1482
+      },
+      "colour_error_worst": 0.1482,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9988,
+      "field_kept_min": 0.689,
+      "render_vs_reference": {
+        "agreement": 0.9149,
+        "iou": {
+          "0": 0.914,
+          "1": 0.065
+        }
+      }
+    },
+    {
+      "sku": "156-min",
+      "folder": "156_Xanax",
+      "palette_closest_pair": 0.6036,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0186,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1059,
+        "blur": 0.0995
+      },
+      "render_vs_spec": {
+        "agreement": 0.9999,
+        "iou": {
+          "0": 1.0,
+          "1": 0.999
+        }
+      },
+      "field_iou_worst": 0.999,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1411,
+        "1": 0.0777
+      },
+      "colour_error_worst": 0.1411,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9992,
+      "field_kept_min": 0.983,
+      "render_vs_reference": {
+        "agreement": 0.9535,
+        "iou": {
+          "0": 0.946,
+          "1": 0.743
+        }
+      }
+    },
+    {
+      "sku": "157-min",
+      "folder": "157_Valium",
+      "palette_closest_pair": 0.4687,
+      "separable": true,
+      "palette_on_line": 0.3742,
+      "palette_on_line_who": "brand on substrate-type",
+      "edge_dropped": 0.0172,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0745,
+        "blur": 0.065
+      },
+      "render_vs_spec": {
+        "agreement": 0.9999,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1062,
+        "1": 0.0737,
+        "2": 0.1683
+      },
+      "colour_error_worst": 0.1683,
+      "response": {
+        "gain": [
+          1.25,
+          1.321,
+          1.275
+        ],
+        "lift": [
+          -0.128,
+          -0.152,
+          -0.13
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0208,
+        "1": 0.0464,
+        "2": 0.0308
+      },
+      "colour_residual_worst": 0.0464,
+      "spec_vs_reference": 0.9985,
+      "field_kept_min": 0.8982,
+      "render_vs_reference": {
+        "agreement": 0.9949,
+        "iou": {
+          "0": 0.994,
+          "1": 0.994,
+          "2": 0.699
+        }
+      }
+    },
+    {
+      "sku": "158-min",
+      "folder": "158_Klonopin",
+      "palette_closest_pair": 0.6682,
+      "separable": true,
+      "palette_on_line": 0.5965,
+      "palette_on_line_who": "brand on substrate-highlight",
+      "edge_dropped": 0.0233,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1088,
+        "blur": 0.0826
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1142,
+        "1": 0.0636,
+        "2": 0.0544
+      },
+      "colour_error_worst": 0.1142,
+      "response": {
+        "gain": [
+          1.177,
+          1.033,
+          1.214
+        ],
+        "lift": [
+          -0.079,
+          -0.001,
+          -0.108
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0399,
+        "1": 0.0135,
+        "2": 0.0445
+      },
+      "colour_residual_worst": 0.0445,
+      "spec_vs_reference": 0.9869,
+      "field_kept_min": 0.9797,
+      "render_vs_reference": {
+        "agreement": 0.9783,
+        "iou": {
+          "0": 0.972,
+          "1": 0.936,
+          "2": 0.832
+        }
+      }
+    },
+    {
+      "sku": "221-min",
+      "folder": "221_Inderal",
+      "palette_closest_pair": 0.6936,
+      "separable": true,
+      "palette_on_line": 0.3625,
+      "palette_on_line_who": "highlight on substrate-brand",
+      "edge_dropped": 0.0266,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.0147,
+        "blur": 0.0317
+      },
+      "render_vs_spec": {
+        "agreement": 0.9863,
+        "iou": {
+          "0": 0.985,
+          "1": 0.893,
+          "2": 0.983
+        }
+      },
+      "field_iou_worst": 0.893,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1349,
+        "1": 0.1371,
+        "2": 0.0838
+      },
+      "colour_error_worst": 0.1371,
+      "response": {
+        "gain": [
+          1.251,
+          1.274,
+          1.185
+        ],
+        "lift": [
+          -0.149,
+          -0.156,
+          -0.09
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0188,
+        "1": 0.0395,
+        "2": 0.0561
+      },
+      "colour_residual_worst": 0.0561,
+      "spec_vs_reference": 0.9513,
+      "field_kept_min": 0.7201,
+      "render_vs_reference": {
+        "agreement": 0.9328,
+        "iou": {
+          "0": 0.92,
+          "1": 0.782,
+          "2": 0.73
+        }
+      }
+    },
+    {
+      "sku": "230-min",
+      "folder": "230_Slimex",
+      "palette_closest_pair": 1.0,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0145,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0925,
+        "blur": 0.0902
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      },
+      "field_iou_worst": null,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1284
+      },
+      "colour_error_worst": 0.1284,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": null,
+      "render_vs_reference": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      }
+    },
+    {
+      "sku": "272-min",
+      "folder": "272_Valium_Brand",
+      "palette_closest_pair": 1.0846,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0206,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0928,
+        "blur": 0.0822
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1043,
+        "1": 0.1086
+      },
+      "colour_error_worst": 0.1086,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9996,
+      "field_kept_min": 0.9585,
+      "render_vs_reference": {
+        "agreement": 0.9145,
+        "iou": {
+          "0": 0.912,
+          "1": 0.279
+        }
+      }
+    },
+    {
+      "sku": "304-min",
+      "folder": "304_Sonata",
+      "palette_closest_pair": 0.6144,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0115,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0777,
+        "blur": 0.0643
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1514,
+        "1": 0.1027
+      },
+      "colour_error_worst": 0.1514,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9999,
+      "field_kept_min": 0.6021,
+      "render_vs_reference": {
+        "agreement": 0.938,
+        "iou": {
+          "0": 0.938,
+          "1": 0.013
+        }
+      }
+    },
+    {
+      "sku": "308-min",
+      "folder": "308_Lexotanil",
+      "palette_closest_pair": 0.8586,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0174,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.079,
+        "blur": 0.0595
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.0884,
+        "1": 0.1423
+      },
+      "colour_error_worst": 0.1423,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9995,
+      "field_kept_min": 0.9487,
+      "render_vs_reference": {
+        "agreement": 0.9897,
+        "iou": {
+          "0": 0.989,
+          "1": 0.779
+        }
+      }
+    },
+    {
+      "sku": "340-min",
+      "folder": "340_Xanax_Pfizer",
+      "palette_closest_pair": 0.9366,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.032,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0986,
+        "blur": 0.0922
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0,
+          "1": 1.0
+        }
+      },
+      "field_iou_worst": 1.0,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.0989,
+        "1": 0.1161
+      },
+      "colour_error_worst": 0.1161,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9972,
+      "field_kept_min": 0.9399,
+      "render_vs_reference": {
+        "agreement": 0.947,
+        "iou": {
+          "0": 0.94,
+          "1": 0.676
+        }
+      }
+    },
+    {
+      "sku": "344-min",
+      "folder": "344_Modafinil_Generic",
+      "palette_closest_pair": 0.7485,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0336,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.1178,
+        "blur": 0.0874
+      },
+      "render_vs_spec": {
+        "agreement": 0.9832,
+        "iou": {
+          "0": 0.978,
+          "1": 0.93
+        }
+      },
+      "field_iou_worst": 0.93,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1019,
+        "1": 0.0699
+      },
+      "colour_error_worst": 0.1019,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9683,
+      "field_kept_min": 0.9637,
+      "render_vs_reference": {
+        "agreement": 0.9398,
+        "iou": {
+          "0": 0.925,
+          "1": 0.766
+        }
+      }
+    },
+    {
+      "sku": "346-min",
+      "folder": "346_Modvigil",
+      "palette_closest_pair": 1.0,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0148,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0989,
+        "blur": 0.0817
+      },
+      "render_vs_spec": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      },
+      "field_iou_worst": null,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1172
+      },
+      "colour_error_worst": 0.1172,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 1.0,
+      "field_kept_min": null,
+      "render_vs_reference": {
+        "agreement": 1.0,
+        "iou": {
+          "0": 1.0
+        }
+      }
+    },
+    {
+      "sku": "357-min",
+      "folder": "357_Adderall",
+      "palette_closest_pair": 0.3154,
+      "separable": true,
+      "palette_on_line": 0.2302,
+      "palette_on_line_who": "brand on substrate-highlight",
+      "edge_dropped": 0.0276,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.2774,
+        "blur": 0.279
+      },
+      "render_vs_spec": {
+        "agreement": 0.9307,
+        "iou": {
+          "0": 0.895,
+          "1": 0.914,
+          "2": 0.804
+        }
+      },
+      "field_iou_worst": 0.804,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1504,
+        "1": 0.1086,
+        "2": 0.1812
+      },
+      "colour_error_worst": 0.1812,
+      "response": {
+        "gain": [
+          1.345,
+          1.327,
+          1.283
+        ],
+        "lift": [
+          -0.188,
+          -0.171,
+          -0.142
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0163,
+        "1": 0.018,
+        "2": 0.0041
+      },
+      "colour_residual_worst": 0.018,
+      "spec_vs_reference": 0.9802,
+      "field_kept_min": 0.9498,
+      "render_vs_reference": {
+        "agreement": 0.6955,
+        "iou": {
+          "0": 0.556,
+          "1": 0.497,
+          "2": 0.524
+        }
+      }
+    },
+    {
+      "sku": "362-min",
+      "folder": "362_Hydrocodone",
+      "palette_closest_pair": 1.0876,
+      "separable": true,
+      "palette_on_line": null,
+      "palette_on_line_who": null,
+      "edge_dropped": 0.0131,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.0697,
+        "blur": 0.0743
+      },
+      "render_vs_spec": {
+        "agreement": 0.9831,
+        "iou": {
+          "0": 0.981,
+          "1": 0.881
+        }
+      },
+      "field_iou_worst": 0.881,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1822,
+        "1": 0.2217
+      },
+      "colour_error_worst": 0.2217,
+      "response": null,
+      "colour_residual_by_region": {},
+      "colour_residual_worst": null,
+      "spec_vs_reference": 0.9913,
+      "field_kept_min": 0.9842,
+      "render_vs_reference": {
+        "agreement": 0.942,
+        "iou": {
+          "0": 0.934,
+          "1": 0.678
+        }
+      }
+    },
+    {
+      "sku": "365-min",
+      "folder": "365_Tapentadol",
+      "palette_closest_pair": 0.8191,
+      "separable": true,
+      "palette_on_line": 0.6801,
+      "palette_on_line_who": "brand on substrate-secondary_1",
+      "edge_dropped": 0.0304,
+      "illumination": "blur",
+      "illumination_residual": {
+        "plane": 0.0989,
+        "blur": 0.0829
+      },
+      "render_vs_spec": {
+        "agreement": 0.9981,
+        "iou": {
+          "0": 0.998,
+          "1": 0.983,
+          "2": 0.998
+        }
+      },
+      "field_iou_worst": 0.983,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1049,
+        "1": 0.1593,
+        "2": 0.0271
+      },
+      "colour_error_worst": 0.1593,
+      "response": {
+        "gain": [
+          1.153,
+          1.113,
+          1.229
+        ],
+        "lift": [
+          -0.055,
+          -0.03,
+          -0.118
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0136,
+        "1": 0.0404,
+        "2": 0.0451
+      },
+      "colour_residual_worst": 0.0451,
+      "spec_vs_reference": 0.9984,
+      "field_kept_min": 0.8282,
+      "render_vs_reference": {
+        "agreement": 0.965,
+        "iou": {
+          "0": 0.96,
+          "1": 0.904,
+          "2": 0.379
+        }
+      }
+    },
+    {
+      "sku": "404-min",
+      "folder": "404_Ritalin",
+      "palette_closest_pair": 0.7366,
+      "separable": true,
+      "palette_on_line": 0.537,
+      "palette_on_line_who": "substrate on highlight-type",
+      "edge_dropped": 0.021,
+      "illumination": "plane",
+      "illumination_residual": {
+        "plane": 0.0121,
+        "blur": 0.0144
+      },
+      "render_vs_spec": {
+        "agreement": 0.9991,
+        "iou": {
+          "0": 0.998,
+          "1": 0.998,
+          "2": 1.0
+        }
+      },
+      "field_iou_worst": 0.998,
+      "agreement_spread": 0.0,
+      "colour_error_by_region": {
+        "0": 0.1094,
+        "1": 0.1171,
+        "2": 0.1503
+      },
+      "colour_error_worst": 0.1503,
+      "response": {
+        "gain": [
+          1.272,
+          1.293,
+          1.241
+        ],
+        "lift": [
+          -0.132,
+          -0.133,
+          -0.104
+        ]
+      },
+      "colour_residual_by_region": {
+        "0": 0.0251,
+        "1": 0.0146,
+        "2": 0.0123
+      },
+      "colour_residual_worst": 0.0251,
+      "spec_vs_reference": 0.9982,
+      "field_kept_min": 0.6412,
+      "render_vs_reference": {
+        "agreement": 0.9965,
+        "iou": {
+          "0": 0.994,
+          "1": 0.997,
+          "2": 0.266
+        }
+      }
+    }
+  ]
+}

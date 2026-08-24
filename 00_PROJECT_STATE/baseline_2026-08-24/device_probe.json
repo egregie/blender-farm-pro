@@ -1,0 +1,118 @@
+{
+  "rows": [
+    {
+      "sku": "1-min",
+      "config": "cpu",
+      "seconds": 28.0
+    },
+    {
+      "sku": "1-min",
+      "config": "optix",
+      "seconds": 20.9,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 19,
+      "mean_channel_delta": 0.001,
+      "pixels_differing_pct": 0.2253,
+      "pixels_over_2_levels_pct": 0.0028
+    },
+    {
+      "sku": "1-min",
+      "config": "optix+gpudenoise",
+      "seconds": 5.2,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 19,
+      "mean_channel_delta": 0.08855,
+      "pixels_differing_pct": 17.5663,
+      "pixels_over_2_levels_pct": 0.0028
+    },
+    {
+      "sku": "1-min",
+      "config": "cuda",
+      "seconds": 19.3,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 21,
+      "mean_channel_delta": 0.0007,
+      "pixels_differing_pct": 0.1755,
+      "pixels_over_2_levels_pct": 0.0011
+    },
+    {
+      "sku": "64-min",
+      "config": "cpu",
+      "seconds": 32.6
+    },
+    {
+      "sku": "64-min",
+      "config": "optix",
+      "seconds": 24.4,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 26,
+      "mean_channel_delta": 0.00109,
+      "pixels_differing_pct": 0.2616,
+      "pixels_over_2_levels_pct": 0.0029
+    },
+    {
+      "sku": "64-min",
+      "config": "optix+gpudenoise",
+      "seconds": 10.3,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 26,
+      "mean_channel_delta": 0.07586,
+      "pixels_differing_pct": 16.0077,
+      "pixels_over_2_levels_pct": 0.0031
+    },
+    {
+      "sku": "64-min",
+      "config": "cuda",
+      "seconds": 24.5,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 23,
+      "mean_channel_delta": 0.00089,
+      "pixels_differing_pct": 0.2202,
+      "pixels_over_2_levels_pct": 0.0017
+    },
+    {
+      "sku": "357-min",
+      "config": "cpu",
+      "seconds": 60.0
+    },
+    {
+      "sku": "357-min",
+      "config": "optix",
+      "seconds": 51.4,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 43,
+      "mean_channel_delta": 0.00591,
+      "pixels_differing_pct": 0.9082,
+      "pixels_over_2_levels_pct": 0.054
+    },
+    {
+      "sku": "357-min",
+      "config": "optix+gpudenoise",
+      "seconds": 36.6,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 43,
+      "mean_channel_delta": 0.07658,
+      "pixels_differing_pct": 13.9069,
+      "pixels_over_2_levels_pct": 0.054
+    },
+    {
+      "sku": "357-min",
+      "config": "cuda",
+      "seconds": 51.0,
+      "identical_bytes": false,
+      "identical_pixels": false,
+      "max_channel_delta": 23,
+      "mean_channel_delta": 0.00375,
+      "pixels_differing_pct": 0.6934,
+      "pixels_over_2_levels_pct": 0.0244
+    }
+  ]
+}

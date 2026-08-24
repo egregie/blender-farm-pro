@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "379-min.jpg",
+  "product_code": "379-min",
+  "template_id": "T_VERT_DROPPER",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOTTLE",
+  "carton": {
+    "width_mm": 90.07040929159263,
+    "height_mm": 110.0,
+    "depth_mm": 18.0,
+    "passport_dimensions": {
+      "width_mm": 50.0,
+      "height_mm": 110.0,
+      "depth_mm": 18.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [],
+    "material": "LDPE"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Lumigan 0.03%",
+    "active_ingredient_display": "Bimatoprost",
+    "dosage_display": "0.03ml/0.03%",
+    "unit_count_display": "1 Bottle"
+  }
+}

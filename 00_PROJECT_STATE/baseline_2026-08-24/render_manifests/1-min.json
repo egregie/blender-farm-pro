@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "1-min.jpg",
+  "product_code": "1-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 70.79227967958224,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#DDA7A5",
+    "accent": "#6B2D5C",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Atomoxetine Generic",
+    "active_ingredient_display": "Atomoxetine",
+    "dosage_display": "40mg",
+    "unit_count_display": "10 Pills"
+  }
+}

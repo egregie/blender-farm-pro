@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "385-min.jpg",
+  "product_code": "385-min",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "TUBE",
+  "carton": {
+    "width_mm": 140.0,
+    "height_mm": 55.52027023833445,
+    "depth_mm": 25.0,
+    "passport_dimensions": {
+      "width_mm": 140.0,
+      "height_mm": 35.0,
+      "depth_mm": 25.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#E2583E",
+    "accent": "#4B4632",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Retin-A cream 0.05%",
+    "active_ingredient_display": "Tretinoin",
+    "dosage_display": "0.05g/0.05%",
+    "unit_count_display": "1 Tube"
+  }
+}

@@ -75,3 +75,11 @@ Reference Templates/**/*.jpeg
 # Moved-aside renders, kept for recovery rather than deleted. Nothing here is
 # an input to anything; the working set is 02_processing.
 trash/
+
+# The tooling migration's baseline "before" renders. The JSON evidence beside
+# them IS committed -- 515 files, every spec, truth file, manifest and figure as
+# they stood -- but the 28 PNGs are 85 MB of Blender output, and this file
+# already states why that is not versioned: it is regenerable and deterministic.
+# Phase 1 measured the driver edit at max_channel_delta = 0 against exactly
+# these pixels, so a fresh render of the committed tree reproduces them.
+00_PROJECT_STATE/baseline_2026-08-24/renders/

@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "124-min.jpg",
+  "product_code": "124-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 110.0,
+    "height_mm": 56.708311072807945,
+    "depth_mm": 18.0,
+    "passport_dimensions": {
+      "width_mm": 110.0,
+      "height_mm": 50.0,
+      "depth_mm": 18.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#005A9C",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Norplant-72",
+    "active_ingredient_display": "Levonorgestrel",
+    "dosage_display": "0.75mg",
+    "unit_count_display": "30 Pills"
+  }
+}

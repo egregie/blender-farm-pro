@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "312-min.jpg",
+  "product_code": "312-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOX",
+  "carton": {
+    "width_mm": 110.0,
+    "height_mm": 56.708311072807945,
+    "depth_mm": 18.0,
+    "passport_dimensions": {
+      "width_mm": 110.0,
+      "height_mm": 50.0,
+      "depth_mm": 18.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [],
+    "material": "Cold-form Aluminium"
+  },
+  "palette": {
+    "primary": "#006A4E",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Cialis Strips",
+    "active_ingredient_display": "Tadalafil",
+    "dosage_display": "20mg",
+    "unit_count_display": "1 Pills"
+  }
+}

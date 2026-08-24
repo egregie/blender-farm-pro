@@ -1,0 +1,23 @@
+{
+  "spec_version": "0.1",
+  "sku": "151-min.jpg",
+  "source_image": "Provigil_front_raw.jpg",
+  "face_aspect": 1.6827,
+  "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
+  "substrate": "#0E25A7",
+  "fields": [],
+  "components_dropped": 47,
+  "dropped_by_class": {
+    "object": 4,
+    "type": 43
+  },
+  "holes_filled_by_class": {},
+  "truth": "print_truth.json",
+  "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
+  "verification": {
+    "pixel_agreement": 1.0,
+    "excluded_as_glyphs_pct": 35.48,
+    "iou_by_field": {},
+    "vertices": 0
+  }
+}

@@ -1,0 +1,1181 @@
+{
+  "swap": "space",
+  "rows": [
+    {
+      "folder": "133_Ambien",
+      "gained": [
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#16",
+        "brand#17",
+        "brand#18",
+        "highlight#0",
+        "highlight#1",
+        "highlight#2"
+      ],
+      "lost": [
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#14",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0039,
+          0.0626
+        ],
+        [
+          "highlight",
+          "appeared",
+          null
+        ],
+        [
+          "substrate",
+          0.0039,
+          0.0672
+        ],
+        [
+          "type",
+          "vanished",
+          null
+        ]
+      ],
+      "worst_area_drift": 0.589,
+      "worst_bbox_drift": 0.6496,
+      "matched": 10
+    },
+    {
+      "folder": "134_Atarax",
+      "gained": [],
+      "lost": [],
+      "role_moves": [],
+      "worst_area_drift": 0.123,
+      "worst_bbox_drift": 0.0016,
+      "matched": 13
+    },
+    {
+      "folder": "135_Ativan",
+      "gained": [],
+      "lost": [
+        "brand#11",
+        "highlight#2"
+      ],
+      "role_moves": [],
+      "worst_area_drift": 0.026,
+      "worst_bbox_drift": 0.0159,
+      "matched": 13
+    },
+    {
+      "folder": "149_Modalert",
+      "gained": [
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#2"
+      ],
+      "lost": [
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.4575,
+          0.1099
+        ],
+        [
+          "highlight",
+          0.4435,
+          0.0809
+        ],
+        [
+          "secondary_1",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 9.084,
+      "worst_bbox_drift": 0.7481,
+      "matched": 7
+    },
+    {
+      "folder": "150_Waklert",
+      "gained": [],
+      "lost": [
+        "highlight#0",
+        "highlight#1",
+        "highlight#10",
+        "highlight#11",
+        "highlight#12",
+        "highlight#13",
+        "highlight#14",
+        "highlight#15",
+        "highlight#16",
+        "highlight#17",
+        "highlight#18",
+        "highlight#19",
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "highlight#9"
+      ],
+      "role_moves": [
+        [
+          "highlight",
+          0.4223,
+          0.0446
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "substrate",
+          0.0056,
+          0.0783
+        ]
+      ],
+      "worst_area_drift": 0.088,
+      "worst_bbox_drift": 0.9482,
+      "matched": 17
+    },
+    {
+      "folder": "151_Provigil",
+      "gained": [],
+      "lost": [
+        "brand#10",
+        "brand#9",
+        "secondary_1#13"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0175,
+          0.0212
+        ],
+        [
+          "substrate",
+          0.0039,
+          0.0207
+        ]
+      ],
+      "worst_area_drift": 1.661,
+      "worst_bbox_drift": 0.6482,
+      "matched": 44
+    },
+    {
+      "folder": "152_Artvigil",
+      "gained": [
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#14",
+        "type#15",
+        "type#16",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "lost": [
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#16",
+        "brand#17",
+        "brand#18",
+        "brand#19",
+        "brand#20",
+        "brand#21",
+        "brand#22",
+        "brand#23",
+        "brand#24",
+        "brand#25",
+        "brand#26",
+        "brand#27",
+        "highlight#0"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.1292,
+          0.0911
+        ],
+        [
+          "highlight",
+          "vanished",
+          null
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 5.396,
+      "worst_bbox_drift": 0.8518,
+      "matched": 11
+    },
+    {
+      "folder": "155_Imovane",
+      "gained": [
+        "highlight#10",
+        "highlight#11",
+        "highlight#12",
+        "highlight#8",
+        "highlight#9"
+      ],
+      "lost": [],
+      "role_moves": [],
+      "worst_area_drift": 0.042,
+      "worst_bbox_drift": 0.8298,
+      "matched": 25
+    },
+    {
+      "folder": "156_Xanax",
+      "gained": [],
+      "lost": [
+        "brand#7"
+      ],
+      "role_moves": [],
+      "worst_area_drift": 0.041,
+      "worst_bbox_drift": 0.0013,
+      "matched": 10
+    },
+    {
+      "folder": "157_Valium",
+      "gained": [
+        "brand#1",
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#16",
+        "brand#17",
+        "brand#18",
+        "brand#2",
+        "brand#3",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9"
+      ],
+      "lost": [
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#14",
+        "type#15",
+        "type#16",
+        "type#17",
+        "type#18",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.013,
+          0.0592
+        ],
+        [
+          "type",
+          "vanished",
+          null
+        ]
+      ],
+      "worst_area_drift": 0.86,
+      "worst_bbox_drift": 0.0013,
+      "matched": 1
+    },
+    {
+      "folder": "158_Klonopin",
+      "gained": [
+        "brand#1",
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#16",
+        "brand#2",
+        "brand#3",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9"
+      ],
+      "lost": [
+        "highlight#1",
+        "highlight#10",
+        "highlight#11",
+        "highlight#12",
+        "highlight#13",
+        "highlight#14",
+        "highlight#15",
+        "highlight#16",
+        "highlight#17",
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "highlight#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.004,
+          0.0323
+        ],
+        [
+          "highlight",
+          0.018,
+          0.0336
+        ]
+      ],
+      "worst_area_drift": 0.034,
+      "worst_bbox_drift": 0.0,
+      "matched": 2
+    },
+    {
+      "folder": "221_Inderal",
+      "gained": [
+        "brand#3",
+        "highlight#5",
+        "highlight#6"
+      ],
+      "lost": [],
+      "role_moves": [],
+      "worst_area_drift": 0.409,
+      "worst_bbox_drift": 0.8557,
+      "matched": 8
+    },
+    {
+      "folder": "230_Slimex",
+      "gained": [
+        "highlight#10",
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "highlight#9"
+      ],
+      "lost": [
+        "brand#2",
+        "brand#3",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.8137,
+          0.1347
+        ],
+        [
+          "highlight",
+          0.8041,
+          0.1263
+        ]
+      ],
+      "worst_area_drift": 17.599,
+      "worst_bbox_drift": 0.6091,
+      "matched": 4
+    },
+    {
+      "folder": "272_Valium_Brand",
+      "gained": [
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "lost": [
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#3",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "highlight#0",
+        "highlight#1"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.4356,
+          0.0626
+        ],
+        [
+          "highlight",
+          "vanished",
+          null
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 5.129,
+      "worst_bbox_drift": 0.6233,
+      "matched": 3
+    },
+    {
+      "folder": "304_Sonata",
+      "gained": [],
+      "lost": [
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.2745,
+          0.0086
+        ],
+        [
+          "highlight",
+          0.1166,
+          0.0049
+        ]
+      ],
+      "worst_area_drift": 0.05,
+      "worst_bbox_drift": 0.5136,
+      "matched": 12
+    },
+    {
+      "folder": "308_Lexotanil",
+      "gained": [
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#10",
+        "secondary_1#2",
+        "secondary_1#3",
+        "secondary_1#4",
+        "secondary_1#5",
+        "secondary_1#6",
+        "secondary_1#7",
+        "secondary_1#8",
+        "secondary_1#9"
+      ],
+      "lost": [
+        "brand#1",
+        "highlight#10",
+        "highlight#11",
+        "highlight#12",
+        "highlight#13",
+        "highlight#9",
+        "type#0",
+        "type#1",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.3557,
+          0.0176
+        ],
+        [
+          "highlight",
+          0.0251,
+          0.0025
+        ],
+        [
+          "secondary_1",
+          "appeared",
+          null
+        ],
+        [
+          "type",
+          "vanished",
+          null
+        ]
+      ],
+      "worst_area_drift": 0.153,
+      "worst_bbox_drift": 0.8227,
+      "matched": 10
+    },
+    {
+      "folder": "340_Xanax_Pfizer",
+      "gained": [],
+      "lost": [
+        "brand#8",
+        "highlight#7",
+        "highlight#8",
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#2",
+        "secondary_1#3",
+        "secondary_1#4",
+        "secondary_1#5",
+        "secondary_1#6",
+        "secondary_1#7"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.7192,
+          0.0712
+        ],
+        [
+          "highlight",
+          0.8458,
+          0.1779
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "substrate",
+          0.0505,
+          0.3124
+        ]
+      ],
+      "worst_area_drift": 16.506,
+      "worst_bbox_drift": 0.8918,
+      "matched": 15
+    },
+    {
+      "folder": "344_Modafinil_Generic",
+      "gained": [
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#2"
+      ],
+      "lost": [
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.4575,
+          0.1099
+        ],
+        [
+          "highlight",
+          0.4435,
+          0.0809
+        ],
+        [
+          "secondary_1",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 9.084,
+      "worst_bbox_drift": 0.7481,
+      "matched": 7
+    },
+    {
+      "folder": "346_Modvigil",
+      "gained": [
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "highlight#10",
+        "highlight#9"
+      ],
+      "lost": [
+        "type#18",
+        "type#19",
+        "type#20",
+        "type#21",
+        "type#22",
+        "type#23",
+        "type#24",
+        "type#25",
+        "type#26",
+        "type#27",
+        "type#28",
+        "type#29",
+        "type#30"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0161,
+          0.016
+        ],
+        [
+          "highlight",
+          0.0251,
+          0.0232
+        ],
+        [
+          "substrate",
+          0.0039,
+          0.0226
+        ],
+        [
+          "type",
+          0.0096,
+          0.0155
+        ]
+      ],
+      "worst_area_drift": 2.2,
+      "worst_bbox_drift": 0.7758,
+      "matched": 34
+    },
+    {
+      "folder": "357_Adderall",
+      "gained": [
+        "highlight#15",
+        "highlight#16",
+        "highlight#17"
+      ],
+      "lost": [
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#10",
+        "secondary_1#11",
+        "secondary_1#12",
+        "secondary_1#13",
+        "secondary_1#14",
+        "secondary_1#15",
+        "secondary_1#16",
+        "secondary_1#2",
+        "secondary_1#3",
+        "secondary_1#4",
+        "secondary_1#5",
+        "secondary_1#6",
+        "secondary_1#7",
+        "secondary_1#8",
+        "secondary_1#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.3155,
+          0.1663
+        ],
+        [
+          "highlight",
+          1.0766,
+          0.0983
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "substrate",
+          1.2556,
+          0.1262
+        ]
+      ],
+      "worst_area_drift": 24.477,
+      "worst_bbox_drift": 0.8591,
+      "matched": 22
+    },
+    {
+      "folder": "362_Hydrocodone",
+      "gained": [
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#14",
+        "type#15",
+        "type#16",
+        "type#17",
+        "type#18",
+        "type#19",
+        "type#2",
+        "type#20",
+        "type#21",
+        "type#22",
+        "type#23",
+        "type#24",
+        "type#25",
+        "type#26",
+        "type#27",
+        "type#28",
+        "type#29",
+        "type#3",
+        "type#30",
+        "type#31",
+        "type#32",
+        "type#33",
+        "type#34",
+        "type#35",
+        "type#36",
+        "type#37",
+        "type#38",
+        "type#39",
+        "type#4",
+        "type#40",
+        "type#41",
+        "type#42",
+        "type#43",
+        "type#44",
+        "type#45",
+        "type#46",
+        "type#47",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "lost": [
+        "brand#10",
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15",
+        "brand#16",
+        "brand#17",
+        "brand#18",
+        "brand#19",
+        "brand#20",
+        "brand#21",
+        "brand#22",
+        "brand#23",
+        "brand#24",
+        "brand#25",
+        "brand#26",
+        "brand#27",
+        "brand#28",
+        "brand#29",
+        "brand#3",
+        "brand#30",
+        "brand#31",
+        "brand#32",
+        "brand#33",
+        "brand#34",
+        "brand#35",
+        "brand#36",
+        "brand#37",
+        "brand#38",
+        "brand#39",
+        "brand#4",
+        "brand#40",
+        "brand#41",
+        "brand#42",
+        "brand#43",
+        "brand#44",
+        "brand#45",
+        "brand#46",
+        "brand#47",
+        "brand#48",
+        "brand#49",
+        "brand#5",
+        "brand#50",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "highlight#1",
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "secondary_1#0",
+        "secondary_1#1"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.2785,
+          0.0847
+        ],
+        [
+          "highlight",
+          0.7396,
+          0.1407
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "substrate",
+          0.1566,
+          0.0761
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 13.288,
+      "worst_bbox_drift": 0.7673,
+      "matched": 4
+    },
+    {
+      "folder": "365_Tapentadol",
+      "gained": [
+        "type#0"
+      ],
+      "lost": [
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "secondary_1#0"
+      ],
+      "role_moves": [
+        [
+          "highlight",
+          0.0703,
+          0.0021
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 0.323,
+      "worst_bbox_drift": 0.619,
+      "matched": 9
+    },
+    {
+      "folder": "404_Ritalin",
+      "gained": [],
+      "lost": [
+        "type#19",
+        "type#20",
+        "type#21"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.1414,
+          0.002
+        ]
+      ],
+      "worst_area_drift": 0.293,
+      "worst_bbox_drift": 0.8841,
+      "matched": 22
+    },
+    {
+      "folder": "59_Cialis",
+      "gained": [
+        "type#0",
+        "type#1",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6"
+      ],
+      "lost": [
+        "brand#10",
+        "brand#11",
+        "brand#2",
+        "brand#3",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "highlight#0",
+        "highlight#1",
+        "highlight#2",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "secondary_1#0",
+        "secondary_1#1",
+        "secondary_1#2",
+        "secondary_1#3",
+        "secondary_1#4",
+        "secondary_1#5"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0372,
+          0.0088
+        ],
+        [
+          "highlight",
+          "vanished",
+          null
+        ],
+        [
+          "secondary_1",
+          "vanished",
+          null
+        ],
+        [
+          "substrate",
+          0.0118,
+          0.2755
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 7.34,
+      "worst_bbox_drift": 0.5549,
+      "matched": 2
+    },
+    {
+      "folder": "60_Cialis_Professional",
+      "gained": [
+        "brand#4"
+      ],
+      "lost": [],
+      "role_moves": [],
+      "worst_area_drift": 0.058,
+      "worst_bbox_drift": 0.6482,
+      "matched": 24
+    },
+    {
+      "folder": "62_Cialis_Super_Active",
+      "gained": [],
+      "lost": [],
+      "role_moves": [
+        [
+          "brand",
+          0.0248,
+          0.0407
+        ],
+        [
+          "substrate",
+          0.0,
+          0.0455
+        ]
+      ],
+      "worst_area_drift": 4.868,
+      "worst_bbox_drift": 0.0015,
+      "matched": 10
+    },
+    {
+      "folder": "64_Kamagra",
+      "gained": [
+        "brand#10",
+        "brand#11",
+        "brand#4",
+        "brand#5",
+        "brand#6",
+        "brand#7",
+        "brand#8",
+        "brand#9",
+        "type#0",
+        "type#1",
+        "type#10",
+        "type#11",
+        "type#12",
+        "type#13",
+        "type#14",
+        "type#15",
+        "type#16",
+        "type#2",
+        "type#3",
+        "type#4",
+        "type#5",
+        "type#6",
+        "type#7",
+        "type#8",
+        "type#9"
+      ],
+      "lost": [
+        "highlight#0",
+        "highlight#1",
+        "highlight#10",
+        "highlight#11",
+        "highlight#12",
+        "highlight#13",
+        "highlight#14",
+        "highlight#15",
+        "highlight#16",
+        "highlight#17",
+        "highlight#18",
+        "highlight#19",
+        "highlight#2",
+        "highlight#20",
+        "highlight#21",
+        "highlight#3",
+        "highlight#4",
+        "highlight#5",
+        "highlight#6",
+        "highlight#7",
+        "highlight#8",
+        "highlight#9"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0088,
+          0.0982
+        ],
+        [
+          "highlight",
+          "vanished",
+          null
+        ],
+        [
+          "type",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 6.968,
+      "worst_bbox_drift": 0.7554,
+      "matched": 4
+    },
+    {
+      "folder": "74_Viagra",
+      "gained": [
+        "highlight#0",
+        "highlight#1",
+        "highlight#2"
+      ],
+      "lost": [
+        "brand#11",
+        "brand#12",
+        "brand#13",
+        "brand#14",
+        "brand#15"
+      ],
+      "role_moves": [
+        [
+          "brand",
+          0.0039,
+          0.0369
+        ],
+        [
+          "highlight",
+          "appeared",
+          null
+        ]
+      ],
+      "worst_area_drift": 0.793,
+      "worst_bbox_drift": 0.8067,
+      "matched": 11
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "195-min.jpg",
+  "product_code": "195-min",
+  "template_id": "T_BOTTLE_BOX",
+  "is_bottle_override": false,
+  "packaging_geometry": "BOTTLE",
+  "carton": {
+    "width_mm": 41.94953396781679,
+    "height_mm": 100.0,
+    "depth_mm": 55.0,
+    "passport_dimensions": {
+      "width_mm": 55.0,
+      "height_mm": 100.0,
+      "depth_mm": 55.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#E2583E",
+    "accent": "#4B4632",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Cleocin",
+    "active_ingredient_display": "Clindamycin",
+    "dosage_display": "150mg",
+    "unit_count_display": "30 Pills"
+  }
+}

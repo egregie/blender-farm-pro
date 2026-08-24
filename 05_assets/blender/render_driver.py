@@ -46,6 +46,20 @@ ENGINE     = _arg("--engine-type", "CYCLES")
 SAMPLES    = int(_arg("--samples", "64"))
 RES_X      = int(_arg("--res-x", "2048"))
 RES_Y      = int(_arg("--res-y", "2048"))
+# Which device Cycles samples on, which back-end it reaches the GPU through, and
+# where the denoiser runs. STATED, not inherited: until 2026-08-24 setup_render()
+# never assigned `scene.cycles.device`, so the render used whatever device the
+# process started with. Under `--factory-startup` that is CPU, which is why
+# nothing was visibly wrong — but a second `--python` argument ahead of this
+# script could move the whole render onto the GPU, and the packshot would come
+# back up to 43 levels different on a fraction of a percent of its pixels with
+# nothing in the log to say which device drew it.
+#
+# The defaults are today's measured behaviour, so a caller that passes neither
+# flag renders exactly what it rendered before.
+DEVICE          = (_arg("--device", "CPU") or "CPU").upper()
+DEVICE_BACKEND  = (_arg("--device-backend", "OPTIX") or "OPTIX").upper()
+DENOISE_DEVICE  = (_arg("--denoising-device", "CPU") or "CPU").upper()
 # Diagnostic seam: build the scene, write its measured geometry to this path as
 # JSON, and skip rendering. Exists because carton/stripe placement can only be
 # verified inside Blender, and a packshot is far too slow and too indirect to
@@ -2258,6 +2272,83 @@ def setup_film(exposure: float):
     view.exposure = exposure
 
 
+def setup_device(scene):
+    """Pin Cycles to the device it was ASKED for, or stop.
+
+    The device used to be whatever the process inherited. Under
+    `--factory-startup` that is CPU, so nothing looked wrong -- but nothing
+    was choosing it either, and a `--python` argument ahead of this script is
+    enough to move the render onto the GPU. `scripts/probe_render_device.py`
+    does precisely that, on purpose, and it is why this function exists.
+
+    A DEVICE IS NOT A QUALITY SETTING AND IS NOT SUBSTITUTABLE. Measured
+    2026-08-24 on an RTX 2060 SUPER at 16 samples, against the CPU render of
+    `1-min`, `64-min` and `357-min`: OptiX sampling lands up to 43 levels away
+    on 0.2-0.9% of pixels, CUDA up to 23 on 0.2-0.7%, and GPU denoising up to
+    43 on 14-18%. Every one of those would invalidate the calibration curve, the
+    `design_qa` rows and the OCR fixtures, all of which were measured on CPU
+    pixels. So an unavailable device raises `SystemExit` rather than falling
+    back -- the same rule the engine already follows one function down, and for
+    the same reason: a quietly swapped renderer emits off-spec packshots with
+    nothing in the log to say so.
+
+    SystemExit specifically, because Blender prints an ordinary traceback and
+    still exits 0, which `blender_renderer.py` would read as a success.
+    """
+    if DEVICE not in ("CPU", "GPU"):
+        raise SystemExit(
+            f"[render_driver] blender.device must be CPU or GPU, not "
+            f"{DEVICE!r}.")
+    if DENOISE_DEVICE not in ("CPU", "GPU"):
+        raise SystemExit(
+            f"[render_driver] blender.denoising_device must be CPU or GPU, not "
+            f"{DENOISE_DEVICE!r}.")
+
+    scene.cycles.device = DEVICE
+    if DEVICE == "GPU":
+        prefs = bpy.context.preferences.addons["cycles"].preferences
+        try:
+            prefs.compute_device_type = DEVICE_BACKEND
+        except (TypeError, ValueError) as exc:
+            raise SystemExit(
+                f"[render_driver] compute back-end {DEVICE_BACKEND!r} is not "
+                f"one this Blender ({bpy.app.version_string}) offers; refusing "
+                f"to substitute another. Blender reports: {exc}")
+        prefs.refresh_devices()
+        # Only the accelerator is enabled. Leaving the CPU device on as well is
+        # a HYBRID render -- a third thing, with its own pixels -- and picking
+        # it by accident is exactly the silence this function removes.
+        enabled = []
+        for dev in prefs.devices:
+            dev.use = (dev.type == DEVICE_BACKEND)
+            if dev.use:
+                enabled.append(dev.name)
+        if not enabled:
+            raise SystemExit(
+                f"[render_driver] blender.device is GPU and blender."
+                f"device_backend is {DEVICE_BACKEND!r}, but this machine "
+                f"exposes no such device. Refusing to render on the CPU under "
+                f"a GPU setting: the two do not produce the same image, and "
+                f"every figure this project holds was measured on one of them.")
+        print(f"[render_driver] cycles device {DEVICE}/{DEVICE_BACKEND}: "
+              f"{', '.join(enabled)}")
+    else:
+        print(f"[render_driver] cycles device {DEVICE}")
+
+    # Independent of the sampling device, and worth its own key: the denoiser is
+    # more than half of every render (~14.9s of 28s, R006), so it is where the
+    # time is -- and also where the pixels move most, 14-18% of the frame.
+    if hasattr(scene.cycles, "denoising_use_gpu"):
+        scene.cycles.denoising_use_gpu = (DENOISE_DEVICE == "GPU")
+    elif DENOISE_DEVICE == "GPU":
+        raise SystemExit(
+            f"[render_driver] blender.denoising_device is GPU but this Blender "
+            f"({bpy.app.version_string}) has no `denoising_use_gpu`; refusing "
+            f"to denoise on the CPU under a GPU setting.")
+    print(f"[render_driver] denoiser "
+          f"{getattr(scene.cycles, 'denoiser', '?')} on {DENOISE_DEVICE}")
+
+
 def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: int):
     scene = bpy.context.scene
     # Ask Blender to make the assignment rather than introspecting the enum.
@@ -2289,6 +2380,7 @@ def setup_render(out_path: str, engine: str, samples: int, res_x: int, res_y: in
     if engine == "CYCLES":
         scene.cycles.samples = samples
         scene.cycles.use_denoising = True
+        setup_device(scene)
     scene.render.resolution_x = res_x
     scene.render.resolution_y = res_y
     scene.render.resolution_percentage = 100
@@ -2500,6 +2592,46 @@ def printed_faces_px():
     }
 
 
+def _device_report() -> dict:
+    """What Cycles is actually set to sample and denoise on.
+
+    Applies the device settings and then READS THEM BACK, rather than echoing
+    the flags it was given. The difference is the whole value of the field: a
+    dump that repeats its own input agrees with itself whatever Blender did, and
+    the failure this guards against -- the render happening on a device nobody
+    chose -- is invisible to it.
+
+    Off CYCLES there is no `scene.cycles`, so the engine is reported and the
+    rest is null rather than invented.
+    """
+    scene = bpy.context.scene
+    if ENGINE != "CYCLES":
+        return {"engine": ENGINE, "cycles_device": None, "backend": None,
+                "enabled_devices": [], "denoising_use_gpu": None}
+    try:
+        scene.render.engine = ENGINE
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(
+            f"[render_driver] render engine '{ENGINE}' is not available in this "
+            f"Blender ({bpy.app.version_string}). Blender reports: {exc}")
+    setup_device(scene)
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    on_gpu = scene.cycles.device == "GPU"
+    return {
+        "engine": scene.render.engine,
+        "cycles_device": scene.cycles.device,
+        # Both null on CPU rather than reported, and that is not tidiness. The
+        # preference list keeps whatever devices Blender enabled for itself, so
+        # a CPU render would print "enabled_devices: [NVIDIA ...]" and read as
+        # though the card were doing the work. `scene.cycles.device` is the only
+        # thing that decides, and on CPU the list decides nothing.
+        "backend": prefs.compute_device_type if on_gpu else None,
+        "enabled_devices": (sorted(d.name for d in prefs.devices if d.use)
+                            if on_gpu else []),
+        "denoising_use_gpu": getattr(scene.cycles, "denoising_use_gpu", None),
+    }
+
+
 def dump_scene(path: str):
     """Write the measured geometry of the built scene as JSON."""
     box = bpy.data.objects.get("carton")
@@ -2530,6 +2662,13 @@ def dump_scene(path: str):
         # the dump reports what Blender actually holds.
         "film": {"view_transform": view.view_transform,
                  "exposure": view.exposure},
+        # Which device would draw this frame, read back the same way -- off the
+        # scene after the assignment, never echoed from the flags. A dump that
+        # repeated its own input could not catch the case this exists for: the
+        # device being something nobody asked for. `--dump-scene` returns before
+        # setup_render(), so the assignment is made here, on the same seam and
+        # for the same reason `setup_film` is applied before this point.
+        "device": _device_report(),
         **printed_faces_px(),
     }
     if box is not None:

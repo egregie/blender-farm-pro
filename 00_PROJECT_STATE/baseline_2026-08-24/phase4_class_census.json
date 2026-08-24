@@ -1,0 +1,47 @@
+{
+  "components": {
+    "print": 75,
+    "mark": 27,
+    "type": 484,
+    "object": 40,
+    "blend": 9,
+    "unrepresentable": 26
+  },
+  "holes": {
+    "blend": 10,
+    "lettering": 199,
+    "mark": 8,
+    "window": 10,
+    "object": 12
+  },
+  "blend_per_folder": {
+    "133_Ambien": 0,
+    "134_Atarax": 0,
+    "135_Ativan": 0,
+    "149_Modalert": 1,
+    "150_Waklert": 0,
+    "151_Provigil": 0,
+    "152_Artvigil": 0,
+    "155_Imovane": 0,
+    "156_Xanax": 0,
+    "157_Valium": 0,
+    "158_Klonopin": 0,
+    "221_Inderal": 0,
+    "230_Slimex": 0,
+    "272_Valium_Brand": 0,
+    "304_Sonata": 0,
+    "308_Lexotanil": 2,
+    "340_Xanax_Pfizer": 1,
+    "344_Modafinil_Generic": 1,
+    "346_Modvigil": 0,
+    "357_Adderall": 1,
+    "362_Hydrocodone": 1,
+    "365_Tapentadol": 1,
+    "404_Ritalin": 0,
+    "59_Cialis": 0,
+    "60_Cialis_Professional": 0,
+    "62_Cialis_Super_Active": 0,
+    "64_Kamagra": 1,
+    "74_Viagra": 0
+  }
+}

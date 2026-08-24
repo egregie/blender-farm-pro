@@ -1,0 +1,45 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "230-min.jpg",
+  "product_code": "230-min",
+  "template_id": "T1",
+  "is_bottle_override": false,
+  "packaging_geometry": "BLISTER",
+  "carton": {
+    "width_mm": 115.0,
+    "height_mm": 56.660500000000006,
+    "depth_mm": 48.0,
+    "passport_dimensions": {
+      "width_mm": 115.0,
+      "height_mm": 55.0,
+      "depth_mm": 48.0,
+      "source": "passport_secondary"
+    },
+    "source": "design_spec",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "design": {
+    "spec_version": "0.1",
+    "face_aspect": 0.4927,
+    "substrate": "#FFFFFF",
+    "fields": [],
+    "type_rows": {},
+    "source_image": "Slimex_front_raw.jpg"
+  },
+  "palette": {
+    "primary": "#003366",
+    "accent": "#0D5FB8",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Slimex",
+    "active_ingredient_display": "Sibutramine HCl",
+    "dosage_display": "15mg",
+    "unit_count_display": "30 Pills"
+  }
+}

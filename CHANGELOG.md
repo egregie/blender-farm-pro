@@ -3,6 +3,80 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — Tooling migration — 24 August 2026
+
+Four installed-but-unwired libraries were to be brought into the design-transfer
+chain, one at a time, each with a measured delta. Three of the four are still
+unwired and now for a recorded reason. Full evidence in
+[`00_PROJECT_STATE/TOOLING_MIGRATION.md`](00_PROJECT_STATE/TOOLING_MIGRATION.md);
+the baseline every "before" column is read from is
+`00_PROJECT_STATE/baseline_2026-08-24/`.
+
+Each bullet is one measuring event, and the negative results are kept
+deliberately — the cost of this work was mostly in establishing what does *not*
+help, and deleting that leaves the next attempt to pay it again.
+
+### Added
+- **The Cycles compute device is stated rather than inherited.**
+  `setup_render()` never assigned `scene.cycles.device`, so the device was
+  whatever the process started with — and Blender accepts more than one
+  `--python`, so a script running ahead of the driver could move an entire
+  render onto the GPU with nothing in the log to say so. New
+  `blender.device` / `device_backend` / `denoising_device` in `config.yaml`,
+  a `setup_device()` that raises `SystemExit` on an unavailable back-end rather
+  than falling back, and a `device` block in `--dump-scene` read back off the
+  scene rather than echoed from the flags. **Pixel-neutral: `max_channel_delta
+  = 0`** against the baseline render, confirmed three ways.
+- `scripts/probe_render_device.py` — measures whether a device change moves the
+  picture. `scripts/probe_partition_shift.py` — measures whether a segmentation
+  change invalidates the hand-made labelling. Both kept as instruments.
+- `src/vectorise.py` and 18 tests — the rejected tracer, kept unwired as the
+  only implementation of two SVG parsing traps, and now guarded by tests that
+  fail if anything imports it.
+
+### Measured and rejected
+- **GPU rendering.** OptiX sampling 1.17–1.45× faster and up to 43 levels apart
+  on 0.2–0.9% of pixels; CUDA 1.18–1.45× and up to 23 levels on 0.2–0.7%; GPU
+  denoising up to **5.4×** and up to 43 levels on **14–18%** of pixels. None
+  reproduces the CPU image, so none was enabled. The cheap win and the expensive
+  change are the same setting.
+- **vtracer as the design tracer.** Wired in, it took the group's
+  `truth_agreement` **95.36% → 94.19%**, with `304_Sonata` −17.4 and
+  `155_Imovane` −5.7 points. **The premise did not reproduce**: the "0.954
+  against 0.888" that motivated the work is the *same polyline* scored two ways
+  — every hole cut (0.9536) against the outer ring alone (0.8855). Like for
+  like vtracer is worse on both footings (0.8649 and 0.9236), on 75 of 75
+  components, at every one of eight parameter settings tried. The 0.954 is
+  unreachable regardless: it needs every hole cut, which contract 1.8 forbids.
+- **Perceptual colour in the segmentation — both events.** Replacing the
+  lightness estimator (`rgb.max(-1)` is V of HSV, not a lightness) moved the
+  partition on **21 of 28** folders; clustering in OKLab instead of sRGB moved
+  it on **27 of 28**. Neither reached a figure, because both fail the
+  precondition every figure rests on: `print_truth.json` keys 661 hand-made
+  classifications to `role#i`, and both halves of that key are outputs of the
+  partition. **The segmentation is frozen by its labelling**, and improving it
+  costs a deliberate manual re-classification of 28 folders, not a code change.
+
+### Fixed
+- **`render_calibration.json` carried one stale row.** It was written at
+  `68961a6` and `74_Viagra`'s face corners changed at `6d37b89`, after it — so
+  its chart was built from a carton that no longer existed. Re-measured:
+  `colour_residual_median` 0.0230 → 0.0149, worst 0.0585 → 0.0406, and in
+  `design_qa` that carton's second field went from matching its own photograph
+  on 0.312 of its pixels to 0.806. The other 27 rows came back byte-identical.
+- **`00_PROJECT_STATE/design_qa.json` retaken** against the current driver and
+  the fresh calibration. One row of 28 moved — the same `74-min`.
+
+### Known gaps, named not fixed
+- `calibrate_render.driver_fingerprint()` hashes the driver file plus the render
+  settings, but **not the manifest the chart is built from**, so a carton
+  reshape or a corner re-set leaves it matching while the curve goes stale. This
+  is how the row above went unnoticed. Repairing it means covering the design
+  spec's own `verification` block or the manifest hash.
+- `config.yaml`'s three device keys are welded to the driver's flag defaults by
+  a test rather than passed on the command line; wiring them through needs one
+  line in `src/blender_renderer.py`.
+
 ## [v1.0.1] — Patch — June 2026
 
 ### Fixed

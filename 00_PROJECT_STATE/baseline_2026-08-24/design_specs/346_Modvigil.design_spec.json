@@ -1,0 +1,23 @@
+{
+  "spec_version": "0.1",
+  "sku": "346-min.jpg",
+  "source_image": "Modvigil_front_raw.webp",
+  "face_aspect": 0.4664,
+  "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
+  "substrate": "#EEEEEF",
+  "fields": [],
+  "components_dropped": 47,
+  "dropped_by_class": {
+    "unrepresentable": 16,
+    "type": 31
+  },
+  "holes_filled_by_class": {},
+  "truth": "print_truth.json",
+  "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
+  "verification": {
+    "pixel_agreement": 1.0,
+    "excluded_as_glyphs_pct": 48.64,
+    "iou_by_field": {},
+    "vertices": 0
+  }
+}

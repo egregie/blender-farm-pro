@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "407-min.jpg",
+  "product_code": "407-min",
+  "template_id": "T3",
+  "is_bottle_override": false,
+  "packaging_geometry": "PEN",
+  "carton": {
+    "width_mm": 140.0,
+    "height_mm": 55.52027023833445,
+    "depth_mm": 25.0,
+    "passport_dimensions": {
+      "width_mm": 140.0,
+      "height_mm": 35.0,
+      "depth_mm": 25.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#E2583E",
+    "accent": "#4B4632",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Victoza",
+    "active_ingredient_display": "Liraglutide",
+    "dosage_display": "18mg",
+    "unit_count_display": "1 Pen"
+  }
+}

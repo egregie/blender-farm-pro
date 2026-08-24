@@ -1,0 +1,37 @@
+{
+  "manifest_version": "1.8",
+  "sku_id": "337-min.jpg",
+  "product_code": "337-min",
+  "template_id": "T1_SMALL",
+  "is_bottle_override": false,
+  "packaging_geometry": "SACHET",
+  "carton": {
+    "width_mm": 130.0,
+    "height_mm": 73.72868814009686,
+    "depth_mm": 40.0,
+    "passport_dimensions": {
+      "width_mm": 130.0,
+      "height_mm": 90.0,
+      "depth_mm": 40.0,
+      "source": "passport_secondary"
+    },
+    "source": "art_direction",
+    "features": [
+      "Braille",
+      "DataMatrix_Zone",
+      "Tamper_Evident_Seal"
+    ],
+    "material": "GZ-Cardboard (Pharmaceutical Grade)"
+  },
+  "palette": {
+    "primary": "#6B2D5C",
+    "accent": "#C9A227",
+    "background": "#FFFFFF"
+  },
+  "label_content": {
+    "brand_name_display": "Kamagra Effervescent",
+    "active_ingredient_display": "Sildenafil Citrate",
+    "dosage_display": "100mg",
+    "unit_count_display": "7 Pills"
+  }
+}

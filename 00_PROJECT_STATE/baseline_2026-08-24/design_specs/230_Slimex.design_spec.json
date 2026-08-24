@@ -1,0 +1,24 @@
+{
+  "spec_version": "0.1",
+  "sku": "230-min.jpg",
+  "source_image": "Slimex_front_raw.jpg",
+  "face_aspect": 0.4927,
+  "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
+  "substrate": "#FFFFFF",
+  "fields": [],
+  "components_dropped": 12,
+  "dropped_by_class": {
+    "type": 6,
+    "unrepresentable": 4,
+    "mark": 2
+  },
+  "holes_filled_by_class": {},
+  "truth": "print_truth.json",
+  "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
+  "verification": {
+    "pixel_agreement": 1.0,
+    "excluded_as_glyphs_pct": 26.89,
+    "iou_by_field": {},
+    "vertices": 0
+  }
+}

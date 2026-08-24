@@ -884,6 +884,70 @@ Hard constraints derived from the AI-reference analysis, i.e. the generic path:
   count ends at u 0.95. Still missing versus the references: the braille row, and the side
   panel's barcode / LOT / EXP / microprint.
 
+**The segmentation is FROZEN by its own labelling, and that is the binding
+constraint on every improvement to it.** `print_truth.json` keys 661 hand-made
+component classes (and 239 hole classes) to `role#i` — and *both halves of that key
+are outputs of the partition*: `role` is the name `segment()` gave a cluster, `i` is
+the index a component takes after `components()` sorts by descending area. Move the
+partition and the keys address different surfaces. `fit()` stops on a key it has
+never seen; it cannot stop on a key that still exists and now means something else,
+and `label_print --verify` cannot either — it asks whether every component *has* a
+class, not whether it is the *right* one.
+
+Two changes to `measure_reference_face.py` were built and measured against this,
+both of them defensible on their own terms, and **both rejected**:
+
+- **the lightness estimator.** `_flatten_illumination` uses `rgb.max(-1)`, which is
+  V of HSV and not a lightness by any model — it calls `#0000FF` and `#FFFFFF`
+  equally bright and ignores two thirds of the pixel, and the image is then
+  *divided* by a blur of it. Replacing it with the Rec.709 luma this project
+  already uses in four other places moved the partition on **21 of 28** folders:
+  `362_Hydrocodone` gained 55 keys and lost 51, `357_Adderall` drifted 28.9 points
+  of area, `64_Kamagra`'s `highlight` role vanished entirely.
+- **the clustering space.** `_kmeans` measures Euclidean distance in the corrected
+  sRGB values, so it partitions the encoding rather than the appearance. OKLab
+  instead moved the partition on **27 of 28** — only `134_Atarax` survived.
+
+Neither change *can* avoid this: `_flatten_illumination` divides every pixel by a
+function of the estimator and `_kmeans` groups by distance in the space, so both
+touch every pixel by construction. **The cost of improving the segmentation is a
+deliberate manual re-classification of 28 folders**, not a code change — and it must
+be deliberate, because `label_print --init` MERGES old classes onto new components,
+which is exactly how stale labels once survived a corner change.
+`scripts/probe_partition_shift.py` is the instrument that answers "does this change
+invalidate the labelling?" and should be run before any edit to `segment()`.
+
+**A curve fitter was measured against the tracer and lost — and the figure that
+motivated it was measuring something else.** `vtracer` (`mode="spline"`, per
+component mask) was wired into `fit()` and took the group's `truth_agreement`
+**95.36% → 94.19%**, with `304_Sonata` −17.4 and `155_Imovane` −5.7 points; both are
+cartons whose printed field is a sliver, 0.12% and 0.67% of the face, and a spline
+rounds a sliver's ends. Rolled back whole.
+
+The premise did not reproduce. "0.954 against 0.888" is **the same polyline scored
+two ways** — every hole cut against the outer ring alone:
+
+| what is filled | mean IoU over the 75 printed components |
+|---|---|
+| polyline, outer ring only — what ships | **0.8855** |
+| polyline, EVERY hole cut | **0.9536** |
+| vtracer, outer ring only | 0.8649 |
+| vtracer, EVERY hole cut | 0.9236 |
+
+So the gain belonged to the holes, not to the vectoriser — and it is unreachable
+anyway, because cutting every hole is what contract 1.8 forbids. Like for like
+vtracer is worse on both footings, on 75 of 75 components, at every one of eight
+parameter settings tried (the whole space runs 0.8588–0.8649). A half-pixel
+edge-vs-index offset was ruled out too: vtracer writes pixel EDGES, and correcting
+for it makes matters slightly *worse*.
+
+`SIMPLIFY_TOLERANCE`'s own comment reached this conclusion first, about a hand-built
+cubic fit — *"these outlines are boundaries of RASTER regions … Douglas-Peucker's
+home ground and a cubic's worst case"*. This is the same verdict from a different
+fitter. `src/vectorise.py` survives unwired as the only implementation of two SVG
+parsing traps (a path command repeating implicitly; `transform="translate"` written
+*after* the `d` attribute), with tests that fail if anything imports it.
+
 ### Text is real geometry, and the font is vendored
 
 Label rows are Blender text objects, not textures. That is the engine's headline advantage:
@@ -1181,6 +1245,35 @@ that is the art-directed geometry, not the carton.** `T_VERT_VIAL` reshapes to 1
 is metered as landscape although it photographs portrait — the same box-versus-picture
 confusion the reshape's flip guard exists to avoid. Known, not yet fixed: the driver cannot
 import `src.silhouette` to ask which way the picture falls.
+
+**The compute device is STATED, and a GPU render is not the same picture.**
+`setup_render()` never assigned `scene.cycles.device`, so the device was whatever the
+process started with — CPU under `--factory-startup`, and therefore correct by
+accident. Blender accepts more than one `--python`, so a script running ahead of the
+driver could move an entire render onto the GPU with nothing in the log to say which
+device drew it; `scripts/probe_render_device.py` does exactly that on purpose, and it
+is why `setup_device()` now exists. `blender.device` / `device_backend` /
+`denoising_device` in `config.yaml` are welded to the driver's flag defaults by a
+test — nothing passes them on the command line yet, so changing one fails the suite
+rather than changing a render.
+
+CPU is not a placeholder. Measured on an RTX 2060 SUPER at 16 samples against the CPU
+render of `1-min`, `64-min` and `357-min`: **OptiX sampling** 1.17–1.45× faster and up
+to 43 levels apart on 0.2–0.9% of pixels; **CUDA** 1.18–1.45× and up to 23 levels on
+0.2–0.7%; **GPU denoising** up to **5.4×** and up to 43 levels on **14–18%** of
+pixels. The cheap win and the expensive change are the same setting — the denoiser is
+more than half of every render, and it is also where the pixels move. Enabling any of
+them means re-taking the calibration curve, every `design_qa` row and the OCR
+fixtures, all of which were measured on CPU pixels. An unavailable back-end is
+`SystemExit`, never a silent fall back to CPU.
+
+Related: **`driver_fingerprint()` guards the wrong half.** It is the SHA-256 of the
+driver file plus `engine_type`/`samples`/`resolution`, so any driver edit invalidates
+`render_calibration.json` and `load_curve()` exits — but it does **not** cover the
+manifest the calibration chart is built from. A carton reshape or a corner re-set
+leaves the fingerprint matching while the curve goes stale, which is precisely what
+happened: `74-min`'s row was measured before `6d37b89` moved its face corners and was
+silently wrong until a re-run moved its `render~ref` second field from 0.312 to 0.806.
 
 **Never introspect the render-engine enum.** `RenderSettings.engine` is a DYNAMIC enum:
 Blender builds its real item list through an RNA callback at assignment time, and
