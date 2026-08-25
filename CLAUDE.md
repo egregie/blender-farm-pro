@@ -182,6 +182,31 @@ disk are rejected until Stage 1 regenerates them.
   components are already labelled for `design.marks[]`. That path is worth the +9.937 and
   is blocked on reproducing third-party trademarks, which is the owner's call.
 
+  **Looked at, and it changes what is being decided: all eight `mark` holes are SOLID.**
+  `islands = 0` and `solid_frac = 1.000` on every one, and `trace_holes()` traces an outer
+  boundary and keeps no islands — so what a cut `mark` hole can ever become is a filled
+  outline. Measured on the two largest: Viagra's mask is 13 071 px and 13 071 px with holes
+  filled, cut as a 47-vertex ring. **The "Pfizer" script is not separated by the
+  segmentation, is not carried by the hole, and would not appear in the render.** What would
+  appear is the ellipse — the mark's silhouette in its printed position. 92% of the +9.937
+  is those two ovals; everything below them is +0.782 and the two Shire fragments are worth
+  less than nothing. Evidence and the full 35-entry table in
+  [`00_PROJECT_STATE/MARKS_EVIDENCE.md`](00_PROJECT_STATE/MARKS_EVIDENCE.md);
+  `scripts/render_mark_evidence.py` regenerates the crops.
+
+  The 27 `mark` COMPONENTS are the other case and carry none of the +9.937: sixteen are
+  solid, and a solid mark component is the mark's own printed silhouette rather than a
+  container — drawing `133_Ambien`'s eight Hemofarm wordmarks as flat fills would reproduce
+  those shapes.
+
+  **Two entries are not branding and are held out of that question by name.**
+  `357-min`'s `highlight#0/hole#0` is the **C-II schedule symbol** — a regulatory marking US
+  law requires on a controlled substance, not a trademark. `59_Cialis`'s `secondary_1#0` is
+  the **Lilly holographic oval**, an anti-counterfeiting feature; it is a component so it
+  carries none of the figure, and it is named here so nobody later picks it up by class
+  name alone. Reproducing a security element is the act this driver already refuses for
+  LOT, EXP, a product code and a 2D symbol.
+
   Three counts that do not match, so nobody re-derives them: the truth files carry **242**
   hole entries, the partition has **239**, and this file said 238 before the Viagra corner
   fix. The difference is three `74_Viagra` holes flagged `"vanished": true` — labelled

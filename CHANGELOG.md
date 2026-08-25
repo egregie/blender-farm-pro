@@ -3,6 +3,44 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — What the marks actually are — 24 August 2026
+
+Phase 1 of the marks question: establish what the 35 `mark` entries contain
+before anyone is asked to decide about them. Read-only. Nothing reclassified, no
+spec, manifest or figure changed, `print_truth.json` byte-identical in all 28
+folders. Evidence in
+[`00_PROJECT_STATE/MARKS_EVIDENCE.md`](00_PROJECT_STATE/MARKS_EVIDENCE.md).
+
+### Added
+- `scripts/render_mark_evidence.py` — crops every `mark` component and live
+  `mark` hole out of the rectified face at magnification, plain beside the
+  classified pixels tinted, and measures each region's internal structure.
+  `tests/test_mark_evidence.py` pins that it writes only under its evidence
+  directory, opens nothing for writing, never imports `label_print`, carries no
+  verdict field in its index, and that every mark in the labelling has a crop —
+  a decision may not be taken on an entry nobody was shown.
+- `00_PROJECT_STATE/MARKS_DECISION.md` — the decision template, facts filled and
+  **the decision column deliberately empty**. It is the owner's to complete; a
+  blank is not an answer and the implementer stops on one.
+
+### Measured
+- **All eight `mark` holes are solid.** `islands = 0`, `solid_frac = 1.000` on
+  every one. Since `trace_holes()` keeps no islands, a cut `mark` hole can only
+  ever become a filled outline: the "Pfizer" script inside Viagra's and Ativan's
+  ovals is not separated by the segmentation and would not appear in a render.
+  What is being decided is whether to draw the silhouette, not whether to
+  reproduce the artwork.
+- 92% of the +9.937 is those two ovals — +5.290 and +3.865. The rest totals
+  +0.782, and Adderall's two Shire fragments are worth −0.001 and −0.002.
+- Held out of the branding question by name: `357-min`'s **C-II schedule
+  symbol** (a regulatory marking, not a trademark) and `59_Cialis`'s **Lilly
+  holographic oval** (an anti-counterfeiting feature, and a component, so it
+  carries none of the figure).
+
+### Not done
+- Phase 3 — `design.marks[]`, the paired hole rule and the driver — is blocked on
+  `MARKS_DECISION.md` being filled in by a person. No code was written against it.
+
 ## [Unreleased] — The hole ceiling — 24 August 2026
 
 The tooling migration closed with the observation that the whole 6.8-point gap
