@@ -3,6 +3,50 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — Contract 1.9 built, measured and rolled back — 25 August 2026
+
+The wide per-part-fill change was implemented in full and reverted. No code,
+spec, manifest or figure carries anything from it; `print_truth.json` was never
+touched. Suite green at 392. Full write-up appended to
+[`00_PROJECT_STATE/PART_FILL.md`](00_PROJECT_STATE/PART_FILL.md).
+
+### Measured
+- **The plumbing is provably neutral.** Landed in two stages on purpose. With
+  every part's `fill` set to its field's — the value it had always been painted —
+  all 29 specs are byte-identical after stripping the new key, all 391 manifests
+  move only by the version string and that key, and `design_coverage` over 28
+  cartons moves on **no column at all**.
+- **`design_coverage` moved by zero in Stage B as well**, exactly as predicted:
+  its figures are field INDICES and colour never enters them. A part went from
+  orange to charcoal and `truth_agreement` did not notice.
+- **`design_qa` says the change does not pass.** Mean `render~ref` **0.9395 →
+  0.9346**, 5 cartons improved, **9 regressed beyond the 0.02 rule**. Best
+  `64-min` **+8.8** (0.890 → 0.978); worst `59-min` −7.7, `62-min` −6.8,
+  `362-min` −5.8. Rolled back whole rather than tuned.
+- **Why: small parts' medians carry their antialiased rim.** Large parts barely
+  moved — Ritalin's 39.1% part by 0.000, Kamagra's 32.5% by 0.004 — while
+  Ritalin's 0.42% part moved 0.182 and Cialis Professional's 0.16% part 0.259.
+  Eroding the mask half works and cannot tell the two causes apart: it takes
+  Ritalin's sliver 0.182 → 0.059, leaves Cialis Professional's genuinely
+  different `highlight#1` at 0.290 → 0.286, and moves `64_Kamagra` — the one
+  carton that gained — the wrong way.
+- **And the deeper problem is structural.** `design_qa`'s palette is both the set
+  of colours `rasterise` paints and the vocabulary both sides are classified
+  against, so changing what a part is painted changes the classifier. Before and
+  after are two instruments, not two renders. Not fixable with more care.
+
+### Solid, and worth keeping in mind
+- **A per-part palette must collapse at `SEPARABLE_MIN`.** One entry per part
+  regardless left eight cartons "palette not separable": `221_Inderal`'s
+  `highlight#2` sits **0.002** from its `highlight#0`, taking that carton's worst
+  field to **0.0%** and `357_Adderall`'s `render~ref` to **37.8%** on renders that
+  had not changed. Collapsing recovered Inderal to 89.3% / 93.3%.
+- `64_Kamagra` **+8.8** is the one clean signal that the diagnosis underneath is
+  right: its `highlight` parts sit 0.055–0.094 from the merged cluster colour and
+  are large enough to measure without rim contamination.
+- `scripts/calibrate_render.py` needed the new key too, and the schema test
+  caught it — the chart is a design like any other.
+
 ## [Unreleased] — A part is painted its cluster's colour — 24 August 2026
 
 Read-only. No code changed, no spec, manifest or figure changed,

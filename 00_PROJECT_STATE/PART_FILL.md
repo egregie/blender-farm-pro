@@ -172,3 +172,113 @@ take `np.median(raw[mask], axis=0)` per component against `group["colour"]`, and
 compare in 0..1 sRGB.
 
 `print_truth.json` unchanged in all 28 folders. Suite green at 392 tests.
+
+---
+
+# The wide change was built, measured and ROLLED BACK
+
+Added after the scoping call. Contract 1.9 was implemented in full, measured
+against the group, and reverted. No code, spec, manifest or figure carries
+anything from it; `print_truth.json` was never touched. Suite green at 392.
+
+## What was built
+
+- `part.fill` **required** in contract 1.9, `manifest_version` pinned by `const`.
+- `src.design_group.part_fill` as the single reader, with a copy in
+  `render_driver.py` (which cannot import project code) held to it by a test
+  comparing behaviour on a table of cases.
+- All eleven consumers converted, including the three that decide a measured
+  row's INK — `_surface_fill`, and `ink_within` in `measure_type_rows` and
+  `type_qa`.
+- One Blender material **per part** rather than per field, cached by colour.
+- `design_qa`'s palette rebuilt per part.
+
+## Stage A — the plumbing, and it is provably neutral
+
+Emitted deliberately in two stages so that "did the plumbing change anything"
+could be separated from "did the measurement change anything". In Stage A every
+part's `fill` was set to its field's — the same value it had always been painted.
+
+- All 29 specs **byte-identical after stripping the new key**.
+- All 391 manifests moved only by the version string and that key.
+- `design_coverage` over 28 cartons: **zero movement on every column.**
+
+`scripts/calibrate_render.py` had to gain the key too, and the schema test caught
+that — the chart is a design like any other.
+
+## Stage B — the measurement, and it does not pass
+
+The producer switched to the part's own colour, measured exactly as `segment()`
+measures a cluster's: `np.median(raw[mask], axis=0)`. The prediction reproduced
+exactly — **70 of 75 parts differ from their field, 31 beyond
+`SAME_SURFACE_MAX`.**
+
+`design_coverage` moved by **zero again**, as predicted: its figures are field
+INDICES and colour never enters them. A part went from orange to charcoal and
+`truth_agreement` did not notice.
+
+`design_qa`, against the committed baseline:
+
+| | |
+|---|---|
+| mean `render~ref` | **0.9395 → 0.9346** |
+| improved | 5 cartons |
+| regressed beyond 0.02 | **9 cartons** |
+| best | `64-min` **+8.8** (0.890 → 0.978) |
+| worst | `59-min` −7.7, `62-min` −6.8, `362-min` −5.8 |
+
+The brief's acceptance rule — no carton loses more than 0.02 — is broken nine
+times. Rolled back whole rather than tuned.
+
+## Why, and the part that is not fixable by trying harder
+
+**Small parts' medians are contaminated by their antialiased rim.** The large
+parts barely moved — `404_Ritalin`'s 39.1% part by 0.000, `64_Kamagra`'s 32.5%
+by 0.004 — while small ones ran off toward their neighbours: Ritalin's 0.42%
+part by 0.182, `60_Cialis_Professional`'s 0.16% part by 0.259.
+
+Eroding the mask before taking the median is the project's own idiom
+(`ink_within`, `_substrate_core`) and it **half works**:
+
+| part | area % | full mask | erode 1 | erode 2 |
+|---|---|---|---|---|
+| `404` `highlight#1` | 0.42 | 0.182 | 0.116 | **0.059** |
+| `60` `highlight#12` | 0.16 | 0.259 | **0.137** | 0.137 |
+| `60` `highlight#1` | 1.68 | 0.290 | 0.290 | **0.286** |
+| `134` `brand#4` | 0.22 | 0.150 | 0.136 | 0.151 |
+| `64` `highlight#3` | 0.97 | 0.064 | 0.068 | **0.083** |
+
+It pulls the rim cases back and leaves the genuinely-different ones alone, which
+is right — but it cannot tell which is which, and it moves `64_Kamagra`, the one
+carton that gained, the wrong way. No erosion radius separates the two causes.
+
+**And the deeper problem is structural.** `design_qa`'s palette is both the set
+of colours `rasterise` paints AND the vocabulary both sides are classified
+against. Changing what a part is painted therefore changes the classifier, so
+the before and after are not two measurements of two renders — they are two
+different instruments. That is not an oversight to be fixed with more care; it
+is a property of comparing a render against a spec in the spec's own colours.
+
+## What is solid, and worth keeping in mind
+
+- **A per-part palette must collapse at `SEPARABLE_MIN`.** Emitted one entry per
+  part regardless, eight cartons came back "palette not separable":
+  `221_Inderal`'s `highlight#2` sits **0.002** from its `highlight#0`, taking that
+  carton's worst field to **0.0%** and `357_Adderall`'s `render~ref` to **37.8%**,
+  on renders that had not changed. Collapsing at `SEPARABLE_MIN` recovered
+  Inderal to 89.3% / 93.3%. Two paints a classifier cannot separate are one paint.
+- **`64_Kamagra` +8.8 points is the one clean signal** that the diagnosis
+  underneath all this is right: its `highlight` parts sit 0.055–0.094 from the
+  merged cluster colour, are large enough to measure without rim contamination,
+  and painting them their own colour is worth almost nine points of `render~ref`.
+- The Stage A plumbing is correct and neutral, and any future attempt needs it.
+  It is not kept, because a required contract field carrying a duplicate of the
+  field's fill is shipped churn rather than an instrument.
+
+## What a future attempt would need
+
+Not "the same thing more carefully". It needs a way to measure a part's colour
+that is not its median — the rim has to be excluded by something that knows
+where the rim is, not by an erosion radius guessed the same for a 39% field and
+a 0.16% sliver — and it needs the comparison to survive the palette moving
+underneath it. Neither is a small piece of work, and neither was in scope here.
