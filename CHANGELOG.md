@@ -3,6 +3,45 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — A part is painted its cluster's colour — 24 August 2026
+
+Read-only. No code changed, no spec, manifest or figure changed,
+`print_truth.json` untouched in all 28 folders. Write-up in
+[`00_PROJECT_STATE/PART_FILL.md`](00_PROJECT_STATE/PART_FILL.md).
+
+Set out to recover three components misfiled `unrepresentable` because `fill`
+lives on the field and a part has none. The emission threshold was to come from
+the distribution of part-versus-cluster colour distance. **There is no
+threshold**, and the reason is that they are not three cases.
+
+### Measured
+- Over the 75 components classified `print`, the distance between a part's own
+  colour (median of its RAW pixels, exactly how `segment()` measures a cluster's)
+  and the colour it is painted runs 0.000 to **0.7389** in a smooth ramp with no
+  gap. The largest is `152_Artvigil brand#1`, class `print` and shipping.
+- **31 of 75 shipping parts — 41% — sit further from their paint than
+  `SAME_SURFACE_MAX`**, the threshold at which this project already calls two
+  clusters one surface. Their summed area is 109.6% of face-equivalents against
+  446.5% for all printed parts, across **18 of 25 cartons**. Roughly a quarter of
+  all printed design area is painted a colour that is not its own.
+- Verified by looking, not by the number: Artvigil's dark charcoal S-curve is
+  painted orange, Valium's bright blue bar near-black purple, Valium Brand's blue
+  Roche hexagon dark navy. All three are class `print`.
+- **Why nothing caught it.** `design_coverage.py` compares field INDICES, so a
+  part painted orange where the reference is charcoal still agrees. `design_qa`
+  classifies the render against the SPEC's own palette, so a render told to paint
+  orange and painting orange scores a colour error of zero; only `render~ref`
+  disagrees, thinly, over 18 cartons.
+- Eleven sites read "what colour is this region", two of them not named in the
+  brief: `measure_type_rows.py` and `type_qa.py` both pair a field's fill with a
+  part's outline, and three sites decide a measured row's INK from it.
+
+### Not done
+- The narrow change the brief authorised does not exist. The honest shape is
+  every part carrying its own measured fill, which is a re-measurement event for
+  every colour figure on 25 cartons rather than 3. That is a scoping call, not a
+  measurement, and the work stopped at the brief's own edge case.
+
 ## [Unreleased] — `unrepresentable` triaged — 24 August 2026
 
 Read-only. Nothing reclassified, no spec, manifest or figure changed. Write-up in
