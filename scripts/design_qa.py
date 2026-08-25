@@ -41,6 +41,7 @@ from src.utils import load_config, resolve_path  # noqa: E402
 from scripts.calibrate_render import appearance, load_curve  # noqa: E402
 from scripts.measure_reference_face import rectified_face  # noqa: E402
 from scripts.fit_design_spec import rasterise  # noqa: E402
+from scripts.design_coverage import spec_index  # noqa: E402
 from scripts.measure_reference_face import _flatten_illumination  # noqa: E402
 
 _CFG = load_config()
@@ -611,6 +612,45 @@ def measure(stem: str, preview: bool = False) -> dict:
     if ref_idx is not None:
         result["render_vs_reference"] = _agreement(o_idx, ref_idx,
                                                    scored & ref_mask, len(palette))
+
+    # ── A COLOUR COMPARISON THAT SURVIVES THE PALETTE MOVING ────────────────
+    # `render_vs_reference` above is an agreement between two index maps, and
+    # BOTH are produced by classifying against `palette`. So it moves whenever
+    # the palette does -- which is every time a part is painted a different
+    # colour. Contract 1.9 was built, measured and rolled back partly on that:
+    # its before and after were two instruments rather than two renders
+    # (00_PROJECT_STATE/PART_FILL.md).
+    #
+    # This asks the same question without a vocabulary. The regions come from
+    # `spec_index`, which builds them from `part_region` -- GEOMETRY, the same
+    # outlines the fitter traced -- so they do not move when paint does. Inside
+    # each region both sides are MEASURED and differenced. No classification, no
+    # palette, no nearest-colour anything.
+    #
+    # WHAT IT INHERITS, said here rather than discovered later: the regions are
+    # the spec's, and the spec approximates the reference to `spec~ref`, 95-100%
+    # across the group. This is not a direct measurement of the photograph; it is
+    # a measurement inside the spec's idea of where things are.
+    #
+    # Both sides are levelled on the substrate the same way, because comparing a
+    # flattened render against a raw photograph would report the illumination
+    # rather than the paint.
+    ref_raw = np.asarray(ref.convert("RGB")).astype(float) / 255.0
+    ref_flat = flatten_on_substrate(ref_raw, core)
+    geo = spec_index(spec, *size)
+    gap = {}
+    for k in sorted(set(int(v) for v in np.unique(geo))):
+        sel = (geo == k) & scored
+        if int(sel.sum()) < 50:
+            # A region measured on almost nothing says so, rather than
+            # reporting a confident number about very little of itself.
+            gap[k] = None
+            continue
+        gap[k] = round(float(np.linalg.norm(
+            ours_flat[sel].mean(0) - ref_flat[sel].mean(0))), 4)
+    result["region_colour_gap"] = gap
+    _g = [v for v in gap.values() if v is not None]
+    result["region_colour_gap_worst"] = round(max(_g), 4) if _g else None
 
     if preview:
         PREVIEW_DIR.mkdir(parents=True, exist_ok=True)

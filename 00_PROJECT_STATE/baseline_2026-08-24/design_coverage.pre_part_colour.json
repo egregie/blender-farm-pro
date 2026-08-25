@@ -1,0 +1,1029 @@
+{
+  "rows": [
+    {
+      "folder": "59_Cialis",
+      "sku": "59-min",
+      "fields": 2,
+      "parts": 7,
+      "vertices": 895,
+      "simplified_parts": 2,
+      "pixel_agreement": 0.9877,
+      "print_pct": 61.42,
+      "spec_print_pct": 44.99,
+      "type_pct": 0.0,
+      "print_agreement": 0.7022,
+      "truth_agreement": 0.9773,
+      "truth_print_pct": 43.79,
+      "spec_off_print_pct": 0.77,
+      "truth_missing_roles": [],
+      "print_iou": 0.8581,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 29.75,
+          "iou": 0.993,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 24.16,
+          "iou": 0.959,
+          "in_spec": true
+        },
+        "secondary_1": {
+          "face_pct": 7.52,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "raw_cialis_front.png",
+      "reference_aspect": 0.6291,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "60_Cialis_Professional",
+      "sku": "60-min",
+      "fields": 2,
+      "parts": 4,
+      "vertices": 141,
+      "simplified_parts": 2,
+      "pixel_agreement": 0.9984,
+      "print_pct": 22.69,
+      "spec_print_pct": 12.22,
+      "type_pct": 0.0,
+      "print_agreement": 0.5069,
+      "truth_agreement": 0.9877,
+      "truth_print_pct": 11.5,
+      "spec_off_print_pct": 0.85,
+      "truth_missing_roles": [],
+      "print_iou": 0.9878,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 8.61,
+          "iou": 0.989,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 14.08,
+          "iou": 0.987,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Cialis Professional_front_raw.webp",
+      "reference_aspect": 1.0,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "62_Cialis_Super_Active",
+      "sku": "62-min",
+      "fields": 1,
+      "parts": 3,
+      "vertices": 171,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.998,
+      "print_pct": 26.41,
+      "spec_print_pct": 24.7,
+      "type_pct": 4.48,
+      "print_agreement": 0.9307,
+      "truth_agreement": 0.9925,
+      "truth_print_pct": 24.76,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.992,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 26.41,
+          "iou": 0.992,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Cialis Super Active_front_raw.png",
+      "reference_aspect": 0.5991,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "64_Kamagra",
+      "sku": "64-min",
+      "fields": 2,
+      "parts": 6,
+      "vertices": 1128,
+      "simplified_parts": 2,
+      "pixel_agreement": 0.9951,
+      "print_pct": 54.37,
+      "spec_print_pct": 41.27,
+      "type_pct": 0.0,
+      "print_agreement": 0.7479,
+      "truth_agreement": 0.9893,
+      "truth_print_pct": 41.08,
+      "spec_off_print_pct": 0.43,
+      "truth_missing_roles": [],
+      "print_iou": 0.984,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 34.04,
+          "iou": 0.996,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 20.33,
+          "iou": 0.964,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "raw_Kamagra_front_01.png",
+      "reference_aspect": 1.4036,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "74_Viagra",
+      "sku": "74-min",
+      "fields": 1,
+      "parts": 2,
+      "vertices": 40,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9857,
+      "print_pct": 28.27,
+      "spec_print_pct": 23.18,
+      "type_pct": 0.0,
+      "print_agreement": 0.7398,
+      "truth_agreement": 0.9418,
+      "truth_print_pct": 21.74,
+      "spec_off_print_pct": 0.17,
+      "truth_missing_roles": [],
+      "print_iou": 0.942,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 28.27,
+          "iou": 0.942,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "raw_viagra_front.png",
+      "reference_aspect": 0.7618,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "133_Ambien",
+      "sku": "133-min",
+      "fields": 1,
+      "parts": 2,
+      "vertices": 69,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9967,
+      "print_pct": 24.93,
+      "spec_print_pct": 23.34,
+      "type_pct": 5.83,
+      "print_agreement": 0.918,
+      "truth_agreement": 0.9869,
+      "truth_print_pct": 23.1,
+      "spec_off_print_pct": 0.54,
+      "truth_missing_roles": [],
+      "print_iou": 0.987,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 24.93,
+          "iou": 0.987,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Ambien_front_raw.jpg",
+      "reference_aspect": 0.4436,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "134_Atarax",
+      "sku": "134-min",
+      "fields": 2,
+      "parts": 7,
+      "vertices": 183,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9977,
+      "print_pct": 7.1,
+      "spec_print_pct": 4.91,
+      "type_pct": 5.78,
+      "print_agreement": 0.6752,
+      "truth_agreement": 0.9631,
+      "truth_print_pct": 5.66,
+      "spec_off_print_pct": 0.01,
+      "truth_missing_roles": [],
+      "print_iou": 0.961,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 7.1,
+          "iou": 0.961,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Atarax_front_raw.jpg",
+      "reference_aspect": 0.5636,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "135_Ativan",
+      "sku": "135-min",
+      "fields": 2,
+      "parts": 3,
+      "vertices": 93,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.9845,
+      "print_pct": 23.2,
+      "spec_print_pct": 20.38,
+      "type_pct": 0.0,
+      "print_agreement": 0.7734,
+      "truth_agreement": 0.926,
+      "truth_print_pct": 19.0,
+      "spec_off_print_pct": 0.16,
+      "truth_missing_roles": [],
+      "print_iou": 0.9273,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 15.34,
+          "iou": 0.931,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 7.86,
+          "iou": 0.92,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Ativan_front_raw.webp",
+      "reference_aspect": 1.54,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "149_Modalert",
+      "sku": "149-min",
+      "fields": 1,
+      "parts": 3,
+      "vertices": 36,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9683,
+      "print_pct": 25.08,
+      "spec_print_pct": 22.85,
+      "type_pct": 0.0,
+      "print_agreement": 0.7072,
+      "truth_agreement": 0.8647,
+      "truth_print_pct": 19.43,
+      "spec_off_print_pct": 1.11,
+      "truth_missing_roles": [],
+      "print_iou": 0.7461,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 21.63,
+          "iou": 0.865,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 3.45,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Modalert_front_raw.webp",
+      "reference_aspect": 0.3873,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "150_Waklert",
+      "sku": "150-min",
+      "fields": 2,
+      "parts": 3,
+      "vertices": 107,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.9953,
+      "print_pct": 32.47,
+      "spec_print_pct": 10.97,
+      "type_pct": 0.0,
+      "print_agreement": 0.3373,
+      "truth_agreement": 0.9676,
+      "truth_print_pct": 11.31,
+      "spec_off_print_pct": 0.01,
+      "truth_missing_roles": [],
+      "print_iou": 0.8349,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 20.94,
+          "iou": 0.981,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 7.85,
+          "iou": 0.837,
+          "in_spec": true
+        },
+        "secondary_1": {
+          "face_pct": 3.68,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Waklert_front_raw.webp",
+      "reference_aspect": 0.4882,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "151_Provigil",
+      "sku": "151-min",
+      "fields": 0,
+      "parts": 0,
+      "vertices": 0,
+      "simplified_parts": 0,
+      "pixel_agreement": 1.0,
+      "print_pct": 35.48,
+      "spec_print_pct": 0.0,
+      "type_pct": 0.0,
+      "print_agreement": 0.0,
+      "truth_agreement": null,
+      "truth_print_pct": 0.0,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.0,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 15.78,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 8.31,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "secondary_1": {
+          "face_pct": 11.38,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "brand",
+        "highlight",
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Provigil_front_raw.jpg",
+      "reference_aspect": 1.6827,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "152_Artvigil",
+      "sku": "152-min",
+      "fields": 1,
+      "parts": 3,
+      "vertices": 59,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9967,
+      "print_pct": 24.32,
+      "spec_print_pct": 16.89,
+      "type_pct": 0.0,
+      "print_agreement": 0.6733,
+      "truth_agreement": 0.9818,
+      "truth_print_pct": 16.56,
+      "spec_off_print_pct": 0.23,
+      "truth_missing_roles": [],
+      "print_iou": 0.9033,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 22.37,
+          "iou": 0.982,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 1.95,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Artvigil_front_raw.webp",
+      "reference_aspect": 0.5173,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "155_Imovane",
+      "sku": "155-min",
+      "fields": 1,
+      "parts": 1,
+      "vertices": 211,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9988,
+      "print_pct": 11.65,
+      "spec_print_pct": 0.77,
+      "type_pct": 0.0,
+      "print_agreement": 0.05,
+      "truth_agreement": 0.8449,
+      "truth_print_pct": 0.67,
+      "spec_off_print_pct": 0.17,
+      "truth_missing_roles": [],
+      "print_iou": 0.3207,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 7.23,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 4.42,
+          "iou": 0.845,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [
+        "brand"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Imovane_front_raw.jpg",
+      "reference_aspect": 0.7636,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "156_Xanax",
+      "sku": "156-min",
+      "fields": 1,
+      "parts": 2,
+      "vertices": 37,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9992,
+      "print_pct": 16.37,
+      "spec_print_pct": 12.05,
+      "type_pct": 6.85,
+      "print_agreement": 0.7326,
+      "truth_agreement": 0.9942,
+      "truth_print_pct": 12.06,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.994,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 16.37,
+          "iou": 0.994,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Xanax_front_raw.jpg",
+      "reference_aspect": 0.6891,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "157_Valium",
+      "sku": "157-min",
+      "fields": 2,
+      "parts": 3,
+      "vertices": 45,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9985,
+      "print_pct": 15.33,
+      "spec_print_pct": 14.8,
+      "type_pct": 5.94,
+      "print_agreement": 0.9643,
+      "truth_agreement": 0.9909,
+      "truth_print_pct": 15.81,
+      "spec_off_print_pct": 0.98,
+      "truth_missing_roles": [],
+      "print_iou": 0.992,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 15.33,
+          "iou": 0.992,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Valium_front_raw.png",
+      "reference_aspect": 0.7073,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "158_Klonopin",
+      "sku": "158-min",
+      "fields": 2,
+      "parts": 2,
+      "vertices": 39,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9869,
+      "print_pct": 24.84,
+      "spec_print_pct": 22.34,
+      "type_pct": 0.0,
+      "print_agreement": 0.82,
+      "truth_agreement": 0.9435,
+      "truth_print_pct": 21.36,
+      "spec_off_print_pct": 0.08,
+      "truth_missing_roles": [],
+      "print_iou": 0.9502,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 17.3,
+          "iou": 0.932,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 7.54,
+          "iou": 0.992,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Klonopin_front_raw.jpg",
+      "reference_aspect": 0.5018,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "221_Inderal",
+      "sku": "221-min",
+      "fields": 2,
+      "parts": 4,
+      "vertices": 72,
+      "simplified_parts": 2,
+      "pixel_agreement": 0.9513,
+      "print_pct": 29.32,
+      "spec_print_pct": 30.36,
+      "type_pct": 0.0,
+      "print_agreement": 0.7612,
+      "truth_agreement": 0.8423,
+      "truth_print_pct": 25.27,
+      "spec_off_print_pct": 0.98,
+      "truth_missing_roles": [],
+      "print_iou": 0.846,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 12.87,
+          "iou": 0.915,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 16.45,
+          "iou": 0.792,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [],
+      "substrate_reproducible": true,
+      "source_image": "Inderal_front_raw.webp",
+      "reference_aspect": 0.63,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "230_Slimex",
+      "sku": "230-min",
+      "fields": 0,
+      "parts": 0,
+      "vertices": 0,
+      "simplified_parts": 0,
+      "pixel_agreement": 1.0,
+      "print_pct": 26.89,
+      "spec_print_pct": 0.0,
+      "type_pct": 0.0,
+      "print_agreement": 0.0,
+      "truth_agreement": null,
+      "truth_print_pct": 0.0,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.0,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 6.49,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 20.4,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "brand",
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Slimex_front_raw.jpg",
+      "reference_aspect": 0.4927,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "272_Valium_Brand",
+      "sku": "272-min",
+      "fields": 1,
+      "parts": 1,
+      "vertices": 14,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9996,
+      "print_pct": 18.38,
+      "spec_print_pct": 3.07,
+      "type_pct": 0.0,
+      "print_agreement": 0.167,
+      "truth_agreement": 0.9904,
+      "truth_print_pct": 3.1,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.4122,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 7.65,
+          "iou": 0.99,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 10.73,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Valium Brand_front_raw.jpg",
+      "reference_aspect": 0.3982,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "304_Sonata",
+      "sku": "304-min",
+      "fields": 1,
+      "parts": 1,
+      "vertices": 10,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9999,
+      "print_pct": 7.02,
+      "spec_print_pct": 0.12,
+      "type_pct": 0.0,
+      "print_agreement": 0.0165,
+      "truth_agreement": 0.9091,
+      "truth_print_pct": 0.12,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.4405,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 3.62,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 3.4,
+          "iou": 0.909,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [
+        "brand"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Sonata_front_raw.jpg",
+      "reference_aspect": 0.6555,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "308_Lexotanil",
+      "sku": "308-min",
+      "fields": 1,
+      "parts": 2,
+      "vertices": 45,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9995,
+      "print_pct": 7.24,
+      "spec_print_pct": 3.55,
+      "type_pct": 2.56,
+      "print_agreement": 0.4897,
+      "truth_agreement": 0.9868,
+      "truth_print_pct": 3.59,
+      "spec_off_print_pct": 0.01,
+      "truth_missing_roles": [],
+      "print_iou": 0.4921,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 3.61,
+          "iou": 0.987,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 3.63,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Lexotanil_front_raw.webp",
+      "reference_aspect": 0.3982,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "340_Xanax_Pfizer",
+      "sku": "340-min",
+      "fields": 1,
+      "parts": 1,
+      "vertices": 239,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.9972,
+      "print_pct": 64.4,
+      "spec_print_pct": 8.53,
+      "type_pct": 0.0,
+      "print_agreement": 0.121,
+      "truth_agreement": 0.9844,
+      "truth_print_pct": 7.86,
+      "spec_off_print_pct": 0.7,
+      "truth_missing_roles": [],
+      "print_iou": 0.1858,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 12.16,
+          "iou": 0.984,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 31.66,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "secondary_1": {
+          "face_pct": 20.58,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight",
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Xanax_Pfizer_front_raw.webp",
+      "reference_aspect": 0.3336,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "344_Modafinil_Generic",
+      "sku": "344-min",
+      "fields": 1,
+      "parts": 3,
+      "vertices": 36,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9683,
+      "print_pct": 25.08,
+      "spec_print_pct": 22.85,
+      "type_pct": 0.0,
+      "print_agreement": 0.7072,
+      "truth_agreement": 0.8647,
+      "truth_print_pct": 19.43,
+      "spec_off_print_pct": 1.11,
+      "truth_missing_roles": [],
+      "print_iou": 0.7461,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 21.63,
+          "iou": 0.865,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 3.45,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Modafinil Generic_front_raw.webp",
+      "reference_aspect": 0.3873,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "346_Modvigil",
+      "sku": "346-min",
+      "fields": 0,
+      "parts": 0,
+      "vertices": 0,
+      "simplified_parts": 0,
+      "pixel_agreement": 1.0,
+      "print_pct": 40.07,
+      "spec_print_pct": 0.0,
+      "type_pct": 8.58,
+      "print_agreement": 0.0,
+      "truth_agreement": null,
+      "truth_print_pct": 0.0,
+      "spec_off_print_pct": 0.0,
+      "truth_missing_roles": [],
+      "print_iou": 0.0,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 19.63,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 20.44,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "brand",
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Modvigil_front_raw.webp",
+      "reference_aspect": 0.4664,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "357_Adderall",
+      "sku": "357-min",
+      "fields": 2,
+      "parts": 4,
+      "vertices": 802,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.9802,
+      "print_pct": 65.54,
+      "spec_print_pct": 40.12,
+      "type_pct": 0.0,
+      "print_agreement": 0.5357,
+      "truth_agreement": 0.9624,
+      "truth_print_pct": 35.74,
+      "spec_off_print_pct": 3.43,
+      "truth_missing_roles": [],
+      "print_iou": 0.6766,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 17.42,
+          "iou": 0.942,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 28.69,
+          "iou": 0.974,
+          "in_spec": true
+        },
+        "secondary_1": {
+          "face_pct": 19.44,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Adderall_front_face.png",
+      "reference_aspect": 1.2836,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "362_Hydrocodone",
+      "sku": "362-min",
+      "fields": 1,
+      "parts": 2,
+      "vertices": 59,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9913,
+      "print_pct": 62.83,
+      "spec_print_pct": 13.72,
+      "type_pct": 0.0,
+      "print_agreement": 0.1793,
+      "truth_agreement": 0.9638,
+      "truth_print_pct": 11.28,
+      "spec_off_print_pct": 2.16,
+      "truth_missing_roles": [],
+      "print_iou": 0.3661,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 23.86,
+          "iou": 0.964,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 14.97,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "secondary_1": {
+          "face_pct": 24.01,
+          "iou": 0.0,
+          "in_spec": false
+        }
+      },
+      "unrepresented_roles": [
+        "highlight",
+        "secondary_1"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Hydrocodone_front_face.png",
+      "reference_aspect": 1.2609,
+      "catalogue_aspect": 0.4545
+    },
+    {
+      "folder": "365_Tapentadol",
+      "sku": "365-min",
+      "fields": 2,
+      "parts": 3,
+      "vertices": 104,
+      "simplified_parts": 0,
+      "pixel_agreement": 0.9984,
+      "print_pct": 20.84,
+      "spec_print_pct": 12.55,
+      "type_pct": 0.0,
+      "print_agreement": 0.5983,
+      "truth_agreement": 0.9886,
+      "truth_print_pct": 12.61,
+      "spec_off_print_pct": 0.08,
+      "truth_missing_roles": [],
+      "print_iou": 0.736,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 12.2,
+          "iou": 0.992,
+          "in_spec": true
+        },
+        "highlight": {
+          "face_pct": 5.29,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "secondary_1": {
+          "face_pct": 3.35,
+          "iou": 0.965,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [
+        "highlight"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Tapentadol_front_raw.jpg",
+      "reference_aspect": 0.4791,
+      "catalogue_aspect": 0.4783
+    },
+    {
+      "folder": "404_Ritalin",
+      "sku": "404-min",
+      "fields": 2,
+      "parts": 3,
+      "vertices": 60,
+      "simplified_parts": 1,
+      "pixel_agreement": 0.9982,
+      "print_pct": 43.11,
+      "spec_print_pct": 41.75,
+      "type_pct": 6.53,
+      "print_agreement": 0.9266,
+      "truth_agreement": 0.9959,
+      "truth_print_pct": 39.66,
+      "spec_off_print_pct": 7.23,
+      "truth_missing_roles": [],
+      "print_iou": 0.9262,
+      "printed_roles": {
+        "brand": {
+          "face_pct": 3.02,
+          "iou": 0.0,
+          "in_spec": false
+        },
+        "highlight": {
+          "face_pct": 40.09,
+          "iou": 0.996,
+          "in_spec": true
+        }
+      },
+      "unrepresented_roles": [
+        "brand"
+      ],
+      "substrate_reproducible": true,
+      "source_image": "Ritalin_front_raw.webp",
+      "reference_aspect": 0.4155,
+      "catalogue_aspect": 0.4545
+    }
+  ]
+}

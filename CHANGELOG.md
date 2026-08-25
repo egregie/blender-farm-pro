@@ -3,6 +3,45 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — Two instruments for the question 1.9 failed on — 25 August 2026
+
+Nothing that is painted changed: contract stays at 1.8, `part.fill` was not
+reintroduced, no spec, manifest, render or `print_truth.json` written, and every
+prior field of `design_qa.json` is byte-identical. Write-up in
+[`00_PROJECT_STATE/PART_COLOUR.md`](00_PROJECT_STATE/PART_COLOUR.md).
+
+### Added
+- `scripts/measure_part_colour.py` — four part-colour estimators and a synthetic
+  bench with KNOWN answers at the sizes that occur, because a real part has no
+  known colour and agreement with the cluster is the thing already shown wrong.
+  Winner: erode by **0.35 of the part's own thickness**, 0.0020 mean error
+  against the median's 0.0076, worst 0.0047 against 0.0453.
+- `region_colour_gap` in `design_qa`, beside the existing fields and replacing
+  none. Regions from `spec_index` — outlines, not colours — so the figure does
+  not move when paint does. Inherits the fit error and says so.
+- `tests/test_region_colour_gap.py` — invariance demonstrated rather than
+  asserted: `spec_index` unmoved when one fill is brought within 0.001 of
+  another, while the classified map drops below 95% agreement with the geometry.
+
+### Measured
+- **Thinness breaks the median, not smallness.** 0.0018 on a 0.16% blob, 0.0453
+  on a 6px strip. Real thicknesses agree: erosion moves the 3.4px and 5.4px
+  parts and leaves the 60.2px and 65.6px ones, whose distance from their cluster
+  is a real difference in paint.
+- **This corrects `PART_FILL.md`.** Erosion was recorded as "half working" and
+  unable to tell rim from real; it separates them cleanly once thickness is
+  measured. The earlier reading took closeness to the cluster as correctness.
+  Consequently the rim explanation is too small to carry the 1.9 regression,
+  whose cause is **not established** — the palette shift is the remaining
+  candidate.
+- **The new figure sees what the old ones hide.** `157_Valium`'s blue bar is
+  painted near-black purple, 0.583 apart, where `render~ref` reads 99.5%. And
+  `346_Modvigil` and `230_Slimex` score `render~ref` **1.000** carrying zero
+  fields — one palette entry, everything classifies to it — while their board
+  sits 0.37 from the photograph.
+- Every existing boundary erosion in the tree (11, 19, 3, 3, 1) is applied to a
+  large region; none was ever asked to work on a 0.16% part.
+
 ## [Unreleased] — Contract 1.9 built, measured and rolled back — 25 August 2026
 
 The wide per-part-fill change was implemented in full and reverted. No code,

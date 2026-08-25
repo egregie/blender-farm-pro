@@ -704,6 +704,45 @@ the spec draws the substrate cannot be told from type, so it is dropped either w
 **dark field's IoU degenerates to recall** — the figure catches a field placed short, never
 one placed wide.
 
+**A part's colour is broken by THINNESS, not by smallness, and `render~ref` cannot
+see either.** Two instruments were built for the question contract 1.9 failed on
+(`00_PROJECT_STATE/PART_COLOUR.md`), and neither is wired into `fit()`.
+
+`scripts/measure_part_colour.py` holds four estimators and a bench that composites a
+KNOWN colour against a KNOWN neighbour at `RIM_PX = 2.0`, then assigns each blurred
+pixel to the nearer paint as k-means would. Eroding by **0.35 of the part's own
+thickness** (`2*area/perimeter`) beats the median 0.0020 to 0.0076 mean error and
+0.0047 to 0.0453 worst. Every one of this project's five existing erosions —
+`ERODE_PX` 11 on a chart patch, 19 on the substrate, 3 in a type block — is applied
+to a LARGE region, which is why a constant could not serve a 0.16% sliver.
+
+The bench fails the median in exactly one place: 0.0018 on a 0.16% blob and **0.0453
+on a 6px strip**. Measured thickness on the real parts agrees — erosion moves
+`60_Cialis_Professional`'s 3.4px part and `404_Ritalin`'s 5.4px one, and leaves its
+own 60.2px and `152_Artvigil`'s 65.6px alone, because those have almost no rim and
+their distance from the cluster is a real difference in paint. **This corrects
+`PART_FILL.md`**, which read that as erosion "half working": it was reading closeness
+to the cluster as correctness. It also means the rim explanation is too small to
+carry the 1.9 regression, which is therefore **not established**.
+
+**`region_colour_gap` is a colour comparison with no vocabulary.** `render~ref` is an
+agreement between two maps BOTH produced by classifying against the palette, so it
+moves whenever a fill does — which is why 1.9's before and after were two
+instruments. The new figure takes its regions from `spec_index`, i.e. from OUTLINES,
+and differences the two sides inside them. `tests/test_region_colour_gap.py` shows
+`spec_index` unmoved when a fill is brought within 0.001 of another while the
+classified map falls below 95% agreement with the geometry — through deterministic
+noise, because on a CLEAN raster nearest-colour separates a thousandth perfectly and
+the demonstration proves nothing.
+
+It inherits the fit error (regions are the spec's, `spec~ref` 95-100%) and it
+immediately found two things: `157_Valium`'s blue bar is painted near-black purple,
+0.583 apart, on a carton `render~ref` scores **99.5%**; and `346_Modvigil` and
+`230_Slimex` score `render~ref` **1.000** with zero fields — one palette entry, so
+everything classifies to it — while their board sits 0.37 from the photograph. The
+same shape of error this file already records for `pixel_agreement`, at a second
+figure.
+
 **`design_qa.py --sku` no longer writes the report.** A single-SKU run used to rewrite
 `design_qa.json` with one row, discarding the other ten. Merging would be worse — the rows
 would then come from different revisions of the script with nothing in the file saying so.
