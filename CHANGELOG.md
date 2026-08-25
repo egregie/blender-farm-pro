@@ -3,6 +3,37 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — `unrepresentable` triaged — 24 August 2026
+
+Read-only. Nothing reclassified, no spec, manifest or figure changed. Write-up in
+[`00_PROJECT_STATE/UNREPRESENTABLE_TRIAGE.md`](00_PROJECT_STATE/UNREPRESENTABLE_TRIAGE.md).
+
+### Measured
+- **The class is four problems, not one**, taken from the reasons the labelling
+  already carries: 19 components are photographic inserts (54.80% summed, almost
+  all `346_Modvigil` and `230_Slimex`), 3 are continuous tone or pattern (21.18%,
+  almost all `362_Hydrocodone`'s gradient panel), 3 were **merged into another
+  cluster**, and 1 was lost to the simplify tolerance.
+- **The three merged ones are misfiled.** Nothing about them is unrepresentable:
+  each is a solid region of one colour, and what blocks them is that `fill` lives
+  on the FIELD and a part has none — a teal Waklert badge that k-means put in the
+  orange cluster traces perfectly and cannot be painted. All three are the
+  product's own design (a brand badge, a do-not-substitute pictogram, a dosage
+  box), so unlike the `mark` question there is no owner decision behind them.
+- **Recovering them is worth about +0.04 group points, and that is a fact about
+  the instrument rather than about the change.** `unrepresentable` sits outside
+  the scored area, so these cost nothing today and can earn nothing; drawing all
+  three correctly moves their own cartons +1.005, +0.069 and +0.003. For a badge
+  covering 5.08% of a printed face. `truth_agreement` is blind to whatever the
+  labelling wrote off, the same shape of error as `pixel_agreement` being nearly
+  a statement about the board.
+- **Reclassifying without being able to draw costs `150_Waklert` thirty points**
+  — 96.8% to 66.8%. The reclassification and the ability to draw are one change,
+  the same pairing as a `mark` hole and its mark.
+- The screen that does see these already exists: printed cluster against labelled
+  print. The three blank cartons report `truth_agreement` as **null** and an
+  infinite ratio rather than a number, which is why they are visible at all.
+
 ## [Unreleased] — What the marks actually are — 24 August 2026
 
 Phase 1 of the marks question: establish what the 35 `mark` entries contain
