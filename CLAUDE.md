@@ -735,13 +735,59 @@ classified map falls below 95% agreement with the geometry — through determini
 noise, because on a CLEAN raster nearest-colour separates a thousandth perfectly and
 the demonstration proves nothing.
 
-It inherits the fit error (regions are the spec's, `spec~ref` 95-100%) and it
-immediately found two things: `157_Valium`'s blue bar is painted near-black purple,
-0.583 apart, on a carton `render~ref` scores **99.5%**; and `346_Modvigil` and
-`230_Slimex` score `render~ref` **1.000** with zero fields — one palette entry, so
-everything classifies to it — while their board sits 0.37 from the photograph. The
-same shape of error this file already records for `pixel_agreement`, at a second
-figure.
+It inherits the fit error (regions are the spec's, `spec~ref` 95-100%). **What it does
+NOT do is measure paint, and it was published as if it did.** It compares OUR RENDER
+against the photograph in raw values, so it carries three terms and only the last is
+the fit's: the exposure difference between render and photograph, the rig's measured
+black lift, and the fit error. Split off the best neutral scale and `230_Slimex`'s
+headline 0.3652 is **0.0187** — the photograph is 1.29× darker and nothing else; every
+substrate gap in the group above 0.26 is a level difference, while `151-min` carries
+zero fields too and reads 0.0713. `64_Kamagra`'s 0.128 chromatic residual is the lift,
+red at 0.131 against a spec that says 0.000. This is the reading already recorded here
+for ΔC — *a neutral scale is an exposure, not a colour* — arriving at a figure that
+shipped without it. As a BEFORE/AFTER the exposure term cancels and the figure stands;
+as the ranking it was presented as, it misleads.
+
+Levelling it away is not the fix, because a gain cannot represent a lift: referred to
+its own substrate `357-min`'s second field goes 0.0096 → **0.4951**. Two findings do
+survive and come out stronger — `157_Valium` at 0.549 and `272_Roche` at 0.512, and on
+both **our render is four times closer to the spec than the spec is to the
+photograph**, so the renderer obeyed and the fitter chose wrong.
+
+**`fit_colour` is the figure that takes the render out**, and it is what a fresh
+contract-1.9 attempt should be judged by. A field's `fill` is
+`np.median(raw_px[cluster])` off the rectified photograph, so the declared paint and
+the photograph are one measurement in one space — nothing to level, no curve, no lift,
+no render, 20 seconds for the group. `part_index()` is `spec_index` kept per PART and
+in paint order, because 1.9 is a statement about parts. **Its floor is measured and is
+exactly zero on all 28**: measuring the substrate cluster back returns
+`spec["substrate"]`, and every spec carries exactly the rectification's own aspect so
+nothing is resampled.
+
+That floor is what an earlier version of this figure did not have, and the check that
+found it is worth keeping: **a part that IS its own cluster has to read zero.** Against
+the illumination-flattened face `64-min`'s `brand#0` — 32.6% of the face — read 0.0039
+raw against 0.0950 levelled, and `59-min`'s `highlight#0` 0.0068 against 0.2052,
+because the plane is fitted over *wherever the spec draws no field*, which on those
+cartons is the board plus everything the labelling wrote off. Kept as `gap_levelled`
+beside the headline so the illumination term stays visible.
+
+It finds **33 of 75 parts at or beyond `SAME_SURFACE_MAX`, on 20 of the 28 cartons** —
+the threshold reused deliberately, since 0.08 is the distance at which `segment()`
+merges two clusters as one surface. `spread` beside each gap splits them into two
+failures the contract would treat alike: **25 are uniform and simply wrong** (`152-min`'s
+`brand#1` has a spread of **0.0000** over 6.47% of the face, declared orange and
+charcoal in the photograph), and **5 have a spread at or above their own gap** —
+`404-min`, `304-min`, `357-min`, `155-min` `highlight`, `157-min` `type#1` — where no
+fill is right however it is estimated. Write-up in
+[`00_PROJECT_STATE/FIT_COLOUR.md`](00_PROJECT_STATE/FIT_COLOUR.md).
+
+**`149_Modalert` and `344_Modafinil_Generic` are one photograph**, byte for byte under
+two names, with the same corners and the same spec — which is why their rows match to
+four decimals. `344`'s metadata says so (`"product_name": "Modalert 200 (Sun Pharma)"`)
+and this file already records that its photograph is a Modalert pack; what was not
+recorded is that **the 28 folders are 27 distinct references** and every group mean
+counts that carton twice.
 
 **`design_qa.py --sku` no longer writes the report.** A single-SKU run used to rewrite
 `design_qa.json` with one row, discarding the other ten. Merging would be worse — the rows

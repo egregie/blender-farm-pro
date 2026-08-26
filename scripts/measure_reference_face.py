@@ -226,10 +226,11 @@ def segment(folder: Path):
     twice -- once in render_qa's two copies of one fold, once in the sweep's two
     ideas of what a report covers.
 
-    Returns (flat, labels, named) where `flat` is the rectified RGB image,
-    `labels` is one k-means label per pixel, and `named` maps
+    Returns (flat, labels, named, meta, source): `flat` is the rectified RGB
+    image, `labels` is one k-means label per pixel, `named` maps
     substrate/brand/highlight/type to a group dict (or None where that role did
-    not separate).
+    not separate), `meta` is the folder's metadata and `source` the photograph
+    it was rectified from. All five callers unpack five; this said three.
     """
     meta_path = folder / "metadata.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))

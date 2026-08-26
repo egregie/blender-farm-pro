@@ -3,6 +3,62 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — The colour figure with the render taken out — 26 August 2026
+
+Nothing that is painted changed: contract stays at 1.8, and no spec, manifest,
+render, `print_truth.json` or `design_qa.json` was written. Write-up in
+[`00_PROJECT_STATE/FIT_COLOUR.md`](00_PROJECT_STATE/FIT_COLOUR.md).
+
+### Corrected
+- **`region_colour_gap` was published as a ranking of paint and it is not one.**
+  It compares OUR RENDER against the photograph in raw values, so it carries the
+  exposure difference, the rig's measured black lift, and the fit error. Split
+  off the best neutral scale: `230_Slimex`'s headline 0.3652 is **0.0187** and
+  the rest a 1.29× level; every substrate gap in the group above 0.26 is a level
+  difference, while `151-min` also carries zero fields and reads 0.0713.
+  `64_Kamagra`'s 0.128 chromatic residual is the lift — red 0.131 against a spec
+  that says 0.000. As a before/after the exposure term cancels and the figure
+  stands; as a ranking it misleads. The reading this file already carried for ΔC,
+  arriving at a figure that shipped without it.
+- Two findings survive and come out stronger: `157_Valium` 0.549, `272_Roche`
+  0.512 — and on both **our render is four times closer to the spec than the
+  spec is to the photograph.** The renderer obeyed; the fitter chose wrong.
+- `segment()`'s docstring declared three return values and returns five.
+
+### Added
+- `scripts/measure_fit_colour.py` — the fitter's declared fill against the pixels
+  the part covers, with no render in the comparison. A `fill` is
+  `np.median(raw_px[cluster])` off the rectified photograph, so both sides are
+  one measurement in one space: nothing to level, no curve, no lift. Whole group
+  in 20 seconds. `--sku` prints and writes nothing.
+- `part_index()` — `spec_index` kept per PART and in paint order, since contract
+  1.9 is a statement about parts and a part under a later one must be scored on
+  what remains visible.
+- `spread` beside each gap — whether the part is one colour at all, which splits
+  "the fitter chose wrong" from "there is no single right answer here".
+- `tests/test_fit_colour.py` — the zero floor over the committed report, paint
+  order, null-never-zero, and that `spread` separates the two failures.
+
+### Measured
+- **The floor is exactly zero on all 28.** Measuring the substrate cluster back
+  returns `spec["substrate"]` to four decimals, and every spec carries exactly
+  the rectification's own aspect so nothing is resampled.
+- Getting there meant dropping the illumination flattening from the headline. The
+  check: **a part that IS its own cluster has to read zero.** `64-min`'s
+  `brand#0`, 32.6% of the face, read 0.0039 raw against 0.0950 levelled;
+  `59-min`'s `highlight#0` 0.0068 against 0.2052. The plane is fitted over
+  "wherever the spec draws no field", which on those cartons is the board plus
+  everything the labelling wrote off. Kept as `gap_levelled`.
+- **33 of 75 parts at or beyond `SAME_SURFACE_MAX`, on 20 of 28 cartons.**
+  25 are uniform and simply wrong — `152-min`'s `brand#1` has spread **0.0000**
+  over 6.47% of the face, declared orange, charcoal in the photograph. 5 have a
+  spread at or above their own gap, where no fill is right however estimated.
+- `157-min`'s `type#0` reads `#083BC7`, the same answer `PART_COLOUR.md` reached
+  by two other routes that share no code with this one.
+- **`149_Modalert` and `344_Modafinil_Generic` are one photograph**, byte for
+  byte under two names, same corners, same spec. The 28 folders are **27
+  distinct references** and every group mean counts that carton twice.
+
 ## [Unreleased] — Two instruments for the question 1.9 failed on — 25 August 2026
 
 Nothing that is painted changed: contract stays at 1.8, `part.fill` was not
