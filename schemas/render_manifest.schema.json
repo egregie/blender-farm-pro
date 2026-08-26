@@ -18,8 +18,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted. 1.8 adds design.fields[].parts[].holes as REQUIRED, possibly empty: a part is its outline MINUS its holes, and until now it was the ring alone. A boundary trace of a shape with holes in it is a correct trace and a wrong region -- measured over the group's 74 printed parts, the traced rings enclose 1.192 times the ink they describe, and 357_Adderall's brand#1 encloses 9.07 times its own, filling 53.48% of a face it inks 5.90% of. A 1.7 manifest read as 1.8 would fill every hole in silence, which is exactly the packshot the group has been rendering, so the version is pinned rather than the field defaulted to empty.",
-      "const": "1.8"
+      "description": "A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted. 1.8 adds design.fields[].parts[].holes as REQUIRED, possibly empty: a part is its outline MINUS its holes, and until now it was the ring alone. A boundary trace of a shape with holes in it is a correct trace and a wrong region -- measured over the group's 74 printed parts, the traced rings enclose 1.192 times the ink they describe, and 357_Adderall's brand#1 encloses 9.07 times its own, filling 53.48% of a face it inks 5.90% of. A 1.7 manifest read as 1.8 would fill every hole in silence, which is exactly the packshot the group has been rendering, so the version is pinned rather than the field defaulted to empty. 1.9 adds design.fields[].parts[].fill as REQUIRED: a field's fill is the median of its whole CLUSTER while a part is one region of it, and measured over the group's 75 printed parts 33 sit at or beyond SAME_SURFACE_MAX from the colour they are painted -- 152_Artvigil's brand#1 is declared #E05506 and is #2D3336 in the photograph, over 6.47% of the face. A 1.8 part read as 1.9 is not a part painted its field's colour, it is a part whose colour is unknown, so the version is pinned rather than the field defaulted to the field's.",
+      "const": "1.9"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into 03_knowledge_graph/SKU.csv. Never parse as a number, and never PRINT it: it carries the source image's file extension. Print product_code.",
@@ -238,7 +238,8 @@
                   "type": "object",
                   "required": [
                     "outline",
-                    "holes"
+                    "holes",
+                    "fill"
                   ],
                   "properties": {
                     "area_pct": {
@@ -277,6 +278,11 @@
                           }
                         }
                       }
+                    },
+                    "fill": {
+                      "type": "string",
+                      "pattern": "^#[0-9A-Fa-f]{6}$",
+                      "description": "Contract 1.9. The colour THIS PART is painted, which is not always its field's: a field's fill is the median of the whole cluster segment() found, and a part is one region of that cluster. Required and often identical to the field's, because a part whose colour is absent is a part whose colour is unknown, not a part that agrees. Measured over the group's 75 printed parts, 33 sit at or beyond SAME_SURFACE_MAX from the colour they are painted, across 20 of the 28 cartons -- see 00_PROJECT_STATE/FIT_COLOUR.md."
                     }
                   }
                 }

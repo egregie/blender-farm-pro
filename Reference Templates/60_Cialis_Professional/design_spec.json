@@ -16,6 +16,7 @@
           "kind": "field",
           "area_pct": 5.7,
           "smoothness": 0.34,
+          "fill": "#E0AE31",
           "outline": [
             [
               0.2518,
@@ -172,6 +173,7 @@
           "kind": "field",
           "area_pct": 3.9,
           "smoothness": 0.4,
+          "fill": "#274F2D",
           "outline": [
             [
               0.7982,
@@ -432,6 +434,7 @@
           "kind": "field",
           "area_pct": 1.7,
           "smoothness": 0.56,
+          "fill": "#547A47",
           "outline": [
             [
               0.9991,
@@ -548,6 +551,7 @@
           "kind": "field",
           "area_pct": 0.2,
           "smoothness": 0.67,
+          "fill": "#3A4649",
           "outline": [
             [
               0.5464,

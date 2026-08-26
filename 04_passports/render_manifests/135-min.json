@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "135-min.jpg",
   "product_code": "135-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 11.7,
             "smoothness": 0.67,
+            "fill": "#032F5D",
             "outline": [
               [
                 0.0082,
@@ -138,6 +139,7 @@
             "kind": "field",
             "area_pct": 4.0,
             "smoothness": 0.71,
+            "fill": "#D03BA2",
             "outline": [
               [
                 0.53,
@@ -326,6 +328,7 @@
             "kind": "field",
             "area_pct": 3.3,
             "smoothness": 0.54,
+            "fill": "#AD3A9D",
             "outline": [
               [
                 0.0064,

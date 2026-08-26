@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "340-min.jpg",
   "product_code": "340-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 7.9,
             "smoothness": 0.1,
+            "fill": "#B60D7F",
             "outline": [
               [
                 0.8873,

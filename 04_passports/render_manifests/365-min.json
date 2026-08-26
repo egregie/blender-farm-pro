@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "365-min.jpg",
   "product_code": "365-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 9.6,
             "smoothness": 0.62,
+            "fill": "#FD7902",
             "outline": [
               [
                 0.9927,
@@ -110,6 +111,7 @@
             "kind": "field",
             "area_pct": 1.5,
             "smoothness": 0.67,
+            "fill": "#FA1B06",
             "outline": [
               [
                 0.0009,
@@ -174,6 +176,7 @@
             "kind": "field",
             "area_pct": 1.5,
             "smoothness": 0.24,
+            "fill": "#053732",
             "outline": [
               [
                 0.5736,

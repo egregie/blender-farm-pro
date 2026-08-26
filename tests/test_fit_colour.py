@@ -25,8 +25,9 @@ def _report() -> dict:
     return json.loads(REPORT.read_text(encoding="utf-8"))
 
 
-def _rect(u0, v0, u1, v1) -> dict:
+def _rect(u0, v0, u1, v1, fill="#FF0000") -> dict:
     return {"kind": "field", "area_pct": 1.0, "smoothness": 0.0, "holes": [],
+            "fill": fill,
             "outline": [[u0, v0], [u1, v0], [u1, v1], [u0, v1]]}
 
 
@@ -114,7 +115,7 @@ class TestAnAbsentFigureIsNullAndNeverZero(unittest.TestCase):
         self.raw = np.zeros((40, 40, 3))
         self.flat = np.zeros((40, 40, 3))
         self.entry = {"field": 0, "role": "brand", "part": 0, "fill": "#FFFFFF",
-                      "kind": "field", "area_pct": 1.0}
+                      "field_fill": "#FFFFFF", "kind": "field", "area_pct": 1.0}
 
     def test_a_part_with_no_visible_pixels_reports_null(self):
         row = score_part(self.raw, self.flat, np.zeros((40, 40), bool),
@@ -150,7 +151,7 @@ class TestSpreadSeparatesAWrongColourFromNoSingleColour(unittest.TestCase):
         sel.flat[:len(pixels)] = True
         raw.reshape(-1, 3)[:len(pixels)] = pixels
         entry = {"field": 0, "role": "brand", "part": 0, "fill": "#000000",
-                 "kind": "field", "area_pct": 1.0}
+                 "field_fill": "#000000", "kind": "field", "area_pct": 1.0}
         return score_part(raw, raw, sel, entry, (40, 40))
 
     def test_a_uniform_part_of_the_wrong_colour_has_a_gap_and_no_spread(self):
@@ -170,24 +171,58 @@ class TestSpreadSeparatesAWrongColourFromNoSingleColour(unittest.TestCase):
 
 
 class TestAgainstOneMeasuredCarton(unittest.TestCase):
-    """`157_Valium`, reached by a second route.
+    """`157_Valium`, reached by a second route and carrying contract 1.9 whole.
 
     `00_PROJECT_STATE/PART_COLOUR.md` records its `type#0` as `#083BC7` in the
-    photograph and painted `#1F0A24`, measured through `region_colour_gap` and
-    the part-colour bench. This instrument shares no code path with either and
-    has to agree.
+    photograph while its FIELD is `#1F0A24`, measured through
+    `region_colour_gap` and the part-colour bench. This instrument shares no code
+    path with either and has to agree -- and under 1.9 it holds both halves at
+    once: `gap_field` still says the field's colour is wrong for that part, and
+    `gap` says the part's own declared colour is right.
     """
 
     def test_valium_type_0_is_the_blue_the_other_instruments_found(self):
         row = next(r for r in _report()["rows"] if r["sku"] == "157-min")
         part = next(p for p in row["parts"]
                     if p["role"] == "type" and p["part"] == 0)
-        self.assertEqual(part["fill"], "#1F0A24")
         self.assertEqual(part["seen"], "#083BC7")
-        self.assertGreater(part["gap"], 0.6)
+        self.assertEqual(part["field_fill"], "#1F0A24")
+        self.assertGreater(
+            part["gap_field"], 0.6,
+            "the field's colour is no longer recorded as wrong for this part; "
+            "that measurement is the reason contract 1.9 exists and it must not "
+            "vanish just because the part is now painted correctly")
+        self.assertLess(
+            part["gap"], 0.02,
+            "the part carries its own fill under contract 1.9 and it should "
+            "match the photograph; a large gap here means the producer or the "
+            "estimator has regressed")
         self.assertLess(part["spread"], 0.05,
                         "the part is uniform, which is what makes this a "
                         "mis-estimated fill rather than a mixed region")
+
+    def test_the_parts_still_over_the_threshold_are_the_mixed_ones(self):
+        """What 1.9 cannot fix, named rather than left to be rediscovered.
+
+        A fill is a claim that a part is one colour. Where the spread is at or
+        above the gap the claim is empty however the colour is estimated, and
+        those parts stay over the threshold by construction -- five of the six
+        that remain are exactly the five whose spread already exceeded their gap
+        before the producer was switched.
+        """
+        over = [(r["sku"], p) for r in _report()["rows"] for p in r["parts"]
+                if p["gap"] is not None and p["gap"] >= 0.08]
+        self.assertLessEqual(len(over), 8,
+                             f"{len(over)} parts are still beyond the threshold; "
+                             f"before contract 1.9 it was 33, and a rise means "
+                             f"the producer has regressed")
+        mixed = [(s, p) for s, p in over if p["spread"] >= 0.5 * p["gap"]]
+        self.assertGreaterEqual(
+            len(mixed), len(over) - 1,
+            "parts remain over the threshold that are NOT mixed regions: "
+            + ", ".join(f'{s} {p["role"]}#{p["part"]} gap={p["gap"]} '
+                        f'spread={p["spread"]}' for s, p in over
+                        if (s, p) not in mixed))
 
 
 if __name__ == "__main__":

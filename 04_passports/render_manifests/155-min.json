@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "155-min.jpg",
   "product_code": "155-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 0.7,
             "smoothness": 0.05,
+            "fill": "#9D92BC",
             "outline": [
               [
                 0.8355,

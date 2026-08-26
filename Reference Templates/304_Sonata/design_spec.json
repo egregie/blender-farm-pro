@@ -16,6 +16,7 @@
           "kind": "field",
           "area_pct": 0.1,
           "smoothness": 0.1,
+          "fill": "#7C968F",
           "outline": [
             [
               0.9445,

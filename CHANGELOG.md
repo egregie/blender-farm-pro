@@ -3,6 +3,98 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — Contract 1.9: a colour is a statement about a SURFACE — 26 August 2026
+
+`design.fields[].parts[].fill` is required. `print_truth.json` untouched, no
+corner moved, and across three full re-fits **all 28 specs stay byte-identical to
+their 1.8 selves once that one key is stripped** — geometry, `type_rows` and
+`verification` all unchanged. Write-up in
+[`00_PROJECT_STATE/SURFACE_COLOUR.md`](00_PROJECT_STATE/SURFACE_COLOUR.md).
+
+The first attempt at this went in whole and came out whole (`PART_FILL.md`). It
+closed by naming what a future one needed — an estimator that knows where a
+part's rim is, and a comparison that survives the palette moving under it — and
+both were built first (`PART_COLOUR.md`, `FIT_COLOUR.md`).
+
+### Added
+- `design.fields[].parts[].fill`, required, and `manifest_version` 1.8 → 1.9. A
+  1.8 part read as 1.9 is not a part painted its field's colour, it is a part
+  whose colour is unknown, so the version is pinned rather than the field
+  defaulted.
+- `_part_fills()` in `scripts/fit_design_spec.py` — **three rules, each added
+  because a measurement demanded it.** Merge parts within `SAME_SURFACE_MAX`
+  first; then threshold against the field; then refuse any colour landing within
+  `SAME_SURFACE_MAX` of the substrate or another field.
+- Per-part material, per-part `_surface_fill` and per-part colour block in
+  `render_driver.py`, each raising `SystemExit` on a part with no `fill`.
+- `design_qa`'s palette is now one entry per painted COLOUR, with `to_field`
+  mapping every reported figure back to fields — which is what keeps
+  `field_iou_worst` a statement about fields while the classifier works in
+  colours. `palette_entries` names each index.
+- `gap_field` beside `gap` in `measure_fit_colour`, so one row holds both the
+  before and the after.
+- Tests: the three rules on synthetic masks with known colours; a manifest part
+  with no `fill` is refused; the shipped manifests carry it.
+
+### Measured
+- **33 of 75 parts → 8**, mean gap 0.1377 → 0.0319, worst 0.7389 → 0.1689. Six
+  of the eight left are mixed regions with no single colour to estimate —
+  predicted from the 1.8 measurement before the producer was switched, and it
+  held — and two are what rule 3 deliberately withheld.
+- Render side over fresh renders of all 28: `region_colour_gap` **0.1958 →
+  0.1489 with not one carton rising**, `render~spec` unchanged at 0.9943,
+  `field_iou_worst` 0.9694 → 0.9691, `render~ref` 0.9395 → 0.9382, and **zero
+  cartons not separable** against the rolled-back attempt's eight.
+- **Rule 1 exists because ten pairs across four cartons were one surface in the
+  photograph and painted differently**, worst `64_Kamagra`'s `highlight#1` and
+  `highlight#3` at 0.0039 apart. Merging takes it to two.
+- **Rule 3's price was measured before it was paid**: emitting `64_Kamagra`'s
+  colour anyway buys 0.0032 of `region_colour_gap` and costs `render~spec` IoU
+  of 0.975 and 0.959, falling to 0.633 and 0.340.
+- **`64_Kamagra` says where the real defect is.** Its brand and highlight sit
+  **0.0251 apart in the photograph and 0.1221 apart in the spec** — one surface
+  by this project's own constant, split by the segmentation and inherited by the
+  spec. No fill repairs a partition.
+- **One carton loses beyond 0.02 and the criterion did not anticipate why.**
+  `362-min` falls 0.942 → 0.885 on `render~ref` with a separable palette, so the
+  criterion as written was NOT met and was extended after the fact. Evidence:
+  scored area bit-identical at 1 335 854 px, `render~spec` unchanged, its field's
+  colour gap 0.2493 → 0.0855, and the share of the PHOTOGRAPH read as that field
+  rising 15.69% → 21.33%. Its part is genuinely near-black, so the palette gains
+  a dark entry — a word for the reference's printed TYPE, which the spec does not
+  represent.
+- Plumbing neutrality, landed separately on purpose: 28/28 specs and 391/391
+  manifests identical stripping the version and the key, `design_coverage`
+  unmoved on every column, and `157-min` re-rendered with every IDAT chunk
+  byte-identical.
+
+- **The OCR gate moved one row each way, from one cause.** `149-min`'s
+  `dosage_display` started reading; `149-min` and `344-min`'s
+  `unit_count_display` stopped. The band under both goes from the field's
+  `#C84569` to its own `#7333B8` — 0.390 perceived luma to 0.291 — which helps
+  white type ON it and hurts dark type ACROSS it. Filed as the reader on the two
+  checks the project requires and not on the OCR return: looked at on the
+  rectified face at native scale, and
+  `TestNoGridRowIsPrintedInInkItsOwnBackgroundHides` passes on all 28. Fixtures
+  rebuilt afterwards rather than instead.
+
+### Fixed
+- **`make_ocr_fixtures` wrote WEBP at quality 92 on a claim that stopped being
+  true.** Both that script and the gate asserted q92 reads identically to the
+  PNG; contract 1.9 moved `62-min`'s badge `#E9B44B` -> `#EAB032` and took its
+  unit count across Tesseract's boundary. Re-measured over the sample's 112
+  rows, q92 disagrees with the PNG on exactly one and **q98 on none**; the set
+  grows 1.87 -> 2.79 MB. At q95 all four of that carton's rows read, including
+  two the PNG itself misses — quality is not a dial that buys legibility.
+- **The calibration chart is a design block and carried no fills.** The driver's
+  new `SystemExit` refused it, so `calibrate_render.py` silently stopped
+  producing a curve — caught only because `driver_fingerprint()` then refused to
+  let `design_qa` run against a stale one. Patches now state their own colour;
+  the re-measured curve's `rows` are numerically identical.
+- `measure_fit_colour` read `part.get("fill", field["fill"])` — a silent
+  substitution that would have scored a part with no colour as one that agrees
+  with its field, i.e. reported the error it exists to find as absent.
+
 ## [Unreleased] — The colour figure with the render taken out — 26 August 2026
 
 Nothing that is painted changed: contract stays at 1.8, and no spec, manifest,

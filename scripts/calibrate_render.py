@@ -107,8 +107,12 @@ def chart_manifest(stem: str) -> tuple[dict, list]:
     # against the schema, which costs nothing and would have caught it.
     design["fields"] = [
         {"role": f"patch_{i}", "fill": fill, "coverage_pct": 1.0, "z": i,
+         # Contract 1.9: the PART carries the colour and the driver paints that,
+         # with no fallback to the field's. A chart is a design block like any
+         # other, and it is the one the whole transfer curve is read off -- so it
+         # states each patch's colour where the renderer now looks for it.
          "parts": [{"kind": "field", "area_pct": 1.0, "smoothness": 0.0,
-                    "outline": outline, "holes": []}]}
+                    "fill": fill, "outline": outline, "holes": []}]}
         for i, (fill, outline) in enumerate(zip(fills, _grid(len(PATCHES))))]
     # No type on the chart: a label crossing a patch is ink, not paint, and the
     # driver reverses it against whatever it lands on -- which here is a patch.

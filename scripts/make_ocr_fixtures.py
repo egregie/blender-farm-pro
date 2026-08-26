@@ -9,12 +9,25 @@ same barrier can run over eleven.
     python scripts/make_ocr_fixtures.py            # rebuild every fixture
     python scripts/make_ocr_fixtures.py --check    # report drift, write nothing
 
-Fixtures are full-resolution WEBP at quality 92 rather than PNG. The render
-itself is 2.8 MB and eleven of those do not belong in a repository that
-deliberately tracks no renders; the same frame as WEBP is ~64 KB, reads
-identically under Tesseract, and keeps the deskew step real — the view sidecar's
-corners are in render pixels and still apply, so the fixture exercises the whole
-path instead of a pre-flattened crop. It is also the format Stage 3 delivers.
+Fixtures are full-resolution WEBP rather than PNG. The render itself is 2.8 MB
+and twenty-nine of those do not belong in a repository that deliberately tracks
+no renders; the same frame as WEBP is a fraction of that, and it keeps the deskew
+step real — the view sidecar's corners are in render pixels and still apply, so
+the fixture exercises the whole path instead of a pre-flattened crop. It is also
+the format Stage 3 delivers.
+
+**Quality 98, and 92 was measured failing.** The whole point of the fixture is
+that it reads the same as the render it came from, and at contract 1.9
+`62_Cialis_Super_Active`'s badge moved a few levels and took its unit count
+across Tesseract's decision boundary: over the sample's 112 rows, q92 disagreed
+with the PNG on exactly one and q98 on none. The set costs 1.87 MB at 92 and
+2.79 MB at 98.
+
+That row is genuinely marginal rather than badly encoded, and the measurement
+says so in a way worth keeping: at q95 all four of that carton's rows read,
+INCLUDING two the PNG itself misses. Quality is not a dial that buys legibility
+— q98 and lossless both reproduce the PNG exactly, which is the only property
+this fixture set may claim.
 """
 from __future__ import annotations
 
@@ -36,7 +49,7 @@ from src.utils import load_config, resolve_path  # noqa: E402
 from src.design_group import TEMPLATE_SAMPLE  # noqa: E402,F401
 
 FIXTURE_DIR = PROJECT_ROOT / "tests" / "fixtures" / "ocr"
-WEBP_QUALITY = 92
+WEBP_QUALITY = 98
 
 #: The 29th fixture, and it is here because it was NOT and drifted.
 #: `TestOCRBarrier` reads `1-min` -- the single-SKU barrier the sample was built

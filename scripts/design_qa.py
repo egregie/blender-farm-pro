@@ -458,13 +458,31 @@ def measure(stem: str, preview: bool = False) -> dict:
     spec = load_design(stem)
     folder = TEMPLATES_DIR / FOLDER_BY_STEM[stem]
 
-    palette = np.stack([_hex_rgb(spec["substrate"])]
-                       + [_hex_rgb(f["fill"]) for f in spec["fields"]])
+    # CONTRACT 1.9: the palette is the set of colours the spec actually PAINTS,
+    # which is one per distinct part fill and no longer one per field. A field
+    # whose parts disagree needs both entries or the classifier has no word for
+    # one of them; under 1.8, and under 1.9's Stage A, every part carries its
+    # field's colour and this reduces to exactly the old palette.
+    #
+    # `to_field` maps each entry back to the field it belongs to, and every
+    # REPORTED figure is computed on the mapped indices. That is what keeps
+    # `field_iou_worst` a statement about fields while the classifier works in
+    # colours -- otherwise splitting a field into two paints would silently
+    # redefine the headline, which is precisely how contract 1.9's first attempt
+    # ended up comparing two instruments instead of two renders.
+    entries = [("substrate", spec["substrate"])]
+    to_field = [0]
+    for n, f in enumerate(spec["fields"]):
+        for c in dict.fromkeys(part["fill"] for part in f["parts"]):
+            entries.append((f["role"], c))
+            to_field.append(n + 1)
+    palette = np.stack([_hex_rgb(c) for _, c in entries])
+    to_field = np.array(to_field)
+    n_report = len(spec["fields"]) + 1
     gaps = [float(np.linalg.norm(palette[i] - palette[j]))
             for i in range(len(palette)) for j in range(i + 1, len(palette))]
     closest = min(gaps) if gaps else 1.0
-    on_line, on_line_who = _collinearity(palette,
-                                         ["substrate"] + [f["role"] for f in spec["fields"]])
+    on_line, on_line_who = _collinearity(palette, [r for r, _ in entries])
     aspect = float(spec["face_aspect"])
     size = (OUT_WIDTH, max(1, round(OUT_WIDTH * aspect)))
 
@@ -569,7 +587,8 @@ def measure(stem: str, preview: bool = False) -> dict:
                                            ).sum(), 1)), 4),
         "illumination": chosen,
         "illumination_residual": {k: round(v, 4) for k, v in residual.items()},
-        "render_vs_spec": _agreement(o_idx, t_idx, scored, len(palette)),
+        "render_vs_spec": _agreement(to_field[o_idx], to_field[t_idx],
+                                     scored, n_report),
         # Agreement is area-weighted and a substrate is 55-99.9% of these faces,
         # so a field can be missed entirely without moving it: Ritalin's field
         # is 1.6% of its carton. The worst FIELD is the figure that shows a
@@ -578,8 +597,8 @@ def measure(stem: str, preview: bool = False) -> dict:
         "field_iou_worst": None,
         # The figure's own uncertainty, measured rather than assumed.
         "agreement_spread": round(abs(
-            _agreement(o_idx, t_idx, scored, len(palette))["agreement"]
-            - _agreement(alt_idx, t_idx, scored, len(palette))["agreement"]), 4),
+            _agreement(to_field[o_idx], to_field[t_idx], scored, n_report)["agreement"]
+            - _agreement(to_field[alt_idx], to_field[t_idx], scored, n_report)["agreement"]), 4),
         "colour_error_by_region": colour_err,
         "colour_error_worst": (max([v for v in colour_err.values() if v is not None],
                                    default=None)),
@@ -590,6 +609,15 @@ def measure(stem: str, preview: bool = False) -> dict:
         "colour_residual_worst": (max([v for v in colour_residual.values() if v is not None],
                                       default=None)),
         "spec_vs_reference": (spec.get("verification") or {}).get("pixel_agreement"),
+        # What each palette index MEANS, because under contract 1.9 it is no
+        # longer the field index. `colour_error_by_region` and its residual are
+        # keyed by painted colour, and a field whose parts disagree owns more
+        # than one of them -- without this the reader cannot tell that entries 1
+        # and 2 are one field. The agreements are keyed by FIELD and are mapped
+        # through `to_field` before they are computed, so they are unaffected.
+        "palette_entries": [{"index": i, "role": role, "fill": col,
+                             "field": int(to_field[i]) - 1 if i else None}
+                            for i, (role, col) in enumerate(entries)],
     }
     fields = [v for k, v in result["render_vs_spec"]["iou"].items()
               if int(k) > 0 and v is not None]
@@ -598,8 +626,9 @@ def measure(stem: str, preview: bool = False) -> dict:
     # are gone. A field measured on a sliver has to say so rather than report a
     # confident number about very little of itself.
     kept = []
-    for k in range(1, len(palette)):
-        whole = (t_idx == k)
+    f_idx = to_field[t_idx]
+    for k in range(1, n_report):
+        whole = (f_idx == k)
         if whole.sum() >= 200:
             kept.append(float((whole & scored).sum() / whole.sum()))
     result["field_kept_min"] = round(min(kept), 4) if kept else None
@@ -610,8 +639,8 @@ def measure(stem: str, preview: bool = False) -> dict:
     # that came out zero -- which is what an absent key did for two days.
     result["render_vs_reference"] = None
     if ref_idx is not None:
-        result["render_vs_reference"] = _agreement(o_idx, ref_idx,
-                                                   scored & ref_mask, len(palette))
+        result["render_vs_reference"] = _agreement(
+            to_field[o_idx], to_field[ref_idx], scored & ref_mask, n_report)
 
     # ── A COLOUR COMPARISON THAT SURVIVES THE PALETTE MOVING ────────────────
     # `render_vs_reference` above is an agreement between two index maps, and

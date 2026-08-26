@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "149-min.jpg",
   "product_code": "149-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 9.7,
             "smoothness": 0.76,
+            "fill": "#F64D48",
             "outline": [
               [
                 0.0164,
@@ -130,6 +131,7 @@
             "kind": "block",
             "area_pct": 9.3,
             "smoothness": 0.56,
+            "fill": "#7333B8",
             "outline": [
               [
                 0.2509,
@@ -174,6 +176,7 @@
             "kind": "block",
             "area_pct": 0.4,
             "smoothness": 0.33,
+            "fill": "#6009B0",
             "outline": [
               [
                 0.9445,

@@ -983,6 +983,44 @@ class TestAnOutlineIsARegion(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate_manifest(manifest)
 
+    def test_a_part_that_does_not_say_what_colour_it_is_is_refused(self):
+        """Contract 1.9, on the same footing as `holes` above.
+
+        A 1.8 part carries no `fill`. Read as 1.9 it is not a part painted its
+        field's colour, it is a part whose colour is unknown -- and painting it
+        the field's in silence is what 33 of the group's 75 parts should not be:
+        `152_Artvigil`'s `brand#1` is declared `#E05506` and is `#2D3336` in the
+        photograph, over 6.47% of the face.
+        """
+        from jsonschema import ValidationError
+        stem = self._design_stems()[0]
+        manifest = json.loads(
+            (self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+        manifest["design"]["fields"][0]["parts"][0].pop("fill")
+        with self.assertRaises(ValidationError):
+            validate_manifest(manifest)
+
+    def test_every_design_part_states_its_own_colour(self):
+        """And the shipped manifests carry it, which is the other half."""
+        seen = own = 0
+        for stem in self._design_stems():
+            manifest = json.loads(
+                (self.MANIFESTS / f"{stem}.json").read_text(encoding="utf-8"))
+            for field in (manifest.get("design") or {}).get("fields") or []:
+                for i, part in enumerate(field.get("parts") or []):
+                    seen += 1
+                    self.assertIn(
+                        "fill", part,
+                        f"{stem} {field.get('role')}#{i} carries no fill")
+                    if part["fill"] != field["fill"]:
+                        own += 1
+        self.assertGreater(seen, 0, "no design parts were checked at all")
+        self.assertGreater(
+            own, 0,
+            "not one part in the catalogue differs from its field's colour. "
+            "Contract 1.9 exists because 33 of the group's 75 do; a manifest "
+            "set where none does means the producer has been switched off.")
+
     # The exact outline that showed the repair was scoring itself on the wrong
     # quantity. Ritalin's `highlight#1`, simplified at a 0.001 face width: a
     # 22-vertex ring crossing itself six times, its two long edges running the

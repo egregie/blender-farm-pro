@@ -16,6 +16,7 @@
           "kind": "field",
           "area_pct": 39.1,
           "smoothness": 0.2,
+          "fill": "#CCCEC4",
           "outline": [
             [
               0.0673,
@@ -125,6 +126,7 @@
           "simplify_tolerance": 0.002,
           "area_pct": 0.4,
           "smoothness": 0.11,
+          "fill": "#CCCEC4",
           "outline": [
             [
               0.0,
@@ -177,6 +179,7 @@
           "kind": "field",
           "area_pct": 0.1,
           "smoothness": 0.26,
+          "fill": "#0B081D",
           "outline": [
             [
               0.16,

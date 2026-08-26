@@ -27,19 +27,24 @@ W = H = 120
 
 
 def _spec(fill_a: str, fill_b: str) -> dict:
-    """Two fields, two rectangles, nothing else. Outlines identical throughout."""
+    """Two fields, two rectangles, nothing else. Outlines identical throughout.
+
+    Contract 1.9: a part carries its own fill and `rasterise` paints it, with no
+    fallback to the field's. Here the two are equal, because what this fixture
+    perturbs is the paint and not the part-versus-field question.
+    """
     return {
         "substrate": "#FFFFFF",
         "face_aspect": 1.0,
         "fields": [
             {"role": "brand", "z": 0, "fill": fill_a, "coverage_pct": 10.0,
              "parts": [{"kind": "field", "area_pct": 10.0, "smoothness": 0.0,
-                        "holes": [],
+                        "holes": [], "fill": fill_a,
                         "outline": [[0.10, 0.10], [0.45, 0.10],
                                     [0.45, 0.45], [0.10, 0.45]]}]},
             {"role": "highlight", "z": 1, "fill": fill_b, "coverage_pct": 10.0,
              "parts": [{"kind": "field", "area_pct": 10.0, "smoothness": 0.0,
-                        "holes": [],
+                        "holes": [], "fill": fill_b,
                         "outline": [[0.55, 0.55], [0.90, 0.55],
                                     [0.90, 0.90], [0.55, 0.90]]}]},
         ],

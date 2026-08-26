@@ -111,11 +111,107 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.8`.** Bumps up to 1.3 and again at 1.5, 1.6, 1.7 and 1.8 added or
+**Contract version is `1.9`.** Bumps up to 1.3 and again at 1.5, 1.6, 1.7, 1.8 and 1.9 added or
 repurposed *required* fields — deliberately not additive-optional changes, so a manifest
 written before them fails validation loudly instead of quietly producing a packshot with
 something missing. `manifest_version` is pinned by `const` in the schema, so stale files on
 disk are rejected until Stage 1 regenerates them.
+
+- `1.9` — **`design.fields[].parts[].fill`, because a colour is a statement about a
+  SURFACE and a field is not one.** A field's fill is `np.median(raw_px[cluster])`,
+  the median of the whole cluster `segment()` found; a part is one region of it.
+  Measured with `scripts/measure_fit_colour.py`, which takes no render and whose own
+  floor is **exactly zero on all 28 cartons**, **33 of the group's 75 printed parts sat
+  at or beyond `SAME_SURFACE_MAX` from the colour they were painted**, across 20 of the
+  28 — `152_Artvigil`'s `brand#1` declared `#E05506` and `#2D3336` in the photograph,
+  over 6.47% of the face, at a spread of **0.0000**. Required and often equal to the
+  field's: a 1.8 part read as 1.9 is not a part painted its field's colour, it is a part
+  whose colour is unknown. Full write-up in
+  [`00_PROJECT_STATE/SURFACE_COLOUR.md`](00_PROJECT_STATE/SURFACE_COLOUR.md).
+
+  This is the second attempt. The first went in whole and came out whole (`PART_FILL.md`)
+  and closed by naming what a future one would need: an estimator that knows where a
+  part's rim is, and a comparison that survives the palette moving under it. Both were
+  built first — `PART_COLOUR.md`, `FIT_COLOUR.md` — and **the difference between the two
+  attempts is three rules in `_part_fills()`, each added because a measurement demanded
+  it**:
+
+  1. **Merge first.** Parts whose own colours lie within `SAME_SURFACE_MAX` are one
+     surface, by the constant `segment()` merges clusters at. Without it the threshold
+     below splits a single surface: **ten pairs across four cartons**, worst
+     `64_Kamagra`'s `highlight#1` and `highlight#3` at **0.0039** apart in the photograph
+     and painted differently. Merging takes those ten to two, and the two left are the
+     full-region median and the eroded estimate disagreeing at the boundary — where they
+     do, this believes the one measured to be better by a factor of four.
+  2. **Then threshold against the field.** Emitting every part's own colour regardless is
+     what the rolled-back attempt did, and it sends **eight of the 28 cartons** to
+     "palette not separable" — measured twice, once by that attempt and once here.
+  3. **And never emit a colour the vocabulary cannot hold.** A candidate within
+     `SAME_SURFACE_MAX` of the substrate or of another field's colour is refused and the
+     part keeps its field's value **even though that value is known to be wrong for it**.
+     It fires on exactly two cartons: `59_Cialis`'s highlight lands 0.0761 from its own
+     SUBSTRATE, `64_Kamagra`'s 0.0335 from its own brand. The price was measured before
+     it was paid — emitting Kamagra's anyway bought **0.0032** of `region_colour_gap` and
+     took that carton's `render~spec` IoU from 0.975 and 0.959 to **0.633 and 0.340**.
+
+  **Kamagra says where the real defect is, and it is not here.** Its brand and highlight
+  sit **0.0251 apart in the photograph and 0.1221 apart in the spec** — by this project's
+  own constant they are ONE surface that the segmentation split and the spec inherited.
+  No choice of fill repairs a partition, and `segment()` is frozen by its labelling.
+
+  Target side **33 → 8 of 75** parts beyond the threshold, mean gap 0.1377 → 0.0319; six
+  of the eight left are mixed regions with no single colour to estimate (predicted from
+  the 1.8 measurement before the producer was switched, and it held), two are what rule 3
+  withheld. Render side, over fresh renders of all 28: `region_colour_gap` **0.1958 →
+  0.1489 with not one carton rising**, `render~spec` unchanged at 0.9943, `field_iou_worst`
+  0.9694 → 0.9691, `render~ref` 0.9395 → 0.9382, and **zero cartons not separable**.
+
+  **One carton loses beyond 0.02 and the acceptance criterion did not anticipate why.**
+  `362-min` falls 0.942 → 0.885 on `render~ref` while its palette stays separable, so the
+  criterion as written was not met — it was extended after the fact, on this evidence: the
+  scored area is bit-identical at 1 335 854 px, `render~spec` is unchanged, its field's
+  colour gap improves **0.2493 → 0.0855**, and the share of the PHOTOGRAPH classified as
+  that field rises **15.69% → 21.33%**. Its small part is genuinely near-black, so the
+  palette gains a dark entry — and a dark entry is a word for the reference's printed
+  TYPE, which the spec deliberately does not represent. That is the property already
+  recorded here (*a dark pixel where the spec draws the substrate cannot be told from
+  type*), reached by a new carton rather than a new defect.
+
+  **The plumbing landed separately and is provably neutral**, so "did the wiring change
+  anything" is answered apart from "did the measurement change anything": with every part
+  carrying its field's colour, **28 of 28 specs and 391 of 391 manifests are identical**
+  once the version and that one key are stripped, `design_coverage` does not move on any
+  column, and `157-min` re-renders with **every IDAT chunk byte-identical** — only the
+  `tEXt` date and timing chunks differ. Across all three re-fits the specs stay identical
+  to their 1.8 selves once `part.fill` is stripped: geometry, `type_rows` and
+  `verification` are all untouched.
+
+  Two things fell out of the guards rather than the plan. **The calibration chart is
+  itself a design block and its patches carried no fill**, so the driver's new
+  `SystemExit` refused it and `calibrate_render.py` stopped producing a curve — caught
+  because `driver_fingerprint()` then refused to let `design_qa` run on a stale one; the
+  re-measured curve's `rows` are numerically identical. And **`_surface_fill` now reports
+  the PART's colour**, so a measured row reversed out of a recoloured part is set against
+  what is actually printed under it: eleven such surfaces exist and all eleven stay on the
+  same side of `_reverse_ink`'s 0.5 threshold, closest `308-min`'s `brand#1` at 0.426 →
+  0.465.
+
+  **The OCR gate moved one row each way, from one cause.** `149-min`'s
+  `dosage_display` started reading and `149-min`/`344-min`'s `unit_count_display`
+  stopped — the band under both is `brand#1`, taken from its field's `#C84569` to its
+  own `#7333B8`, i.e. **0.390 perceived luma to 0.291**. Darker helps white type set ON
+  a band and hurts dark type set ACROSS it. Filed as the reader on the two checks this
+  file requires rather than on the OCR return: looked at on the rectified face at native
+  scale (on `344-min` the row is ENTIRELY on the board beside a small square — the
+  `365-min` abutting-edge pattern), and `TestNoGridRowIsPrintedInInkItsOwnBackgroundHides`
+  passes on all 28, which judges the cap band. Fixtures rebuilt afterwards rather than
+  instead.
+
+  `design_qa`'s palette is now **one entry per painted colour** rather than one per field,
+  with `to_field` mapping each entry back before any figure is reported — that is what
+  keeps `field_iou_worst` a statement about fields while the classifier works in colours.
+  `colour_error_by_region` is consequently keyed by painted colour, and `palette_entries`
+  names each index so a reader can tell that two of them are one field.
 
 - `1.8` — **`design.fields[].parts[].holes`, because a part is a REGION and not a ring.**
   A Moore-neighbour trace of a shape with holes in it is a correct boundary and a wrong
@@ -772,15 +868,20 @@ because the plane is fitted over *wherever the spec draws no field*, which on th
 cartons is the board plus everything the labelling wrote off. Kept as `gap_levelled`
 beside the headline so the illumination term stays visible.
 
-It finds **33 of 75 parts at or beyond `SAME_SURFACE_MAX`, on 20 of the 28 cartons** —
-the threshold reused deliberately, since 0.08 is the distance at which `segment()`
-merges two clusters as one surface. `spread` beside each gap splits them into two
-failures the contract would treat alike: **25 are uniform and simply wrong** (`152-min`'s
-`brand#1` has a spread of **0.0000** over 6.47% of the face, declared orange and
-charcoal in the photograph), and **5 have a spread at or above their own gap** —
-`404-min`, `304-min`, `357-min`, `155-min` `highlight`, `157-min` `type#1` — where no
-fill is right however it is estimated. Write-up in
-[`00_PROJECT_STATE/FIT_COLOUR.md`](00_PROJECT_STATE/FIT_COLOUR.md).
+**Read against contract 1.8 it found 33 of 75 parts at or beyond `SAME_SURFACE_MAX`, on
+20 of the 28 cartons** — the threshold reused deliberately, since 0.08 is the distance at
+which `segment()` merges two clusters as one surface. That reading is what contract 1.9
+was built on and it is now history: the same instrument over the shipped specs reads
+**8 of 75**, and the report on disk is the current one. `gap_field` beside `gap` keeps
+the 1.8 number visible per part rather than losing it.
+
+`spread` beside each gap splits the failures into two the contract would otherwise treat
+alike: **25 were uniform and simply wrong** (`152-min`'s `brand#1` has a spread of
+**0.0000** over 6.47% of the face, declared orange and charcoal in the photograph), and
+**5 have a spread at or above their own gap** — `404-min`, `304-min`, `357-min`,
+`155-min` `highlight`, `157-min` `type#1` — where no fill is right however it is
+estimated. The first group is what 1.9 fixed and the second is what it cannot. Write-up
+in [`00_PROJECT_STATE/FIT_COLOUR.md`](00_PROJECT_STATE/FIT_COLOUR.md).
 
 **`149_Modalert` and `344_Modafinil_Generic` are one photograph**, byte for byte under
 two names, with the same corners and the same spec — which is why their rows match to

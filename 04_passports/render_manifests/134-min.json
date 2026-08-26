@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "134-min.jpg",
   "product_code": "134-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 1.3,
             "smoothness": 0.45,
+            "fill": "#A6CFD0",
             "outline": [
               [
                 0.0055,
@@ -178,6 +179,7 @@
             "kind": "field",
             "area_pct": 1.2,
             "smoothness": 0.33,
+            "fill": "#A6CFD0",
             "outline": [
               [
                 0.0091,
@@ -346,6 +348,7 @@
             "kind": "field",
             "area_pct": 1.1,
             "smoothness": 0.56,
+            "fill": "#A6CFD0",
             "outline": [
               [
                 0.3909,
@@ -462,6 +465,7 @@
             "kind": "field",
             "area_pct": 1.1,
             "smoothness": 0.25,
+            "fill": "#A6CFD0",
             "outline": [
               [
                 0.3145,
@@ -598,6 +602,7 @@
             "kind": "field",
             "area_pct": 0.2,
             "smoothness": 0.73,
+            "fill": "#C3C2C2",
             "outline": [
               [
                 0.9909,
@@ -718,6 +723,7 @@
             "kind": "field",
             "area_pct": 0.4,
             "smoothness": 0.31,
+            "fill": "#0C0C0E",
             "outline": [
               [
                 0.4445,
@@ -778,6 +784,7 @@
             "kind": "block",
             "area_pct": 0.3,
             "smoothness": 0.33,
+            "fill": "#0C0C0E",
             "outline": [
               [
                 0.4536,

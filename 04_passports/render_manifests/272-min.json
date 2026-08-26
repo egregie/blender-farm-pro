@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "272-min.jpg",
   "product_code": "272-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 3.1,
             "smoothness": 0.43,
+            "fill": "#007AE4",
             "outline": [
               [
                 0.8945,

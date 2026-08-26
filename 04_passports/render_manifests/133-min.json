@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "133-min.jpg",
   "product_code": "133-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 20.6,
             "smoothness": 0.37,
+            "fill": "#FF973E",
             "outline": [
               [
                 0.0155,
@@ -230,6 +231,7 @@
             "kind": "field",
             "area_pct": 2.5,
             "smoothness": 0.48,
+            "fill": "#FF973E",
             "outline": [
               [
                 0.8845,

@@ -580,7 +580,28 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
         ("62-min", "dosage_display"),        # "20mg" in its amber badge at v0.43
         ("64-min", "dosage_display"),        # "100mg" dark in the board window the
                                              # teal field leaves; crisp at any crop
-        ("149-min", "dosage_display"),       # "200mg" reversed white on the magenta band
+        ("149-min", "unit_count_display"),   # "30 Pills", dark on the board at the
+                                             # right, the purple band's corner just
+                                             # touching the foot of the glyphs. LOOKED
+                                             # AT on the rectified face at native scale:
+                                             # every glyph is clear, and
+                                             # TestNoGridRowIsPrintedInInkItsOwn
+                                             # BackgroundHides passes on this carton --
+                                             # the cap band is on one surface. It started
+                                             # missing at contract 1.9 for the same
+                                             # reason `149-min`'s dosage started
+                                             # READING: that band went from `#C84569` at
+                                             # 0.390 perceived luma to `#7333B8` at
+                                             # 0.291. Darker helps white type on it and
+                                             # hurts dark type across it -- one cause,
+                                             # two signs.
+        ("344-min", "unit_count_display"),   # the same string on the same frame and a
+                                             # different carton shape, where it sits
+                                             # ENTIRELY on the board beside the small
+                                             # `#6009B0` square. Nothing covers a glyph;
+                                             # this is the `365-min` pattern already
+                                             # recorded above, a design edge ABUTTING
+                                             # the row perturbing the whole-face read.
         ("155-min", "unit_count_display"),   # "30 Pills", small, bottom left
         ("158-min", "brand_name_display"),   # the whole face returns "a Clonazepam"
         ("158-min", "dosage_display"),       # likewise
@@ -841,8 +862,13 @@ class TestOCRAgainstAFreshRender(unittest.TestCase):
         the renderer does passes it, and that is precisely the state a stale set
         arrives in. Both sides are read by the same `check_image` over the same
         manifests, so any difference is a difference in the pixels, and the
-        committed WEBP at quality 92 was measured to score identically to the
-        PNG it came from.
+        committed WEBP is measured to score identically to the PNG it came from.
+
+        That measurement is not free and it has been falsified once: at quality
+        92 it held until contract 1.9 moved `62-min`'s badge a few levels and
+        took its unit count across Tesseract's boundary. Re-measured over the
+        sample's 112 rows, q92 disagreed with the PNG on that one row and q98 on
+        none, so the fixtures are written at 98 and the set grew 1.87 -> 2.79 MB.
         """
         fixture_misses = set()
         for stem, webp, manifest, view in self._fixture_cases():

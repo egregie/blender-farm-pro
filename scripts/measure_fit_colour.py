@@ -89,6 +89,25 @@ REPORT = PROJECT_ROOT / "00_PROJECT_STATE" / "fit_colour.json"
 MIN_PART_PX = 50
 
 
+def _required_fill(part: dict, field: dict, n: int, m: int) -> str:
+    """Contract 1.9's fill, with no fallback to the field's.
+
+    An earlier version of this read `part.get("fill", field["fill"])`, which is
+    the silent substitution the contract exists to stop: a part with no colour
+    would then have scored as a part that agrees with its field, and this
+    instrument would have reported the very error it was built to find as
+    absent.
+    """
+    if "fill" not in part:
+        raise SystemExit(
+            f"design field {field.get('role')!r} (index {n}) part {m} carries no "
+            f"`fill`. That is contract 1.9 and it is required; re-run "
+            f"scripts/fit_design_spec.py for this folder rather than reading it "
+            f"as a part painted its field's colour.")
+    return part["fill"]
+
+
+
 def part_index(spec: dict, w: int, h: int):
     """Which PART the spec paints at each pixel, in paint order; -1 where none.
 
@@ -111,7 +130,14 @@ def part_index(spec: dict, w: int, h: int):
                 "field": n,
                 "role": field.get("role"),
                 "part": m,
-                "fill": field["fill"],
+                # Both, and that is the whole before-and-after in one report.
+                # Under 1.8 -- and under 1.9's neutral Stage A -- they are equal
+                # and the two columns agree. Once the producer is switched,
+                # `gap` says whether the part's OWN declared colour is right
+                # (it should go to nothing) while `gap_field` holds still and
+                # keeps saying how wrong the field's colour was for this part.
+                "fill": _required_fill(part, field, n, m),
+                "field_fill": field["fill"],
                 "kind": part.get("kind"),
                 "area_pct": part.get("area_pct"),
             })
@@ -133,7 +159,8 @@ def score_part(raw: np.ndarray, flat: np.ndarray, sel: np.ndarray,
     row = dict(entry, px=px, visible_pct=round(100.0 * px / (size[0] * size[1]), 3))
     if px < MIN_PART_PX:
         # Wholly overpainted by a later part, or too small to median honestly.
-        row.update(seen=None, gap=None, gap_levelled=None, spread=None)
+        row.update(seen=None, gap=None, gap_field=None, gap_levelled=None,
+                   spread=None)
         return row
 
     want = _hex_rgb(entry["fill"])
@@ -156,6 +183,8 @@ def score_part(raw: np.ndarray, flat: np.ndarray, sel: np.ndarray,
     lit = np.median(flat[sel], axis=0)
     row.update(seen=_hex(seen),
                gap=round(float(np.linalg.norm(want - seen)), 4),
+               gap_field=round(float(np.linalg.norm(
+                   _hex_rgb(entry["field_fill"]) - seen)), 4),
                gap_levelled=round(float(np.linalg.norm(want - lit)), 4),
                spread=round(spread, 4))
     return row

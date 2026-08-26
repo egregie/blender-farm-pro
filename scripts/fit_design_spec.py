@@ -36,7 +36,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.design_group import RingRepairFailed, simple_ring  # noqa: E402
 from scripts.measure_reference_face import (  # noqa: E402
-    TEMPLATES_DIR, _hex, segment,
+    SAME_SURFACE_MAX, TEMPLATES_DIR, _hex, segment,
 )
 
 #: Per-component ground truth, written by scripts/label_print.py. The name and
@@ -586,10 +586,110 @@ def _smoothness(points) -> float:
     return float(np.mean(ang < SMOOTH_TURN_DEG))
 
 
+def _part_fills(masks, raw, field_colour, others=()) -> list:
+    """One colour per SURFACE within a field, not one per part.
+
+    Contract 1.9. `field_colour` is `segment()`'s cluster median -- the value the
+    field carries -- and a part is one region of that cluster. Measured over the
+    group's 75 printed parts, 33 sit at or beyond `SAME_SURFACE_MAX` from it
+    (00_PROJECT_STATE/FIT_COLOUR.md).
+
+    Two rules, and both were measured before being chosen.
+
+    **Merge first.** Parts whose own colours lie within `SAME_SURFACE_MAX` are
+    one surface by this project's own definition -- it is the constant
+    `segment()` merges two clusters at -- and they take one colour. Without this
+    the threshold below splits a single surface in two, because two parts of it
+    land on either side: measured over the group, ten pairs across four cartons,
+    worst `64_Kamagra`'s `highlight#1` and `highlight#3` sitting **0.0039** apart
+    in the photograph and painted differently. Merged colours are combined by
+    area, a weighted mean of medians that are each already robust; re-estimating
+    over the union is not the same thing, because the erosion asks the mask how
+    thick it is and a union of scattered parts has no meaningful thickness.
+
+    It takes those ten pairs to **two**, and the two that remain are honest
+    disagreement rather than leakage: `59-min`'s `brand#1`/`brand#2` and
+    `62-min`'s are within `SAME_SURFACE_MAX` by the FULL-region median and
+    beyond it by the eroded estimate, which is the better of the two by a factor
+    of four on a bench with known answers. Where the estimators disagree at the
+    boundary this rule believes the one that was measured to be right.
+
+    **Then threshold against the field.** A surface within `SAME_SURFACE_MAX` of
+    its field takes the field's value EXACTLY rather than a near-duplicate of
+    it. Emitting every part's own colour regardless is what the rolled-back
+    attempt did, and it sends eight of the 28 cartons to "palette not separable"
+    -- two paints a classifier cannot tell apart are not two paints. Thresholded
+    it is two.
+
+    **And never emit a colour the vocabulary cannot hold.** `others` is the
+    substrate plus every OTHER field's colour, and a candidate landing within
+    `SAME_SURFACE_MAX` of one of them is refused: the part keeps its field's
+    value even though that value is known to be wrong for it. This is the
+    `SEPARABLE_MIN` collapse `PART_FILL.md` asked for, it costs something real,
+    and the price was measured before it was paid. It fires on exactly two
+    cartons -- `59_Cialis`'s highlight lands 0.0761 from its own SUBSTRATE and
+    `64_Kamagra`'s 0.0335 from its own brand -- and on Kamagra, emitting the
+    colour anyway bought **0.0032** of `region_colour_gap` while taking that
+    carton's `render~spec` IoU from 0.975 and 0.959 down to 0.633 and 0.340.
+
+    Kamagra is also the case that says what the real defect is: its brand and
+    highlight sit **0.0251** apart in the photograph and **0.1221** apart in the
+    spec. By this project's own constant they are ONE surface, which the
+    segmentation split and the spec inherited -- and no choice of fill repairs
+    a partition.
+    """
+    from scripts.measure_part_colour import median_eroded_adaptive
+    own = [median_eroded_adaptive(m, raw) for m in masks]
+    areas = [float(m.sum()) for m in masks]
+    groups = [[i] for i in range(len(masks))]
+    cols = [c.astype(float).copy() for c in own]
+    wts = list(areas)
+
+    merged = True
+    while merged and len(groups) > 1:
+        merged = False
+        for i in range(len(groups)):
+            for j in range(i + 1, len(groups)):
+                if float(np.linalg.norm(cols[i] - cols[j])) >= SAME_SURFACE_MAX:
+                    continue
+                total = wts[i] + wts[j]
+                cols[i] = ((cols[i] * wts[i] + cols[j] * wts[j]) / total
+                           if total else cols[i])
+                wts[i] = total
+                groups[i] = groups[i] + groups[j]
+                del groups[j], cols[j], wts[j]
+                merged = True
+                break
+            if merged:
+                break
+
+    out = [None] * len(masks)
+    for members, colour in zip(groups, cols):
+        take_own = (
+            float(np.linalg.norm(colour - field_colour)) >= SAME_SURFACE_MAX
+            and all(float(np.linalg.norm(colour - o)) >= SAME_SURFACE_MAX
+                    for o in others))
+        value = _hex(colour) if take_own else _hex(field_colour)
+        for k in members:
+            out[k] = value
+    return out
+
+
 def fit(folder: Path, preview_dir: Path | None = None) -> dict:
+    # Imported here, not at module scope: `measure_part_colour` imports
+    # `components` and `load_truth` from THIS module, so a top-level import is a
+    # cycle. The estimator has one implementation and it lives with the bench
+    # that chose it over three others -- a second copy here is the defect this
+    # project has already paid for at `part_region` and `narrow_to_string`.
+    from scripts.measure_part_colour import median_eroded_adaptive
+
     flat, labels, named, meta, source = segment(folder)
     w, h = flat.width, flat.height
     lab = labels.reshape(h, w)
+    # The same pixels `segment()` takes a cluster's colour from, in the same
+    # space: raw, not illumination-corrected. A part's colour has to be
+    # comparable with its field's or the threshold below means nothing.
+    raw = np.asarray(flat).astype(float) / 255.0
 
     substrate = named["substrate"]
     substrate_label = substrate.get("label")
@@ -675,7 +775,12 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
 
     holes_kept: dict[str, int] = {}
     for role, j, g in order:
-        parts = []
+        # Masks kept beside the emitted parts because contract 1.9's colour rule
+        # is a statement about the field's parts TOGETHER -- two of them within
+        # SAME_SURFACE_MAX are one surface -- and cannot be decided one at a
+        # time. Assigned after this loop, into a key placed here so the emitted
+        # order stays as it reads.
+        parts, masks = [], []
         for i, part in enumerate(parts_by_role[role]):
             key = f"{role}#{i}"
             if key not in label_of:
@@ -706,6 +811,30 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                    if used != SIMPLIFY_TOLERANCE else {}),
                 "area_pct": round(100 * part.sum() / (w * h), 1),
                 "smoothness": round(_smoothness(pts), 2),
+                # Contract 1.9. Required and often equal to the field's, which
+                # is the point: a 1.8 part read as 1.9 is not a part painted its
+                # field's colour, it is a part whose colour is unknown.
+                #
+                # The part's own colour is taken ONLY where it is at least
+                # SAME_SURFACE_MAX from the field's, and this threshold is the
+                # whole difference between this attempt and the one that was
+                # rolled back. Emitting every part's own colour regardless sends
+                # eight of the 28 cartons to "palette not separable" -- measured
+                # both times -- because two parts of one surface then become two
+                # vocabulary entries a thousandth apart, and every
+                # classification-based figure stops meaning anything.
+                # Thresholded it is one carton, and that one degenerates for a
+                # real reason: `64_Kamagra`'s corrected highlight sits 0.026 from
+                # its own brand, because the photograph separates those two teals
+                # by less than the spec does.
+                #
+                # The estimator is not the median. A part's median carries its
+                # antialiased rim, which is what moved `60_Cialis_Professional`'s
+                # 0.16% part by 0.259 last time; eroding by 0.35 of the part's
+                # OWN thickness scores 0.0020 mean error on a bench with known
+                # answers against the median's 0.0076. See
+                # 00_PROJECT_STATE/PART_COLOUR.md.
+                "fill": None,
                 "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in pts],
                 # Always present, empty where the part has none: contract 1.8
                 # makes this required so a spec written before it fails loudly
@@ -713,8 +842,17 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 "holes": [[[round(x / w, 4), round(y / h, 4)] for x, y in ring]
                           for ring in holes],
             })
+            masks.append(part)
         if not parts:
             continue
+        # Every other entry the carton's vocabulary will hold: the board, and
+        # each other field's own colour. A part's colour has to be tellable from
+        # all of them, not only from its own field's.
+        others = ([substrate["colour"]]
+                  + [g2["colour"] for _r2, j2, g2 in order if j2 != j])
+        for emitted_part, colour in zip(
+                parts, _part_fills(masks, raw, g["colour"], others)):
+            emitted_part["fill"] = colour
         emitted.append((role, j, g))
         fields.append({
             "role": role,
@@ -855,13 +993,19 @@ def part_region(part: dict, w: int, h: int) -> Image.Image | None:
 
 
 def rasterise(spec: dict, w: int, h: int) -> Image.Image:
-    """Draw the spec back out. This is what makes the spec checkable."""
+    """Draw the spec back out. This is what makes the spec checkable.
+
+    Contract 1.9: the colour is the PART's, not its field's. There is no
+    fallback to the field's fill -- a part with no `fill` is a part whose colour
+    is unknown, and painting it the field's is precisely the guess the contract
+    exists to stop. The driver raises `SystemExit` on the same condition.
+    """
     img = Image.new("RGB", (w, h), spec["substrate"])
     for f in spec["fields"]:
         for part in f["parts"]:
             region = part_region(part, w, h)
             if region is not None:
-                img.paste(f["fill"], (0, 0), region)
+                img.paste(part["fill"], (0, 0), region)
     return img
 
 

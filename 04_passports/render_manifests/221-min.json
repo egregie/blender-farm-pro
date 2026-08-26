@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "221-min.jpg",
   "product_code": "221-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 11.3,
             "smoothness": 0.5,
+            "fill": "#4A235E",
             "outline": [
               [
                 0.3855,
@@ -139,6 +140,7 @@
             "kind": "field",
             "area_pct": 7.9,
             "smoothness": 0.5,
+            "fill": "#F1897A",
             "outline": [
               [
                 0.0727,
@@ -219,6 +221,7 @@
             "kind": "field",
             "area_pct": 4.4,
             "smoothness": 0.36,
+            "fill": "#F1897A",
             "outline": [
               [
                 0.0655,
@@ -283,6 +286,7 @@
             "kind": "field",
             "area_pct": 1.6,
             "smoothness": 0.57,
+            "fill": "#F1897A",
             "outline": [
               [
                 0.0,

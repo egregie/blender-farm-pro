@@ -343,6 +343,104 @@ class TestAPartIsItsOutlineMinusItsHoles(unittest.TestCase):
             "left onto board the shape does not cover")
 
 
+
+class TestAPartsColourIsAStatementAboutItsSURFACE(unittest.TestCase):
+    """Contract 1.9's two rules, on synthetic masks with known colours.
+
+    A field's `fill` is the median of the whole cluster `segment()` found, and a
+    part is one region of that cluster. Measured over the design group's 75
+    printed parts, 33 sit at or beyond `SAME_SURFACE_MAX` from the colour they
+    were painted (00_PROJECT_STATE/FIT_COLOUR.md), which is why the part carries
+    its own. What these pin is the two rules that decide WHICH colour, both of
+    which were added because measurement said the naive version fails.
+    """
+
+    W = H = 60
+
+    def _canvas(self, blocks):
+        """(masks, raw) for a list of (slice_x, colour) blocks."""
+        import numpy as np
+        raw = np.zeros((self.H, self.W, 3), dtype=float)
+        masks = []
+        for x0, x1, colour in blocks:
+            m = np.zeros((self.H, self.W), dtype=bool)
+            m[10:50, x0:x1] = True
+            raw[m] = colour
+            masks.append(m)
+        return masks, raw
+
+    def _fills(self, blocks, field_colour):
+        from scripts.fit_design_spec import _part_fills
+        masks, raw = self._canvas(blocks)
+        return _part_fills(masks, raw, field_colour)
+
+    def test_two_parts_of_one_surface_take_one_colour(self):
+        """The defect the merge exists to stop.
+
+        Without it the threshold below splits a single surface in two, because
+        its parts land on either side of it: measured over the group, ten pairs
+        across four cartons, worst `64_Kamagra`'s `highlight#1` and
+        `highlight#3` at 0.0039 apart in the photograph and painted differently.
+        """
+        import numpy as np
+        near = [(2, 20, (0.20, 0.20, 0.20)), (30, 48, (0.24, 0.24, 0.24))]
+        got = self._fills(near, np.array([0.90, 0.90, 0.90]))
+        self.assertEqual(got[0], got[1],
+                         "two parts 0.069 apart were painted differently; they "
+                         "are one surface by SAME_SURFACE_MAX, which is the "
+                         "constant segment() merges two clusters at")
+
+    def test_two_parts_of_different_surfaces_keep_their_own(self):
+        """Guards the test above: merging everything would pass it."""
+        import numpy as np
+        far = [(2, 20, (0.10, 0.10, 0.10)), (30, 48, (0.80, 0.10, 0.10))]
+        got = self._fills(far, np.array([0.50, 0.50, 0.50]))
+        self.assertNotEqual(got[0], got[1],
+                            "two parts 0.7 apart were given one colour")
+
+    def test_a_part_near_its_field_takes_the_fields_value_exactly(self):
+        """Not a near-duplicate of it.
+
+        Emitting every part's own colour regardless is what the rolled-back
+        attempt did, and it sent eight of the 28 cartons to "palette not
+        separable" -- two paints a classifier cannot tell apart are not two
+        paints. Thresholded, it is two.
+        """
+        import numpy as np
+        field = np.array([0.40, 0.50, 0.60])
+        got = self._fills([(2, 48, (0.41, 0.50, 0.60))], field)
+        self.assertEqual(got[0], "#668099",
+                         "a part within SAME_SURFACE_MAX of its field did not "
+                         "take the field's value exactly")
+
+    def test_a_part_far_from_its_field_does_not(self):
+        """Guards the test above: always returning the field's would pass it."""
+        import numpy as np
+        got = self._fills([(2, 48, (0.05, 0.70, 0.30))], np.array([0.40, 0.50, 0.60]))
+        self.assertNotEqual(got[0], "#668099")
+
+    def test_the_merge_is_weighted_by_area(self):
+        """A merged surface's colour is its big region's, not the average of two.
+
+        Medians of two regions are each already robust; combining them by area
+        is what keeps a sliver from dragging the surface it belongs to.
+        Re-estimating over the union is NOT the same thing -- the erosion asks
+        the mask how thick it is, and a union of scattered parts has no
+        meaningful thickness.
+        """
+        import numpy as np
+        # 0.069 apart, i.e. inside SAME_SURFACE_MAX so they merge at all. The
+        # first version of this fixture used 0.20 and 0.26 -- 0.104 apart -- and
+        # failed correctly, because those are two surfaces and not one.
+        blocks = [(2, 46, (0.20, 0.20, 0.20)), (50, 53, (0.24, 0.24, 0.24))]
+        got = self._fills(blocks, np.array([0.90, 0.90, 0.90]))
+        self.assertEqual(got[0], got[1])
+        level = int(got[0][1:3], 16) / 255.0
+        self.assertLess(abs(level - 0.20), abs(level - 0.24),
+                        f"the merged colour {got[0]} sits nearer the 3px sliver "
+                        f"than the 44px region it belongs to")
+
+
 class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
     """`part_region` is the inverse of the normalisation, for every reader.
 
@@ -437,10 +535,13 @@ class TestAReconstructedVertexLandsOnThePixelItWasTracedFrom(unittest.TestCase):
         import numpy as np
         from scripts.design_coverage import SUBSTRATE, spec_index
         from scripts.fit_design_spec import rasterise
+        # Contract 1.9: the part carries the fill and `rasterise` paints it,
+        # with no fallback to the field's. Equal here -- what this test is about
+        # is the REGION both readers reconstruct, not which colour goes in it.
         spec = {"substrate": "#000000",
                 "fields": [{"role": "brand", "fill": "#FFFFFF", "z": 0,
                             "parts": [{"outline": self._stored(self.TRACED),
-                                       "holes": []}]}]}
+                                       "fill": "#FFFFFF", "holes": []}]}]}
         drawn = np.asarray(rasterise(spec, self.W, self.H))[:, :, 0] > 127
         indexed = spec_index(spec, self.W, self.H) != SUBSTRATE
         want = self._fill(self.TRACED)

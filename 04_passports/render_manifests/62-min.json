@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "62-min.jpg",
   "product_code": "62-min",
   "template_id": "T1_SMALL",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 19.5,
             "smoothness": 0.58,
+            "fill": "#E9B44B",
             "outline": [
               [
                 0.0,
@@ -611,6 +612,7 @@
             "kind": "field",
             "area_pct": 3.9,
             "smoothness": 0.74,
+            "fill": "#EAB032",
             "outline": [
               [
                 0.9991,
@@ -711,6 +713,7 @@
             "kind": "block",
             "area_pct": 1.4,
             "smoothness": 0.14,
+            "fill": "#E9B44B",
             "outline": [
               [
                 0.7209,

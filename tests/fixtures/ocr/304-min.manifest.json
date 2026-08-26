@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.8",
+  "manifest_version": "1.9",
   "sku_id": "304-min.jpg",
   "product_code": "304-min",
   "template_id": "T1",
@@ -38,6 +38,7 @@
             "kind": "field",
             "area_pct": 0.1,
             "smoothness": 0.1,
+            "fill": "#7C968F",
             "outline": [
               [
                 0.9445,
