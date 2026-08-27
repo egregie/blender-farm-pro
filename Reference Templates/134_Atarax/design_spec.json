@@ -151,7 +151,8 @@
               0.7306
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -320,7 +321,8 @@
               0.3032
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -437,7 +439,8 @@
               0.7226
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -574,7 +577,8 @@
               0.3048
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -687,7 +691,8 @@
               0.9597
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     },
@@ -756,7 +761,8 @@
               0.7806
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "block",
@@ -813,11 +819,13 @@
               0.8758
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 6,
   "dropped_by_class": {
     "type": 6

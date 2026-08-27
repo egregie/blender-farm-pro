@@ -6,6 +6,7 @@
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
   "substrate": "#0E25A7",
   "fields": [],
+  "marks": [],
   "components_dropped": 47,
   "dropped_by_class": {
     "object": 4,

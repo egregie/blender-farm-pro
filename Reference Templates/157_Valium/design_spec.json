@@ -103,7 +103,8 @@
               0.3599
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     },
@@ -140,7 +141,8 @@
               0.0013
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -322,15 +324,72 @@
                 0.9306
               ]
             ]
-          ]
+          ],
+          "mark_holes": []
         }
       ]
     }
   ],
-  "components_dropped": 17,
+  "marks": [
+    {
+      "role": "type",
+      "key": "type#8",
+      "source": "component",
+      "fill": "#022E99",
+      "area_pct": 0.231,
+      "outline": [
+        [
+          0.8836,
+          0.7841
+        ],
+        [
+          0.9164,
+          0.7853
+        ],
+        [
+          0.9545,
+          0.8522
+        ],
+        [
+          0.95,
+          0.8638
+        ],
+        [
+          0.9155,
+          0.9254
+        ],
+        [
+          0.9118,
+          0.9293
+        ],
+        [
+          0.8236,
+          0.9332
+        ],
+        [
+          0.7818,
+          0.8625
+        ],
+        [
+          0.7836,
+          0.856
+        ],
+        [
+          0.8245,
+          0.7866
+        ],
+        [
+          0.8827,
+          0.7853
+        ]
+      ],
+      "holes": [],
+      "z": 2
+    }
+  ],
+  "components_dropped": 16,
   "dropped_by_class": {
-    "type": 16,
-    "mark": 1
+    "type": 16
   },
   "holes_filled_by_class": {
     "lettering": 3
@@ -338,11 +397,11 @@
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
-    "pixel_agreement": 0.9985,
-    "excluded_as_glyphs_pct": 5.46,
+    "pixel_agreement": 0.9983,
+    "excluded_as_glyphs_pct": 5.23,
     "iou_by_field": {
       "brand": 0.992,
-      "type": 0.979
+      "type": 0.963
     },
     "vertices": 68
   }

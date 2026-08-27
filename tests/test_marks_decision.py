@@ -145,5 +145,85 @@ class TestOnlyYesPermitsAnything(unittest.TestCase):
         self.assertIn(("74-min", "brand#0/hole#0"), load(self._table("**yes**")).holes)
 
 
+class TestNothingUnapprovedIsEverDrawn(unittest.TestCase):
+    """The decision is only worth what the shipped artefacts obey.
+
+    Over every manifest in the catalogue and every spec in the group: each drawn
+    mark must name a key the owner said `yes` to, and none of the refused keys
+    may appear anywhere. This is the test that would fail if a class were ever
+    renamed into permission, or if a fitter change started emitting by class.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.d = load()
+        cls.manifests = Path("04_passports/render_manifests")
+
+    def _drawn(self):
+        import json as _json
+        from src.design_group import FOLDER_BY_STEM
+        for f in sorted(self.manifests.glob("*.json")):
+            m = _json.loads(f.read_text(encoding="utf-8"))
+            folder = FOLDER_BY_STEM.get(f.stem)
+            for mark in ((m.get("design") or {}).get("marks") or []):
+                yield f.stem, folder, mark
+
+    def test_every_drawn_mark_names_an_approved_key(self):
+        for stem, folder, mark in self._drawn():
+            key = mark.get("key")
+            with self.subTest(sku=stem, key=key):
+                approved = ((stem, key) in self.d.holes
+                            if mark.get("source") == "hole"
+                            else (folder, key) in self.d.components)
+                self.assertTrue(
+                    approved,
+                    f"{stem} draws mark {key!r} ({mark.get('source')}) which is "
+                    f"not `yes` in MARKS_DECISION.md. A mark may only be drawn "
+                    f"because a person said so by name.")
+
+    def test_no_refused_key_is_drawn_anywhere(self):
+        """Compared as (folder, key) PAIRS, and the first version was not.
+
+        A bare key is not an identity: `brand#8` is refused for `133_Ambien` and
+        approved for `230_Slimex`, and `highlight#2` is refused for
+        `60_Cialis_Professional` and approved for `155_Imovane`. Comparing key
+        strings alone reported four breaches that were not breaches -- and the
+        same mistake in the other direction would MISS a real one, since a
+        refused key drawn on its own folder would look approved because some
+        other folder approved that string.
+        """
+        drawn = {(folder, mark.get("key")) for _s, folder, mark in self._drawn()
+                 if mark.get("source") == "component"}
+        self.assertEqual(
+            drawn & self.d.refused, set(),
+            "a mark the owner refused is being drawn. The eleven withdrawn rows "
+            "are marks belonging to another company's product, and the "
+            "holographic oval is a security feature.")
+        for folder in ("133_Ambien", "60_Cialis_Professional"):
+            self.assertEqual(
+                [k for f, k in drawn if f == folder], [],
+                f"{folder} draws a mark; every one of its rows is `no`.")
+
+    def test_the_catalogue_draws_exactly_what_was_approved(self):
+        """Guards the two above: drawing nothing at all would pass them both."""
+        drawn = list(self._drawn())
+        self.assertEqual(len(drawn), len(self.d.holes) + len(self.d.components),
+                         f"{len(drawn)} marks drawn against "
+                         f"{len(self.d.holes) + len(self.d.components)} approved; "
+                         f"an approved mark that stopped being emitted is as much "
+                         f"a drift as an unapproved one that started.")
+
+    def test_a_hole_sourced_mark_is_paired_with_a_cut_hole(self):
+        """The scope sentence, checked on the artefact rather than the producer."""
+        import json as _json
+        from src.render_manifest import _reject_unpaired_marks
+        for f in sorted(self.manifests.glob("*.json")):
+            m = _json.loads(f.read_text(encoding="utf-8"))
+            if not ((m.get("design") or {}).get("marks") or []):
+                continue
+            with self.subTest(sku=f.stem):
+                _reject_unpaired_marks(m)
+
+
 if __name__ == "__main__":
     unittest.main()

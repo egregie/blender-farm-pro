@@ -348,18 +348,32 @@ def enclosed_background(mask: np.ndarray) -> list[np.ndarray]:
 
 
 def trace_holes(part: np.ndarray, w: int, h: int, min_px: int, key: str,
-                class_of: dict) -> tuple[list[list], dict]:
-    """A part's windows as simplified rings, and a tally of what was not cut.
+                class_of: dict, cut_marks=frozenset()
+                ) -> tuple[list[list], dict, list]:
+    """A part's windows as simplified rings, a tally of what was not cut, and
+    the approved MARK holes, which are cut and drawn together.
 
     Each ring is traced and simplified exactly as the outer one is, and through
     the same `_simplify_to_a_region`, because a hole that crosses itself is no
     more a region than an outline that does.
 
-    `class_of` maps `role#i/hole#j` to the hand-made class. Only `window` is cut
-    -- see HOLE_CUT_CLASS. A hole the truth does not carry is a hard stop rather
-    than a silent cut, the same rule the components follow.
+    `class_of` maps `role#i/hole#j` to the hand-made class. `window` is always
+    cut -- see HOLE_CUT_CLASS. A hole the truth does not carry is a hard stop
+    rather than a silent cut, the same rule the components follow.
+
+    `cut_marks` is the set of `role#i/hole#j` keys the OWNER approved in
+    `00_PROJECT_STATE/MARKS_DECISION.md`, and nothing else may be added to it
+    here: a class is what a region IS and the decision is what may be done with
+    it. An approved mark hole leaves in BOTH returns -- the ring so the field is
+    cut, and the mask so the caller can measure the colour and emit the mark
+    that fills it. They leave together because that is the file's own rule:
+    cutting a mark hole while drawing nothing into it shows board through our
+    field in the shape of another company's logo, which is the act contract 1.8
+    already refuses for another company's lettering. Emitting them from one loop
+    makes the unpaired case unreachable in the producer rather than merely
+    caught later.
     """
-    rings, kept = [], {}
+    rings, kept, marks = [], {}, []
     for j, hole in enumerate(enclosed_background(part)):
         if hole.sum() < min_px:
             continue
@@ -370,16 +384,20 @@ def trace_holes(part: np.ndarray, w: int, h: int, min_px: int, key: str,
                 f"{hkey} has no label. Run scripts/label_print.py --init and "
                 f"classify it; cutting an unlabelled hole is how the reference's "
                 f"own dosage gets printed on our carton.")
-        if cls != HOLE_CUT_CLASS:
+        approved = hkey in cut_marks
+        if cls != HOLE_CUT_CLASS and not approved:
             kept[cls] = kept.get(cls, 0) + 1
             continue
         outline = trace_outline(hole)
         if len(outline) < 8:
             continue
         pts, _used = _simplify_to_a_region(outline, w, h, SIMPLIFY_TOLERANCE)
-        if len(pts) >= 3:
-            rings.append(pts)
-    return rings, kept
+        if len(pts) < 3:
+            continue
+        rings.append(pts)
+        if approved:
+            marks.append((hkey, pts, hole))
+    return rings, kept, marks
 
 
 def _perp(pt, a, b) -> float:
@@ -586,6 +604,46 @@ def _smoothness(points) -> float:
     return float(np.mean(ang < SMOOTH_TURN_DEG))
 
 
+def _mark_entry(mask, raw, w, h, role, key, source, estimator, outline=None):
+    """One approved mark: its SILHOUETTE, in its own measured colour.
+
+    `holes` is emitted empty and that is a statement rather than a shortcut.
+    `00_PROJECT_STATE/MARKS_EVIDENCE.md` measured every one of these: all eight
+    approved holes are solid (`islands = 0`, `solid_frac = 1.000`), and
+    `74_Viagra`'s mask is 13 071 px filled or unfilled. The wordmark inside a
+    Pfizer oval is not separated by the segmentation, is not carried by the
+    region, and cannot appear in the render. What appears is the outline. The
+    owner decided on exactly that, recorded in MARKS_DECISION.md before signing,
+    so drawing a filled ring here is the decided act and not an approximation of
+    a larger one.
+
+    `key` travels with the entry so provenance survives into the manifest: a
+    reader can put any drawn mark back against the row of the decision file that
+    permitted it.
+    """
+    if outline is None:
+        traced = trace_outline(mask)
+        if len(traced) < 8:
+            return None
+        outline, _used = _simplify_to_a_region(traced, w, h, SIMPLIFY_TOLERANCE)
+    if len(outline) < 3:
+        return None
+    return {
+        "role": role,
+        "key": key,
+        "source": source,
+        # The same estimator a part's colour comes from, for the same reason: a
+        # mark is a small region and its median carries its antialiased rim.
+        "fill": _hex(estimator(mask, raw)),
+        "area_pct": round(100 * float(mask.sum()) / (w * h), 3),
+        "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in outline],
+        "holes": [],
+        # Filled in once the field count is known; a mark is drawn in FRONT of
+        # every field, because it is printed on top of the surface it sits on.
+        "z": None,
+    }
+
+
 def _part_fills(masks, raw, field_colour, others=()) -> list:
     """One colour per SURFACE within a field, not one per part.
 
@@ -682,6 +740,19 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     # that chose it over three others -- a second copy here is the defect this
     # project has already paid for at `part_region` and `narrow_to_string`.
     from scripts.measure_part_colour import median_eroded_adaptive
+    # Lazy for the same reason: `src.design_group` is imported by the modules
+    # that import this one. The decision loader is not circular but travels with
+    # it, and both are needed only inside a fit.
+    from src.design_group import FOLDER_BY_STEM
+    from src.marks_decision import load as load_marks_decision
+
+    # The owner's signed decision, and the only place it is read. It raises
+    # rather than returning empty when the file's Purpose, Basis or Scope is
+    # blank -- see 00_PROJECT_STATE/MARKS_DECISION.md, whose own rule that is.
+    decision = load_marks_decision()
+    stem = next((s for s, f in FOLDER_BY_STEM.items() if f == folder.name), None)
+    cut_marks = frozenset(k for s, k in decision.holes if s == stem)
+    draw_marks = frozenset(k for f, k in decision.components if f == folder.name)
 
     flat, labels, named, meta, source = segment(folder)
     w, h = flat.width, flat.height
@@ -774,6 +845,7 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             f"holes. Re-run --init.")
 
     holes_kept: dict[str, int] = {}
+    marks: list[dict] = []
     for role, j, g in order:
         # Masks kept beside the emitted parts because contract 1.9's colour rule
         # is a statement about the field's parts TOGETHER -- two of them within
@@ -788,6 +860,17 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                     f"{folder.name}: {key} has no label. The partition has moved "
                     f"under print_truth.json -- re-run --init.")
             if label_of[key] != "print":
+                # A `mark` the owner approved is drawn, and nothing else here is.
+                # The class says what the region IS; `draw_marks` says what may
+                # be done with it, and the two are kept apart deliberately -- a
+                # reclassification must not become a permission.
+                if key in draw_marks:
+                    entry = _mark_entry(part, raw, w, h, role, key, "component",
+                                        median_eroded_adaptive)
+                    if entry is not None:
+                        marks.append(entry)
+                        kept_mask |= part
+                        continue
                 # Everything not printed design: an object in the photograph, a
                 # letterform, the board split off by a gradient, a logo the owner
                 # excluded, or something this vocabulary cannot hold. All of it
@@ -802,9 +885,32 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
             if len(outline) < 8:
                 continue
             pts, used = _simplify_to_a_region(outline, w, h, SIMPLIFY_TOLERANCE)
-            holes, kept = trace_holes(part, w, h, min_hole, key, hole_class)
+            holes, kept, hole_marks = trace_holes(
+                part, w, h, min_hole, key, hole_class, cut_marks)
+            # Which of the CUT rings are marks, by index. Without it the pairing
+            # rule is unverifiable on a manifest: a mark hole and a window are
+            # both just rings, so "a mark hole was cut and nothing drawn into
+            # it" -- the case MARKS_DECISION.md forbids -- would be
+            # indistinguishable from an ordinary window.
+            mark_hole_idx = [holes.index(pts) for _k, pts, _m in hole_marks
+                             if pts in holes]
             for cls, n in kept.items():
                 holes_kept[cls] = holes_kept.get(cls, 0) + n
+            # Cut and drawn from one loop, so a cut without its mark cannot be
+            # produced at all. `validate_manifest` still refuses one on write and
+            # on read, because a manifest can be edited and this loop cannot
+            # defend a file it did not write.
+            # NOT `pts` and not `mask`: `pts` is the PART's simplified outline
+            # and it is read below, after this loop. Shadowing it here overwrote
+            # every part's outline with its hole's -- measured, `74_Viagra`'s
+            # `brand#0` came out a 47-vertex ring enclosing zero pixels and its
+            # IoU fell 0.942 to 0.088.
+            for hkey, hole_pts, hole_mask in hole_marks:
+                entry = _mark_entry(hole_mask, raw, w, h, role, hkey, "hole",
+                                    median_eroded_adaptive, outline=hole_pts)
+                if entry is not None:
+                    marks.append(entry)
+                    kept_mask |= hole_mask
             parts.append({
                 "kind": part_kind(pts, holes),
                 **({"simplify_tolerance": round(used, 5)}
@@ -841,6 +947,9 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 # rather than filling a shape's holes in silence.
                 "holes": [[[round(x / w, 4), round(y / h, 4)] for x, y in ring]
                           for ring in holes],
+                # Contract 1.10, required and usually empty: indices into
+                # `holes` that are approved MARKS rather than windows.
+                "mark_holes": mark_hole_idx,
             })
             masks.append(part)
         if not parts:
@@ -884,6 +993,12 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
     # scored 0.145 against 2.7% of unenumerated highlight residue.
     dropped_mask = (lab != substrate_label) & ~kept_mask
 
+    # In front of every field, in the order they were found. A mark is printed
+    # ON a surface, so it can never be behind one; the driver reads this the same
+    # way it reads a field's `z`.
+    for n, mark in enumerate(marks):
+        mark["z"] = len(fields) + n
+
     spec = {
         "spec_version": "0.1",
         "sku": meta.get("sku_id"),
@@ -892,6 +1007,12 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
         "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
         "substrate": _hex(substrate["colour"]),
         "fields": fields,
+        # Contract 1.10. Required and USUALLY EMPTY: 15 of the 28 folders carry
+        # none. A spec that omits the key is not a carton with no marks, it is a
+        # carton whose marks were never decided -- and the decision is a person's
+        # (00_PROJECT_STATE/MARKS_DECISION.md), not a default this fitter may
+        # supply.
+        "marks": marks,
         # What the LABEL dropped, by class. This replaces the three counters the
         # heuristics kept (`glyph_components_dropped`, `flat_fields_dropped`,
         # `ink_components_dropped`); those counted which proxy fired, and no
@@ -1006,6 +1127,14 @@ def rasterise(spec: dict, w: int, h: int) -> Image.Image:
             region = part_region(part, w, h)
             if region is not None:
                 img.paste(part["fill"], (0, 0), region)
+    # Contract 1.10, after every field and in `z` order: a mark is printed ON a
+    # surface. Drawn here as well as in the render because this raster IS what
+    # `design_qa` scores the render against -- a mark the target did not carry
+    # would read as our render inventing one.
+    for mark in sorted(spec.get("marks") or [], key=lambda m: m.get("z", 0)):
+        region = part_region(mark, w, h)
+        if region is not None:
+            img.paste(mark["fill"], (0, 0), region)
     return img
 
 
@@ -1024,6 +1153,23 @@ def verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
             region = part_region(part, w, h)
             if region is not None:
                 spec_idx[np.asarray(region)] = n
+    # CONTRACT 1.10: a mark is indexed as the FIELD whose cluster it was found
+    # in, because that is what the ground truth says is there. A component mark
+    # is a region of that cluster and drawing it in its own colour does not stop
+    # it being that cluster's ink -- indexing it otherwise cost `64_Kamagra`'s
+    # highlight 0.964 -> 0.882 for a mark it draws correctly.
+    #
+    # A HOLE mark is the other case and is deliberately left to disagree: the
+    # hole is enclosed BACKGROUND, so the truth calls it substrate, and drawing
+    # a mark there is a real departure from what the segmentation saw.
+    # MARKS_DECISION.md said so before any of this was built -- "the +9.937 is
+    # not carried forward" -- and the figure has to show it rather than keep the
+    # gain that cutting alone earned.
+    mark_mask = np.zeros((h, w), bool)
+    for mark in sorted(spec.get("marks") or [], key=lambda m: m.get("z", 0)):
+        region = part_region(mark, w, h)
+        if region is not None:
+            mark_mask |= np.asarray(region)
 
     truth = np.full((h, w), 255, dtype=int)
     for n, (role, j, _g) in enumerate(emitted):
@@ -1034,6 +1180,17 @@ def verify(spec, lab, substrate_label, emitted, w, h, preview_dir, folder,
     # counting them as disagreement would penalise the spec for being right, and
     # would reward a spec that traced the reference's words back into the fields.
     scored = np.ones((h, w), bool) if dropped_mask is None else ~dropped_mask
+    # CONTRACT 1.10, and the same exclusion `design_coverage` makes for the same
+    # reason: this compares the spec's FIELDS against the segmentation's
+    # clusters by region identity, and a mark is deliberately neither. Scoring
+    # one here is a category error -- measured, indexing marks instead cost
+    # `74_Viagra` 99.7% -> 98.4% and the group's `pixel_agreement` 99.18% ->
+    # 98.90%, for marks it draws exactly where they are.
+    #
+    # Excluded on both sides, so cutting a mark hole and drawing into it is
+    # NEUTRAL here rather than banking the gain that cutting alone earns. What
+    # judges a mark is the render.
+    scored = scored & ~mark_mask
     match = float((spec_idx == truth)[scored].mean())
     per_field = {}
     for n, f in enumerate(spec["fields"]):

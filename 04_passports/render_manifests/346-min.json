@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "346-min.jpg",
   "product_code": "346-min",
   "template_id": "T1",
@@ -28,6 +28,7 @@
     "face_aspect": 0.4664,
     "substrate": "#EEEEEF",
     "fields": [],
+    "marks": [],
     "type_rows": {},
     "source_image": "Modvigil_front_raw.webp"
   },

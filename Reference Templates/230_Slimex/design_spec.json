@@ -6,18 +6,113 @@
   "coordinates": "u across, v down, both 0..1 of the FRONT FACE",
   "substrate": "#FFFFFF",
   "fields": [],
-  "components_dropped": 12,
+  "marks": [
+    {
+      "role": "brand",
+      "key": "brand#8",
+      "source": "component",
+      "fill": "#DE761B",
+      "area_pct": 0.303,
+      "outline": [
+        [
+          0.1164,
+          0.7269
+        ],
+        [
+          0.1345,
+          0.7288
+        ],
+        [
+          0.1336,
+          0.8413
+        ],
+        [
+          0.1191,
+          0.8432
+        ],
+        [
+          0.0564,
+          0.8432
+        ],
+        [
+          0.0427,
+          0.7638
+        ],
+        [
+          0.0418,
+          0.8432
+        ],
+        [
+          0.0391,
+          0.8432
+        ],
+        [
+          0.0382,
+          0.7306
+        ],
+        [
+          0.0473,
+          0.7306
+        ],
+        [
+          0.0555,
+          0.7823
+        ],
+        [
+          0.0564,
+          0.7288
+        ],
+        [
+          0.1155,
+          0.7288
+        ]
+      ],
+      "holes": [],
+      "z": 0
+    },
+    {
+      "role": "brand",
+      "key": "brand#9",
+      "source": "component",
+      "fill": "#DB6F0D",
+      "area_pct": 0.154,
+      "outline": [
+        [
+          0.0336,
+          0.7177
+        ],
+        [
+          0.1391,
+          0.7177
+        ],
+        [
+          0.1391,
+          0.8524
+        ],
+        [
+          0.0336,
+          0.8542
+        ],
+        [
+          0.0327,
+          0.7196
+        ]
+      ],
+      "holes": [],
+      "z": 1
+    }
+  ],
+  "components_dropped": 10,
   "dropped_by_class": {
     "type": 6,
-    "unrepresentable": 4,
-    "mark": 2
+    "unrepresentable": 4
   },
   "holes_filled_by_class": {},
   "truth": "print_truth.json",
   "excluded": "manufacturer logos and holographic elements are not represented: the owner's decision, so the substrate shows through where they sit on the reference",
   "verification": {
     "pixel_agreement": 1.0,
-    "excluded_as_glyphs_pct": 26.89,
+    "excluded_as_glyphs_pct": 26.43,
     "iou_by_field": {},
     "vertices": 0
   }

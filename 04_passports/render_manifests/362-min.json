@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "362-min.jpg",
   "product_code": "362-min",
   "template_id": "T1",
@@ -73,7 +73,8 @@
                 0.527
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -286,11 +287,13 @@
                 0.181
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Hydrocodone_front_face.png"
   },

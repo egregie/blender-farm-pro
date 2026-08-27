@@ -127,7 +127,8 @@
               0.6739
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     },
@@ -192,11 +193,13 @@
               0.0018
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 17,
   "dropped_by_class": {
     "unrepresentable": 1,

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "133-min.jpg",
   "product_code": "133-min",
   "template_id": "T1",
@@ -225,7 +225,8 @@
                 0.0287
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -326,11 +327,13 @@
                 0.166
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Ambien_front_raw.jpg"
   },

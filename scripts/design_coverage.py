@@ -107,6 +107,19 @@ STEM_BY_FOLDER = {folder: stem for stem, folder in FOLDER_BY_STEM.items()}
 
 SUBSTRATE = 255   # the index rasterise()/verify() leave wherever no field is drawn
 
+#: Contract 1.10. A mark is neither a field nor the board, and it gets its own
+#: index so no figure can read it as either.
+#:
+#: It will usually DISAGREE with the hand-made ground truth, and that is honest
+#: rather than a defect: the segmentation clusters `74_Viagra`'s Pfizer oval with
+#: the SUBSTRATE -- it is `#D8D9D5` on a navy band -- so the truth says "board"
+#: exactly where the spec now draws a mark. `MARKS_DECISION.md` said so in
+#: advance: "the +9.937 is not carried forward -- it was measured by cutting a
+#: hole with nothing behind it, and drawing a mark into the hole is a different
+#: measurement". Cutting alone gains it back and drawing the mark spends it, and
+#: the figure must show that rather than keep the gain.
+MARK = 254
+
 
 def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     """Which field the spec draws at each pixel; `SUBSTRATE` where none.
@@ -118,6 +131,25 @@ def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     whole exercise is about.
     """
     idx = np.full((h, w), SUBSTRATE, dtype=int)
+    by_role = {f.get("role"): n for n, f in enumerate(spec.get("fields") or [])}
+    # CONTRACT 1.10: a mark is indexed as the FIELD whose cluster it was found
+    # in, because that is what the ground truth says is there. A component mark
+    # is a region of that cluster and drawing it in its own colour does not stop
+    # it being that cluster's ink -- indexing it otherwise cost `64_Kamagra`'s
+    # highlight 0.964 -> 0.882 for a mark it draws correctly.
+    #
+    # A HOLE mark is the other case and is deliberately left to disagree: the
+    # hole is enclosed BACKGROUND, so the truth calls it substrate, and drawing
+    # a mark there is a real departure from what the segmentation saw.
+    # MARKS_DECISION.md said so before any of this was built -- "the +9.937 is
+    # not carried forward" -- and the figure has to show it rather than keep the
+    # gain that cutting alone earned.
+    for mark in sorted(spec.get("marks") or [], key=lambda m: m.get("z", 0)):
+        region = part_region(mark, w, h)
+        if region is not None:
+            idx[np.asarray(region)] = (
+                by_role.get(mark.get("role"), MARK)
+                if mark.get("source") == "component" else MARK)
     for n, field in enumerate(spec.get("fields") or []):
         for part in field.get("parts") or []:
             # `part_region` and not a polygon fill, so this instrument and the
@@ -268,6 +300,35 @@ def coverage(folder: Path, spec_name: str = "design_spec.json") -> dict:
     # 52.99% mean refers to, and silently redefining it would make the two
     # incomparable at exactly the moment the comparison matters.
     lt_idx, lt_scored, lt_missing = truth_from_labels(folder, lab, named, roles)
+    # CONTRACT 1.10: a drawn mark leaves the scored area, in BOTH directions.
+    #
+    # This figure compares the spec's FIELDS against the components a person
+    # called `print`, by region identity. A mark is deliberately neither: it has
+    # its own class, its own decision and its own index, and `truth_from_labels`
+    # counts only `print`. Scoring one against a field-indexed ground truth is a
+    # category error, and it was measured being one -- `230_Slimex`, whose only
+    # spec content is two approved marks, read **0.00%**, and `272_Valium_Brand`
+    # 54.31%, because every pixel they draw was compared with a truth that said
+    # substrate. Widening the ground truth to admit approved marks was tried and
+    # recovered 0.20 points of the group, because the indices still cannot match
+    # for a mark whose role is not a field at all.
+    #
+    # Excluding it is the honest treatment and it says something worth saying:
+    # **`truth_agreement` cannot judge a mark.** Excluded on the CUT side too,
+    # so cutting a hole and drawing into it is neutral here rather than banking
+    # the gain that cutting alone earned -- which is exactly what
+    # MARKS_DECISION.md warned: "the +9.937 is not carried forward".
+    #
+    # What judges a mark is the render: `render~spec`, `render~ref` and
+    # `region_colour_gap`, plus looking at it. `mark_pct` below keeps its size
+    # visible so its absence from this figure cannot be read as its absence from
+    # the carton.
+    mark_mask = np.zeros(lab.shape, bool)
+    for mark in (spec.get("marks") or []):
+        region = part_region(mark, w, h)
+        if region is not None:
+            mark_mask |= np.asarray(region)
+    lt_scored = lt_scored & ~mark_mask
     lt_ref = (lt_idx != SUBSTRATE) & lt_scored
     lt_spec = (s_idx != SUBSTRATE) & lt_scored
     lt_union = lt_ref | lt_spec
@@ -286,7 +347,7 @@ def coverage(folder: Path, spec_name: str = "design_spec.json") -> dict:
     # reason the glyph rim and the region seam are excluded in design_qa. But it
     # makes the one thing Phase B removes invisible to the agreement figure, and
     # a fix nothing can measure is a fix nobody can defend.
-    off_print = (s_idx != SUBSTRATE) & ~lt_scored
+    off_print = (s_idx != SUBSTRATE) & ~lt_scored & ~mark_mask
 
     recorded = ((spec.get("verification") or {}).get("iou_by_field") or {})
     weighted = weight = 0.0

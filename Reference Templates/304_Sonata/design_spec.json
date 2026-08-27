@@ -106,11 +106,13 @@
                 0.1928
               ]
             ]
-          ]
+          ],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 16,
   "dropped_by_class": {
     "type": 16

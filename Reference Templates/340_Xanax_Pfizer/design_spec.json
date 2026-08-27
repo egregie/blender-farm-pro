@@ -983,11 +983,13 @@
               0.0245
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 25,
   "dropped_by_class": {
     "type": 15,

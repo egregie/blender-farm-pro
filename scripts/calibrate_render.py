@@ -111,9 +111,18 @@ def chart_manifest(stem: str) -> tuple[dict, list]:
          # with no fallback to the field's. A chart is a design block like any
          # other, and it is the one the whole transfer curve is read off -- so it
          # states each patch's colour where the renderer now looks for it.
+         # `mark_holes` since 1.10, for the same reason `holes` is required: a
+         # part that does not say which of its holes are marks is a part whose
+         # marks are unknown, and the pairing rule cannot be checked on it.
          "parts": [{"kind": "field", "area_pct": 1.0, "smoothness": 0.0,
-                    "fill": fill, "outline": outline, "holes": []}]}
+                    "fill": fill, "outline": outline, "holes": [],
+                    "mark_holes": []}]}
         for i, (fill, outline) in enumerate(zip(fills, _grid(len(PATCHES))))]
+    # Contract 1.10. A chart reproduces nobody's trademark, so the honest value
+    # is an explicit empty list rather than an absent key -- the driver refuses
+    # the absent one, and rightly: it cannot tell "no marks approved" from "the
+    # marks were never decided".
+    design["marks"] = []
     # No type on the chart: a label crossing a patch is ink, not paint, and the
     # driver reverses it against whatever it lands on -- which here is a patch.
     design["type_rows"] = {}

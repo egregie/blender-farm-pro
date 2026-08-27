@@ -51,7 +51,8 @@
               0.527
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -264,11 +265,13 @@
               0.181
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 57,
   "dropped_by_class": {
     "type": 54,

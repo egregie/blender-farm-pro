@@ -591,7 +591,8 @@
               0.0637
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "field",
@@ -692,7 +693,8 @@
               0.6874
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         },
         {
           "kind": "block",
@@ -729,11 +731,13 @@
               0.3748
             ]
           ],
-          "holes": []
+          "holes": [],
+          "mark_holes": []
         }
       ]
     }
   ],
+  "marks": [],
   "components_dropped": 7,
   "dropped_by_class": {
     "object": 1,

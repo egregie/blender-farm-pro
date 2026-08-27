@@ -43,7 +43,7 @@ from pathlib import Path
 from src.design_group import load_design, reshape_to_design
 from src.utils import product_code
 
-MANIFEST_VERSION = "1.9"
+MANIFEST_VERSION = "1.10"
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "render_manifest.schema.json"
 
@@ -156,6 +156,12 @@ def _design_block(sku_id: str) -> dict | None:
         "face_aspect": float(spec["face_aspect"]),
         "substrate": str(spec["substrate"]),
         "fields": spec.get("fields") or [],
+        # Contract 1.10. Present and usually empty: the marks the OWNER approved
+        # by name in 00_PROJECT_STATE/MARKS_DECISION.md. Each keeps the
+        # print_truth key that permitted it, so provenance survives into the one
+        # artefact the renderer actually reads -- the driver can import nothing
+        # from this project, so a key absent here does not exist to it.
+        "marks": spec.get("marks") or [],
         # Per-role type geometry, where the reference could be read. Partial by
         # nature: only rows identified against the reference's OWN strings are
         # measured, so a role that is absent here is one the renderer keeps on
@@ -258,6 +264,7 @@ def validate_manifest(manifest: dict) -> None:
         ) from e
     Draft202012Validator(load_schema()).validate(manifest)
     _reject_tangled_outlines(manifest)
+    _reject_unpaired_marks(manifest)
 
 
 def _reject_tangled_outlines(manifest: dict) -> None:
@@ -298,6 +305,72 @@ def _reject_tangled_outlines(manifest: dict) -> None:
                         f"and the driver and the QA raster would fill different "
                         f"areas. Regenerate the manifest; "
                         f"src.design_group.simple_ring repairs it at load.")
+
+
+def _reject_unpaired_marks(manifest: dict) -> None:
+    """A cut mark hole and its mark are one thing, and neither may travel alone.
+
+    `00_PROJECT_STATE/MARKS_DECISION.md` states the rule and the reason: cutting
+    a mark hole while drawing nothing into it shows board through our field in
+    the shape of another company's logo, which is the act contract 1.8 already
+    refuses for another company's lettering. The owner's scope sentence repeats
+    it -- "a mark hole may be cut only when its corresponding mark is emitted in
+    the same build".
+
+    `fit()` emits both from one loop, so the unpaired case is unreachable in the
+    PRODUCER. This exists because a manifest is a file: it can be hand-edited,
+    merged, or written by something else, and a rule that only the producer
+    keeps is a rule the artefact does not carry.
+
+    Checked both ways, because the two failures are different acts:
+
+    - a cut hole listed in `mark_holes` with no mark drawn into it is the logo
+      showing through, which is what the decision forbids;
+    - a mark whose `source` is `hole` with no cut hole under it is a mark
+      floating on top of an uncut field, which is not what was approved either.
+    """
+    design = manifest.get("design") or {}
+    marks = design.get("marks") or []
+    sku = manifest.get("sku_id")
+
+    def _ring(r):
+        return tuple((round(float(x), 4), round(float(y), 4)) for x, y in r)
+
+    drawn = {}
+    for mark in marks:
+        if mark.get("source") != "hole":
+            continue
+        drawn.setdefault(_ring(mark.get("outline") or []), []).append(mark)
+
+    cut = {}
+    for field in design.get("fields") or []:
+        for i, part in enumerate(field.get("parts") or []):
+            holes = part.get("holes") or []
+            for k in part.get("mark_holes") or []:
+                if k >= len(holes):
+                    raise ValueError(
+                        f"{sku}: design field {field.get('role')!r} part {i} "
+                        f"lists mark_hole {k} but carries only {len(holes)} "
+                        f"holes.")
+                cut.setdefault(_ring(holes[k]), []).append((field.get("role"), i, k))
+
+    for ring, where in cut.items():
+        if ring not in drawn:
+            role, i, k = where[0]
+            raise ValueError(
+                f"{sku}: design field {role!r} part {i} cuts hole {k} as a MARK "
+                f"and no mark is drawn into it. That shows board through our "
+                f"field in the shape of another company's logo, which is what "
+                f"00_PROJECT_STATE/MARKS_DECISION.md forbids and what contract "
+                f"1.8 already refuses for another company's lettering. "
+                f"Regenerate the manifest from Stage 1.")
+    for ring, entries in drawn.items():
+        if ring not in cut:
+            raise ValueError(
+                f"{sku}: mark {entries[0].get('key')!r} has source 'hole' and no "
+                f"cut hole under it, so it would be painted on top of an uncut "
+                f"field rather than filling the window it was approved for. "
+                f"Regenerate the manifest from Stage 1.")
 
 
 # ── carton resolution ────────────────────────────────────────────────────────

@@ -833,14 +833,26 @@ class TestDesignChannel(unittest.TestCase):
         hole was filled in.
         """
         import json as _json
-        from src.design_group import TEMPLATES_DIR, TEMPLATE_SAMPLE
+        from src.design_group import (TEMPLATES_DIR, TEMPLATE_SAMPLE,
+                                      FOLDER_BY_STEM)
+        from src.marks_decision import load as _load_decision
+        _DECISION = _load_decision()
+        STEM_BY_FOLDER = {f: s for s, f in FOLDER_BY_STEM.items()}
         cut = 0
         for folder in sorted(TEMPLATE_SAMPLE):
             root = TEMPLATES_DIR / folder
             spec = _json.loads((root / "design_spec.json").read_text(encoding="utf-8"))
             truth = _json.loads((root / "print_truth.json").read_text(encoding="utf-8"))
+            # Contract 1.10 widens WHICH holes may be cut and not by how much:
+            # a `mark` hole the owner approved BY NAME in MARKS_DECISION.md is
+            # cut too, and nothing else is. The decision is read here rather
+            # than a class list being relaxed, so the guard still fails on any
+            # hole no person allowed -- which is the whole point of it.
+            stem = STEM_BY_FOLDER.get(folder)
+            approved = {k for s, k in _DECISION.holes if s == stem}
             windows = [h for h in truth.get("holes", [])
-                       if h.get("class") == "window" and not h.get("vanished")]
+                       if not h.get("vanished")
+                       and (h.get("class") == "window" or h.get("key") in approved)]
             with self.subTest(folder=folder):
                 unmatched = []
                 for field in spec["fields"]:
@@ -864,9 +876,10 @@ class TestDesignChannel(unittest.TestCase):
                                 cut += 1
                 self.assertEqual(
                     unmatched, [],
-                    f"{folder}: the spec cuts a hole nobody classified as a "
-                    f"window. If it is the reference's own lettering, our field "
-                    f"will show board in the shape of another package's words.")
+                    f"{folder}: the spec cuts a hole that is neither a window "
+                    f"nor a mark the owner approved by name. If it is the "
+                    f"reference's own lettering, our field will show board in "
+                    f"the shape of another package's words.")
                 self.assertEqual(
                     [h["key"] for h in windows], [],
                     f"{folder}: a hole a person called a window reached no ring. "

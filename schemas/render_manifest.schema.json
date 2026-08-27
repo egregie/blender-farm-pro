@@ -18,8 +18,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted. 1.8 adds design.fields[].parts[].holes as REQUIRED, possibly empty: a part is its outline MINUS its holes, and until now it was the ring alone. A boundary trace of a shape with holes in it is a correct trace and a wrong region -- measured over the group's 74 printed parts, the traced rings enclose 1.192 times the ink they describe, and 357_Adderall's brand#1 encloses 9.07 times its own, filling 53.48% of a face it inks 5.90% of. A 1.7 manifest read as 1.8 would fill every hole in silence, which is exactly the packshot the group has been rendering, so the version is pinned rather than the field defaulted to empty. 1.9 adds design.fields[].parts[].fill as REQUIRED: a field's fill is the median of its whole CLUSTER while a part is one region of it, and measured over the group's 75 printed parts 33 sit at or beyond SAME_SURFACE_MAX from the colour they are painted -- 152_Artvigil's brand#1 is declared #E05506 and is #2D3336 in the photograph, over 6.47% of the face. A 1.8 part read as 1.9 is not a part painted its field's colour, it is a part whose colour is unknown, so the version is pinned rather than the field defaulted to the field's.",
-      "const": "1.9"
+      "description": "A 1.6 manifest read as 1.7 would build fields in an order the renderer invents, so the version is pinned rather than the field defaulted. 1.8 adds design.fields[].parts[].holes as REQUIRED, possibly empty: a part is its outline MINUS its holes, and until now it was the ring alone. A boundary trace of a shape with holes in it is a correct trace and a wrong region -- measured over the group's 74 printed parts, the traced rings enclose 1.192 times the ink they describe, and 357_Adderall's brand#1 encloses 9.07 times its own, filling 53.48% of a face it inks 5.90% of. A 1.7 manifest read as 1.8 would fill every hole in silence, which is exactly the packshot the group has been rendering, so the version is pinned rather than the field defaulted to empty. 1.9 adds design.fields[].parts[].fill as REQUIRED: a field's fill is the median of its whole CLUSTER while a part is one region of it, and measured over the group's 75 printed parts 33 sit at or beyond SAME_SURFACE_MAX from the colour they are painted -- 152_Artvigil's brand#1 is declared #E05506 and is #2D3336 in the photograph, over 6.47% of the face. A 1.8 part read as 1.9 is not a part painted its field's colour, it is a part whose colour is unknown, so the version is pinned rather than the field defaulted to the field's. 1.10 adds design.marks[], REQUIRED and usually empty: the marks the OWNER approved in 00_PROJECT_STATE/MARKS_DECISION.md, each carrying the print_truth key that permitted it. A 1.9 manifest read as 1.10 is not a carton with no marks, it is a carton whose marks were never decided -- and that decision is a person's, not a default any producer may supply.",
+      "const": "1.10"
     },
     "sku_id": {
       "description": "Opaque SKU identifier, matching the passport's sku_id and keying into 03_knowledge_graph/SKU.csv. Never parse as a number, and never PRINT it: it carries the source image's file extension. Print product_code.",
@@ -193,7 +193,8 @@
         "spec_version",
         "face_aspect",
         "substrate",
-        "fields"
+        "fields",
+        "marks"
       ],
       "properties": {
         "spec_version": {
@@ -239,7 +240,8 @@
                   "required": [
                     "outline",
                     "holes",
-                    "fill"
+                    "fill",
+                    "mark_holes"
                   ],
                   "properties": {
                     "area_pct": {
@@ -283,6 +285,14 @@
                       "type": "string",
                       "pattern": "^#[0-9A-Fa-f]{6}$",
                       "description": "Contract 1.9. The colour THIS PART is painted, which is not always its field's: a field's fill is the median of the whole cluster segment() found, and a part is one region of that cluster. Required and often identical to the field's, because a part whose colour is absent is a part whose colour is unknown, not a part that agrees. Measured over the group's 75 printed parts, 33 sit at or beyond SAME_SURFACE_MAX from the colour they are painted, across 20 of the 28 cartons -- see 00_PROJECT_STATE/FIT_COLOUR.md."
+                    },
+                    "mark_holes": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "description": "Contract 1.10. Indices into `holes` that are approved MARKS rather than windows, so the pairing rule is checkable on a manifest at all: without it a cut mark hole and a window are both just rings, and 'a mark hole cut with nothing drawn into it' -- which shows board through our field in the shape of another company's logo -- would be indistinguishable from an ordinary window. Required and usually empty."
                     }
                   }
                 }
@@ -342,6 +352,78 @@
               "cap_top_v": {
                 "type": "number",
                 "description": "Where the reference's CAPITALS start down the face. `v0` is the ink top, which sits above this by the string's own ascent-above-cap; a row is set against its caps."
+              }
+            }
+          }
+        },
+        "marks": {
+          "type": "array",
+          "description": "Contract 1.10. Third-party and regulatory marks the owner approved by name, drawn as SILHOUETTES: every approved region was measured solid (islands = 0), so a filled ring is the whole of what can appear and the owner decided on exactly that. Required and usually empty -- 15 of the 28 reference folders carry none. A mark whose `source` is `hole` is paired with a cut hole of the same ring in the field named by `role`; neither may exist without the other.",
+          "items": {
+            "type": "object",
+            "required": [
+              "role",
+              "key",
+              "source",
+              "fill",
+              "outline",
+              "holes",
+              "z"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "description": "the field whose cluster the mark was found in"
+              },
+              "key": {
+                "type": "string",
+                "description": "the print_truth key -- `role#i` for a component, `role#i/hole#j` for a hole -- so any drawn mark can be put back against the row of MARKS_DECISION.md that permitted it"
+              },
+              "source": {
+                "enum": [
+                  "component",
+                  "hole"
+                ]
+              },
+              "fill": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "area_pct": {
+                "type": "number"
+              },
+              "outline": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "holes": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "description": "empty by construction: every approved mark region is solid, so a mark is its outline"
+              },
+              "z": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "always past the last field -- a mark is printed ON a surface"
               }
             }
           }

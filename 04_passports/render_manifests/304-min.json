@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "304-min.jpg",
   "product_code": "304-min",
   "template_id": "T1",
@@ -128,11 +128,13 @@
                   0.1928
                 ]
               ]
-            ]
+            ],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Sonata_front_raw.jpg"
   },
