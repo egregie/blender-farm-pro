@@ -11,21 +11,34 @@ bases and not on others. The rule at the top of this file stands: an implementer
 may not fill them, may not enter a default, and may not read the per-entry
 answers as supplying them.
 
-Two further things were put to the owner when the answers were recorded, and
-neither has been answered yet:
+Two further things were put to the owner when the answers were recorded.
 
-1. **Two entries attach a manufacturer's mark to a product that manufacturer
+1. **Two entries attached a manufacturer's mark to a product that manufacturer
    does not make** — `133_Ambien`'s eight **Hemofarm** wordmarks, on a SKU this
    catalogue labels *Ambien* (sanofi's brand), and `60_Cialis_Professional`'s
-   **Lilly** device, on a designation Lilly does not produce. That is the act
+   **Lilly** marks, on a designation Lilly does not produce. That is the act
    this project already refuses for LOT and for dose: carrying package A's
-   identity onto package B. Every other row is the mark's owner on the mark
-   owner's own product.
+   identity onto package B.
+
+   **ANSWERED 26 August 2026: all of them changed to `no`.** The owner's rule
+   for the rest was "those that genuinely belong to the corresponding products",
+   and every remaining `yes` satisfies it — Roche on Valium, Novartis on
+   Ritalin, sanofi-aventis on Imovane, Sun Pharma on Waklert, Lilly on Cialis
+   itself, and the Kamagra, Slimex and Artvigil devices on their own packs.
+
+   **One reading was mine and is flagged as mine.** The owner wrote "both
+   `60_Cialis_Professional`" and that folder carries THREE rows — two
+   `Cialis (Lilly) device` and one plain `Lilly` (`highlight#15`, 0.138%). All
+   three are set `no`, because the owner's own criterion decides it: Cialis
+   Professional is not a Lilly product, so no Lilly mark belongs to it. If that
+   is not what was meant, `highlight#15` is the row to revisit.
 2. **What would be drawn is a silhouette, not a legible mark.** All eight holes
    are solid (`islands = 0`); Viagra's mask is 13 071 px filled or unfilled. The
    Pfizer oval renders as an OVAL and the C-II symbol as a solid box. That cuts
    both ways and both are worth knowing before signing: it is less of a
    reproduction than the table implies, and it is also not the mark.
+   **Not answered, and it does not block: it changes what the decision buys,
+   not whether it may be taken.**
 
 ---
 
@@ -109,32 +122,32 @@ the implementer must stop on one.
 
 | folder | key | area % | rights holder | draw? |
 |---|---|---|---|---|
-| 60_Cialis_Professional | highlight#2 | 1.125 | Cialis (Lilly) device |  yes |
-| 60_Cialis_Professional | brand#2 | 0.688 | Cialis (Lilly) device |  yes |
+| 60_Cialis_Professional | highlight#2 | 1.125 | Cialis (Lilly) device |  **no** |
+| 60_Cialis_Professional | brand#2 | 0.688 | Cialis (Lilly) device |  **no** |
 | 272_Valium_Brand | brand#1 | 0.411 | Roche |  yes |
 | 64_Kamagra | highlight#7 | 0.395 | Kamagra device |  yes |
 | 150_Waklert | brand#4 | 0.321 | Sun Pharma |  yes |
 | 59_Cialis | brand#9 | 0.321 | Lilly |  yes |
 | 230_Slimex | brand#8 | 0.303 | Neptune Laboratories |  yes |
-| 133_Ambien | brand#2 | 0.297 | Hemofarm |  yes |
-| 133_Ambien | brand#3 | 0.275 | Hemofarm |  yes |
+| 133_Ambien | brand#2 | 0.297 | Hemofarm |  **no** |
+| 133_Ambien | brand#3 | 0.275 | Hemofarm |  **no** |
 | 157_Valium | type#8 | 0.231 | Roche |  yes |
-| 133_Ambien | brand#4 | 0.208 | Hemofarm |  yes |
-| 133_Ambien | brand#5 | 0.203 | Hemofarm |  yes |
+| 133_Ambien | brand#4 | 0.208 | Hemofarm |  **no** |
+| 133_Ambien | brand#5 | 0.203 | Hemofarm |  **no** |
 | 64_Kamagra | highlight#17 | 0.184 | Kamagra device |  yes |
 | 230_Slimex | brand#9 | 0.154 | Neptune Laboratories |  yes |
 | 155_Imovane | highlight#2 | 0.152 | sanofi-aventis |  yes |
-| 60_Cialis_Professional | highlight#15 | 0.138 | Lilly |  yes |
-| 133_Ambien | brand#6 | 0.123 | Hemofarm |  yes |
+| 60_Cialis_Professional | highlight#15 | 0.138 | Lilly |  **no** |
+| 133_Ambien | brand#6 | 0.123 | Hemofarm |  **no** |
 | 64_Kamagra | highlight#18 | 0.119 | Kamagra device |  yes |
 | 152_Artvigil | brand#26 | 0.119 | Signature script |  yes |
 | 272_Valium_Brand | brand#13 | 0.116 | Roche |  yes |
 | 404_Ritalin | type#19 | 0.115 | Novartis |  yes |
-| 133_Ambien | brand#7 | 0.109 | Hemofarm |  yes |
+| 133_Ambien | brand#7 | 0.109 | Hemofarm |  **no** |
 | 404_Ritalin | type#20 | 0.106 | Novartis |  yes |
 | 64_Kamagra | highlight#21 | 0.103 | Kamagra device |  yes |
-| 133_Ambien | brand#8 | 0.102 | Hemofarm |  yes |
-| 133_Ambien | brand#9 | 0.101 | Hemofarm |  yes |
+| 133_Ambien | brand#8 | 0.102 | Hemofarm |  **no** |
+| 133_Ambien | brand#9 | 0.101 | Hemofarm |  **no** |
 | 59_Cialis | secondary_1#0 | 4.423 | **holographic — out of scope, see above** | n/a |
 
 ---
