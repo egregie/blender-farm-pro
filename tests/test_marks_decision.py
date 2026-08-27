@@ -264,3 +264,54 @@ class TestNothingUnapprovedIsEverDrawn(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestWhatAMarkActuallyDraws(unittest.TestCase):
+    """The fact the decision now rests on, kept re-checkable.
+
+    An owner was first told a mark would render as "a silhouette, not a legible
+    mark". That was wrong twice -- `islands = 0` misses a glyph that TOUCHES the
+    boundary, and a wordmark's silhouette is the wordmark -- and the correction
+    is what `scripts/measure_mark_shapes.py` exists to keep measurable rather
+    than remembered.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from scripts.measure_mark_shapes import BLOB_MIN, measure
+        cls.rows = measure()
+        cls.floor = BLOB_MIN
+
+    def test_the_count_of_letterform_marks_is_stated_and_not_drifting(self):
+        letters = [r for r in self.rows if r["solidity"] < self.floor]
+        self.assertEqual(
+            (len(letters), len(self.rows)), (11, 22),
+            f"{len(letters)} of {len(self.rows)} emitted marks carry letterform "
+            f"geometry; it was 11 of 22 when the owner confirmed them knowing "
+            f"that. A change here means the catalogue now draws something the "
+            f"decision was not taken against.")
+
+    def test_the_threshold_sits_in_a_real_gap(self):
+        """0.85 is where the distribution is empty, not where it looked tidy.
+
+        Eleven marks sit at 0.907-1.000 and eleven at 0.190-0.825. A threshold
+        chosen inside a crowd would make the count above meaningless.
+        """
+        s = sorted(r["solidity"] for r in self.rows)
+        below = max(v for v in s if v < self.floor)
+        above = min(v for v in s if v >= self.floor)
+        self.assertGreater(above - below, 0.05,
+                           f"the nearest solidities straddling {self.floor} are "
+                           f"{below} and {above} -- too close for the split to "
+                           f"mean anything")
+
+    def test_the_viagra_oval_is_not_a_plain_oval(self):
+        """The specific claim that was wrong, pinned so it cannot be re-made.
+
+        `74_Viagra`'s Pfizer oval was described as rendering as an OVAL. It
+        renders as an oval with the "fi" ligature notched out of it, which a
+        plain ellipse's solidity -- 1.0 against its own hull -- cannot be.
+        """
+        row = next(r for r in self.rows
+                   if r["sku"] == "74-min" and r["key"] == "brand#0/hole#0")
+        self.assertLess(row["solidity"], 0.95)

@@ -60,7 +60,13 @@ Two further things were put to the owner when the answers were recorded.
    highlight#2` 0.593 ("ven"), `74_Viagra brand#0/hole#0` 0.918 (an oval with
    the "fi" ligature notched out of it). Eleven really are convex blobs.
 
-   The owner was told the corrected fact and re-decided on it.
+   The owner was told the corrected fact, shown the drawn polygons, and
+   re-decided on it: `59_Cialis brand#9` was withdrawn as the sticker's
+   lettering, and the **eleven remaining letterform marks were confirmed** on
+   26 August 2026. They all satisfy the basis — each belongs to the manufacturer
+   of the product it is drawn on — and the owner confirmed them knowing they
+   render as letterforms rather than as blobs. Recorded here so the confirmation
+   is not mistaken later for the original, mistaken, understanding.
 
 ---
 
