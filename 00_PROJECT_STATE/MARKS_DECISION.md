@@ -1,8 +1,19 @@
 # Marks — the owner's decision
 
-**Status: DECIDED 26 August 2026. Complete — per-entry answers, purpose, basis
-and scope all stated by the owner. Phase 3 may proceed within the scope below
-and nowhere else.**
+**Status: DECIDED 26 August 2026, and amended the same day on a corrected fact.
+Phase 3 may proceed within the scope below and nowhere else.**
+
+**Amendment — `59_Cialis brand#9` is now `no`.** It is not a Lilly wordmark
+printed on the carton; it is the LETTERING OF the holographic sticker, whose own
+region `secondary_1#0` was always out of scope. Measured: `brand#9`'s bounding
+box, u 0.677–0.804 and v 0.743–0.854, lies entirely inside `secondary_1#0`'s
+u 0.617–0.875 and v 0.650–0.948. The owner's instruction — do not draw the
+holographic sticker, ignore such stickers — therefore covers it, and it is the
+ONLY entry in the group that a containment check finds inside a refused one.
+
+A security feature is refused whole, lettering included. Reproducing part of an
+anti-counterfeiting element is the act this driver already refuses for LOT, EXP,
+a product code and a 2D symbol.
 
 The owner answered every row of both tables and then the header block, in two
 messages on 26 August 2026. Everything below is transcribed verbatim; nothing
@@ -35,13 +46,21 @@ Two further things were put to the owner when the answers were recorded.
    three are set `no`, because the owner's own criterion decides it: Cialis
    Professional is not a Lilly product, so no Lilly mark belongs to it. If that
    is not what was meant, `highlight#15` is the row to revisit.
-2. **What would be drawn is a silhouette, not a legible mark.** All eight holes
-   are solid (`islands = 0`); Viagra's mask is 13 071 px filled or unfilled. The
-   Pfizer oval renders as an OVAL and the C-II symbol as a solid box. That cuts
-   both ways and both are worth knowing before signing: it is less of a
-   reproduction than the table implies, and it is also not the mark.
-   **Not answered, and it does not block: it changes what the decision buys,
-   not whether it may be taken.**
+2. ~~**What would be drawn is a silhouette, not a legible mark.**~~ **THIS WAS
+   WRONG AND THE OWNER DECIDED PARTLY ON IT.** Corrected 26 August 2026 by
+   drawing the emitted polygons and looking at them.
+
+   `islands = 0` does not mean the lettering is absent: a glyph TOUCHING the
+   region's boundary is not an island, it is a notch, and it survives the trace.
+   And a silhouette of a wordmark IS that wordmark — a filled outline of Lilly's
+   script reads "Lilly". Measured over the 23 emitted marks, **twelve have a
+   solidity below 0.83**, i.e. carry letterform geometry rather than a blob:
+   `152_Artvigil brand#26` 0.190 (a script swash), `64_Kamagra highlight#7`
+   0.323, `59_Cialis brand#9` 0.355 (the word "Lilly"), `155_Imovane
+   highlight#2` 0.593 ("ven"), `74_Viagra brand#0/hole#0` 0.918 (an oval with
+   the "fi" ligature notched out of it). Eleven really are convex blobs.
+
+   The owner was told the corrected fact and re-decided on it.
 
 ---
 
@@ -137,7 +156,7 @@ the implementer must stop on one.
 | 272_Valium_Brand | brand#1 | 0.411 | Roche |  yes |
 | 64_Kamagra | highlight#7 | 0.395 | Kamagra device |  yes |
 | 150_Waklert | brand#4 | 0.321 | Sun Pharma |  yes |
-| 59_Cialis | brand#9 | 0.321 | Lilly |  yes |
+| 59_Cialis | brand#9 | 0.321 | Lilly — the LETTERING OF the holographic sticker | **no** |
 | 230_Slimex | brand#8 | 0.303 | Neptune Laboratories |  yes |
 | 133_Ambien | brand#2 | 0.297 | Hemofarm |  **no** |
 | 133_Ambien | brand#3 | 0.275 | Hemofarm |  **no** |

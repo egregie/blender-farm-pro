@@ -29,8 +29,14 @@ class TestTheSignedFileIsReadExactly(unittest.TestCase):
         self.d = load()
 
     def test_the_counts_are_the_ones_the_owner_signed(self):
+        """8 holes and 14 components.
+
+        15 until `59_Cialis brand#9` was withdrawn on 26 August 2026: it reads
+        "Lilly" and turned out to be the LETTERING OF the holographic sticker,
+        which was never in scope. See the containment test below.
+        """
         self.assertEqual(len(self.d.holes), 8)
-        self.assertEqual(len(self.d.components), 15)
+        self.assertEqual(len(self.d.components), 14)
 
     def test_the_header_block_is_the_owners_words_and_not_empty(self):
         for name in ("purpose", "basis", "scope"):
@@ -71,6 +77,37 @@ class TestTheSignedFileIsReadExactly(unittest.TestCase):
                          "the loader names the holographic oval in its code; it "
                          "must be refused by the table saying n/a, not by a "
                          "special case that a reclassification could bypass")
+
+    def test_no_approved_mark_sits_inside_a_refused_one(self):
+        """A security feature is refused whole, lettering included.
+
+        `59_Cialis brand#9` reads "Lilly" and was approved as a wordmark until it
+        was drawn and looked at: it is the LETTERING OF the holographic sticker,
+        and the sticker -- `secondary_1#0` -- was always out of scope.
+        Reproducing part of an anti-counterfeiting element is the act this driver
+        already refuses for LOT, EXP, a product code and a 2D symbol.
+
+        Pinned by bounding box rather than by name, so the rule survives a
+        renumbering: u 0.677-0.804 and v 0.743-0.854 lie wholly inside u
+        0.617-0.875 and v 0.650-0.948. It is the only such pair in the group.
+        """
+        self.assertNotIn(("59_Cialis", "brand#9"), self.d.components)
+        self.assertIn(("59_Cialis", "brand#9"), self.d.refused)
+        self.assertNotIn(("59_Cialis", "secondary_1#0"), self.d.components)
+
+    def test_the_solidity_of_every_approved_mark_is_recorded(self):
+        """The corrected fact, kept where a later reader will meet it.
+
+        The owner was first told a mark would render as a silhouette and not a
+        legible mark. That was wrong twice over -- `islands = 0` misses a glyph
+        that TOUCHES the boundary, and a wordmark's silhouette is the wordmark --
+        and the decision file now says so. This fails if that correction is ever
+        quietly removed.
+        """
+        text = DECISION_PATH.read_text(encoding="utf-8")
+        self.assertIn("THIS WAS", text)
+        self.assertIn("solidity below 0.83", text)
+        self.assertIn("is not an island, it is a notch", text)
 
 
 class TestAnUnsignedFileStopsTheBuild(unittest.TestCase):
