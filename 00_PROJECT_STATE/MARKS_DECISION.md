@@ -1,15 +1,18 @@
 # Marks — the owner's decision
 
-**Status: PER-ENTRY DECISIONS RECEIVED 26 August 2026. BASIS NOT YET STATED —
-no code may be written.**
+**Status: DECIDED 26 August 2026. Complete — per-entry answers, purpose, basis
+and scope all stated by the owner. Phase 3 may proceed within the scope below
+and nowhere else.**
 
-The owner answered every row of both tables in a message on 26 August 2026, and
-those answers are transcribed below verbatim. What is still missing is the
-header block: **Purpose** and **Basis**. Those are not paperwork — they are the
-authorisation itself, and reproducing another company's mark is lawful on some
-bases and not on others. The rule at the top of this file stands: an implementer
-may not fill them, may not enter a default, and may not read the per-entry
-answers as supplying them.
+The owner answered every row of both tables and then the header block, in two
+messages on 26 August 2026. Everything below is transcribed verbatim; nothing
+was inferred, no default was entered, and the header block was written by the
+owner rather than by the implementer, which is what the original rule required.
+
+The basis and the per-entry answers agree, and that is what makes this
+consistent rather than merely complete: eleven rows were withdrawn precisely
+because they were marks belonging to another company's product, and the basis
+states that limit as the rule rather than as an exception.
 
 Two further things were put to the owner when the answers were recorded.
 
@@ -87,18 +90,25 @@ a decision should not require chasing a second document:
 
 ## To be completed by the owner
 
-**Decided by:** the repository owner, by message — identity line still to be
-written in by them
+**Decided by:** the repository owner, by message
 
-**Date:** per-entry answers 26 August 2026
+**Date:** 26 August 2026
 
-**Purpose the catalogue serves:** _______________________  ← BLOCKING
+**Purpose the catalogue serves:** The catalogue serves to create visual 3D
+renders of product packaging for the project catalogue.
 
 **Basis — authorisation, licence, or the reasoning relied on:**
 
-_______________________  ← BLOCKING
+Owner decision to reproduce packaging marks only where the mark belongs to the
+manufacturer or rights holder of the specific product being rendered. Marks that
+would falsely associate a product with another manufacturer or rights holder are
+not reproduced. This follows the project's existing rule against transferring
+identifying packaging elements from one product to another.
 
-**Scope in one sentence:** _______________________  ← BLOCKING
+**Scope in one sentence:** Only the mark regions explicitly marked "yes" in this
+decision file may be drawn, and a mark hole may be cut only when its
+corresponding mark is emitted in the same build; the holographic security
+feature remains out of scope.
 
 ### Per-entry decision
 
