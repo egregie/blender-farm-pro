@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "156-min.jpg",
   "product_code": "156-min",
   "template_id": "T1",
@@ -109,7 +109,8 @@
                 0.0013
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -198,11 +199,13 @@
                 0.2322
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {
       "brand_name_display": {
         "u0": 0.1573,

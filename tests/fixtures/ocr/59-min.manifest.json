@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "59-min.jpg",
   "product_code": "59-min",
   "template_id": "T1_SMALL",
@@ -533,7 +533,8 @@
                 0.0101
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -1130,7 +1131,8 @@
                 0.6777
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "block",
@@ -1179,7 +1181,8 @@
                 0.2962
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       },
@@ -2845,6 +2848,7 @@
               ]
             ],
             "holes": [],
+            "mark_holes": [],
             "simplified_from": 416
           },
           {
@@ -3246,7 +3250,8 @@
                 0.5506
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -3436,6 +3441,7 @@
               ]
             ],
             "holes": [],
+            "mark_holes": [],
             "simplified_from": 46
           },
           {
@@ -3685,11 +3691,13 @@
                 0.0014
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {
       "active_ingredient_display": {
         "u0": 0.3555,

@@ -16,18 +16,28 @@ step real — the view sidecar's corners are in render pixels and still apply, s
 the fixture exercises the whole path instead of a pre-flattened crop. It is also
 the format Stage 3 delivers.
 
-**Quality 98, and 92 was measured failing.** The whole point of the fixture is
-that it reads the same as the render it came from, and at contract 1.9
-`62_Cialis_Super_Active`'s badge moved a few levels and took its unit count
-across Tesseract's decision boundary: over the sample's 112 rows, q92 disagreed
-with the PNG on exactly one and q98 on none. The set costs 1.87 MB at 92 and
-2.79 MB at 98.
+**Lossless, and every lossy quality was measured failing.** The whole point of
+the fixture is that it reads the same as the render it came from, and that is a
+property of libwebp rather than of anything this project controls -- so it is
+re-measured whenever the pixels change, over the sample's 112 rows.
 
-That row is genuinely marginal rather than badly encoded, and the measurement
-says so in a way worth keeping: at q95 all four of that carton's rows read,
-INCLUDING two the PNG itself misses. Quality is not a dial that buys legibility
-— q98 and lossless both reproduce the PNG exactly, which is the only property
-this fixture set may claim.
+At contract 1.9 `62_Cialis_Super_Active`'s badge moved a few levels and took its
+unit count across Tesseract's decision boundary: q92 disagreed with the PNG on
+exactly one row and q98 on none, so the set was written at 98.
+
+**Contract 1.10 falsified that.** Drawing the approved marks put three rows on
+the boundary and q98 disagrees on all three, in BOTH directions -- `230-min`'s
+ingredient and `357-min`'s brand are read by the PNG and lost by the encode,
+while `357-min`'s ingredient is missed by the PNG and RECOVERED by it. Raising
+quality does not help and is not the dial: q100 disagrees on three as well, a
+DIFFERENT three (`365-min` enters, `230-min` leaves). Lossless disagrees on none.
+
+The cost is stated because it is large: 2.82 MB at q98 against **31.97 MB**
+lossless, an 11.3x set in a repository that deliberately tracks no renders.
+It is paid for the one property this fixture set may claim -- that the barrier's
+verdict is about the RENDER and not about the codec. Three rows in 112 is 2.7%
+of the barrier, and two of the three are `357_Adderall`, whose face is the
+smallest in the group and enlarged 8.21x.
 """
 from __future__ import annotations
 
@@ -49,7 +59,10 @@ from src.utils import load_config, resolve_path  # noqa: E402
 from src.design_group import TEMPLATE_SAMPLE  # noqa: E402,F401
 
 FIXTURE_DIR = PROJECT_ROOT / "tests" / "fixtures" / "ocr"
-WEBP_QUALITY = 98
+#: Lossless. See this module's docstring: at contract 1.10 every lossy quality
+#: measured disagrees with the PNG on three of the sample's 112 rows, and a
+#: fixture that reads differently from its own render cannot stand in for it.
+WEBP_LOSSLESS = True
 
 #: The 29th fixture, and it is here because it was NOT and drifted.
 #: `TestOCRBarrier` reads `1-min` -- the single-SKU barrier the sample was built
@@ -107,7 +120,7 @@ def build(stem: str, check_only: bool) -> str:
     if as_png:
         shutil.copy2(png, webp_out)
     else:
-        Image.open(png).save(webp_out, "WEBP", quality=WEBP_QUALITY, method=6)
+        Image.open(png).save(webp_out, "WEBP", lossless=WEBP_LOSSLESS, method=6)
     shutil.copy2(view, FIXTURE_DIR / f"{stem}.view.json")
     # The manifest travels WITH the fixture rather than being read from
     # 04_passports/: the barrier's subject is whether these pixels show the

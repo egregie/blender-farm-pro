@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "60-min.jpg",
   "product_code": "60-min",
   "template_id": "T1_SMALL",
@@ -181,7 +181,8 @@
                 0.5455
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       },
@@ -447,6 +448,7 @@
               ]
             ],
             "holes": [],
+            "mark_holes": [],
             "simplified_from": 63
           },
           {
@@ -561,6 +563,7 @@
               ]
             ],
             "holes": [],
+            "mark_holes": [],
             "simplified_from": 27
           },
           {
@@ -642,11 +645,13 @@
                 0.9382
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Cialis Professional_front_raw.webp"
   },

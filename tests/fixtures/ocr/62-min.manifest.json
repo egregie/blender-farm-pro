@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "62-min.jpg",
   "product_code": "62-min",
   "template_id": "T1_SMALL",
@@ -606,6 +606,7 @@
               ]
             ],
             "holes": [],
+            "mark_holes": [],
             "simplified_from": 143
           },
           {
@@ -707,7 +708,8 @@
                 0.6874
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "block",
@@ -744,11 +746,13 @@
                 0.3748
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Cialis Super Active_front_raw.png"
   },

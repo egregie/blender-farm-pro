@@ -111,11 +111,99 @@ Two things the manifest exists to get right:
 `carton.passport_dimensions.source`. All 391 SKU resolve to `passport_secondary` there, and
 a test fails if any regresses to a guess.
 
-**Contract version is `1.9`.** Bumps up to 1.3 and again at 1.5, 1.6, 1.7, 1.8 and 1.9 added or
+**Contract version is `1.10`.** Bumps up to 1.3 and again at 1.5, 1.6, 1.7, 1.8, 1.9 and
+1.10 added or
 repurposed *required* fields — deliberately not additive-optional changes, so a manifest
 written before them fails validation loudly instead of quietly producing a packshot with
 something missing. `manifest_version` is pinned by `const` in the schema, so stale files on
 disk are rejected until Stage 1 regenerates them.
+
+- `1.10` — **`design.marks[]`, the third-party and regulatory marks a PERSON approved by
+  name.** 22 marks across 12 of the 28 folders: 8 holes and 14 components listed `yes` in
+  [`00_PROJECT_STATE/MARKS_DECISION.md`](00_PROJECT_STATE/MARKS_DECISION.md), and nothing
+  else. Required and usually empty — a 1.9 manifest read as 1.10 is not a carton with no
+  marks, it is a carton whose marks were never decided, and that is not a default any
+  producer may supply. Each mark carries the `print_truth` key that permitted it, so a
+  drawn mark can be put back against the row that allowed it. Write-up in
+  [`00_PROJECT_STATE/MARKS_DRAWN.md`](00_PROJECT_STATE/MARKS_DRAWN.md).
+
+  **`src/marks_decision.py` makes the decision file's own rule executable.** That file
+  says no code may run until its Purpose, Basis and Scope are written by the owner, and
+  the loader raises `MarksNotDecided` when any is blank. `yes` is the only value that
+  permits anything — tested against `no`, `n/a`, empty, `maybe`, `YES?` and
+  `yes, but only in print`. No class name is special-cased: the Lilly holographic oval is
+  refused because its row says `n/a`, and a test asserts the loader does not name it in
+  code so a reclassification cannot quietly re-open it. An ABSENT file raises rather than
+  returning an empty set, because "no to everything" is a valid signed outcome that looks
+  identical to one.
+
+  **The pairing rule holds in three places.** `fit()` cuts a mark hole and emits its mark
+  from ONE loop, so the unpaired case is unreachable in the producer;
+  `parts[].mark_holes` records which cut rings are marks, without which the rule is
+  unverifiable on a manifest at all; and `_reject_unpaired_marks` refuses BOTH directions
+  on write and on read, because a manifest is a file and a rule only the producer keeps is
+  a rule the artefact does not carry.
+
+  **The index-based figures cannot judge a mark and now say so.** `verify()`,
+  `design_coverage` and `design_qa` compare region IDENTITY against a vocabulary of
+  FIELDS, and a mark is deliberately neither a field nor the board. Scored anyway it is a
+  category error, measured as one: `230_Slimex`, whose only spec content is two approved
+  marks, read **0.00%** and `272_Valium_Brand` 54.31%, because every pixel they draw met a
+  ground truth that says substrate. Widening that truth to admit approved marks was tried
+  and recovered 0.20 points. So a mark's area leaves the scored set in all three, on BOTH
+  sides — cutting and drawing is neutral there rather than banking what cutting alone
+  earns, which is what the decision file meant by *"the +9.937 is not carried forward"*.
+  In `design_qa` there is a sharper reason: **a mark's colour is not in the palette**, so
+  every mark pixel would classify to whichever field entry happened to be nearest.
+  `region_colour_gap` does judge them — its regions come from `spec_index`, which gives a
+  mark its own index — and it is the right instrument because it needs no word for one.
+
+  **`_substrate_core` had to exclude marks.** A mark can be the colour of the board:
+  `74_Viagra`'s oval is `#D8D9D5` against a substrate of `#DDDEDB`, **0.0364 apart**, so
+  it classified as substrate and the illumination plane was fitted through a region the
+  spec paints separately.
+
+  **Five marks were painted solid where the carton prints an OUTLINE**, and that is the
+  largest defect this contract introduced. `holes: []` was written on the strength of
+  `MARKS_EVIDENCE.md` measuring every approved region solid — true of the eight holes,
+  which fill 0.9–1.0 times the ink they describe, and false of the components:
+  `230_Slimex`'s `brand#9` filled **9.5×** its ink, `272_Valium_Brand`'s `brand#1` 9.0×,
+  `157_Valium`'s Roche hexagon 8.4×. That is a worse reproduction than the carton's own
+  rather than a lesser one — it invents a filled logo where the pack prints a line — and
+  it was measurable: `157-min` declared `#022E99` while the photograph inside that same
+  region read `#B8BEC3`. A mark now carries its own holes, traced **without** consulting
+  `print_truth.json`, and that is not a relaxation of 1.8: that rule protects a printed
+  FIELD from showing board in the shape of the reference's lettering, while here the ring
+  is the mark's own interior and leaving it filled is the invention. After: all 22 fill
+  0.9–1.4× their ink, and `157-min`'s mark colour gap falls 0.585 → **0.093**.
+
+  **The label grid does not know marks exist and prints across them — OPEN.**
+  `157_Valium` sets "30 Pills" straight over the Roche hexagon and `152_Artvigil` "150mg"
+  over its signature swash, because `_prepared_parts` reads `design["fields"]` alone.
+  Adding marks to it clears both, and was **reverted**: the OCR gate then read **eight
+  rows lost against three gained**, and `221_Inderal`'s "40mg" went from white on its
+  purple band, fully legible, to dark on the band's edge and half hidden — the clearing
+  search moved it off the LCI roundel into a worse place. Trading a row printed across a
+  mark for a row nobody can read is not a fix. The change has two halves and separating
+  them is the real work: `_surface_fill` choosing INK from a mark is useful,
+  `_clear_of_design` MOVING a row because of one is not.
+
+  **What a mark draws is measured, not remembered.** `MARKS_EVIDENCE.md`'s `islands = 0`
+  was read as "the wordmark is not carried", and that is false twice: a glyph TOUCHING the
+  boundary is a notch rather than an island and survives the trace, and a silhouette of a
+  wordmark IS the wordmark. `scripts/measure_mark_shapes.py` reports each emitted
+  polygon's **solidity**; 11 of the 22 carry letterform geometry, `152_Artvigil`'s swash
+  at **0.190** and `74_Viagra`'s oval at 0.918 with the "fi" ligature notched out of it.
+  The owner was shown the drawn shapes, withdrew `59_Cialis brand#9` — which reads "Lilly"
+  and turned out to be **the lettering OF the holographic sticker**, its bounding box
+  wholly inside the sticker's — and confirmed the rest. **A security feature is refused
+  whole, lettering included.**
+
+  Result over fresh renders of all 28: `render~ref` 0.9382 → **0.9398** with 8 up and none
+  down, `render~spec` 0.9943 → 0.9946 with none down, `field_iou_worst` 0.9691 → 0.9706,
+  and index side `pixel_agreement` 99.18 → **99.27%**, `print_agreement` 52.79 →
+  **53.14%**, `truth_agreement` 95.36 → **95.76%**, drawn-off-print 0.76 → **0.72%**.
+  **All 16 cartons carrying no mark moved by exactly zero on every figure.**
 
 - `1.9` — **`design.fields[].parts[].fill`, because a colour is a statement about a
   SURFACE and a field is not one.** A field's fill is `np.median(raw_px[cluster])`,
@@ -1556,6 +1644,31 @@ unnoticed and **ten rows that used to miss had started reading** — the rendere
 better and worse in places, and neither was being watched. Run this gate in any phase that
 changes what the renderer draws, and rebuild with `python scripts/make_ocr_fixtures.py`
 rather than editing a fixture.
+
+**The fixtures are LOSSLESS WEBP, and every lossy quality has now been measured
+failing.** The set's one claim is that it reads the same as the render it came from —
+so it is re-measured whenever the pixels change, and it has been falsified twice. At
+contract 1.9 q92 disagreed with the PNG on one of the sample's 112 rows and q98 on
+none, so 98 was chosen. Contract 1.10's marks put three rows on Tesseract's boundary
+and **q98 disagrees on all three, in BOTH directions** — `230-min`'s ingredient and
+`357-min`'s brand are read by the render and lost by the encode, while `357-min`'s
+ingredient is missed by the render and *recovered* by it. Quality is not the dial:
+**q100 disagrees on three as well, a different three**. Lossless disagrees on none, and
+costs 2.82 → **31.97 MB**.
+
+The cost is worth naming against the other rule in `make_ocr_fixtures`' own docstring,
+that renders "do not belong in a repository that deliberately tracks no renders". The
+two pull opposite ways and this is the side that was chosen, because the alternative is
+an exception list about libwebp rather than about a carton — unjudgeable by looking,
+and different after every rebuild.
+
+**While the two sources disagreed, no ratchet list could satisfy both barriers**, and
+that is the sharpest thing the equality assertion has done: `test_the_known_miss_list_
+is_not_stale` reads the fixture and demanded `357-min`'s ingredient be REMOVED, while
+`test_the_template_sample_fixtures_still_match_a_fresh_render` reads the render and
+demanded it STAY. Two rows were briefly entered on the fixture's answer before that was
+seen. All 28 fixtures were verified to reproduce byte-for-byte from the renders on disk
+first, so the disagreement was known to be the codec and not staleness.
 
 `KNOWN_OCR_MISSES` and `ROWS_THE_RENDER_HIDES` are deliberately two lists. The first is the
 reader: the string is printed and legible to a person and Tesseract returns something else.

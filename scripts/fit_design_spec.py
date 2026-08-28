@@ -604,28 +604,51 @@ def _smoothness(points) -> float:
     return float(np.mean(ang < SMOOTH_TURN_DEG))
 
 
-def _mark_entry(mask, raw, w, h, role, key, source, estimator, outline=None):
-    """One approved mark: its SILHOUETTE, in its own measured colour.
+def _mark_entry(mask, raw, w, h, role, key, source, estimator,
+                outline=None, min_hole=None):
+    """One approved mark: the region it inks, in its own measured colour.
 
-    `holes` is emitted empty and that is a statement rather than a shortcut.
-    `00_PROJECT_STATE/MARKS_EVIDENCE.md` measured every one of these: all eight
-    approved holes are solid (`islands = 0`, `solid_frac = 1.000`), and
-    `74_Viagra`'s mask is 13 071 px filled or unfilled. The wordmark inside a
-    Pfizer oval is not separated by the segmentation, is not carried by the
-    region, and cannot appear in the render. What appears is the outline. The
-    owner decided on exactly that, recorded in MARKS_DECISION.md before signing,
-    so drawing a filled ring here is the decided act and not an approximation of
-    a larger one.
+    **A mark carries its own holes, and the first version did not.** `holes: []`
+    was written on the strength of `MARKS_EVIDENCE.md` measuring every approved
+    HOLE solid — `islands = 0`, `solid_frac = 1.000`, `74_Viagra`'s mask 13 071
+    px filled or unfilled. That is true of the eight holes and false of the
+    components: measured over all 22 emitted marks, the eight holes fill 0.9-1.0
+    times the ink they describe and **five components fill 2.4 to 9.5 times it**.
+    `157_Valium`'s Roche mark is a hexagonal OUTLINE inking 1 977 px, and filled
+    it covers 16 619. `272_Valium_Brand`'s is 9.0x, `230_Slimex`'s 9.5x.
+
+    Painting those solid is a worse reproduction than the carton's own, not a
+    lesser one: it invents a filled logo where the pack prints a line. It is also
+    measurable as wrong — `157-min`'s mark region declared `#022E99` while the
+    photograph inside that same region reads `#B8BEC3`, because most of what we
+    filled is board.
+
+    The holes are traced WITHOUT consulting `print_truth.json`, and that is not a
+    relaxation of contract 1.8's rule. That rule protects a printed FIELD from
+    showing board in the shape of the reference's own lettering. Here the ring is
+    the mark's own interior, cutting it is what makes the mark the shape the
+    carton prints, and leaving it filled is the invention.
 
     `key` travels with the entry so provenance survives into the manifest: a
     reader can put any drawn mark back against the row of the decision file that
     permitted it.
     """
+    holes = []
     if outline is None:
         traced = trace_outline(mask)
         if len(traced) < 8:
             return None
         outline, _used = _simplify_to_a_region(traced, w, h, SIMPLIFY_TOLERANCE)
+        floor = MIN_HOLE_FRAC * mask.size if min_hole is None else min_hole
+        for ring in enclosed_background(mask):
+            if ring.sum() < floor:
+                continue
+            r = trace_outline(ring)
+            if len(r) < 8:
+                continue
+            pts, _u = _simplify_to_a_region(r, w, h, SIMPLIFY_TOLERANCE)
+            if len(pts) >= 3:
+                holes.append(pts)
     if len(outline) < 3:
         return None
     return {
@@ -637,7 +660,8 @@ def _mark_entry(mask, raw, w, h, role, key, source, estimator, outline=None):
         "fill": _hex(estimator(mask, raw)),
         "area_pct": round(100 * float(mask.sum()) / (w * h), 3),
         "outline": [[round(x / w, 4), round(y / h, 4)] for x, y in outline],
-        "holes": [],
+        "holes": [[[round(x / w, 4), round(y / h, 4)] for x, y in ring]
+                  for ring in holes],
         # Filled in once the field count is known; a mark is drawn in FRONT of
         # every field, because it is printed on top of the surface it sits on.
         "z": None,
@@ -866,7 +890,8 @@ def fit(folder: Path, preview_dir: Path | None = None) -> dict:
                 # reclassification must not become a permission.
                 if key in draw_marks:
                     entry = _mark_entry(part, raw, w, h, role, key, "component",
-                                        median_eroded_adaptive)
+                                        median_eroded_adaptive,
+                                        min_hole=min_hole)
                     if entry is not None:
                         marks.append(entry)
                         kept_mask |= part

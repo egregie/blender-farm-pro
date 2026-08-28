@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "344-min.jpg",
   "product_code": "344-min",
   "template_id": "T1",
@@ -125,7 +125,8 @@
                 0.0493
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "block",
@@ -170,7 +171,8 @@
                 0.6948
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "block",
@@ -203,11 +205,13 @@
                 0.1103
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {
       "active_ingredient_display": {
         "u0": 0.1591,

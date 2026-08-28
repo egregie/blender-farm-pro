@@ -40,7 +40,7 @@ from src.design_group import FOLDER_BY_STEM, TEMPLATES_DIR, load_design  # noqa:
 from src.utils import load_config, resolve_path  # noqa: E402
 from scripts.calibrate_render import appearance, load_curve  # noqa: E402
 from scripts.measure_reference_face import rectified_face  # noqa: E402
-from scripts.fit_design_spec import rasterise  # noqa: E402
+from scripts.fit_design_spec import part_region, rasterise  # noqa: E402
 from scripts.design_coverage import spec_index  # noqa: E402
 from scripts.measure_reference_face import _flatten_illumination  # noqa: E402
 
@@ -495,12 +495,47 @@ def measure(stem: str, preview: bool = False) -> dict:
     view = json.loads(png.with_suffix(".view.json").read_text(encoding="utf-8"))
     ours = flatten_face(png, view["front_face_px"], out_width=OUT_WIDTH, aspect=aspect)
     ours_raw = np.asarray(ours.convert("RGB")).astype(float) / 255.0
-    core = _substrate_core(t_idx)
+    # CONTRACT 1.10: the substrate core is where the spec draws the BOARD, and a
+    # mark is not the board however much it resembles one. `74_Viagra`'s Pfizer
+    # oval is `#D8D9D5` against a substrate of `#DDDEDB` -- **0.0364** apart, so
+    # it classifies as substrate and joins the core, and the illumination plane
+    # is then fitted through a region the spec paints separately. Measured, that
+    # moved the carton's brand `region_colour_gap` 0.0857 -> 0.1305 for a mark
+    # drawn exactly where it belongs.
+    mark_area = np.zeros(ours_raw.shape[:2], bool)
+    for mark in (spec.get("marks") or []):
+        region = part_region(mark, *size)
+        if region is not None:
+            mark_area |= np.asarray(region)
+    core = _substrate_core(t_idx) & ~mark_area
     # ColourError always reads the PLANE. It asks whether a region is the colour
     # it should be, so its illumination estimate must not be able to absorb the
     # design -- a blur can, which is the defect recorded against Kamagra below.
     ours_flat = flatten_on_substrate(ours_raw, core)
     scored = scored_mask(ours_flat, palette, t_idx)
+    # CONTRACT 1.10: a mark's area leaves the scored set, the same exclusion
+    # `verify()` and `design_coverage` make and for a sharper reason here -- a
+    # mark's colour is NOT in this palette. The palette is the set of colours the
+    # spec paints as FIELDS, so every mark pixel would classify to whichever
+    # entry happens to be nearest, on both sides, and land in some field's IoU
+    # having nothing to do with that field.
+    #
+    # Adding the mark colours to the palette was the other option and is worse:
+    # `field_iou_worst` would then be a statement about fields and marks at
+    # once, which is exactly the silent redefinition `to_field` exists to stop.
+    #
+    # `region_colour_gap` still judges them, and is the right instrument for it:
+    # its regions come from `spec_index`, which gives a mark its own index, so a
+    # mark is scored on whether our render puts the measured colour where the
+    # photograph has it -- without a vocabulary that has no word for it.
+    # Kept before the exclusion, because `region_colour_gap` SHOULD judge a mark
+    # and the figures below should not. The gap has no vocabulary -- its regions
+    # come from `spec_index`, which gives a mark its own index -- so it can ask
+    # the one question that matters here: does our render put the measured
+    # colour where the photograph has it? Excluding marks from this too was the
+    # first attempt and it left them judged by nothing at all.
+    scored_all = scored
+    scored = scored & ~mark_area
 
     # The CLASSIFIER takes whichever model leaves the substrate flattest. Neither
     # is right everywhere and the difference is not small: on `59-min` the plane
@@ -669,7 +704,7 @@ def measure(stem: str, preview: bool = False) -> dict:
     geo = spec_index(spec, *size)
     gap = {}
     for k in sorted(set(int(v) for v in np.unique(geo))):
-        sel = (geo == k) & scored
+        sel = (geo == k) & scored_all
         if int(sel.sum()) < 50:
             # A region measured on almost nothing says so, rather than
             # reporting a confident number about very little of itself.

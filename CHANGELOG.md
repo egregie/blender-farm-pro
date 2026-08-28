@@ -3,6 +3,81 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — Contract 1.10: the marks a person approved — 27 August 2026
+
+`design.marks[]` is required and usually empty. 22 marks across 12 of the 28
+folders: the 8 holes and 14 components the owner listed `yes` in
+[`00_PROJECT_STATE/MARKS_DECISION.md`](00_PROJECT_STATE/MARKS_DECISION.md).
+Write-up in [`00_PROJECT_STATE/MARKS_DRAWN.md`](00_PROJECT_STATE/MARKS_DRAWN.md).
+
+### Added
+- `src/marks_decision.py` — the only reader of the signed file, and it makes
+  that file's own rule executable: `MarksNotDecided` when Purpose, Basis or
+  Scope is blank. `yes` is the only value that permits anything, tested against
+  `no`, `n/a`, empty, `maybe`, `YES?`, `yes, but only in print`. No class name is
+  special-cased, so the holographic oval is refused by its `n/a` row and a
+  reclassification cannot re-open it. An ABSENT file raises rather than
+  returning empty, because "no to everything" is a valid signed outcome.
+- `design.marks[]` and `parts[].mark_holes`; `manifest_version` 1.9 -> 1.10.
+- `_reject_unpaired_marks` refuses BOTH directions on write and on read.
+- `scripts/measure_mark_shapes.py` — solidity of every emitted polygon.
+
+### Corrected
+- **"A silhouette, not a legible mark" was wrong, and an owner decided on it.**
+  `islands = 0` misses a glyph that TOUCHES the boundary -- it is a notch and it
+  survives the trace -- and a wordmark's silhouette IS the wordmark. 11 of the
+  22 marks carry letterform geometry; `152_Artvigil`'s swash is 0.190 solid and
+  `74_Viagra`'s oval 0.918 with the "fi" ligature notched out.
+- Shown the drawn shapes, the owner withdrew `59_Cialis brand#9` -- it reads
+  "Lilly" and is the LETTERING OF the holographic sticker, its bounding box
+  wholly inside the sticker's -- and confirmed the rest. A security feature is
+  refused whole, lettering included.
+
+### Fixed
+- **Five marks were painted solid where the carton prints an OUTLINE**, up to
+  9.5x the ink they describe. `157_Valium`'s Roche mark inks 1 977 px and filled
+  covered 16 619, declaring `#022E99` where the photograph read `#B8BEC3`. A mark
+  now carries its own holes. All 22 fill 0.9-1.4x their ink.
+- The substrate core excludes marks: `74_Viagra`'s oval is 0.0364 from its own
+  substrate and was joining the illumination plane.
+- Index-based figures exclude marks on both sides -- `230_Slimex` read 0.00%
+  before, because its only content is two marks and the ground truth is keyed by
+  field. `region_colour_gap` judges them instead; it needs no vocabulary.
+- **The OCR fixtures are LOSSLESS, because q98 stopped reading like its own
+  render.** Contract 1.9 measured q98 disagreeing with the PNG on none of the
+  sample's 112 rows and the set was written at 98 on that evidence. Drawing the
+  marks put three rows on Tesseract's boundary and q98 now disagrees on all
+  three, in BOTH directions -- `230-min`'s ingredient and `357-min`'s brand are
+  read by the render and lost by the encode, `357-min`'s ingredient is missed by
+  the render and RECOVERED by it. Quality is not the dial: q100 disagrees on
+  three as well, a different three. Lossless disagrees on none, at 2.82 ->
+  **31.97 MB**. All 28 fixtures were verified to reproduce byte-for-byte from
+  the renders on disk first, so this is the codec and not staleness.
+- The disagreement made the ratchet lists unsatisfiable rather than merely
+  wrong: `test_the_known_miss_list_is_not_stale` reads the fixture and demanded
+  `357-min`'s ingredient be REMOVED while `test_..._still_match_a_fresh_render`
+  reads the render and demanded it STAY. Two rows were briefly entered on the
+  fixture's answer, which is the error the row-equality assertion exists to make
+  impossible to paper over.
+
+### Open
+- **The label grid does not know marks exist and can print across one.**
+  `157_Valium` sets "30 Pills" over the Roche hexagon. The fix was built and
+  REVERTED: the OCR gate read eight rows lost against three gained, and
+  `221_Inderal`'s "40mg" went from white on its band to dark on the band's edge.
+  Separating `_surface_fill` (ink, useful) from `_clear_of_design` (movement,
+  harmful) is the real work.
+
+### Measured
+- `render~ref` 0.9382 -> **0.9398**, 8 up and 0 down; `render~spec` 0.9943 ->
+  0.9946, 0 down; `field_iou_worst` 0.9691 -> 0.9706.
+- Index side: `pixel_agreement` 99.18 -> **99.27%**, `print_agreement` 52.79 ->
+  **53.14%**, `truth_agreement` 95.36 -> **95.76%**, drawn-off-print 0.76 ->
+  **0.72%**.
+- **All 16 cartons carrying no mark moved by exactly zero on every figure.**
+- The OCR barrier loses nine rows and gains three. Every one inspected on the
+  rectified face; all glyphs legible, so filed as the reader.
+
 ## [Unreleased] — Contract 1.9: a colour is a statement about a SURFACE — 26 August 2026
 
 `design.fields[].parts[].fill` is required. `print_truth.json` untouched, no

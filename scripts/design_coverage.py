@@ -131,7 +131,6 @@ def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     whole exercise is about.
     """
     idx = np.full((h, w), SUBSTRATE, dtype=int)
-    by_role = {f.get("role"): n for n, f in enumerate(spec.get("fields") or [])}
     # CONTRACT 1.10: a mark is indexed as the FIELD whose cluster it was found
     # in, because that is what the ground truth says is there. A component mark
     # is a region of that cluster and drawing it in its own colour does not stop
@@ -144,12 +143,6 @@ def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
     # MARKS_DECISION.md said so before any of this was built -- "the +9.937 is
     # not carried forward" -- and the figure has to show it rather than keep the
     # gain that cutting alone earned.
-    for mark in sorted(spec.get("marks") or [], key=lambda m: m.get("z", 0)):
-        region = part_region(mark, w, h)
-        if region is not None:
-            idx[np.asarray(region)] = (
-                by_role.get(mark.get("role"), MARK)
-                if mark.get("source") == "component" else MARK)
     for n, field in enumerate(spec.get("fields") or []):
         for part in field.get("parts") or []:
             # `part_region` and not a polygon fill, so this instrument and the
@@ -159,6 +152,26 @@ def spec_index(spec: dict, w: int, h: int) -> np.ndarray:
             region = part_region(part, w, h)
             if region is not None:
                 idx[np.asarray(region)] = n
+    # AFTER the fields, and the order is not cosmetic. `rasterise()` paints marks
+    # last because a mark is printed ON a surface, and the driver builds them in
+    # front of every field. Painting them FIRST here let a field overwrite them,
+    # so the index map and the target image disagreed about who owned those
+    # pixels: `157-min`'s type field then had the mark's colour inside a region
+    # labelled as the field, and its `region_colour_gap` read 0.3868 against
+    # 0.1376. Three readers, one order.
+    for mark in sorted(spec.get("marks") or [], key=lambda m: m.get("z", 0)):
+        region = part_region(mark, w, h)
+        if region is not None:
+            # ALWAYS its own index, never its field's. Indexing a component
+            # mark as the field whose cluster it came from was tried first, to
+            # make it agree with a ground truth that is keyed by field -- and it
+            # is now pointless and harmful at once. Pointless because
+            # `truth_agreement` and `verify()` both drop a mark's area outright;
+            # harmful because `region_colour_gap` reads this map, so the mark's
+            # OWN colour then landed inside its field's region and was averaged
+            # into it. Measured: `157_Valium`'s type field read **0.3868**
+            # against 0.1376 for a mark drawn exactly where it belongs.
+            idx[np.asarray(region)] = MARK
     return idx
 
 
@@ -289,6 +302,17 @@ def coverage(folder: Path, spec_name: str = "design_spec.json") -> dict:
     type_pct = (100.0 * float((lab == named["type"]["label"]).sum()) / total
                 if named.get("type") else 0.0)
 
+    # The mark exclusion belongs here too, and for the same reason it belongs to
+    # `truth_agreement`: this figure compares the spec's fields against RAW
+    # clusters by index, and a mark matches no cluster by construction. Left in,
+    # it read 52.36% against 52.66% -- a third of a point of pure category error.
+    mark_mask = np.zeros(lab.shape, bool)
+    for mark in (spec.get("marks") or []):
+        region = part_region(mark, w, h)
+        if region is not None:
+            mark_mask |= np.asarray(region)
+    scored = scored & ~mark_mask
+
     ref_print = (t_idx != SUBSTRATE) & scored
     spec_print = (s_idx != SUBSTRATE) & scored
     union = ref_print | spec_print
@@ -323,11 +347,6 @@ def coverage(folder: Path, spec_name: str = "design_spec.json") -> dict:
     # `region_colour_gap`, plus looking at it. `mark_pct` below keeps its size
     # visible so its absence from this figure cannot be read as its absence from
     # the carton.
-    mark_mask = np.zeros(lab.shape, bool)
-    for mark in (spec.get("marks") or []):
-        region = part_region(mark, w, h)
-        if region is not None:
-            mark_mask |= np.asarray(region)
     lt_scored = lt_scored & ~mark_mask
     lt_ref = (lt_idx != SUBSTRATE) & lt_scored
     lt_spec = (s_idx != SUBSTRATE) & lt_scored

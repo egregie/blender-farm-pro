@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.9",
+  "manifest_version": "1.10",
   "sku_id": "134-min.jpg",
   "product_code": "134-min",
   "template_id": "T1",
@@ -173,7 +173,8 @@
                 0.7306
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -342,7 +343,8 @@
                 0.3032
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -459,7 +461,8 @@
                 0.7226
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -596,7 +599,8 @@
                 0.3048
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "field",
@@ -709,7 +713,8 @@
                 0.9597
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       },
@@ -778,7 +783,8 @@
                 0.7806
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           },
           {
             "kind": "block",
@@ -835,11 +841,13 @@
                 0.8758
               ]
             ],
-            "holes": []
+            "holes": [],
+            "mark_holes": []
           }
         ]
       }
     ],
+    "marks": [],
     "type_rows": {},
     "source_image": "Atarax_front_raw.jpg"
   },

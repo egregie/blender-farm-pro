@@ -554,8 +554,6 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     KNOWN_OCR_MISSES = {
         ("59-min", "unit_count_display"),    # "30 Pills" -> "30 ill"
         ("135-min", "dosage_display"),       # "1mg" -> "lmg", lowercase L for the digit
-        ("150-min", "unit_count_display"),   # "30 Pills" -> "10*#Pills", the 3 lost
-        ("230-min", "active_ingredient_display"),  # "HCl" -> "HCI", lowercase L as capital i
         ("308-min", "dosage_display"),       # "3mg" -> "& mg" one pass, "a mg" the other
         ("365-min", "active_ingredient_display"),  # "HCl" -> "HCI}" -- the same lowercase
                                              # L as `230-min`, plus the edge of the design
@@ -607,9 +605,41 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
         ("158-min", "dosage_display"),       # likewise
         ("158-min", "unit_count_display"),   # likewise
         ("344-min", "dosage_display"),       # "200mg", the same frame as `149-min`
-        ("357-min", "brand_name_display"),   # "Adderall", white on navy, 88% of the
-                                             # face wide. Measured: 0.0% of its cap
-                                             # band is hidden, so this is the reader.
+        #
+        # CONTRACT 1.10 -- a MARK stands beside or across the row, and Tesseract
+        # groups it with the words. Every one of these was looked at on the
+        # rectified face at native scale and every glyph is legible to a person;
+        # what changed is that the face now carries small letterform-like shapes
+        # the reader treats as characters. Nine rows here against three that
+        # started reading -- `230-min` active ingredient, `150-min` unit count
+        # and `357-min` brand, all three removed above rather than left recorded
+        # as broken, and the last of them also leaves `KNOWN_BRAND_MISREADS`.
+        #
+        # It is filed as the READER on the project's two checks and not on the
+        # OCR return: the faces were inspected one by one, and the marks do not
+        # hide a glyph -- `157-min`'s Roche hexagon is an OUTLINE crossing
+        # "30 Pills", `230-min`'s Neptune mark is an orange outline overlapping
+        # "15mg", `404-min`'s two Novartis fragments sit on the board beside
+        # "Ritalin 10mg". The related RENDER defect -- that the grid does not
+        # know marks exist and can place a row across one -- is open and
+        # recorded in the driver and in 00_PROJECT_STATE/MARKS_DRAWN.md.
+        #
+        # This list was briefly wrong in a way worth recording, because the
+        # instrument was at fault rather than the carton: two rows were entered
+        # here that the RENDER reads and the committed WEBP did not. At q98 the
+        # fixture had stopped reading the same as the PNG it came from -- three
+        # rows of 112, in both directions -- so no list could satisfy both the
+        # fixture barrier and the fresh-render gate at once. The fixtures are
+        # lossless now and the two agree again; see `scripts/make_ocr_fixtures`.
+        ("157-min", "active_ingredient_display"),
+        ("157-min", "dosage_display"),
+        ("157-min", "unit_count_display"),
+        ("221-min", "dosage_display"),
+        ("221-min", "unit_count_display"),
+        ("230-min", "dosage_display"),
+        ("357-min", "active_ingredient_display"),
+        ("404-min", "brand_name_display"),
+        ("404-min", "dosage_display"),
     }
 
     #: Rows where a GLYPH is not legible, which is a defect in the RENDER and
@@ -739,7 +769,19 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
     #: on a dark field, both measured 0.0% hidden.
     KNOWN_BRAND_MISREADS = {
         "158-min": "",             # of "Klonopin" -- not returned
-        "357-min": "",             # of "Adderall" -- not returned
+        # `357-min` was here until contract 1.10 and came off by being earned:
+        # "Adderall" now returns. It is the same carton whose INGREDIENT row
+        # entered `KNOWN_OCR_MISSES` in the same contract, which is worth seeing
+        # together -- drawing the C-II symbol below and right of that row cost
+        # the reader one row on this face and gained it another.
+        # CONTRACT 1.10. "Ritalin" is printed, is legible on the rectified face
+        # at native scale, and did not move -- the fixture from before the marks
+        # shows the identical layout. What changed is that two Novartis mark
+        # fragments now sit on the board BESIDE it at the same height, and the
+        # reader groups them with the row. This is the reader, on the project's
+        # own test of looking rather than on the OCR return, and it is the price
+        # of a decision rather than a defect: see 00_PROJECT_STATE/MARKS_DRAWN.md.
+        "404-min": "",             # of "Ritalin" -- not returned
     }
 
     def test_the_brand_name_reads_on_every_SKU_in_the_sample(self):
@@ -864,11 +906,21 @@ class TestOCRAgainstAFreshRender(unittest.TestCase):
         manifests, so any difference is a difference in the pixels, and the
         committed WEBP is measured to score identically to the PNG it came from.
 
-        That measurement is not free and it has been falsified once: at quality
-        92 it held until contract 1.9 moved `62-min`'s badge a few levels and
-        took its unit count across Tesseract's boundary. Re-measured over the
-        sample's 112 rows, q92 disagreed with the PNG on that one row and q98 on
-        none, so the fixtures are written at 98 and the set grew 1.87 -> 2.79 MB.
+        That measurement is not free and it has been falsified TWICE, which is
+        why the fixtures are lossless rather than merely high quality. At q92 it
+        held until contract 1.9 moved `62-min`'s badge a few levels and took its
+        unit count across Tesseract's boundary; the set went to q98, which
+        disagreed with the PNG on none of the sample's 112 rows. Contract 1.10
+        then put three rows on that boundary and q98 disagreed on all three, in
+        BOTH directions -- and q100 disagreed on three as well, a different
+        three. Quality is not the dial. Lossless disagrees on none, at 2.82 ->
+        31.97 MB; `scripts/make_ocr_fixtures` carries the full measurement.
+
+        The failure this test showed while that held is worth keeping: with the
+        two sources disagreeing, NO ratchet list can satisfy both this gate and
+        the fixture barrier, because one demands a row be listed and the other
+        demands it be removed. An exception list would have hidden that; the
+        equality assertion made it impossible to paper over.
         """
         fixture_misses = set()
         for stem, webp, manifest, view in self._fixture_cases():
