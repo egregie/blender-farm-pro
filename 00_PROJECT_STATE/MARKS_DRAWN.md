@@ -108,38 +108,93 @@ spec paints separately. The core now excludes marks.
 
 ---
 
-## The label grid does not know marks exist — OPEN, and the fix was worse
+## The label grid printed across a mark — CLOSED, and the revert was wrong
 
-`_prepared_parts` in the driver reads `design["fields"]` and nothing else, so
-neither `_surface_fill` (which chooses a measured row's ink) nor
-`_clear_of_design` (which moves a grid row off a surface that would hide it) can
-see a mark. The renders show what that costs:
+`_prepared_parts` in the driver read `design["fields"]` and nothing else, so
+neither the ink nor `_clear_of_design` — which moves a grid row off a surface
+that would hide it — could see a mark. The renders showed what that cost:
 
-- **`157_Valium` prints "30 Pills" straight across the Roche hexagon.**
-- **`152_Artvigil` prints "150mg" across its signature swash.**
+- **`157_Valium` printed "30 Pills" straight across the Roche hexagon**, its
+  strokes cutting the "0", the "P" and the "s";
+- **`152_Artvigil` printed "150mg" across its signature swash**;
+- **`230_Slimex` printed "15mg" inside the Neptune mark's orange frame.**
 
-That is precisely the defect `_clear_of_design` exists to prevent for fields,
-reappearing because a new kind of printed surface was added and the grid was not
-told about it.
+The obvious fix was built, measured, reverted — and **the measurement it was
+reverted on was misread**. It was recorded as "eight OCR rows lost against three
+gained", with `221_Inderal`'s legible white "40mg" walked off its band as the
+case to look at.
 
-**The obvious fix was built, measured, and reverted.** Adding marks to
-`_prepared_parts` cleared both cartons — and the OCR gate then read **eight rows
-lost against three gained**. `221_Inderal` is the case to look at rather than to
-count: its "40mg" was **white on the purple band and fully legible**, and with
-marks visible the clearing search moved it off the LCI roundel and onto the
-board, where it lands half on the band in dark ink and is half hidden.
+**Eight was the price of DRAWING the marks, not of moving the rows.** Both runs
+of that attempt are on record and differ by one line:
 
-Trading a row printed across a mark for a row nobody can read is not a fix, so
-it is reverted and the evidence is recorded in the driver at the point where it
-was removed rather than only in a commit message.
+| run | lost | gained |
+|---|---|---|
+| marks + grid fix | 8 | 3 |
+| marks, grid reverted | **9** | 3 |
 
-**The shape of a real fix is known and is not this contract's work.** The change
-has two halves and they were not separated: `_surface_fill` choosing INK from a
-mark is the useful half — "30 Pills" would then reverse to white on the hexagon
-— and `_clear_of_design` MOVING a row because of one is the harmful half. Each
-needs its own measurement.
+The grid fix RECOVERED `157-min`'s unit count and cost nothing. And
+`221_Inderal` never moved at all — measured on the scene dump, none of its rows
+so much as touches one of its marks, so the story told about it was not merely
+mis-attributed, it did not happen.
 
----
+### Retaken, off the scene rather than off pixels
+
+A seeing mover relocates **exactly three rows across 28 design cartons and a
+generic one**, all horizontally; cap height, size, condensation and ink are
+untouched, and the other 26 scenes are bit-identical.
+
+| carton | row | move | effect |
+|---|---|---|---|
+| `157-min` | unit count | 0.170 of the face left | **reads now**; was cut by the hexagon |
+| `230-min` | dosage | 0.070 right | out of the Neptune frame; OCR unchanged |
+| `152-min` | dosage | 0.085 right | off the swash; OCR unchanged |
+
+**+1 OCR row, none lost.** `TestNoGridRowIsPrintedInInkItsOwnBackgroundHides`
+goes from two straddling rows to **zero**, so `KNOWN_STRADDLING` stays empty.
+
+Two of the three gain nothing a reader can score and are still right, and that
+is where the guard's own limit shows: it compares the INK's lightness against
+the surface's, so `230-min`'s orange mark on a white board passes the test while
+its rule visibly cuts the digits of "15mg". The guard understates a coloured
+mark; looking is what caught it.
+
+### What it cost on the design figures: almost nothing, and one named loss
+
+Label rows sit outside `design_qa`'s scored area, so a row that moves is nearly
+invisible to it. Group `render~spec` and `field_iou_worst` are unchanged to six
+decimals; `render~ref` goes **0.939786 → 0.939750**. Exactly three cartons'
+rows differ at all — the same three.
+
+`157-min` is the one loss worth naming: `render~ref` 0.9967 → 0.9957 and its
+third field's IoU 0.79 → 0.73. Our render prints type where the spec draws none,
+so moving dark glyphs moves which region the classifier puts them in — the
+property already recorded here as *a dark pixel where the spec draws the
+substrate cannot be told from type*. Against it, the same carton's **mark colour
+gap improves 0.1237 → 0.0932**: with "30 Pills" off the hexagon, the mark's
+pixels are the mark's.
+
+### The two questions have different warrants, and only one needed measuring
+
+The ink's is a principle: a row stands on a surface, a mark is one, and inking
+against a surface you refuse to look at is simply wrong. The mover's is
+contingent on the cartons in front of it — nothing says a grid should walk a row
+across the face to dodge a logo.
+
+So they were split behind a `with_marks` parameter and measured apart. The mover
+wants marks too, so the parameter is gone and there is one list again: an unused
+value that decides where type goes is the objection this project already records
+against the joint two-axis search. If a carton enters the group whose mark moves
+a row somewhere worse, the seam is one flag away.
+
+### The guard's own double was stale, and separately
+
+`tests/test_blender_carton.py` restates the surface lookup independently, which
+is the point of it — and it had drifted twice. It read `design["fields"]` alone,
+and it took a FIELD's fill where contract 1.9 made a part's fill its own. Both
+are fixed. Measured apart, the contract-1.9 half changes **nothing** on today's
+data: 8 of the group's 75 parts still differ from their field's colour, and none
+of them lies under a label row. It is fixed because a double that would lie the
+moment one did is not a double.
 
 ## What it cost
 
@@ -258,6 +313,11 @@ removed rather than left recorded as broken.
 This is a real price and it belongs to the decision rather than to a bug: a
 carton that prints a manufacturer's mark is harder for a reader that was built
 to find four label rows on a clean board.
+
+**One of the nine came back.** Teaching the label grid about marks returns
+`157-min`'s unit count — see the CLOSED section above — so the shipped net
+against contract 1.9 is **eight lost against three gained**, and
+`KNOWN_OCR_MISSES` stands at 24 entries against 19 before the marks.
 
 ### And it broke the fixture format, which was worth finding
 

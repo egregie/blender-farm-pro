@@ -436,7 +436,32 @@ _PART_CACHE = {}
 
 
 def _prepared_parts(design):
-    """(u0, u1, v0, v1, outline, holes, fill) per drawable part, in drawing order."""
+    """(u0, u1, v0, v1, outline, holes, fill) per drawable surface, in paint order.
+
+    Fields first, then contract 1.10's MARKS, which is the paint order: a mark's
+    `z` continues past the last field's on all twelve cartons that carry one, so
+    "the last containing surface wins" reads the same sequence the driver draws.
+
+    TWO AUDIENCES, ONE LIST, AND THE SECOND ONE WAS MEASURED RATHER THAN
+    ASSUMED. This lookup serves an INK -- `_band_fill` and the measured row's
+    point test -- and a MOVE, `_one_ink_serves`, the predicate
+    `_clear_of_design` accepts a position by. They are not the same question and
+    they do not have to have the same answer:
+
+    - the ink's is a principle. A row stands on a surface and a mark IS one;
+      inking against a surface you refuse to look at is simply wrong.
+    - the mover's is contingent. Nothing says the grid should walk a row across
+      the face to dodge a logo, and whether it should is a fact about the
+      cartons in front of it.
+
+    So they were split behind a parameter and measured apart -- and the mover
+    wants marks too, so the parameter is gone and this is one list again. If a
+    carton ever enters the group whose mark makes the mover move a row somewhere
+    worse, the seam is a `with_marks` flag away; the reason it is not here now is
+    that nothing takes the other branch, and an unused value that decides where
+    type goes is the same objection this file already records against the joint
+    two-axis search.
+    """
     key = id(design)
     got = _PART_CACHE.get(key)
     if got is None:
@@ -466,33 +491,38 @@ def _prepared_parts(design):
                 # and under contract 1.9 that is not always the field's colour.
                 got.append((min(us), max(us), min(vs), max(vs),
                             outline, holes, part["fill"]))
-        # CONTRACT 1.10: MARKS ARE DELIBERATELY NOT HERE, and this is a
-        # known open defect rather than an oversight.
-        #
-        # Adding them was tried, because the grid prints across a mark it cannot
-        # see: `157_Valium` set "30 Pills" straight over the Roche hexagon and
-        # `152_Artvigil` "150mg" over its signature swash. Both cleared once
-        # marks joined this list.
-        #
-        # It was reverted because the cure was worse, and the OCR gate measured
-        # it: EIGHT rows stopped reading against three that started. `221_Inderal`
-        # is the case to look at -- its "40mg" was WHITE on the purple band and
-        # fully legible, and with marks visible the clearing search moved it off
-        # the LCI roundel and onto the board, where it lands half on the band in
-        # dark ink and is half hidden. Trading a row printed across a mark for a
-        # row nobody can read is not a fix.
-        #
-        # The two halves of the change are separable and were not separated here:
-        # `_surface_fill` choosing INK from a mark is the useful half, and
-        # `_clear_of_design` MOVING a row because of one is the harmful half. That
-        # is the shape of a future attempt, and it needs its own measurement
-        # rather than being folded into this contract.
+        # CONTRACT 1.10's marks. This went in once, came out whole on a misread
+        # measurement, and went back in: `_one_ink_serves` carries the figures,
+        # because that is the function the misreading was about.
+        for m_i, mark in enumerate((design or {}).get("marks") or []):
+            outline = mark.get("outline") or []
+            if len(outline) < 3:
+                continue
+            if "fill" not in mark:
+                # Same reason as a part with no `fill`: Blender exits 0
+                # after an ordinary uncaught exception, so a KeyError here
+                # would read as a successful render of a carton whose row
+                # was inked against a surface nobody stated.
+                raise SystemExit(
+                    f"[render_driver] design mark {m_i} "
+                    f"({mark.get('key')!r}) carries no `fill`. That is "
+                    f"contract 1.10 and it is required; regenerate the "
+                    f"manifest from Stage 1.")
+            us = [float(q[0]) for q in outline]
+            vs = [float(q[1]) for q in outline]
+            # A mark carries its own holes since the outline fix -- five of
+            # the twenty-two do -- and inside one is not inside the mark,
+            # the same rule contract 1.8 gives a part.
+            holes = [ring for ring in (mark.get("holes") or [])
+                     if len(ring) >= 3]
+            got.append((min(us), max(us), min(vs), max(vs),
+                        outline, holes, mark["fill"]))
         _PART_CACHE[key] = got
     return got
 
 
 def _surface_fill(design, u, v):
-    """The design part printed under (u, v), or None where the board shows.
+    """The design surface printed under (u, v), or None where the board shows.
 
     A measured row lands wherever the reference puts it, and on these cartons
     that is often ON the design rather than beside it: Kamagra sets its dosage
@@ -511,6 +541,9 @@ def _surface_fill(design, u, v):
     single outline here runs to 488 vertices. The boxes are computed once per
     design and kept in `_PART_CACHE`, in the order the parts are drawn, so the
     "last containing part wins" rule reads off the same sequence as before.
+
+    Contract 1.10's marks are in that sequence, last. `_prepared_parts` records
+    why, and why the two callers that wanted different answers turned out not to.
     """
     found = None
     for u0, u1, v0, v1, outline, holes, fill in _prepared_parts(design):
@@ -932,7 +965,13 @@ def build_label(box, label_content: dict, face_w, face_h, left_x, front_y, top_z
     measured = type_rows or {}
 
     def _ink_for(row):
-        """Ink that reads against whatever this row is printed on."""
+        """Ink that reads against whatever this row is printed on.
+
+        Marks count, because the reference puts a measured row where the real
+        carton puts it, and on `157_Valium` that is across the Roche hexagon.
+        A point test at the row's own centre, so it can change what a row is
+        printed IN and never where it is.
+        """
         fill = _surface_fill(design, 0.5 * (row["u0"] + row["u1"]),
                              0.5 * (row["v0"] + row["v1"]))
         return _reverse_ink(fill) if fill else ink
@@ -1225,6 +1264,33 @@ def _one_ink_serves(design, substrate, u0, u1, v0, v1, stride=1):
     own. `_clear_of_design` asks the strided pass first because most positions
     it tries are rejected, and a rejection needs one witness of each colour, not
     4800 points. An acceptance is always confirmed at stride 1.
+
+    MARKS COUNT HERE, AND A NOTE THAT USED TO STAND IN THIS PLACE SAID THE
+    OPPOSITE ON A MISREAD MEASUREMENT. This is the predicate `_clear_of_design`
+    accepts a position by, so what it sees MOVES ROWS -- which is why letting it
+    see a mark was reverted once and why the revert was wrong.
+
+    The revert was justified as "eight OCR rows lost against three gained, and
+    `221_Inderal`'s legible white 40mg walked off its band". That figure was the
+    cost of DRAWING the marks, not of moving the rows: the run with the mover
+    blind lost NINE against the same three, so the mover was worth exactly one
+    row and cost none. `221_Inderal` never moved at all -- measured on the scene
+    dump, none of its rows so much as touches one of its marks.
+
+    Retaken. Across all 28 design cartons plus a generic one, a seeing mover
+    relocates exactly THREE rows and no others:
+
+      `157-min` unit count  du +0.170 left, off the Roche hexagon -- the row
+                            Tesseract could not read, and now reads
+      `230-min` dosage      du +0.070, "15mg" out of the Neptune mark's frame
+      `152-min` dosage      du +0.085, "150mg" off the signature swash
+
+    +1 OCR row, none lost, and the readability guard's straddling set goes 2 to
+    ZERO. Two of the three gain nothing a reader can score and are still right:
+    looked at, "15mg" had the mark's orange rule through its digits. That one
+    also shows what the guard cannot see -- it compares ink and surface
+    LIGHTNESS, and an orange mark on a white board passes while its strokes cut
+    the glyphs.
     """
     dark = light = False
     for i in range(0, _INK_SAMPLES_U, stride):
@@ -1254,6 +1320,10 @@ def _band_minority(design, substrate, u0, u1, v0, v1):
     dark = 0
     for i in range(_INK_SAMPLES_U):
         for j in range(_INK_SAMPLES_V):
+            # Whatever `_one_ink_serves` sees, since this is that function
+            # answered as a quantity rather than yes/no. A diagnostic measuring
+            # a different surface set from the decision it reports on would be
+            # worse than no diagnostic.
             fill = _surface_fill(
                 design, u0 + (u1 - u0) * (i + 0.5) / _INK_SAMPLES_U,
                 v0 + (v1 - v0) * (j + 0.5) / _INK_SAMPLES_V) or substrate
@@ -1281,6 +1351,9 @@ def _band_fill(design, substrate, u0, u1, v0, v1):
     tally = {}
     for i in range(_INK_SAMPLES_U):
         for j in range(_INK_SAMPLES_V):
+            # Marks count. This runs after `_clear_of_design` has returned, so
+            # the row is already placed; and the majority rule means a mark the
+            # row merely clips does not flip an ink that serves the rest of it.
             fill = _surface_fill(
                 design, u0 + (u1 - u0) * (i + 0.5) / _INK_SAMPLES_U,
                 v0 + (v1 - v0) * (j + 0.5) / _INK_SAMPLES_V) or substrate
@@ -1919,12 +1992,17 @@ def build_design_fields(box, design: dict, face_w, face_h, left_x, front_y,
                     "x0": left_x + min(us) * face_w, "x1": left_x + max(us) * face_w,
                     "z0": top_z - max(vs) * face_h, "z1": top_z - min(vs) * face_h,
                 })
-    # CONTRACT 1.10: the marks the owner approved by name, drawn as SILHOUETTES
-    # in front of every field. Each carries the print_truth key that permitted
-    # it, so a drawn mark can be put back against the row of MARKS_DECISION.md
-    # that allowed it. `holes` is empty on every one of them by construction:
-    # each approved region was measured solid, so a filled ring is the whole of
-    # what can appear -- and the owner decided on exactly that.
+    # CONTRACT 1.10: the marks the owner approved by name, drawn in front of
+    # every field. Each carries the print_truth key that permitted it, so a
+    # drawn mark can be put back against the row of MARKS_DECISION.md that
+    # allowed it.
+    #
+    # A mark carries its OWN holes and five of the twenty-two have them. The
+    # sentence that used to stand here -- "`holes` is empty on every one of
+    # them by construction, each approved region was measured solid" -- was
+    # true of the eight HOLE marks and false of the components, and painting
+    # them solid covered up to 9.5x the ink they describe. `157_Valium`'s Roche
+    # hexagon is an OUTLINE; filled, it invents a logo the pack does not print.
     for m_i, mark in enumerate(marks):
         for required in ("fill", "outline", "z", "key"):
             if required not in mark:

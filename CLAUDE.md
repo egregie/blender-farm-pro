@@ -177,16 +177,41 @@ disk are rejected until Stage 1 regenerates them.
   is the mark's own interior and leaving it filled is the invention. After: all 22 fill
   0.9–1.4× their ink, and `157-min`'s mark colour gap falls 0.585 → **0.093**.
 
-  **The label grid does not know marks exist and prints across them — OPEN.**
-  `157_Valium` sets "30 Pills" straight over the Roche hexagon and `152_Artvigil` "150mg"
-  over its signature swash, because `_prepared_parts` reads `design["fields"]` alone.
-  Adding marks to it clears both, and was **reverted**: the OCR gate then read **eight
-  rows lost against three gained**, and `221_Inderal`'s "40mg" went from white on its
-  purple band, fully legible, to dark on the band's edge and half hidden — the clearing
-  search moved it off the LCI roundel into a worse place. Trading a row printed across a
-  mark for a row nobody can read is not a fix. The change has two halves and separating
-  them is the real work: `_surface_fill` choosing INK from a mark is useful,
-  `_clear_of_design` MOVING a row because of one is not.
+  **The label grid printed across a mark, and the fix was reverted on a misread
+  measurement.** `_prepared_parts` read `design["fields"]` alone, so `157_Valium` set
+  "30 Pills" straight over the Roche hexagon and `152_Artvigil` "150mg" over its
+  signature swash. Adding marks cleared both and was reverted, on the grounds that
+  **"eight OCR rows lost against three gained"** and that `221_Inderal`'s legible white
+  "40mg" had been walked off its band.
+
+  **That figure was the cost of DRAWING the marks, not of moving the rows**, and the two
+  runs of that attempt are still on record to prove it: with the mover blind the gate lost
+  **nine** against the same three, so the grid fix was worth exactly **one row and cost
+  none**. `221_Inderal` never moved — none of its rows so much as touches one of its marks.
+  Filing the marks' price against the mover is the same error as reading a codec
+  disagreement as a carton defect, and it cost this feature a contract phase.
+
+  Retaken over all 28 design cartons plus a generic one, off `--dump-scene` rather than
+  off pixels: a seeing mover relocates **exactly three rows and no others**, all
+  horizontally, with cap height, size, condensation and ink untouched — `157-min`'s unit
+  count 0.170 of the face left off the hexagon, `230-min`'s dosage 0.070 out of the
+  Neptune mark's frame, `152-min`'s dosage 0.085 off the swash. **+1 OCR row, none lost**,
+  and `TestNoGridRowIsPrintedInInkItsOwnBackgroundHides` goes from two straddling rows to
+  **zero**. The other 26 scenes are bit-identical.
+
+  Two of the three gain nothing a reader can score and are still right, which is where
+  the guard's own limit shows: it compares the ink's lightness against the surface's, so
+  `230-min`'s ORANGE mark on a white board passes while its rule visibly cuts through the
+  digits of "15mg". The guard understates; the contact sheet decides.
+
+  **The ink and the move are separate questions with separate warrants**, and that is
+  worth keeping even though they got the same answer. The ink's is a principle — a row
+  stands on a surface and a mark is one. The mover's is contingent on the cartons in
+  front of it, so it was split behind a parameter, measured apart, and the parameter
+  removed once nothing took the other branch: an unused value that decides where type
+  goes is the objection this file already records against the joint two-axis search.
+  If a carton ever enters the group whose mark moves a row somewhere worse, the seam is
+  one flag away.
 
   **What a mark draws is measured, not remembered.** `MARKS_EVIDENCE.md`'s `islands = 0`
   was read as "the wordmark is not carried", and that is false twice: a glyph TOUCHING the

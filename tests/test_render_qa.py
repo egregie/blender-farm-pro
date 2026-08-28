@@ -633,7 +633,11 @@ class TestOCRBarrierOverTheTemplateSample(unittest.TestCase):
         # lossless now and the two agree again; see `scripts/make_ocr_fixtures`.
         ("157-min", "active_ingredient_display"),
         ("157-min", "dosage_display"),
-        ("157-min", "unit_count_display"),
+        # `157-min` unit count came OFF this list by being earned. "30 Pills"
+        # was printed straight through the Roche hexagon -- the strokes cut the
+        # "0", the "P" and the "s" -- and the row now sets clear of it, because
+        # `_clear_of_design` can see a mark. That was reverted once on a misread
+        # figure; the driver's `_one_ink_serves` carries the correction.
         ("221-min", "dosage_display"),
         ("221-min", "unit_count_display"),
         ("230-min", "dosage_display"),

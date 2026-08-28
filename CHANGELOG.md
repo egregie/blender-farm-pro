@@ -3,6 +3,57 @@
 All notable changes to **PharmaGen PRO** are documented here.
 Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — The grid learns about marks, and a revert is undone — 28 August 2026
+
+`_prepared_parts` now carries `design.marks[]`, so both the INK a row is set in
+and the search that places it can see one. Closes the defect contract 1.10 left
+open, and corrects the measurement that closed it the wrong way.
+
+### Corrected
+- **"Eight OCR rows lost against three gained" was the price of DRAWING the
+  marks, not of moving the rows.** Both runs of the reverted attempt are on
+  record: with the mover blind the gate lost **nine** against the same three. The
+  grid fix recovered `157-min`'s unit count and cost nothing — worth one row, not
+  minus five.
+- **`221_Inderal` never moved.** It was named as the case to look at; measured on
+  the scene dump, none of its rows so much as touches one of its marks.
+
+### Measured
+- A seeing mover relocates **exactly three rows** across 28 design cartons plus a
+  generic one, all horizontally, with cap height, size, condensation and ink
+  untouched. The other 26 scenes are bit-identical.
+  `157-min` unit count 0.170 of the face left off the Roche hexagon (**reads
+  now**), `230-min` dosage 0.070 out of the Neptune frame, `152-min` dosage 0.085
+  off the swash.
+- OCR **+1 row, none lost**. `TestNoGridRowIsPrintedInInkItsOwnBackgroundHides`
+  goes 2 straddling rows -> **0**, so `KNOWN_STRADDLING` stays empty.
+- The guard understates a COLOURED mark: it compares ink lightness against
+  surface lightness, so `230-min`'s orange rule passes while visibly cutting the
+  digits of "15mg". Caught by looking, not by the figure.
+- Calibration re-measured (the driver changed, so its fingerprint had to):
+  **rows numerically identical**, as at contract 1.9 — the chart carries no marks.
+- `design_qa` barely moves and only on the three: group `render~spec` and
+  `field_iou_worst` unchanged to six decimals, `render~ref` **0.939786 ->
+  0.939750**. Label rows sit outside the scored area, so a row that moves is
+  almost invisible to it.
+- **One figure fell and it is named.** `157-min`'s `render~ref` 0.9967 -> 0.9957,
+  its third field's IoU 0.79 -> 0.73 — our render prints type where the spec
+  draws none, so moving dark glyphs moves which region they are classified into,
+  the property this project already records as *a dark pixel where the spec
+  draws the substrate cannot be told from type*. Against it, the same carton's
+  **mark colour gap improves 0.1237 -> 0.0932**: with "30 Pills" off the hexagon,
+  the mark's pixels are the mark's.
+
+### Changed
+- The two audiences were split behind a `with_marks` parameter, measured apart,
+  and the parameter REMOVED once nothing took the other branch — the objection
+  this project already records against the joint two-axis search. The reasoning
+  stays in `_prepared_parts` and `_one_ink_serves`; the seam is one flag away.
+- `tests/test_blender_carton.py`'s independent surface lookup drifted twice and
+  is fixed: it read fields alone, and it took a FIELD's fill where contract 1.9
+  made a part's its own. The 1.9 half is measured to change **nothing** today —
+  none of the 8 parts that differ from their field lies under a label row.
+
 ## [Unreleased] — Contract 1.10: the marks a person approved — 27 August 2026
 
 `design.marks[]` is required and usually empty. 22 marks across 12 of the 28
@@ -67,6 +118,9 @@ Write-up in [`00_PROJECT_STATE/MARKS_DRAWN.md`](00_PROJECT_STATE/MARKS_DRAWN.md)
   `221_Inderal`'s "40mg" went from white on its band to dark on the band's edge.
   Separating `_surface_fill` (ink, useful) from `_clear_of_design` (movement,
   harmful) is the real work.
+
+  **Closed below, and this reading of it was wrong** — kept because the entry it
+  is written against shipped with it.
 
 ### Measured
 - `render~ref` 0.9382 -> **0.9398**, 8 up and 0 down; `render~spec` 0.9943 ->

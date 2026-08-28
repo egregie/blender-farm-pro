@@ -1827,6 +1827,20 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
             "label_ingredient": "active_ingredient_display",
             "label_dosage": "dosage_display",
             "label_unit_count": "unit_count_display"}
+    # STILL empty after contract 1.10's marks were admitted to this guard, and
+    # that took a change to the driver rather than an entry here. Admitting them
+    # found two rows straddling -- `152-min`'s dosage across its signature swash
+    # and `157-min`'s unit count across the Roche hexagon, 3.7% of each cap band
+    # -- and both cleared once `_clear_of_design` could see a mark too. The
+    # measurement that had said it must not was misread; see
+    # `_one_ink_serves` in the driver, which is the function it was made about.
+    #
+    # Note what this guard cannot see, measured on the third row that moved:
+    # it compares the INK's lightness against the SURFACE's, so `230-min`'s
+    # orange Neptune rule on a white board never registered, while the render
+    # plainly shows it cutting the digits of "15mg". A coloured mark is
+    # understated here; the contact sheet is what caught that one.
+    #
     # Empty, and it took a measurement to empty it. The entries here said
     # placement could not clear these two rows; scanning the face says
     # otherwise. Shifting the row LEFT along its own baseline reaches a
@@ -1860,10 +1874,26 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
         return r
 
     @classmethod
-    def _fill_at(cls, fields, u, v):
-        """Contract 1.8: a point inside a hole is on whatever shows through it."""
+    def _fill_at(cls, design, u, v):
+        """The surface printed under (u, v), restated independently of the driver.
+
+        Judges READABILITY, so it must see every surface the driver prints --
+        fields and then MARKS, in paint order. Reading fields alone passed a row
+        inked against a surface it never looked at, and did: with marks admitted
+        this guard found `152-min`'s dosage and `157-min`'s unit count printing
+        3.7% of themselves in an ink their own background hides.
+
+        Two contracts this has to obey, and it obeyed neither:
+
+        - **1.9: the PART's fill, not the field's.** A field's colour is the
+          median of the whole cluster; a part is one region of it, and on 8 of
+          the group's 75 printed parts the two still differ. Taking the field's
+          measured this guard against a colour the driver does not paint.
+        - **1.8: a point inside a hole is on whatever shows through it** -- and
+          a mark has holes too, five of the twenty-two.
+        """
         found = None
-        for f in fields:
+        for f in (design or {}).get("fields") or []:
             for p in f.get("parts") or []:
                 o = p.get("outline") or []
                 if len(o) < 3 or not cls._inside(u, v, o):
@@ -1871,7 +1901,15 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
                 if any(len(r) >= 3 and cls._inside(u, v, r)
                        for r in (p.get("holes") or [])):
                     continue
-                found = f.get("fill")
+                found = p.get("fill", f.get("fill"))
+        for m in (design or {}).get("marks") or []:
+            o = m.get("outline") or []
+            if len(o) < 3 or not cls._inside(u, v, o):
+                continue
+            if any(len(r) >= 3 and cls._inside(u, v, r)
+                   for r in (m.get("holes") or [])):
+                continue
+            found = m.get("fill")
         return found
 
     @staticmethod
@@ -1913,7 +1951,7 @@ class TestNoGridRowIsPrintedInInkItsOwnBackgroundHides(unittest.TestCase):
                 for i in range(30):
                     for j in range(10):
                         fill = self._fill_at(
-                            fields, u0 + (u1 - u0) * (i + 0.5) / 30,
+                            design, u0 + (u1 - u0) * (i + 0.5) / 30,
                             v0 + (v1 - v0) * (j + 0.5) / 10) or substrate
                         if (self._luma(fill) < 0.5) == (not ink_is_white):
                             hidden += 1
